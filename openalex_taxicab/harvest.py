@@ -1,4 +1,5 @@
 import abc
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
@@ -18,7 +19,7 @@ from openalex_taxicab.s3_util import landing_page_key
 @dataclass
 class ResponseMeta:
     code: int
-    elapsed: int
+    elapsed: float
     resolved_url: str
 
 
@@ -32,13 +33,28 @@ class BaseHarvestResult:
 @dataclass
 class LandingPageHarvestResult(BaseHarvestResult):
     pdf_url: Optional[str] = None
-    is_pdf: bool = False
     pdf_version: Optional[str] = None
-    is_soft_block: bool = False
 
     @property
     def pdf_found(self) -> bool:
         return self.pdf_url is not None
+
+    @property
+    def is_pdf(self) -> bool:
+        return self.content.startswith(b'%PDF-')
+
+    @property
+    def is_soft_block(self) -> bool:
+        patterns = [
+            b'ShieldSquare Captcha',
+            b'429 - Too many requests',
+            b'We apologize for the inconvenience',
+            b'<title>APA PsycNet</title>',
+            b'Your request cannot be processed at this time',
+            b'/cookieAbsent'
+        ]
+        return any(pattern in self.content for pattern in patterns)
+
 
 
 class Harvester(abc.ABC):
@@ -81,7 +97,9 @@ class PDFHarvester(Harvester):
 
     def fetched_result(self, url, doi, version) -> BaseHarvestResult:
         v = PDFVersion.from_version_str(version)
+        start = time.time()
         response = http_get(url)
+        end = time.time()
 
         return BaseHarvestResult(
             s3_path=v.s3_url(doi),
@@ -89,7 +107,7 @@ class PDFHarvester(Harvester):
             content=response.content,
             response_meta=ResponseMeta(
                 code=response.status_code,
-                elapsed=response.elapsed.total_seconds(),
+                elapsed=round(end - start, 2),
                 resolved_url=response.url
             )
         )
@@ -119,8 +137,6 @@ class PublisherLandingPageHarvester(Harvester):
                 last_harvested=datetime.now(),
                 content=content,
             )
-            result.is_pdf = None  # TODO: implement
-            result.is_soft_block = None  # TODO implement
             fulltext_locations = parse_publisher_fulltext_locations(soup,
                                                                     publisher,
                                                                     obj['Metadata'].get('resolved_url') or resolved_url)
@@ -136,7 +152,9 @@ class PublisherLandingPageHarvester(Harvester):
 
     def fetched_result(self, doi, publisher) -> LandingPageHarvestResult:
         url = f'https://doi.org/{doi}'
+        start = time.time()
         response = http_get(url)
+        end = time.time()
         soup = BeautifulSoup(response.content, features='lxml', parser='lxml')
         result = LandingPageHarvestResult(
             s3_path=f's3://{self.BUCKET}/{landing_page_key(doi)}',
@@ -144,12 +162,10 @@ class PublisherLandingPageHarvester(Harvester):
             content=response.content,
             response_meta=ResponseMeta(
                 code=response.status_code,
-                elapsed=response.elapsed.total_seconds(),
+                elapsed=round(end - start, 2),
                 resolved_url=response.url
             ),
         )
-        result.is_pdf = None  # TODO: implement
-        result.is_soft_block = None  # TODO implement
         fulltext_locations = parse_publisher_fulltext_locations(soup, publisher, response.url)
         if fulltext_locations:
             # only 1 location returned from parse_publisher_fulltext_locations (multiple returned from parse_repo_fulltext_locations)
