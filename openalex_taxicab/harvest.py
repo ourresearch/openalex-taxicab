@@ -2,46 +2,52 @@ import abc
 import time
 from dataclasses import dataclass
 from datetime import datetime
+from functools import cached_property
 from typing import Optional
 
-from bs4 import BeautifulSoup
 from mypy_boto3_s3.client import S3Client
-from parseland_lib.legacy_parse_utils.fulltext import parse_publisher_fulltext_locations, parse_repo_fulltext_locations
-
 from openalex_http import http_get
 
-from openalex_taxicab.const import PUBLISHER_LANDING_PAGE_BUCKET
-from openalex_taxicab.pdf_version import PDFVersion
-from openalex_taxicab.s3_cache import PDFCache, S3Cache, PublisherLandingPageCache
-from openalex_taxicab.s3_util import landing_page_key
+from openalex_taxicab.s3_cache import S3Cache
+from openalex_taxicab.util import guess_mime_type
 
 
 @dataclass
-class ResponseMeta:
-    code: int
-    elapsed: float
-    resolved_url: str
-
+class Version:
+    parsed_url: str
+    parsed_version: str
 
 @dataclass
-class BaseHarvestResult:
+class HarvestResult:
     s3_path: str
     last_harvested: datetime
     content: bytes
-    response_meta: Optional[ResponseMeta] = None  # On cache/S3 hit, this will be None
+    url: str
+    code: int = None
+    elapsed: float = None
+    resolved_url: str = ''
 
-@dataclass
-class LandingPageHarvestResult(BaseHarvestResult):
-    pdf_url: Optional[str] = None
-    pdf_version: Optional[str] = None
+    @cached_property
+    def content_type(self):
+        return guess_mime_type(self.content)
 
-    @property
-    def pdf_found(self) -> bool:
-        return self.pdf_url is not None
-
-    @property
-    def is_pdf(self) -> bool:
-        return self.content.startswith(b'%PDF-')
+    # @cached_property
+    # def linked_versions(self, resolved_url: str = ''):
+    #     if not self.content_type == 'html':
+    #         return []
+    #
+    #     soup = BeautifulSoup(self.content, features='lxml', parser='lxml')
+    #     cleaned_soup = cleanup_soup(copy.deepcopy(soup))
+    #     published_fulltext_locations = parse_publisher_fulltext_locations(soup, cleaned_soup, self.resolved_url or resolved_url)
+    #     repo_fulltext_locations = parse_repo_fulltext_locations(soup, cleaned_soup, self.resolved_url or resolved_url)
+    #     for location in published_fulltext_locations + repo_fulltext_locations:
+    #         # TODO: maybe need to create and store and pass session_id here to maintain cookies, headers, etc
+    #         r = http_get(location['url'], stream=True, ask_slowly=True)
+    #         # We don't necessarily know what type to expect, but we're looking for document types, so if it's not html, it's probably valid
+    #         if not guess_mime_type(r.content) == 'html':
+    #             return [Version(parsed_url=location['url'],
+    #                     parsed_version=location['version'])]
+    #     return []
 
     @property
     def is_soft_block(self) -> bool:
@@ -57,127 +63,62 @@ class LandingPageHarvestResult(BaseHarvestResult):
 
 
 
-class Harvester(abc.ABC):
+class AbstractHarvester(abc.ABC):
     def __init__(self, s3: S3Client):
         self._s3 = s3
-        self.cache: S3Cache
+        self.cache: 'S3Cache'
 
     @abc.abstractmethod
-    def cached_result(self, *args) -> Optional[BaseHarvestResult]:
+    def cached_result(self, *args, **kwargs) -> Optional[HarvestResult]:
         pass
 
     @abc.abstractmethod
-    def fetched_result(self, *args) -> BaseHarvestResult: # url for PDF, repo landing page | doi, publisher for publisher landing page
+    def fetched_result(self, *args, **kwargs) -> HarvestResult: # url for PDF, repo landing page | doi, publisher for publisher landing page
         pass
 
-    def harvest(self, *args) -> BaseHarvestResult:
-        if cached_result := self.cached_result(*args):
+    def harvest(self, *args, **kwargs) -> HarvestResult:
+        if (not args or all(not arg for arg in args)) and not kwargs['url']:
+            raise ValueError('harvest args or url kwarg must be specified')
+        if cached_result := self.cached_result(*args, **kwargs):
             return cached_result
-        result = self.fetched_result(*args)
-        self.cache.put_object(result.content, *args)
+        result = self.fetched_result(*args, **kwargs)
+        new_s3_path = self.cache.put_result(result, *args)
+        result.s3_path = new_s3_path
         return result
 
 
-class PDFHarvester(Harvester):
+class Harvester(AbstractHarvester):
+
     def __init__(self, s3: S3Client):
         super().__init__(s3)
-        self.cache = PDFCache(s3)
+        self.cache = S3Cache(s3)
 
-    def cached_result(self, url: str, doi: str, version: str) -> Optional[
-        BaseHarvestResult]:
-        if obj := self.cache.try_get_object(doi, version):
-            contents = self.cache.read_object(obj)
-            v = PDFVersion.from_version_str(version)
-            return BaseHarvestResult(
-                s3_path=v.s3_url(doi),
+    def fetched_result(self, url) -> HarvestResult:
+        start = time.time()
+        r = http_get(url, ask_slowly=True)
+        end = time.time()
+
+        return HarvestResult(
+            s3_path=f's3://{self.cache.BUCKET}/{self.cache.get_key(url)}',
+            last_harvested=datetime.now(),
+            url=url,
+            content=r.content,
+            code=r.status_code,
+            elapsed=round(end - start, 2),
+            resolved_url=r.url
+        )
+
+    def cached_result(self, url) -> Optional[HarvestResult]:
+        s3_path, obj = self.cache.try_get_object(url)
+        if obj:
+            return HarvestResult(
+                s3_path=s3_path,
                 last_harvested=obj['LastModified'],
-                content=contents
+                content=self.cache.read_object(obj),
+                url=url,
+                resolved_url=obj.get('Metadata', {}).get('resolved_url', '')
             )
         return None
 
-    def fetched_result(self, url, doi, version) -> BaseHarvestResult:
-        v = PDFVersion.from_version_str(version)
-        start = time.time()
-        response = http_get(url)
-        end = time.time()
-
-        return BaseHarvestResult(
-            s3_path=v.s3_url(doi),
-            last_harvested=datetime.now(),
-            content=response.content,
-            response_meta=ResponseMeta(
-                code=response.status_code,
-                elapsed=round(end - start, 2),
-                resolved_url=response.url
-            )
-        )
-
-    def harvest(self, url: str, doi: str, version: str) -> BaseHarvestResult:
-        return super().harvest(url, doi, version)
-
-
-class PublisherLandingPageHarvester(Harvester):
-
-    BUCKET = PUBLISHER_LANDING_PAGE_BUCKET
-
-
-    def __init__(self, s3: S3Client):
-        super().__init__(s3)
-        self.cache = PublisherLandingPageCache(s3)
-
-
-    def cached_result(self, doi, publisher, resolved_url='') -> Optional[LandingPageHarvestResult]:
-        if obj := self.cache.try_get_object(doi):
-            content = self.cache.read_object(obj)
-            soup = BeautifulSoup(content, features='lxml',
-                                 parser='lxml')
-
-            result = LandingPageHarvestResult(
-                s3_path=f's3://{self.BUCKET}/{landing_page_key(doi)}',
-                last_harvested=datetime.now(),
-                content=content,
-            )
-            fulltext_locations = parse_publisher_fulltext_locations(soup,
-                                                                    publisher,
-                                                                    obj['Metadata'].get('resolved_url') or resolved_url)
-            if fulltext_locations:
-                # only 1 location returned from parse_publisher_fulltext_locations (multiple returned from parse_repo_fulltext_locations)
-                location = fulltext_locations[0]
-                result.pdf_url = location['url']
-                result.pdf_version = location['version']
-
-            return result
-        return None
-
-
-    def fetched_result(self, doi, publisher) -> LandingPageHarvestResult:
-        url = f'https://doi.org/{doi}'
-        start = time.time()
-        response = http_get(url)
-        end = time.time()
-        soup = BeautifulSoup(response.content, features='lxml', parser='lxml')
-        result = LandingPageHarvestResult(
-            s3_path=f's3://{self.BUCKET}/{landing_page_key(doi)}',
-            last_harvested=datetime.now(),
-            content=response.content,
-            response_meta=ResponseMeta(
-                code=response.status_code,
-                elapsed=round(end - start, 2),
-                resolved_url=response.url
-            ),
-        )
-        fulltext_locations = parse_publisher_fulltext_locations(soup, publisher, response.url)
-        if fulltext_locations:
-            # only 1 location returned from parse_publisher_fulltext_locations (multiple returned from parse_repo_fulltext_locations)
-            location = fulltext_locations[0]
-            result.pdf_url = location['url']
-            result.pdf_version = location['version']
-
-        return result
-
-    def harvest(self, doi, publisher) -> LandingPageHarvestResult:
-        if cached_result := self.cached_result(doi, publisher):
-            return cached_result
-        result = self.fetched_result(doi, publisher)
-        self.cache.put_object(result.content, doi, result.response_meta.resolved_url)
-        return result
+    def harvest(self, url) -> HarvestResult:
+        return super().harvest(url)

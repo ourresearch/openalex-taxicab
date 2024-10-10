@@ -1,17 +1,14 @@
 import gzip
 from abc import abstractmethod
+from urllib.parse import quote
 
 from mypy_boto3_s3.client import S3Client
 import abc
 
-from mypy_boto3_s3.service_resource import Bucket
-
-from openalex_taxicab.const import PDF_BUCKET, PUBLISHER_LANDING_PAGE_BUCKET
-from openalex_taxicab.pdf_version import PDFVersion
-from openalex_taxicab.s3_util import get_object, landing_page_key
+from openalex_taxicab.s3_util import get_object
 
 
-class S3Cache(abc.ABC):
+class AbstractS3Cache(abc.ABC):
 
     BUCKET = None
 
@@ -23,62 +20,42 @@ class S3Cache(abc.ABC):
         pass
 
     @abstractmethod
-    def try_get_object(self, *args):
+    def try_get_object(self, *args) -> (str, dict):
         pass
 
-    @abstractmethod
-    def read_object(self, obj):
-        pass
-
-    @abstractmethod
-    def put_object(self, *args):
-        pass
-
-
-
-class PDFCache(S3Cache):
-
-    BUCKET = PDF_BUCKET
-
-    def get_key(self, doi, version):
-        v = PDFVersion.from_version_str(version)
-        return v.s3_key(doi)
-
-    def try_get_object(self, doi, version):
-        key = self.get_key(doi, version)
-        return get_object(self.BUCKET, key, self.s3, _raise=False)
-
-    def read_object(self, obj):
-        return obj['Body'].read()
-
-    def put_object(self, doi, version, content):
-        self.s3.put_object(Bucket=self.BUCKET, Key=self.get_key(doi, version), Body=content)
-
-
-
-class PublisherLandingPageCache(S3Cache):
-
-    BUCKET = PUBLISHER_LANDING_PAGE_BUCKET
-
-    def get_key(self, doi):
-        return landing_page_key(doi)
-
-    def try_get_object(self, doi):
-        key = self.get_key(doi)
-        return get_object(self.BUCKET, key, self.s3, _raise=False)
-
-    def read_object(self, obj):
+    @staticmethod
+    def read_object(obj):
         body = obj['Body'].read()
         if body[:3] == b'\x1f\x8b\x08':
             body = gzip.decompress(body)
         return body
 
-
-    def put_object(self, content, doi, resolved_url):
-        self.s3.put_object(Bucket=self.BUCKET, Key=self.get_key(doi), Body=content, Metadata={
-            'resolved_url': resolved_url,
-        })
+    @abstractmethod
+    def put_result(self, result: 'HarvestResult', *args) -> str:
+        pass
 
 
 
+class S3Cache(AbstractS3Cache):
+
+    BUCKET = 'openalex-harvested-content'
+
+    def get_key(self, url: str):
+        return quote(url.lower()).replace('/', '_')
+
+    def try_get_object(self, url):
+        key = self.get_key(url)
+        if obj := get_object(self.BUCKET, key, self.s3):
+            return f's3://{self.BUCKET}/{key}', obj
+        return None, None
+
+    def put_result(self, result: 'HarvestResult', *args) -> str:
+        content = result.content
+        if result.content_type == 'html':
+            content = gzip.compress(result.content)
+        self.s3.put_object(Bucket=self.BUCKET,
+                          Key=self.get_key(result.url),
+                          Body=content,
+                          Metadata={'resolved_url': result.resolved_url})
+        return f's3://{self.BUCKET}/{self.get_key(result.url)}'
 

@@ -1,12 +1,7 @@
 import logging
-from gzip import decompress
-from urllib.parse import quote
 
 import boto3
 import botocore
-
-from .const import PUBLISHER_LANDING_PAGE_BUCKET
-from .util import normalize_doi
 
 _s3 = boto3.client('s3')
 
@@ -51,13 +46,3 @@ def upload_obj(bucket, key, body, s3=None):
         s3 = _s3
     s3.upload_fileobj(body, bucket, key)
 
-
-def landing_page_key(doi: str):
-    doi = normalize_doi(doi)
-    return quote(doi.lower(), safe='')
-
-
-def get_landing_page(doi):
-    obj = get_object(PUBLISHER_LANDING_PAGE_BUCKET, landing_page_key(doi))
-    contents = obj['Body'].read()
-    return decompress(contents)

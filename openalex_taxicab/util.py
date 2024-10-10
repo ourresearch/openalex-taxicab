@@ -1,5 +1,7 @@
 import re
 
+import magic
+
 
 class NoDoiException(Exception):
     pass
@@ -38,3 +40,18 @@ def normalize_doi(doi, return_none_if_error=False):
     doi = to_unicode_or_bust(doi)
 
     return doi.replace('\0', '')
+
+
+def guess_mime_type(content):
+    mime = magic.Magic(mime=True)
+    mime_type = mime.from_buffer(content)
+    if 'html' in mime_type or 'javascript' in mime_type:
+        return 'html'
+    elif 'pdf' in mime_type:
+        return 'pdf'
+    elif 'vnd.openxmlformats-officedocument.wordprocessingml.document' in mime_type:
+        return 'docx'
+    elif 'msword' in mime_type:
+        return 'doc'
+    else:
+        return 'other'
