@@ -20,7 +20,7 @@ class PDFHarvester(AbstractHarvester):
     @staticmethod
     def try_get_url(doi: str, version: str) -> Optional[str]:
         query = """
-        SELECT url
+        SELECT pdf_url
         FROM doi_pdf_urls
         WHERE doi = ? AND version = ?
         LIMIT 1
