@@ -20,7 +20,7 @@ class AbstractS3Cache(abc.ABC):
         pass
 
     @abstractmethod
-    def try_get_object(self, *args) -> (str, dict):
+    def try_get_object(self, *args, **kwargs) -> (str, dict):
         pass
 
     @staticmethod

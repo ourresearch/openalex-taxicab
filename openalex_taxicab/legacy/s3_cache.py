@@ -1,11 +1,15 @@
 import gzip
 import io
+import os
+import sqlite3
+import tempfile
 from abc import ABC
+from sqlite3 import Connection
 from urllib.parse import quote
 
 import pandas as pd
+from tqdm.auto import tqdm
 from mypy_boto3_s3 import S3Client
-from pandas.core.interchange.dataframe_protocol import DataFrame
 
 from openalex_taxicab.const import LEGACY_PUBLISHER_PDF_BUCKET, \
     LEGACY_PUBLISHER_LANDING_PAGE_BUCKET, \
@@ -17,26 +21,32 @@ from openalex_taxicab.s3_cache import AbstractS3Cache, S3Cache
 from openalex_taxicab.s3_util import get_object
 from openalex_taxicab.util import normalize_doi
 
-S3_REPO_KEY_LOOKUP_DF: DataFrame = None
-S3_PDF_URL_LOOKUP_DF: DataFrame = None
+LOOKUP_DB_CONN: Connection = None
+
 
 
 def initialize(s3: S3Client):
+    bucket = 'openalex-elt'
+    key = 's3_keys_lookup.db'
+    object_size = s3.head_object(Bucket=bucket, Key=key)[
+        'ContentLength']
+
+    progress_bar = tqdm(total=object_size, unit='B', unit_scale=True,
+                        desc="Downloading SQLite DB")
+
+    def progress_callback(bytes_transferred):
+        # You can use tqdm to show the progress of the download (optional)
+        progress_bar.update(bytes_transferred - progress_bar.n)
+
     LOGGER.info('Initializing s3 key lookup tables...')
-    global S3_REPO_KEY_LOOKUP_DF
-    global S3_PDF_URL_LOOKUP_DF
+    global LOOKUP_DB_CONN
 
-    if S3_PDF_URL_LOOKUP_DF and S3_REPO_KEY_LOOKUP_DF:
-        return
+    temp_fd, temp_path = tempfile.mkstemp(suffix='.db')
 
-    response = s3.get_object(Bucket='openalex-elt', Key='page_s3_keys.parquet')
-    data = io.BytesIO(response['Body'].read())
-    S3_REPO_KEY_LOOKUP_DF = pd.read_parquet(data, engine='pyarrow')
-
-    response = s3.get_object(Bucket='openalex-elt', Key='doi_pdf_urls.parquet')
-    data = io.BytesIO(response['Body'].read())
-    S3_PDF_URL_LOOKUP_DF = pd.read_parquet(data, engine='pyarrow')
-
+    with os.fdopen(temp_fd, 'wb') as temp_file:
+        s3.download_fileobj(bucket, key, temp_file, Callback=progress_callback)
+        temp_file.flush()
+    LOOKUP_DB_CONN = sqlite3.connect(temp_path)
     LOGGER.info('Finished initializing s3 key lookup tables')
 
 def landing_page_key(doi: str):
@@ -47,7 +57,7 @@ class LegacyS3Cache(AbstractS3Cache, ABC):
 
     def __init__(self, s3: S3Client):
         super().__init__(s3)
-        if S3_REPO_KEY_LOOKUP_DF is None:
+        if LOOKUP_DB_CONN is None:
             initialize(s3)
         self.default_cache = S3Cache(s3)
 
@@ -60,10 +70,8 @@ class PDFCache(LegacyS3Cache):
         v = PDFVersion.from_version_str(version)
         return v.s3_key(doi)
 
-    def try_get_object(self, doi, version):
-        key = S3_PDF_URL_LOOKUP_DF[(S3_PDF_URL_LOOKUP_DF.doi == doi.lower()) & (S3_PDF_URL_LOOKUP_DF.version == version)]
-        if not key.empty:
-            url = key.iloc[0].url
+    def try_get_object(self, doi, version, url=None):
+        if url:
             s3_path, obj = self.default_cache.try_get_object(url)
             if obj:
                 return s3_path, obj
@@ -101,10 +109,25 @@ class RepoLandingPageCache(LegacyS3Cache):
     BUCKET = LEGACY_REPO_LANDING_PAGE_BUCKET
 
     def get_key(self, url):
-        matching_rows = S3_REPO_KEY_LOOKUP_DF[S3_REPO_KEY_LOOKUP_DF.url == url]
-        if matching_rows.empty:
-            return None
-        return matching_rows.iloc[0].landing_page_key
+        query = """
+        SELECT landing_page_key
+        FROM page_s3_keys
+        WHERE url = ?
+        LIMIT 1
+        """
+
+        # Execute the query using the provided connection
+        cursor = LOOKUP_DB_CONN.cursor()
+        cursor.execute(query, (url,))
+
+        # Fetch the result
+        result = cursor.fetchone()
+
+        # If a result is found, return the landing_page_key; otherwise, return None
+        if result:
+            return result[0]
+
+        return None
 
     def try_get_object(self, url):
         s3_path, obj = self.default_cache.try_get_object(url)

@@ -9,8 +9,7 @@ from openalex_taxicab.const import LEGACY_PUBLISHER_LANDING_PAGE_BUCKET
 from openalex_taxicab.harvest import AbstractHarvester, HarvestResult
 from openalex_taxicab.legacy.pdf_version import PDFVersion
 from openalex_taxicab.legacy.s3_cache import PDFCache, \
-    PublisherLandingPageCache, landing_page_key, RepoLandingPageCache, \
-    S3_PDF_URL_LOOKUP_DF
+    PublisherLandingPageCache, RepoLandingPageCache, LOOKUP_DB_CONN
 
 
 class PDFHarvester(AbstractHarvester):
@@ -20,17 +19,26 @@ class PDFHarvester(AbstractHarvester):
 
     @staticmethod
     def try_get_url(doi: str, version: str) -> Optional[str]:
-        matched_rows = S3_PDF_URL_LOOKUP_DF[
-            (S3_PDF_URL_LOOKUP_DF.doi == doi) & (
-                    S3_PDF_URL_LOOKUP_DF.version == version)]
-        if not matched_rows.empty:
-            url = matched_rows['url'].iloc[0]
-            return url
+        query = """
+        SELECT url
+        FROM doi_pdf_urls
+        WHERE doi = ? AND version = ?
+        LIMIT 1
+        """
+
+        cursor = LOOKUP_DB_CONN.cursor()
+        cursor.execute(query, (doi, version))
+
+        result = cursor.fetchone()
+
+        if result:
+            return result[0]
+
         return None
 
     def cached_result(self, doi: str, version: str, url: str = None) -> Optional[HarvestResult]:
         version = PDFVersion.from_version_str(version).full_version_str
-        s3_path, obj = self.cache.try_get_object(doi, version)
+        s3_path, obj = self.cache.try_get_object(doi, version, url=url)
         if obj:
             contents = self.cache.read_object(obj)
             return HarvestResult(
