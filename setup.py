@@ -16,7 +16,7 @@ def parse_requirements(filename):
 setup(
     name='openalex-taxicab',
     version='0.1',
-    packages=['openalex_taxicab'],
+    packages=['openalex_taxicab', 'openalex_taxicab.legacy'],
     url='https://github.com/ourresearch/openalex-taxicab',
     install_requires=parse_requirements('./requirements.txt'),
     license='',
