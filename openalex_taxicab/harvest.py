@@ -1,6 +1,6 @@
 import abc
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from datetime import datetime
 from functools import cached_property
 from typing import Optional
@@ -64,6 +64,13 @@ class HarvestResult:
             b'/cookieAbsent'
         ]
         return any(pattern in self.content for pattern in patterns)
+
+    def to_dict(self):
+        d = asdict(self)
+        d['is_soft_block'] = self.is_soft_block
+        d['content_type'] = self.content_type
+        d['last_harvested_dt'] = self.last_harvested_dt
+        return d
 
 
 
