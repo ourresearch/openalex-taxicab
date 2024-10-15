@@ -118,6 +118,7 @@ class RepoLandingPageHarvester(AbstractHarvester):
         r = http_get(url)
         end = time.time()
         return HarvestResult(
+            s3_path='', # Set/overridden in .harvest() method
             url=url,
             last_harvested=datetime.now().isoformat(),
             content=r.content,
