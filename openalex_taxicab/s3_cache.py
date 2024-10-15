@@ -50,6 +50,8 @@ class S3Cache(AbstractS3Cache):
         return None, None
 
     def put_result(self, result: 'HarvestResult', *args) -> str:
+        if isinstance(result.content, str):
+            result.content = result.content.encode('utf-8', errors='ignore')
         content = result.content
         if result.content_type == 'html':
             content = gzip.compress(result.content)
