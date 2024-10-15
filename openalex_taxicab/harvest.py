@@ -28,11 +28,15 @@ class HarvestResult:
     resolved_url: str = ''
 
     @cached_property
-    def content_type(self):
+    def content_type(self) -> str | None:
+        if not self.content:
+            return None
         return guess_mime_type(self.content)
 
     @property
-    def last_harvested_dt(self):
+    def last_harvested_dt(self) -> datetime | None:
+        if not self.last_harvested:
+            return None
         return datetime.fromisoformat(self.last_harvested)
 
     # @cached_property
@@ -54,7 +58,9 @@ class HarvestResult:
     #     return []
 
     @property
-    def is_soft_block(self) -> bool:
+    def is_soft_block(self) -> bool | None:
+        if not self.content:
+            return None
         patterns = [
             b'ShieldSquare Captcha',
             b'429 - Too many requests',
