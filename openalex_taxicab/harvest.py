@@ -20,7 +20,7 @@ class Version:
 @dataclass
 class HarvestResult:
     s3_path: str
-    last_harvested: datetime
+    last_harvested: str
     content: bytes
     url: str
     code: int = None
@@ -30,6 +30,10 @@ class HarvestResult:
     @cached_property
     def content_type(self):
         return guess_mime_type(self.content)
+
+    @property
+    def last_harvested_dt(self):
+        return datetime.fromisoformat(self.last_harvested)
 
     # @cached_property
     # def linked_versions(self, resolved_url: str = ''):
@@ -100,7 +104,7 @@ class Harvester(AbstractHarvester):
 
         return HarvestResult(
             s3_path=f's3://{self.cache.BUCKET}/{self.cache.get_key(url)}',
-            last_harvested=datetime.now(),
+            last_harvested=datetime.now().isoformat(),
             url=url,
             content=r.content,
             code=r.status_code,
@@ -113,7 +117,7 @@ class Harvester(AbstractHarvester):
         if obj:
             return HarvestResult(
                 s3_path=s3_path,
-                last_harvested=obj['LastModified'],
+                last_harvested=obj['LastModified'].isoformat(),
                 content=self.cache.read_object(obj),
                 url=url,
                 resolved_url=obj.get('Metadata', {}).get('resolved_url', '')

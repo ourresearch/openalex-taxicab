@@ -25,7 +25,7 @@ class PDFHarvester(AbstractHarvester):
             contents = self.cache.read_object(obj)
             return HarvestResult(
                 s3_path=s3_path,
-                last_harvested=obj['LastModified'],
+                last_harvested=obj['LastModified'].isoformat(),
                 content=contents,
                 url=url
             )
@@ -39,7 +39,7 @@ class PDFHarvester(AbstractHarvester):
 
         return HarvestResult(
             s3_path=v.s3_url(doi),
-            last_harvested=datetime.now(),
+            last_harvested=datetime.now().isoformat(),
             content=response.content,
             code=response.status_code,
             elapsed=round(end - start, 2),
@@ -69,7 +69,7 @@ class PublisherLandingPageHarvester(AbstractHarvester):
             result = HarvestResult(
                 s3_path=s3_path,
                 url=f'https://doi.org/{doi.lower()}',
-                last_harvested=obj['LastModified'],
+                last_harvested=obj['LastModified'].isoformat(),
                 content=content,
             )
             return result
@@ -83,7 +83,7 @@ class PublisherLandingPageHarvester(AbstractHarvester):
         end = time.time()
         result = HarvestResult(
             url=url,
-            last_harvested=datetime.now(),
+            last_harvested=datetime.now().isoformat(),
             content=response.content,
             code=response.status_code,
             elapsed=round(end - start, 2),
@@ -107,7 +107,7 @@ class RepoLandingPageHarvester(AbstractHarvester):
             content = self.cache.read_object(obj)
             return HarvestResult(
                 s3_path=s3_path,
-                last_harvested=obj['LastModified'],
+                last_harvested=obj['LastModified'].isoformat(),
                 content=content,
                 url=url,
             )
@@ -119,7 +119,7 @@ class RepoLandingPageHarvester(AbstractHarvester):
         end = time.time()
         return HarvestResult(
             url=url,
-            last_harvested=datetime.now(),
+            last_harvested=datetime.now().isoformat(),
             content=r.content,
             code=r.status_code,
             elapsed=round(end  - start, 2),
