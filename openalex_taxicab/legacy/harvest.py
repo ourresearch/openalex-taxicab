@@ -82,6 +82,7 @@ class PublisherLandingPageHarvester(AbstractHarvester):
         response = http_get(url, ask_slowly=True)
         end = time.time()
         result = HarvestResult(
+            s3_path='', # Set/overridden in .harvest() method
             url=url,
             last_harvested=datetime.now().isoformat(),
             content=response.content,
