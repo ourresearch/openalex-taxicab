@@ -26,6 +26,7 @@ class PDFHarvester(AbstractHarvester):
             return HarvestResult(
                 s3_path=s3_path,
                 last_harvested=obj['LastModified'].isoformat(),
+                resolved_url=obj.get('Metadata', {}).get('resolved_url', ''),
                 content=contents,
                 url=url
             )
@@ -70,6 +71,7 @@ class PublisherLandingPageHarvester(AbstractHarvester):
                 s3_path=s3_path,
                 url=f'https://doi.org/{doi.lower()}',
                 last_harvested=obj['LastModified'].isoformat(),
+                resolved_url=obj.get('Metadata', {}).get('resolved_url', ''),
                 content=content,
             )
             return result
@@ -109,6 +111,7 @@ class RepoLandingPageHarvester(AbstractHarvester):
             return HarvestResult(
                 s3_path=s3_path,
                 last_harvested=obj['LastModified'].isoformat(),
+                resolved_url=obj.get('Metadata', {}).get('resolved_url', ''),
                 content=content,
                 url=url,
             )
