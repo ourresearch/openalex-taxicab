@@ -1,8 +1,7 @@
 import os
 import tempfile
 from abc import ABC
-from sqlite3 import Connection
-from typing import Optional
+from typing import Callable
 from urllib.parse import quote
 
 from mypy_boto3_s3 import S3Client
@@ -13,34 +12,10 @@ from openalex_taxicab.const import LEGACY_PUBLISHER_PDF_BUCKET, \
     LEGACY_REPO_LANDING_PAGE_BUCKET
 from openalex_taxicab.harvest import HarvestResult
 from openalex_taxicab.legacy.pdf_version import PDFVersion
-from openalex_taxicab.log import LOGGER
 from openalex_taxicab.s3_cache import AbstractS3Cache, S3Cache
 from openalex_taxicab.s3_util import get_object
 from openalex_taxicab.util import normalize_doi
 
-
-def download_s3_lookup_db(s3: S3Client):
-    bucket = 'openalex-elt'
-    key = 's3_keys_lookup.db'
-    object_size = s3.head_object(Bucket=bucket, Key=key)[
-        'ContentLength']
-
-    progress_bar = tqdm(total=object_size, unit='B', unit_scale=True,
-                        desc="Downloading SQLite DB")
-
-    def progress_callback(bytes_transferred):
-        # You can use tqdm to show the progress of the download (optional)
-        progress_bar.update(bytes_transferred - progress_bar.n)
-
-    LOGGER.info(f'Downloading s3://{bucket}/{key}...')
-
-    temp_fd, temp_path = tempfile.mkstemp(suffix='.db')
-
-    with os.fdopen(temp_fd, 'wb') as temp_file:
-        s3.download_fileobj(bucket, key, temp_file, Callback=progress_callback)
-        temp_file.flush()
-    LOGGER.info('Finished downloading')
-    return temp_path
 
 def landing_page_key(doi: str):
     doi = normalize_doi(doi)
@@ -48,9 +23,8 @@ def landing_page_key(doi: str):
 
 class LegacyS3Cache(AbstractS3Cache, ABC):
 
-    def __init__(self, s3: S3Client, s3_lookup_db_conn: Connection):
+    def __init__(self, s3: S3Client):
         super().__init__(s3)
-        self.s3_lookup_db_conn = s3_lookup_db_conn
         self.default_cache = S3Cache(s3)
 
 
@@ -58,27 +32,12 @@ class PDFCache(LegacyS3Cache):
 
     BUCKET = LEGACY_PUBLISHER_PDF_BUCKET
 
+    def __init__(self, s3: S3Client):
+        super().__init__(s3)
+
     def get_key(self, doi, version):
         v = PDFVersion.from_version_str(version)
         return v.s3_key(doi)
-
-    def try_get_url(self, doi: str, version: str) -> Optional[str]:
-        query = """
-        SELECT pdf_url
-        FROM doi_pdf_urls
-        WHERE doi = ? AND version = ?
-        LIMIT 1
-        """
-
-        cursor = self.s3_lookup_db_conn.cursor()
-        cursor.execute(query, (doi, version))
-
-        result = cursor.fetchone()
-
-        if result:
-            return result[0]
-
-        return None
 
     def try_get_object(self, doi, version, url=None):
         if url:
@@ -118,26 +77,12 @@ class RepoLandingPageCache(LegacyS3Cache):
 
     BUCKET = LEGACY_REPO_LANDING_PAGE_BUCKET
 
+    def __init__(self, s3: S3Client, get_key_func: Callable[[str], str | None]):
+        super().__init__(s3)
+        self.get_key_func = get_key_func
+
     def get_key(self, url):
-        query = """
-        SELECT landing_page_key
-        FROM page_s3_keys
-        WHERE url = ?
-        LIMIT 1
-        """
-
-        # Execute the query using the provided connection
-        cursor = self.s3_lookup_db_conn.cursor()
-        cursor.execute(query, (url,))
-
-        # Fetch the result
-        result = cursor.fetchone()
-
-        # If a result is found, return the landing_page_key; otherwise, return None
-        if result:
-            return result[0]
-
-        return None
+        return self.get_key_func(url)
 
     def try_get_object(self, url):
         s3_path, obj = self.default_cache.try_get_object(url)

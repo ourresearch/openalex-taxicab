@@ -1,7 +1,6 @@
 import time
 from datetime import datetime
-from sqlite3 import Connection
-from typing import Optional
+from typing import Optional, Callable
 
 from mypy_boto3_s3 import S3Client
 from openalex_http import http_get
@@ -14,9 +13,10 @@ from openalex_taxicab.legacy.s3_cache import PDFCache, \
 
 
 class PDFHarvester(AbstractHarvester):
-    def __init__(self, s3: S3Client, s3_lookup_db_conn: Connection):
+    def __init__(self, s3: S3Client, get_url_func: Callable[[str, str], str | None]):
         super().__init__(s3)
-        self.cache = PDFCache(s3, s3_lookup_db_conn)
+        self.cache = PDFCache(s3)
+        self.get_url_func = get_url_func
 
     def cached_result(self, doi: str, version: str, url: str = None) -> Optional[HarvestResult]:
         version = PDFVersion.from_version_str(version).full_version_str
@@ -49,7 +49,7 @@ class PDFHarvester(AbstractHarvester):
 
     def harvest(self, doi: str, version: str, url: str = None) -> HarvestResult:
         if not url:
-            url = self.cache.try_get_url(doi, version)
+            url = self.get_url_func(doi, version)
         return super().harvest( doi, version, url=url)
 
 
@@ -58,9 +58,9 @@ class PublisherLandingPageHarvester(AbstractHarvester):
     BUCKET = LEGACY_PUBLISHER_LANDING_PAGE_BUCKET
 
 
-    def __init__(self, s3: S3Client, s3_lookup_db_conn: Connection):
+    def __init__(self, s3: S3Client, ):
         super().__init__(s3)
-        self.cache = PublisherLandingPageCache(s3, s3_lookup_db_conn)
+        self.cache = PublisherLandingPageCache(s3)
 
 
     def cached_result(self, doi) -> Optional[HarvestResult]:
@@ -100,9 +100,9 @@ class PublisherLandingPageHarvester(AbstractHarvester):
 
 class RepoLandingPageHarvester(AbstractHarvester):
 
-    def __init__(self, s3, s3_lookup_db_conn: Connection):
+    def __init__(self, s3, get_key_func: Callable[[str], str | None]):
         super().__init__(s3)
-        self.cache = RepoLandingPageCache(s3, s3_lookup_db_conn)
+        self.cache = RepoLandingPageCache(s3, get_key_func)
 
     def cached_result(self, url) -> Optional[HarvestResult]:
         s3_path, obj = self.cache.try_get_object(url)
