@@ -47,19 +47,22 @@ class HarvestResult:
     def is_soft_block(self) -> bool | None:
         if not self.content:
             return None
-        try:
+
+        patterns = [
+            'ShieldSquare Captcha',
+            '429 - Too many requests',
+            'We apologize for the inconvenience',
+            '<title>APA PsycNet</title>',
+            'Your request cannot be processed at this time',
+            '/cookieAbsent'
+        ]
+
+        if isinstance(self.content, bytes):
             content_str = self.content.decode('utf-8', errors='ignore')
-            patterns = [
-                'ShieldSquare Captcha',
-                '429 - Too many requests',
-                'We apologize for the inconvenience',
-                '<title>APA PsycNet</title>',
-                'Your request cannot be processed at this time',
-                '/cookieAbsent'
-            ]
-            return any(pattern in content_str for pattern in patterns)
-        except UnicodeDecodeError:
-            return None
+        else:
+            content_str = self.content
+
+        return any(pattern in content_str for pattern in patterns)
 
     def to_dict(self):
         d = asdict(self)
