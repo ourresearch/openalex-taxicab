@@ -6,7 +6,7 @@ from functools import cached_property
 from typing import Optional
 
 from mypy_boto3_s3.client import S3Client
-from openalex_http import http_get
+from http_cache import http_get
 
 from openalex_taxicab.s3_cache import S3Cache
 from openalex_taxicab.util import guess_mime_type
@@ -38,24 +38,6 @@ class HarvestResult:
         if not self.last_harvested:
             return None
         return datetime.fromisoformat(self.last_harvested)
-
-    # @cached_property
-    # def linked_versions(self, resolved_url: str = ''):
-    #     if not self.content_type == 'html':
-    #         return []
-    #
-    #     soup = BeautifulSoup(self.content, features='lxml', parser='lxml')
-    #     cleaned_soup = cleanup_soup(copy.deepcopy(soup))
-    #     published_fulltext_locations = parse_publisher_fulltext_locations(soup, cleaned_soup, self.resolved_url or resolved_url)
-    #     repo_fulltext_locations = parse_repo_fulltext_locations(soup, cleaned_soup, self.resolved_url or resolved_url)
-    #     for location in published_fulltext_locations + repo_fulltext_locations:
-    #         # TODO: maybe need to create and store and pass session_id here to maintain cookies, headers, etc
-    #         r = http_get(location['url'], stream=True, ask_slowly=True)
-    #         # We don't necessarily know what type to expect, but we're looking for document types, so if it's not html, it's probably valid
-    #         if not guess_mime_type(r.content) == 'html':
-    #             return [Version(parsed_url=location['url'],
-    #                     parsed_version=location['version'])]
-    #     return []
 
     @property
     def is_soft_block(self) -> bool | None:
