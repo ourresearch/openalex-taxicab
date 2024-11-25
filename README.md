@@ -12,11 +12,6 @@ from openalex_taxicab.harvest import Harvester
 
 
 s3_client = boto3.client("s3")
-http_cache.initialize({
-    "CRAWLERA_KEY": os.getenv("CRAWLERA_KEY"),
-    "STATIC_IP_PROXY": os.getenv("STATIC_IP_PROXY"),
-    "ZYTE_API_KEY": os.getenv("ZYTE_API_KEY"),
-})
 
 if __name__ == "__main__":
     h = Harvester(s3=s3_client)

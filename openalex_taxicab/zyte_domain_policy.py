@@ -59,7 +59,7 @@ def get_zyte_domain_policies():
             profile=item['profile'],
             params=json.loads(item['params']) if 'params' in item and item['params'] else None,
             priority=int(item['priority']) if 'priority' in item else 1,
-            parent_id=int(item['parent_id']) if 'parent_id' in item else None
+            parent_id=int(item['parent_id']) if 'parent_id' in item and item['parent_id'] not in [None, ''] else None
         )
         for item in items
     ]

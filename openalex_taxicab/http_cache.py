@@ -79,7 +79,7 @@ class ResponseObject:
 
 
 def _create_cert_bundle() -> IO[bytes]:
-    crawlera_ca = os.path.join(os.path.dirname(__file__), 'data', 'crawlera-ca.crt')
+    crawlera_ca = os.path.join(os.path.dirname(__file__), 'certs', 'crawlera-ca.crt')
 
     combined_certs: BytesIO = BytesIO()
 
