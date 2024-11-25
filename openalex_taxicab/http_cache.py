@@ -27,17 +27,11 @@ from .util import get_link_target
 
 logger = get_logger()
 
-ENV = {}
-
-def initialize(env: dict):
-    global ENV
-    required_os_envs = {'ZYTE_API_KEY', 'CRAWLERA_KEY', 'STATIC_IP_PROXY'}
-
-    if any(env.get(key) is None for key in required_os_envs):
-        raise RuntimeError(
-            'Missing some or all of environment variables: {}'.format(
-                ', '.join(required_os_envs)))
-    ENV = env
+CRAWLERA_KEY = os.environ.get("CRAWLERA_KEY")
+HTTP_PROXY = os.environ.get("HTTP_PROXY", "")
+HTTPS_PROXY = os.environ.get("HTTPS_PROXY", "")
+STATIC_IP_PROXY = os.environ.get("STATIC_IP_PROXY")
+ZYTE_API_KEY = os.environ.get("ZYTE_API_KEY")
 
 
 MAX_PAYLOAD_SIZE_BYTES = 1000 * 1000 * 10  # 10mb
@@ -113,7 +107,7 @@ def get_session_id():
     session_id = None
 
     while not session_id:
-        crawlera_username = ENV.get("CRAWLERA_KEY")
+        crawlera_username = CRAWLERA_KEY
         r = requests.post("http://impactstory.crawlera.com:8010/sessions",
                           auth=(crawlera_username, 'DUMMY'),
                           proxies={'http': None, 'https': None})
@@ -308,14 +302,13 @@ def call_requests_get(url=None,
 
     headers = headers or {}
 
-    saved_http_proxy = ENV.get("HTTP_PROXY", "")
-    saved_https_proxy = ENV.get("HTTPS_PROXY", "")
+    saved_http_proxy = HTTPS_PROXY
+    saved_https_proxy = HTTPS_PROXY
 
     if ask_slowly:
         logger.info("asking slowly")
 
-        crawlera_url = 'http://{}:DUMMY@impactstory.crawlera.com:8010'.format(
-            ENV.get("CRAWLERA_KEY"))
+        crawlera_url = 'http://{}:DUMMY@impactstory.crawlera.com:8010'.format(CRAWLERA_KEY)
 
         os.environ["HTTP_PROXY"] = crawlera_url
         os.environ["HTTPS_PROXY"] = crawlera_url
@@ -373,7 +366,7 @@ def call_requests_get(url=None,
 
         if "citeseerx.ist.psu.edu/" in url:
             url = url.replace("http://", "https://")
-            proxy_url = ENV.get("STATIC_IP_PROXY")
+            proxy_url = STATIC_IP_PROXY
             proxies = {"https": proxy_url, "http": proxy_url}
         else:
             proxies = {}
@@ -477,8 +470,6 @@ def http_get(url,
              ask_slowly=False,
              verify=False,
              cookies=None):
-    if not ENV:
-        raise RuntimeError("Please initialize env")
     headers = headers or {}
 
     start_time = time()
@@ -511,7 +502,6 @@ def http_get(url,
 
 def call_with_zyte_api(url, params=None):
     zyte_api_url = "https://api.zyte.com/v1/extract"
-    zyte_api_key = ENV.get("ZYTE_API_KEY")
     default_params = {
         "url": url,
         "httpResponseHeaders": True,
@@ -527,7 +517,7 @@ def call_with_zyte_api(url, params=None):
     logger.info(f"calling zyte api for {url}")
     if "wiley.com" in url:
         # get cookies
-        cookies_response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
+        cookies_response = requests.post(zyte_api_url, auth=(ZYTE_API_KEY, ''),
                                          json={
                                              "url": url,
                                              "browserHtml": True,
@@ -568,8 +558,7 @@ def call_with_zyte_api(url, params=None):
 
 def get_cookies_with_zyte_api(url):
     zyte_api_url = "https://api.zyte.com/v1/extract"
-    zyte_api_key = ENV.get("ZYTE_API_KEY")
-    cookies_response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
+    cookies_response = requests.post(zyte_api_url, auth=(ZYTE_API_KEY, ''),
                                      json={
                                          "url": url,
                                          "browserHtml": True,
