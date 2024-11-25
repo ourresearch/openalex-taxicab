@@ -102,7 +102,7 @@ class Harvester(AbstractHarvester):
     def __init__(self, s3: S3Client):
         super().__init__(s3)
         self.cache = S3Cache(s3)
-        self.dynamodb = boto3.resource('dynamodb')
+        self.dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
         self.logs_table = self.dynamodb.Table('harvest-logs')
 
     def fetched_result(self, url) -> HarvestResult:
