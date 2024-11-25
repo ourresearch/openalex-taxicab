@@ -4,10 +4,7 @@
 ### Example usage:
 
 ```python
-import os
-
 import boto3
-from openalex_taxicab import http_cache
 from openalex_taxicab.harvest import Harvester
 
 
