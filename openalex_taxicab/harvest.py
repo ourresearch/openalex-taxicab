@@ -102,9 +102,8 @@ class Harvester(AbstractHarvester):
     def __init__(self, s3: S3Client):
         super().__init__(s3)
         self.cache = S3Cache(s3)
-        session = boto3.Session(region_name='us-east-1')
-        self.dynamodb = session.resource('dynamodb')
-        self.logs_table = self.dynamodb.Table('harvest-logs')
+        self._dynamodb = None
+        self._logs_table = None
 
     def fetched_result(self, url) -> HarvestResult:
         start = time.time()
@@ -124,6 +123,19 @@ class Harvester(AbstractHarvester):
         self.log_to_dynamodb(result)  # log the result to DynamoDB
 
         return result
+
+    @property
+    def dynamodb(self):
+        if self._dynamodb is None:
+            session = boto3.Session(region_name='us-east-1')
+            self._dynamodb = session.resource('dynamodb')
+        return self._dynamodb
+
+    @property
+    def logs_table(self):
+        if self._logs_table is None:
+            self._logs_table = self.dynamodb.Table('harvest-logs')
+        return self._logs_table
 
     def cached_result(self, url) -> Optional[HarvestResult]:
         s3_path, obj = self.cache.try_get_object(url)
