@@ -532,7 +532,7 @@ def call_with_zyte_api(url, params=None):
 
         # use cookies to get valid response
         if cookies:
-            response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
+            response = requests.post(zyte_api_url, auth=(ZYTE_API_KEY, ''),
                                      json={
                                          "url": url,
                                          "httpResponseHeaders": True,
@@ -542,7 +542,7 @@ def call_with_zyte_api(url, params=None):
                                          }
                                      }, verify=False)
         else:
-            response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
+            response = requests.post(zyte_api_url, auth=(ZYTE_API_KEY, ''),
                                      json={
                                          "url": url,
                                          "httpResponseHeaders": True,
