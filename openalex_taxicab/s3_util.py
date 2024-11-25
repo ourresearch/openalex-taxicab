@@ -3,7 +3,7 @@ import logging
 import boto3
 import botocore
 
-_s3 = boto3.client('s3')
+_s3 = boto3.client('s3', region_name='us-east-1')
 
 
 def mute_boto_logging():
@@ -18,7 +18,7 @@ def mute_boto_logging():
 
 
 def make_s3():
-    return boto3.client('s3')
+    return boto3.client('s3', region_name='us-east-1')
 
 
 def _get_obj(bucket, key, f, s3=None, _raise=False):
