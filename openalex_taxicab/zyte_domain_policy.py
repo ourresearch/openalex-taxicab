@@ -45,7 +45,7 @@ def get_zyte_domain_policies():
     """
     Fetch Zyte policies from the 'zyte-config' DynamoDB table.
     """
-    dynamodb = boto3.resource('dynamodb')
+    dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
     table = dynamodb.Table('zyte-config')
 
     response = table.scan()
