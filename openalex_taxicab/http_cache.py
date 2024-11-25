@@ -11,7 +11,6 @@ from typing import Optional, IO
 from urllib.parse import urljoin, urlparse
 import json
 
-import certifi
 import requests
 import tenacity
 
@@ -70,22 +69,6 @@ class ResponseObject:
         if self.status_code >= 400:
             raise requests.HTTPError(
                 f'Bad status code for URL {self.url}: {self.status_code}')
-
-
-def _create_cert_bundle() -> IO[bytes]:
-    crawlera_ca = os.path.join(os.path.dirname(__file__), 'certs', 'crawlera-ca.crt')
-
-    combined_certs: BytesIO = BytesIO()
-
-    for source in [certifi.where(), crawlera_ca]:
-        with open(source, 'r') as s:
-            for line in s:
-                combined_certs.write(line.encode())
-
-    return combined_certs
-
-
-_cert_bundle = _create_cert_bundle()
 
 
 def is_response_too_large(r):
@@ -410,7 +393,7 @@ def call_requests_get(url=None,
                                      stream=stream,
                                      proxies=proxies,
                                      allow_redirects=False,
-                                     verify=(verify and _cert_bundle),
+                                     verify=False,
                                      cookies=cookies)
 
             # trigger 503 for iop.org pdf urls, so that we retry with zyte api
