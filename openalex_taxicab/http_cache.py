@@ -19,13 +19,13 @@ from tenacity import retry, stop_after_attempt, wait_exponential, \
     retry_if_result
 import requests.exceptions
 
-from openalex_http.log import get_logger
+from openalex_taxicab.log import _make_logger
 from .zyte_domain_policy import get_matching_policies
 from .util import DelayedAdapter
 from .util import elapsed
 from .util import get_link_target
 
-logger = get_logger()
+logger = _make_logger()
 
 CRAWLERA_KEY = os.environ.get("CRAWLERA_KEY")
 HTTP_PROXY = os.environ.get("HTTP_PROXY", "")
