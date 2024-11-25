@@ -2,12 +2,16 @@ import abc
 import time
 from dataclasses import dataclass, asdict
 from datetime import datetime
+from decimal import Decimal
 from functools import cached_property
 from typing import Optional
 
+import boto3
+from botocore.exceptions import ClientError
+import uuid
+
 from mypy_boto3_s3.client import S3Client
 from openalex_taxicab.http_cache import http_get
-
 from openalex_taxicab.s3_cache import S3Cache
 from openalex_taxicab.util import guess_mime_type
 
@@ -91,13 +95,15 @@ class Harvester(AbstractHarvester):
     def __init__(self, s3: S3Client):
         super().__init__(s3)
         self.cache = S3Cache(s3)
+        self.dynamodb = boto3.resource('dynamodb')
+        self.logs_table = self.dynamodb.Table('harvest-logs')
 
     def fetched_result(self, url) -> HarvestResult:
         start = time.time()
         r = http_get(url, ask_slowly=True)
         end = time.time()
 
-        return HarvestResult(
+        result = HarvestResult(
             s3_path=f's3://{self.cache.BUCKET}/{self.cache.get_key(url)}',
             last_harvested=datetime.now().isoformat(),
             url=url,
@@ -106,6 +112,10 @@ class Harvester(AbstractHarvester):
             elapsed=round(end - start, 2),
             resolved_url=r.url
         )
+
+        self.log_to_dynamodb(result)  # log the result to DynamoDB
+
+        return result
 
     def cached_result(self, url) -> Optional[HarvestResult]:
         s3_path, obj = self.cache.try_get_object(url)
@@ -118,6 +128,29 @@ class Harvester(AbstractHarvester):
                 resolved_url=obj.get('Metadata', {}).get('resolved_url', '')
             )
         return None
+
+    def log_to_dynamodb(self, result: HarvestResult):
+        """
+        Logs the harvest result to DynamoDB.
+        """
+        log_entry = {
+            'id': str(uuid.uuid4()),
+            'url': result.url,
+            'resolved_url': result.resolved_url,
+            'status_code': result.code,
+            'elapsed': Decimal(str(result.elapsed)) if result.elapsed is not None else None,
+            'content_type': result.content_type,
+            'last_harvested': result.last_harvested,
+            's3_path': result.s3_path,
+            'is_soft_block': result.is_soft_block,
+            'timestamp': datetime.now().isoformat(),
+        }
+
+        try:
+            self.logs_table.put_item(Item=log_entry)
+            print(f"Logged harvest result for {result.url} to DynamoDB.")
+        except ClientError as e:
+            print(f"Failed to log to DynamoDB: {e.response['Error']['Message']}")
 
     def harvest(self, url) -> HarvestResult:
         return super().harvest(url)
