@@ -53,7 +53,7 @@ class S3Cache(AbstractS3Cache):
         if isinstance(result.content, str):
             result.content = result.content.encode('utf-8', errors='ignore')
         content = result.content
-        if result.content_type == 'html':
+        if result.content_type and 'html' in result.content_type.lower():
             content = gzip.compress(result.content)
         self.s3.put_object(Bucket=self.BUCKET,
                           Key=self.get_key(result.url),
