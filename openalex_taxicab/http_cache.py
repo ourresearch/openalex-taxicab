@@ -11,10 +11,10 @@ from urllib.parse import urljoin, urlparse
 import json
 
 import requests
-import tenacity
-
-from tenacity import retry, stop_after_attempt, wait_exponential, \
-    retry_if_result
+# import tenacity
+#
+# from tenacity import retry, stop_after_attempt, wait_exponential, \
+#     retry_if_result
 import requests.exceptions
 
 from openalex_taxicab.log import _make_logger
@@ -261,11 +261,11 @@ def is_retry_status(response):
     return response.status_code in {429, 500, 502, 503, 504, 520, 403}
 
 
-@retry(stop=stop_after_attempt(2),
-       wait=wait_exponential(multiplier=1, min=4, max=10),
-       retry=retry_if_result(is_retry_status),
-       before_sleep=before_retry,
-       reraise=True)
+# @retry(stop=stop_after_attempt(2),
+#        wait=wait_exponential(multiplier=1, min=4, max=10),
+#        retry=retry_if_result(is_retry_status),
+#        before_sleep=before_retry,
+#        reraise=True)
 def call_requests_get(url=None,
                       headers=None,
                       read_timeout=300,
@@ -464,19 +464,18 @@ def http_get(url,
     except UnicodeDecodeError:
         logger.info("LIVE GET on an url that throws UnicodeDecodeError")
 
-    try:
-        r = call_requests_get(url,
-                              headers=headers,
-                              read_timeout=read_timeout,
-                              connect_timeout=connect_timeout,
-                              stream=stream,
-                              session_id=session_id,
-                              ask_slowly=ask_slowly,
-                              verify=verify,
-                              cookies=cookies)
-    except tenacity.RetryError as e:
-        logger.info(f"tried too many times for {url}")
-        raise e
+    r = call_requests_get(url,
+                          headers=headers,
+                          read_timeout=read_timeout,
+                          connect_timeout=connect_timeout,
+                          stream=stream,
+                          session_id=session_id,
+                          ask_slowly=ask_slowly,
+                          verify=verify,
+                          cookies=cookies)
+    # except tenacity.RetryError as e:
+    #     logger.info(f"tried too many times for {url}")
+    #     raise e
     logger.info("finished http_get for {} in {} seconds".format(url, elapsed(
         start_time, 2)))
     return r
@@ -553,10 +552,3 @@ def get_cookies_with_zyte_api(url):
     cookies = cookies_response.get("experimental", {}).get("responseCookies",
                                                            {})
     return cookies
-
-
-if __name__ == '__main__':
-    # r = http_get('https://doi.org/10.1088/1475-7516/2010/04/014')
-    # print(r.status_code)
-    r = http_get('https://doi.org/10.1002/jum.15761')
-    print(r.status_code)
