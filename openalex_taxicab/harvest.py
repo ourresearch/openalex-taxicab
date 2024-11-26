@@ -120,7 +120,7 @@ class Harvester(AbstractHarvester):
             resolved_url=r.url
         )
 
-        self.log_to_dynamodb(result)  # log the result to DynamoDB
+        # self.log_to_dynamodb(result)  # log the result to DynamoDB
 
         return result
 

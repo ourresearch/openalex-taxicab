@@ -1,3 +1,4 @@
+import os
 import json
 import re
 from enum import Enum
@@ -45,7 +46,12 @@ def get_zyte_domain_policies():
     """
     Fetch Zyte policies from the 'zyte-config' DynamoDB table.
     """
-    dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+    dynamodb = boto3.resource(
+        'dynamodb',
+        region_name="us-east-1",
+        aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+        aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"]
+    )
     table = dynamodb.Table('zyte-config')
 
     response = table.scan()
