@@ -4,10 +4,9 @@ import inspect
 import os
 import re
 from dataclasses import dataclass
-from io import BytesIO
 from time import sleep
 from time import time
-from typing import Optional, IO
+from typing import Optional
 from urllib.parse import urljoin, urlparse
 import json
 
@@ -534,7 +533,7 @@ def call_with_zyte_api(url, params=None):
                                              "referer": "https://www.google.com/"},
                                      }, verify=False)
     else:
-        response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
+        response = requests.post(zyte_api_url, auth=(ZYTE_API_KEY, ''),
                                  json=params, verify=False)
     return response.json()
 
