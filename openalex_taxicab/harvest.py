@@ -87,11 +87,22 @@ class AbstractHarvester(abc.ABC):
         pass
 
     def harvest(self, *args, **kwargs) -> HarvestResult:
-        if (not args or all(not arg for arg in args)) and not kwargs['url']:
+        if (not args or all(not arg for arg in args)) and not kwargs.get('url'):
             raise ValueError('harvest args or url kwarg must be specified')
+
+        # check if result is cached
         if cached_result := self.cached_result(*args, **kwargs):
             return cached_result
+
+        # fetch new result
         result = self.fetched_result(*args, **kwargs)
+
+        # skip saving invalid results
+        if result.code != 200 or not result.content:
+            print(f"Skipping save: status={result.code}, content={bool(result.content)}")
+            return result
+
+        # save valid result to S3
         new_s3_path = self.cache.put_result(result, *args)
         result.s3_path = new_s3_path
         return result
@@ -121,6 +132,9 @@ class Harvester(AbstractHarvester):
         )
 
         # self.log_to_dynamodb(result)  # log the result to DynamoDB
+
+        if r.status_code != 200 or not r.content:
+            print(f"Invalid response for URL {url}: status={r.status_code}, content={bool(r.content)}")
 
         return result
 
