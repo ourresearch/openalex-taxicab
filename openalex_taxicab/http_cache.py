@@ -25,6 +25,8 @@ from .util import get_link_target
 
 logger = _make_logger()
 
+requests.packages.urllib3.disable_warnings()
+
 CRAWLERA_KEY = os.environ.get("CRAWLERA_KEY")
 HTTP_PROXY = os.environ.get("HTTP_PROXY", "")
 HTTPS_PROXY = os.environ.get("HTTPS_PROXY", "")
