@@ -15,12 +15,6 @@ from openalex_taxicab.util import guess_mime_type
 
 
 @dataclass
-class Version:
-    parsed_url: str
-    parsed_version: str
-
-
-@dataclass
 class HarvestResult:
     s3_path: str
     last_harvested: str
