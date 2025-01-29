@@ -64,17 +64,36 @@ class HarvestResult:
 
         return any(pattern in content_str for pattern in patterns)
 
+    @property
+    def is_valid_pdf(self) -> bool:
+        if not self.content:
+            return False
+
+        # check content type
+        if self.content_type != 'pdf':
+            return False
+
+        # check PDF header signature
+        if not self.content.startswith(b'%PDF-'):
+            return False
+
+        # check minimum size (100 bytes)
+        if len(self.content) < 100:
+            return False
+
+        return True
+
     def to_dict(self):
         d = asdict(self)
         d['is_soft_block'] = self.is_soft_block
         d['content_type'] = self.content_type
         d['last_harvested_dt'] = self.last_harvested_dt
+        d['is_valid_pdf'] = self.is_valid_pdf
         return d
 
 
-
 class AbstractHarvester(abc.ABC):
-    def __init__(self, s3: S3Client):
+    def __init__(self, s3):
         self._s3 = s3
         self.cache: 'S3Cache'
 
@@ -83,7 +102,8 @@ class AbstractHarvester(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def fetched_result(self, *args, **kwargs) -> HarvestResult: # url for PDF, repo landing page | doi, publisher for publisher landing page
+    def fetched_result(self, *args,
+                       **kwargs) -> HarvestResult:  # url for PDF, repo landing page | doi, publisher for publisher landing page
         pass
 
     def harvest(self, *args, **kwargs) -> HarvestResult:
@@ -92,15 +112,24 @@ class AbstractHarvester(abc.ABC):
 
         # check if result is cached
         if cached_result := self.cached_result(*args, **kwargs):
+            print(f"Skipping fetch: result is cached")
             return cached_result
 
         # fetch new result
         result = self.fetched_result(*args, **kwargs)
 
+        if result.content_type == 'pdf':
+            if not result.is_valid_pdf:
+                print(f"Skipping save: Invalid PDF content for {result.url}")
+                result.code = 400
+                return result
+
         # skip saving invalid results
         if result.code != 200 or not result.content:
             print(f"Skipping save: status={result.code}, content={bool(result.content)}")
             return result
+        else:
+            print(f"Saving valid result for {result.url} to {result.s3_path}")
 
         # save valid result to S3
         new_s3_path = self.cache.put_result(result, *args)
@@ -110,7 +139,7 @@ class AbstractHarvester(abc.ABC):
 
 class Harvester(AbstractHarvester):
 
-    def __init__(self, s3: S3Client):
+    def __init__(self, s3):
         super().__init__(s3)
         self.cache = S3Cache(s3)
         self._dynamodb = None
@@ -122,7 +151,7 @@ class Harvester(AbstractHarvester):
         end = time.time()
 
         result = HarvestResult(
-            s3_path=f's3://{self.cache.BUCKET}/{self.cache.get_key(url)}',
+            s3_path=None,
             last_harvested=datetime.now().isoformat(),
             url=url,
             content=r.content,
@@ -131,10 +160,8 @@ class Harvester(AbstractHarvester):
             resolved_url=r.url
         )
 
-        # self.log_to_dynamodb(result)  # log the result to DynamoDB
-
-        if r.status_code != 200 or not r.content:
-            print(f"Invalid response for URL {url}: status={r.status_code}, content={bool(r.content)}")
+        if r.status_code == 200 and r.content:
+            result.s3_path = f"s3://{self.cache.get_bucket(result)}/{self.cache.get_key(url)}"
 
         return result
 
