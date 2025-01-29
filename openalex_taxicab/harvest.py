@@ -1,14 +1,13 @@
-import abc
 import time
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from decimal import Decimal
 from functools import cached_property
 from typing import Optional
+import uuid
 
 import boto3
 from botocore.exceptions import ClientError
-import uuid
 
 from openalex_taxicab.http_cache import http_get
 from openalex_taxicab.s3_cache import S3Cache
@@ -19,6 +18,7 @@ from openalex_taxicab.util import guess_mime_type
 class Version:
     parsed_url: str
     parsed_version: str
+
 
 @dataclass
 class HarvestResult:
@@ -91,55 +91,9 @@ class HarvestResult:
         return d
 
 
-class AbstractHarvester(abc.ABC):
+class Harvester:
     def __init__(self, s3):
         self._s3 = s3
-        self.cache: 'S3Cache'
-
-    @abc.abstractmethod
-    def cached_result(self, *args, **kwargs) -> Optional[HarvestResult]:
-        pass
-
-    @abc.abstractmethod
-    def fetched_result(self, *args,
-                       **kwargs) -> HarvestResult:  # url for PDF, repo landing page | doi, publisher for publisher landing page
-        pass
-
-    def harvest(self, *args, **kwargs) -> HarvestResult:
-        if (not args or all(not arg for arg in args)) and not kwargs.get('url'):
-            raise ValueError('harvest args or url kwarg must be specified')
-
-        # check if result is cached
-        if cached_result := self.cached_result(*args, **kwargs):
-            print(f"Skipping fetch: result is cached")
-            return cached_result
-
-        # fetch new result
-        result = self.fetched_result(*args, **kwargs)
-
-        if result.content_type == 'pdf':
-            if not result.is_valid_pdf:
-                print(f"Skipping save: Invalid PDF content for {result.url}")
-                result.code = 400
-                return result
-
-        # skip saving invalid results
-        if result.code != 200 or not result.content:
-            print(f"Skipping save: status={result.code}, content={bool(result.content)}")
-            return result
-        else:
-            print(f"Saving valid result for {result.url} to {result.s3_path}")
-
-        # save valid result to S3
-        new_s3_path = self.cache.put_result(result, *args)
-        result.s3_path = new_s3_path
-        return result
-
-
-class Harvester(AbstractHarvester):
-
-    def __init__(self, s3):
-        super().__init__(s3)
         self.cache = S3Cache(s3)
         self._dynamodb = None
         self._logs_table = None
@@ -213,4 +167,31 @@ class Harvester(AbstractHarvester):
             print(f"Failed to log to DynamoDB: {e.response['Error']['Message']}")
 
     def harvest(self, url) -> HarvestResult:
-        return super().harvest(url)
+        if not url:
+            raise ValueError('url must be specified')
+
+        # check if result is cached
+        if cached_result := self.cached_result(url):
+            print(f"Skipping fetch: result is cached")
+            return cached_result
+
+        # fetch new result
+        result = self.fetched_result(url)
+
+        if result.content_type == 'pdf':
+            if not result.is_valid_pdf:
+                print(f"Skipping save: Invalid PDF content for {result.url}")
+                result.code = 400
+                return result
+
+        # skip saving invalid results
+        if result.code != 200 or not result.content:
+            print(f"Skipping save: status={result.code}, content={bool(result.content)}")
+            return result
+        else:
+            print(f"Saving valid result for {result.url} to {result.s3_path}")
+
+        # save valid result to S3
+        new_s3_path = self.cache.put_result(result, url)
+        result.s3_path = new_s3_path
+        return result
