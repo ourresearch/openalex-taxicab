@@ -10,7 +10,6 @@ import boto3
 from botocore.exceptions import ClientError
 import uuid
 
-from mypy_boto3_s3.client import S3Client
 from openalex_taxicab.http_cache import http_get
 from openalex_taxicab.s3_cache import S3Cache
 from openalex_taxicab.util import guess_mime_type

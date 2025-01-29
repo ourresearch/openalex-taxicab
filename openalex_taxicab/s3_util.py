@@ -17,10 +17,6 @@ def mute_boto_logging():
         logging.getLogger(lib).setLevel(logging.CRITICAL)
 
 
-def make_s3():
-    return boto3.client('s3', region_name='us-east-1')
-
-
 def _get_obj(bucket, key, f, s3=None, _raise=False):
     if not s3:
         s3 = _s3
