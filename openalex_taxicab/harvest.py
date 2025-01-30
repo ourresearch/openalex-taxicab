@@ -1,41 +1,11 @@
 import uuid
 from datetime import datetime
 import gzip
-from dataclasses import dataclass
 from typing import Optional
 import boto3
 
 from .http_cache import http_get
 from .util import guess_mime_type
-
-
-@dataclass
-class HarvestResult:
-    id: str
-    url: str
-    content: bytes
-    content_type: Optional[str] = None
-    code: Optional[int] = None
-    resolved_url: str = ''
-    created_date: str = None
-
-    def __post_init__(self):
-        if not self.created_date:
-            self.created_date = datetime.now().isoformat()
-        if not self.content_type and self.content:
-            self.content_type = guess_mime_type(self.content)
-
-    @property
-    def is_valid_pdf(self) -> bool:
-        if not self.content:
-            return False
-        if self.content_type != 'pdf':
-            return False
-        if not self.content.startswith(b'%PDF-'):
-            return False
-        if len(self.content) < 100:
-            return False
-        return True
 
 
 class Harvester:
@@ -66,43 +36,57 @@ class Harvester:
             self._pdf_table = self.dynamodb.Table('harvested-pdf')
         return self._pdf_table
 
-    def _store_content(self, result: HarvestResult) -> None:
+    def _is_valid_pdf(self, content: bytes) -> bool:
+        """Validate that the content is a PDF"""
+        return (
+            content
+            and content.startswith(b'%PDF-')
+            and len(content) >= 100
+        )
+
+    def _store_content(
+        self,
+        harvest_id: str,
+        url: str,
+        resolved_url: str,
+        content: bytes,
+        content_type: str,
+        created_date: str
+    ) -> None:
         """Store content in appropriate S3 bucket and DynamoDB table"""
-        # Determine bucket and table based on content type
-        if result.content_type == 'pdf':
+        if content_type == 'pdf':
             bucket = self.PDF_BUCKET
             table = self.pdf_table
-            key = f"{result.id}.pdf"
-            content = result.content
+            key = f"{harvest_id}.pdf"
         else:
             bucket = self.HTML_BUCKET
             table = self.html_table
-            key = f"{result.id}.html.gz"
-            content = gzip.compress(result.content)
+            key = f"{harvest_id}.html.gz"
+            content = gzip.compress(content)
 
         self._s3.put_object(
             Bucket=bucket,
             Key=key,
             Body=content,
             Metadata={
-                'url': result.url,
-                'resolved_url': result.resolved_url,
-                'created_date': result.created_date,
-                'content_type': result.content_type or '',
-                'id': result.id
+                'url': url,
+                'resolved_url': resolved_url,
+                'created_date': created_date,
+                'content_type': content_type,
+                'id': harvest_id
             }
         )
 
-        # store metadata in DynamoDB
+        # Store metadata in DynamoDB
         table.put_item(Item={
-            'id': result.id,
-            'url': result.url,
-            'resolved_url': result.resolved_url,
-            'created_date': result.created_date,
+            'id': harvest_id,
+            'url': url,
+            'resolved_url': resolved_url,
+            'created_date': created_date,
             's3_key': key
         })
 
-    def harvest(self, url: str, harvest_id: str = None) -> HarvestResult:
+    def harvest(self, url: str, harvest_id: Optional[str] = None) -> dict:
         """Harvest content from URL and store in appropriate location"""
         if not url:
             raise ValueError('url must be specified')
@@ -113,20 +97,26 @@ class Harvester:
         # Fetch content
         response = http_get(url, ask_slowly=True)
 
-        result = HarvestResult(
-            id=harvest_id,
-            url=url,
-            content=response.content,
-            code=response.status_code,
-            resolved_url=response.url
-        )
+        content = response.content
+        status_code = response.status_code
+        resolved_url = response.url
+        created_date = datetime.now().isoformat()
+        content_type = guess_mime_type(content) if content else None
 
         # Skip invalid PDFs
-        if result.content_type == 'pdf' and not result.is_valid_pdf:
+        if content_type == 'pdf' and not self._is_valid_pdf(content):
             raise ValueError(f"Invalid PDF content from {url}")
 
         # Only store successful responses with content
-        if result.code == 200 and result.content:
-            self._store_content(result)
+        if status_code == 200 and content:
+            self._store_content(harvest_id, url, resolved_url, content, content_type, created_date)
 
-        return result
+        return {
+            "id": harvest_id,
+            "url": url,
+            "resolved_url": resolved_url,
+            "content": content,
+            "content_type": content_type,
+            "code": status_code,
+            "created_date": created_date,
+        }
