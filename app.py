@@ -15,31 +15,39 @@ def index():
         "msg": "Content harvesting service"
     })
 
+
 @app.route("/harvest", methods=['POST'])
 def harvest_content():
-    try:
-        data = request.get_json()
-        if not data or 'url' not in data:
-            return jsonify({
-                'error': 'Missing URL in request body'
-            }), 400
+    data = request.get_json()
 
-        url = data['url']
-        result = harvester.harvest(url=url)
+    # Check for required fields
+    required_fields = ['native_id', 'native_id_namespace', 'url']
+    missing_fields = [field for field in required_fields if field not in data]
 
+    if missing_fields:
         return jsonify({
-            'id': result.id,
-            'url': result.url,
-            'resolved_url': result.resolved_url,
-            'content_type': result.content_type,
-            'code': result.code,
-            'created_date': result.created_date
-        })
+            'error': f'Missing required fields in request body: {", ".join(missing_fields)}'
+        }), 400
 
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    # fetch content
+    result = harvester.harvest(
+        url=data['url'],
+        native_id=data['native_id'],
+        native_id_namespace=data['native_id_namespace']
+    )
+
+    # return response without the content field
+    return jsonify({
+        'id': result['id'],
+        'url': result['url'],
+        'resolved_url': result['resolved_url'],
+        'content_type': result['content_type'],
+        'code': result['code'],
+        'created_date': result['created_date'],
+        'is_soft_block': result['is_soft_block'],
+        'native_id': result['native_id'],
+        'native_id_namespace': result['native_id_namespace']
+    })
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080, debug=True)

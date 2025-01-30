@@ -1,7 +1,9 @@
 import uuid
 from datetime import datetime
 import gzip
+import re
 from typing import Optional
+
 import boto3
 
 from .http_cache import http_get
@@ -9,8 +11,8 @@ from .util import guess_mime_type
 
 
 class Harvester:
-    HTML_BUCKET = 'harvested-html-content'
-    PDF_BUCKET = 'harvested-pdf-content'
+    HTML_BUCKET = 'openalex-harvested-html'
+    PDF_BUCKET = 'openalex-harvested-pdfs'
 
     def __init__(self, s3=None):
         self._s3 = s3 or boto3.client('s3', region_name='us-east-1')
@@ -61,15 +63,32 @@ class Harvester:
         content_str = content.decode('utf-8', errors='ignore')
         return any(pattern in content_str for pattern in patterns)
 
+    def _normalize_doi(self, native_id) -> Optional[str]:
+        native_id = native_id.strip().lower()
+
+        # test cases for this regex are at https://regex101.com/r/zS4hA0/4
+        p = re.compile(r'(10\.\d+/[^\s]+)')
+        matches = re.findall(p, native_id)
+
+        if len(matches) == 0:
+            return None
+
+        doi = matches[0]
+        if isinstance(doi, bytes):
+            doi = str(doi, "utf-8", errors="ignore")
+
+        return doi.replace('\0', '')
+
     def _store_content(
-        self,
-        harvest_id: str,
-        url: str,
-        resolved_url: str,
-        content: bytes,
-        content_type: str,
-        created_date: str,
-        is_soft_block: bool
+            self,
+            harvest_id: str,
+            url: str,
+            resolved_url: str,
+            content: bytes,
+            content_type: str,
+            created_date: str,
+            native_id: str,
+            native_id_namespace: str
     ) -> None:
         """Store content in appropriate S3 bucket and DynamoDB table"""
         if content_type == 'pdf':
@@ -82,37 +101,54 @@ class Harvester:
             key = f"{harvest_id}.html.gz"
             content = gzip.compress(content)
 
+        s3_metadata = {
+            'url': str(url or ''),
+            'resolved_url': str(resolved_url or ''),
+            'created_date': str(created_date or ''),
+            'content_type': str(content_type or ''),
+            'id': str(harvest_id or ''),
+            'native_id': str(native_id or ''),
+            'native_id_namespace': str(native_id_namespace or '')
+        }
+
+        s3_path = f"s3://{bucket}/{key}"
+
+        # store in s3
         self._s3.put_object(
             Bucket=bucket,
             Key=key,
             Body=content,
-            Metadata={
-                'url': url,
-                'resolved_url': resolved_url,
-                'created_date': created_date,
-                'content_type': content_type,
-                'id': harvest_id,
-                'is_soft_block': str(is_soft_block).lower()
-            }
+            Metadata=s3_metadata
         )
 
-        # Store metadata in DynamoDB
+        # store metadata in DynamoDB
+        normalized_doi = self._normalize_doi(native_id)
+        if not normalized_doi:
+            normalized_doi = f"non-doi-{harvest_id}"
+
         table.put_item(Item={
             'id': harvest_id,
             'url': url,
+            'native_id': native_id,
+            'native_id_namespace': native_id_namespace,
+            'normalized_doi': normalized_doi,
             'resolved_url': resolved_url,
-            'created_date': created_date,
             's3_key': key,
-            'is_soft_block': is_soft_block
+            's3_path': s3_path,
+            'created_date': created_date,
         })
 
-    def harvest(self, url: str, harvest_id: Optional[str] = None) -> dict:
+    def harvest(
+            self,
+            url: str,
+            native_id: str,
+            native_id_namespace: str
+    ) -> dict:
         """Harvest content from URL and store in appropriate location"""
         if not url:
             raise ValueError('url must be specified')
 
-        if not harvest_id:
-            harvest_id = str(uuid.uuid4())
+        harvest_id = str(uuid.uuid4())
 
         # Fetch content
         response = http_get(url, ask_slowly=True)
@@ -129,7 +165,7 @@ class Harvester:
             raise ValueError(f"Invalid PDF content from {url}")
 
         # Only store successful responses with content
-        if status_code == 200 and content:
+        if status_code == 200 and content and not is_soft_block:
             self._store_content(
                 harvest_id,
                 url,
@@ -137,7 +173,8 @@ class Harvester:
                 content,
                 content_type,
                 created_date,
-                is_soft_block
+                native_id,
+                native_id_namespace
             )
 
         return {
@@ -148,5 +185,7 @@ class Harvester:
             "content_type": content_type,
             "code": status_code,
             "created_date": created_date,
-            "is_soft_block": is_soft_block
+            "is_soft_block": is_soft_block,
+            "native_id": native_id,
+            "native_id_namespace": native_id_namespace
         }
