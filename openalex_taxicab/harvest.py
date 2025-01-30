@@ -44,6 +44,23 @@ class Harvester:
             and len(content) >= 100
         )
 
+    def _check_soft_block(self, content: bytes) -> bool:
+        """Check if the content indicates a soft block"""
+        if not content:
+            return False
+
+        patterns = [
+            'ShieldSquare Captcha',
+            '429 - Too many requests',
+            'We apologize for the inconvenience',
+            '<title>APA PsycNet</title>',
+            'Your request cannot be processed at this time',
+            '/cookieAbsent'
+        ]
+
+        content_str = content.decode('utf-8', errors='ignore')
+        return any(pattern in content_str for pattern in patterns)
+
     def _store_content(
         self,
         harvest_id: str,
@@ -51,7 +68,8 @@ class Harvester:
         resolved_url: str,
         content: bytes,
         content_type: str,
-        created_date: str
+        created_date: str,
+        is_soft_block: bool
     ) -> None:
         """Store content in appropriate S3 bucket and DynamoDB table"""
         if content_type == 'pdf':
@@ -73,7 +91,8 @@ class Harvester:
                 'resolved_url': resolved_url,
                 'created_date': created_date,
                 'content_type': content_type,
-                'id': harvest_id
+                'id': harvest_id,
+                'is_soft_block': str(is_soft_block).lower()
             }
         )
 
@@ -83,7 +102,8 @@ class Harvester:
             'url': url,
             'resolved_url': resolved_url,
             'created_date': created_date,
-            's3_key': key
+            's3_key': key,
+            'is_soft_block': is_soft_block
         })
 
     def harvest(self, url: str, harvest_id: Optional[str] = None) -> dict:
@@ -102,6 +122,7 @@ class Harvester:
         resolved_url = response.url
         created_date = datetime.now().isoformat()
         content_type = guess_mime_type(content) if content else None
+        is_soft_block = self._check_soft_block(content) if content_type != 'pdf' else False
 
         # Skip invalid PDFs
         if content_type == 'pdf' and not self._is_valid_pdf(content):
@@ -109,7 +130,15 @@ class Harvester:
 
         # Only store successful responses with content
         if status_code == 200 and content:
-            self._store_content(harvest_id, url, resolved_url, content, content_type, created_date)
+            self._store_content(
+                harvest_id,
+                url,
+                resolved_url,
+                content,
+                content_type,
+                created_date,
+                is_soft_block
+            )
 
         return {
             "id": harvest_id,
@@ -119,4 +148,5 @@ class Harvester:
             "content_type": content_type,
             "code": status_code,
             "created_date": created_date,
+            "is_soft_block": is_soft_block
         }
