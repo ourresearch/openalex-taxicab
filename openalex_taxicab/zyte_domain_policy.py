@@ -48,9 +48,7 @@ def get_zyte_domain_policies():
     """
     dynamodb = boto3.resource(
         'dynamodb',
-        region_name="us-east-1",
-        aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-        aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"]
+        region_name="us-east-1"
     )
     table = dynamodb.Table('zyte-config')
 
