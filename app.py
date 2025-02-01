@@ -12,7 +12,7 @@ harvester = Harvester(s3=s3_client)
 def index():
     return jsonify({
         "version": "0.1",
-        "msg": "Content harvesting service"
+        "msg": "Content harvesting service is running"
     })
 
 
