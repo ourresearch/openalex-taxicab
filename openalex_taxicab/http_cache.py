@@ -324,14 +324,14 @@ def call_requests_get(url=None,
     while following_redirects:
 
         if policies := get_matching_policies(url):
-            logger.info(f"policies: {policies}")
+            logger.info(f"found matching policy: {policies}")
             policy = policies[min(attempt_n, len(policies) - 1)]
-            if policy.profile == 'api':
-                logger.info('using zyte profile')
+            if policy.profile == 'api' or 'iop.org' in url:
+                logger.info('using zyte profile due to policy')
                 use_zyte_api_profile = True
                 zyte_params = policy.params
             elif policy.profile == 'proxy':
-                logger.info('using crawlera profile')
+                logger.info('using crawlera profile due to policy')
                 use_crawlera_profile = True
 
         if use_crawlera_profile:
@@ -396,10 +396,6 @@ def call_requests_get(url=None,
                                      allow_redirects=False,
                                      verify=False,
                                      cookies=cookies)
-
-            # trigger 503 for iop.org pdf urls, so that we retry with zyte api
-            if 'iop.org' in url and url.endswith('/pdf'):
-                r.status_code = 503
 
         # from http://jakeaustwick.me/extending-the-requests-response-class/
         for method_name, method in inspect.getmembers(RequestWithFileDownload,

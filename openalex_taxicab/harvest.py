@@ -61,7 +61,7 @@ class Harvester:
             '/cookieAbsent'
         ]
 
-        content_str = content.decode('utf-8', errors='ignore')
+        content_str = content.decode('utf-8', errors='ignore') if isinstance(content, bytes) else str(content)
         return any(pattern in content_str for pattern in patterns)
 
     def _normalize_doi(self, native_id) -> Optional[str]:
@@ -100,6 +100,11 @@ class Harvester:
             bucket = self.HTML_BUCKET
             table = self.html_table
             key = f"{harvest_id}.html.gz"
+
+            if isinstance(content, str):
+                content = content.encode('utf-8')
+            elif not isinstance(content, bytes):
+                content = str(content).encode('utf-8')
             content = gzip.compress(content)
 
         s3_metadata = {
