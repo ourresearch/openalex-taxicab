@@ -11,10 +11,9 @@ from urllib.parse import urljoin, urlparse
 import json
 
 import requests
-# import tenacity
-#
-# from tenacity import retry, stop_after_attempt, wait_exponential, \
-#     retry_if_result
+
+from tenacity import retry, stop_after_attempt, wait_exponential, \
+    retry_if_result
 import requests.exceptions
 
 from openalex_taxicab.log import _make_logger
@@ -74,7 +73,7 @@ class ResponseObject:
 
 def is_response_too_large(r):
     if not "Content-Length" in r.headers:
-        # logger.info(u"can't tell if page is too large, no Content-Length header {}".format(r.url))
+        logger.info(u"can't tell if page is too large, no Content-Length header {}".format(r.url))
         return False
 
     content_length = r.headers["Content-Length"]
@@ -263,11 +262,11 @@ def is_retry_status(response):
     return response.status_code in {429, 500, 502, 503, 504, 520, 403}
 
 
-# @retry(stop=stop_after_attempt(2),
-#        wait=wait_exponential(multiplier=1, min=4, max=10),
-#        retry=retry_if_result(is_retry_status),
-#        before_sleep=before_retry,
-#        reraise=True)
+@retry(stop=stop_after_attempt(2),
+       wait=wait_exponential(multiplier=1, min=4, max=10),
+       retry=retry_if_result(is_retry_status),
+       before_sleep=before_retry,
+       reraise=True)
 def call_requests_get(url=None,
                       headers=None,
                       read_timeout=300,
@@ -325,6 +324,7 @@ def call_requests_get(url=None,
     while following_redirects:
 
         if policies := get_matching_policies(url):
+            logger.info(f"policies: {policies}")
             policy = policies[min(attempt_n, len(policies) - 1)]
             if policy.profile == 'api':
                 logger.info('using zyte profile')
@@ -387,7 +387,7 @@ def call_requests_get(url=None,
                     f"zyte api bad status code for {url}: {bad__status_code}")
                 return r
         else:
-            # logger.info(u"getting url {}".format(url))
+            logger.info(u"getting url {}".format(url))
             r = requests_session.get(url,
                                      headers=headers,
                                      timeout=(connect_timeout, read_timeout),
@@ -475,9 +475,6 @@ def http_get(url,
                           ask_slowly=ask_slowly,
                           verify=verify,
                           cookies=cookies)
-    # except tenacity.RetryError as e:
-    #     logger.info(f"tried too many times for {url}")
-    #     raise e
     logger.info("finished http_get for {} in {} seconds".format(url, elapsed(
         start_time, 2)))
     return r

@@ -5,6 +5,7 @@ import re
 from typing import Optional
 
 import boto3
+import tenacity
 
 from .http_cache import http_get
 from .util import guess_mime_type
@@ -150,8 +151,22 @@ class Harvester:
 
         harvest_id = str(uuid.uuid4())
 
-        # Fetch content
-        response = http_get(url, ask_slowly=True)
+        try:
+            response = http_get(url, ask_slowly=True)
+        except tenacity.RetryError as e:
+            # get status code from the last failed attempt
+            last_attempt = e.last_attempt.result()
+            return {
+                "id": None,
+                "url": url,
+                "resolved_url": last_attempt.url,
+                "content_type": None,
+                "code": last_attempt.status_code,
+                "created_date": datetime.now().isoformat(),
+                "is_soft_block": False,
+                "native_id": native_id,
+                "native_id_namespace": native_id_namespace
+            }
 
         content = response.content
         status_code = response.status_code

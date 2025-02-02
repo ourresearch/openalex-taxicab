@@ -38,18 +38,20 @@ def harvest_content():
         native_id_namespace=data['native_id_namespace']
     )
 
-    # return response without the content field
-    return jsonify({
+    response = {
         'id': result['id'],
         'url': result['url'],
         'resolved_url': result['resolved_url'],
-        'content_type': result['content_type'],
         'code': result['code'],
-        'created_date': result['created_date'],
+        'content_type': result['content_type'],
         'is_soft_block': result['is_soft_block'],
         'native_id': result['native_id'],
-        'native_id_namespace': result['native_id_namespace']
-    })
+        'native_id_namespace': result['native_id_namespace'],
+        'created_date': result['created_date'],
+    }
+
+    status_code = 201 if result['id'] else 200
+    return jsonify(response), status_code
 
 
 @app.route("/taxicab/<uuid:harvest_id>", methods=['GET'])
