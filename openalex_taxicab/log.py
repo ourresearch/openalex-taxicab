@@ -4,6 +4,9 @@ import sys
 def _make_logger():
     logger = logging.getLogger(__name__)
 
+    if logger.handlers:
+        return logger
+
     logger.setLevel(logging.DEBUG)
 
     console_handler = logging.StreamHandler(sys.stdout)
