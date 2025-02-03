@@ -80,18 +80,15 @@ class Harvester:
 
         return doi.replace('\0', '')
 
+    def get_dynamodb_table_count(self, table):
+        dynamodb = boto3.client("dynamodb")
+        response = dynamodb.describe_table(TableName=table.name)
+        return response["Table"]["ItemCount"]
+
     def metadata(self):
         # get count of records in HTML table
-        html_scan = self.html_table.scan(
-            Select='COUNT'
-        )
-        html_count = html_scan['Count']
-
-        # get count of records in PDF table
-        pdf_scan = self.pdf_table.scan(
-            Select='COUNT'
-        )
-        pdf_count = pdf_scan['Count']
+        html_count = self.get_dynamodb_table_count(self.html_table)
+        pdf_count = self.get_dynamodb_table_count(self.pdf_table)
 
         # get most recent HTML records
         html_sample = self.html_table.scan(
