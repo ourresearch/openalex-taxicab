@@ -12,10 +12,8 @@ harvester = Harvester(s3=s3_client)
 
 @app.route("/")
 def index():
-    return jsonify({
-        "version": "0.1",
-        "msg": "Content harvesting service is running"
-    })
+    metadata = harvester.metadata()
+    return jsonify(metadata)
 
 
 @app.route("/taxicab", methods=['POST'])
@@ -97,5 +95,5 @@ def fetch_harvested_content(harvest_id):
 
     return jsonify({"error": "File not found"}), 404
 
-# if __name__ == "__main__":
-#     app.run(host='0.0.0.0', port=8080, debug=True)
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=8080, debug=True)

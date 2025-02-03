@@ -80,6 +80,51 @@ class Harvester:
 
         return doi.replace('\0', '')
 
+    def metadata(self):
+        # get count of records in HTML table
+        html_scan = self.html_table.scan(
+            Select='COUNT'
+        )
+        html_count = html_scan['Count']
+
+        # get count of records in PDF table
+        pdf_scan = self.pdf_table.scan(
+            Select='COUNT'
+        )
+        pdf_count = pdf_scan['Count']
+
+        # get most recent HTML records
+        html_sample = self.html_table.scan(
+            Limit=20,
+            FilterExpression='attribute_exists(created_date)'
+        )
+
+        # get most recent PDF records
+        pdf_sample = self.pdf_table.scan(
+            Limit=20,
+            FilterExpression='attribute_exists(created_date)'
+        )
+
+        # sort the samples by created_date since scan doesn't guarantee order
+        html_items = sorted(html_sample['Items'],
+                            key=lambda x: x.get('created_date', ''),
+                            reverse=True)[:20]
+        pdf_items = sorted(pdf_sample['Items'],
+                           key=lambda x: x.get('created_date', ''),
+                           reverse=True)[:20]
+
+        return {
+            'meta': {
+                'html': html_count,
+                'pdf': pdf_count,
+                'total': html_count + pdf_count
+            },
+            'results': {
+                'html': html_items,
+                'pdf': pdf_items
+            }
+        }
+
     def _store_content(
             self,
             harvest_id: str,
