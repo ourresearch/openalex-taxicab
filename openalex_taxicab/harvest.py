@@ -236,17 +236,17 @@ class Harvester:
         except tenacity.RetryError as e:
             # get status code from the last failed attempt
             last_attempt = e.last_attempt.result()
-            return {
-                "id": None,
-                "url": url,
-                "resolved_url": last_attempt.url,
-                "content_type": None,
-                "code": last_attempt.status_code,
-                "created_date": datetime.now().isoformat(),
-                "is_soft_block": False,
-                "native_id": native_id,
-                "native_id_namespace": native_id_namespace
-            }
+            return OrderedDict([
+                ("id", None),
+                ("url", url),
+                ("code", last_attempt.status_code),
+                ("resolved_url", last_attempt.url),
+                ("native_id", native_id),
+                ("native_id_namespace", native_id_namespace),
+                ("content_type", None),
+                ("is_soft_block", False),
+                ("created_date", None),
+            ])
 
         content = response.content
         status_code = response.status_code
@@ -272,15 +272,14 @@ class Harvester:
                 native_id_namespace
             )
 
-        return {
-            "id": harvest_id,
-            "url": url,
-            "resolved_url": resolved_url,
-            "content": content,
-            "content_type": content_type,
-            "code": status_code,
-            "created_date": created_date,
-            "is_soft_block": is_soft_block,
-            "native_id": native_id,
-            "native_id_namespace": native_id_namespace
-        }
+        return OrderedDict([
+            ("id", harvest_id),
+            ("url", url),
+            ("code", status_code),
+            ("resolved_url", resolved_url),
+            ("native_id", native_id),
+            ("native_id_namespace", native_id_namespace),
+            ("is_soft_block", is_soft_block),
+            ("content_type", content_type),
+            ("created_date", created_date),
+        ])

@@ -6,6 +6,7 @@ import boto3
 from openalex_taxicab.harvest import Harvester
 
 app = Flask(__name__)
+app.json.sort_keys = False
 
 s3_client = boto3.client("s3", region_name="us-east-1")
 harvester = Harvester(s3=s3_client)
@@ -20,7 +21,6 @@ def index():
 def harvest_content():
     data = request.get_json()
 
-    # Check for required fields
     required_fields = ['native_id', 'native_id_namespace', 'url']
     missing_fields = [field for field in required_fields if field not in data]
 
@@ -36,20 +36,8 @@ def harvest_content():
         native_id_namespace=data['native_id_namespace']
     )
 
-    response = {
-        'id': result['id'],
-        'url': result['url'],
-        'resolved_url': result['resolved_url'],
-        'code': result['code'],
-        'content_type': result['content_type'],
-        'is_soft_block': result['is_soft_block'],
-        'native_id': result['native_id'],
-        'native_id_namespace': result['native_id_namespace'],
-        'created_date': result['created_date'],
-    }
-
     status_code = 201 if result['id'] else 200
-    return jsonify(response), status_code
+    return jsonify(result), status_code
 
 
 @app.route("/taxicab/<uuid:harvest_id>", methods=['GET'])
