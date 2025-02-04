@@ -1,8 +1,10 @@
 import uuid
+from collections import OrderedDict
 from datetime import datetime
 import gzip
 import re
 from typing import Optional
+from urllib.parse import quote
 
 import boto3
 import tenacity
@@ -110,6 +112,34 @@ class Harvester:
                            key=lambda x: x.get('created_date', ''),
                            reverse=True)[:20]
 
+        key_order = [
+            "id",
+            "url",
+            "resolved_url",
+            "native_id",
+            "native_id_namespace",
+            "s3_path",
+            "created_date",
+        ]
+
+        def to_ordered_dict(item):
+            return OrderedDict((key, item[key]) for key in key_order if key in item)
+
+        ordered_html_items = [to_ordered_dict(item) for item in html_items]
+        ordered_pdf_items = [to_ordered_dict(item) for item in pdf_items]
+
+        return {
+            'meta': {
+                'html': html_count,
+                'pdf': pdf_count,
+                'total': html_count + pdf_count
+            },
+            'results': {
+                'html': ordered_html_items,
+                'pdf': ordered_pdf_items
+            }
+        }
+
         return {
             'meta': {
                 'html': html_count,
@@ -149,9 +179,12 @@ class Harvester:
                 content = str(content).encode('utf-8')
             content = gzip.compress(content)
 
+        encoded_url = quote(str(url or ''))
+        encoded_resolved_url = quote(str(resolved_url or ''))
+
         s3_metadata = {
-            'url': str(url or ''),
-            'resolved_url': str(resolved_url or ''),
+            'url': encoded_url,
+            'resolved_url': encoded_resolved_url,
             'created_date': str(created_date or ''),
             'content_type': str(content_type or ''),
             'id': str(harvest_id or ''),
