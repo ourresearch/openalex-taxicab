@@ -22,6 +22,7 @@ class Harvester:
         self._dynamodb = None
         self._html_table = None
         self._pdf_table = None
+        self._grobid_table = None
 
     @property
     def dynamodb(self):
@@ -40,6 +41,12 @@ class Harvester:
         if self._pdf_table is None:
             self._pdf_table = self.dynamodb.Table('harvested-pdf')
         return self._pdf_table
+
+    @property
+    def grobid_table(self):
+        if self._grobid_table is None:
+            self._grobid_table = self.dynamodb.Table('grobid-xml')
+        return self._grobid_table
 
     def _is_valid_pdf(self, content: bytes) -> bool:
         """Validate that the content is a PDF"""
@@ -91,6 +98,7 @@ class Harvester:
         # get count of records in HTML table
         html_count = self.get_dynamodb_table_count(self.html_table)
         pdf_count = self.get_dynamodb_table_count(self.pdf_table)
+        grobid_count = self.get_dynamodb_table_count(self.grobid_table)
 
         # get most recent HTML records
         html_sample = self.html_table.scan(
@@ -104,6 +112,11 @@ class Harvester:
             FilterExpression='attribute_exists(created_date)'
         )
 
+        grobid_sample = self.grobid_table.scan(
+            Limit=20,
+            FilterExpression='attribute_exists(created_date)'
+        )
+
         # sort the samples by created_date since scan doesn't guarantee order
         html_items = sorted(html_sample['Items'],
                             key=lambda x: x.get('created_date', ''),
@@ -111,6 +124,10 @@ class Harvester:
         pdf_items = sorted(pdf_sample['Items'],
                            key=lambda x: x.get('created_date', ''),
                            reverse=True)[:20]
+
+        grobid_items = sorted(grobid_sample['Items'],
+                                key=lambda x: x.get('created_date', ''),
+                                reverse=True)[:20]
 
         key_order = [
             "id",
@@ -127,28 +144,19 @@ class Harvester:
 
         ordered_html_items = [to_ordered_dict(item) for item in html_items]
         ordered_pdf_items = [to_ordered_dict(item) for item in pdf_items]
+        ordered_grobid_items = [to_ordered_dict(item) for item in grobid_items]
 
         return {
             'meta': {
                 'html': html_count,
                 'pdf': pdf_count,
-                'total': html_count + pdf_count
+                'grobid': grobid_count,
+                'total': html_count + pdf_count + grobid_count
             },
             'results': {
                 'html': ordered_html_items,
-                'pdf': ordered_pdf_items
-            }
-        }
-
-        return {
-            'meta': {
-                'html': html_count,
-                'pdf': pdf_count,
-                'total': html_count + pdf_count
-            },
-            'results': {
-                'html': html_items,
-                'pdf': pdf_items
+                'pdf': ordered_pdf_items,
+                'grobid': ordered_grobid_items
             }
         }
 
