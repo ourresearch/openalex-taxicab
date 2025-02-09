@@ -16,7 +16,7 @@ from .util import guess_mime_type
 class Harvester:
     HTML_BUCKET = 'openalex-harvested-html'
     PDF_BUCKET = 'openalex-harvested-pdfs'
-    XML_BUCKET = 'openalex-grobid-xml'
+    XML_BUCKET = 'openalex-harvested-grobid-xml'
 
     def __init__(self, s3=None):
         self._s3 = s3 or boto3.client('s3', region_name='us-east-1')
