@@ -160,6 +160,54 @@ class Harvester:
             }
         }
 
+    def fetch_by_doi(self, doi: str) -> dict:
+        """Fetch content by DOI"""
+        normalized_doi = self._normalize_doi(doi)
+        if not normalized_doi:
+            return {}
+
+        html_response = self.html_table.query(
+            IndexName='by_normalized_doi',
+            KeyConditionExpression='normalized_doi = :doi',
+            ExpressionAttributeValues={':doi': normalized_doi},
+            Limit=1
+        )
+
+        pdf_response = self.pdf_table.query(
+            IndexName='by_normalized_doi',
+            KeyConditionExpression='normalized_doi = :doi',
+            ExpressionAttributeValues={':doi': normalized_doi},
+            Limit=1
+        )
+
+        grobid_response = self.grobid_table.query(
+            IndexName='by_normalized_doi',
+            KeyConditionExpression='normalized_doi = :doi',
+            ExpressionAttributeValues={':doi': normalized_doi},
+            Limit=1
+        )
+
+        def to_ordered_dict(item):
+            return OrderedDict([
+                ("id", item.get("id")),
+                ("url", item.get("url")),
+                ("resolved_url", item.get("resolved_url")),
+                ("native_id", item.get("native_id")),
+                ("native_id_namespace", item.get("native_id_namespace")),
+                ("s3_path", item.get("s3_path")),
+                ("created_date", item.get("created_date")),
+            ])
+
+        html_items = [to_ordered_dict(item) for item in html_response.get('Items', [])]
+        pdf_items = [to_ordered_dict(item) for item in pdf_response.get('Items', [])]
+        grobid_items = [to_ordered_dict(item) for item in grobid_response.get('Items', [])]
+
+        return {
+            'html': html_items,
+            'pdf': pdf_items,
+            'grobid': grobid_items
+        }
+
     def _store_content(
             self,
             harvest_id: str,

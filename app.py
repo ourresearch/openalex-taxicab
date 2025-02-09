@@ -40,6 +40,13 @@ def harvest_content():
     return jsonify(result), status_code
 
 
+@app.route("/taxicab/doi/<path:doi>", methods=['GET'])
+def fetch_harvested_content_by_doi(doi):
+    doi = str(doi)
+    result = harvester.fetch_by_doi(doi)
+    return jsonify(result)
+
+
 @app.route("/taxicab/<uuid:harvest_id>", methods=['GET'])
 def fetch_harvested_content(harvest_id):
     harvest_id = str(harvest_id)
