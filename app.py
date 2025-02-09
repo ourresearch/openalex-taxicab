@@ -50,11 +50,12 @@ def fetch_harvested_content_by_doi(doi):
 @app.route("/taxicab/<uuid:harvest_id>", methods=['GET'])
 def fetch_harvested_content(harvest_id):
     harvest_id = str(harvest_id)
-    possible_buckets = [harvester.HTML_BUCKET, harvester.PDF_BUCKET]
+    possible_buckets = [harvester.HTML_BUCKET, harvester.PDF_BUCKET, harvester.XML_BUCKET]
 
     for bucket in possible_buckets:
         s3_key_html = f"{harvest_id}.html.gz"
         s3_key_pdf = f"{harvest_id}.pdf"
+        s3_key_xml = f"{harvest_id}.xml.gzip"
 
         try:
             # try HTML (gzipped)
@@ -87,6 +88,19 @@ def fetch_harvested_content(harvest_id):
             pass  # if PDF is not found, try the next bucket
         except Exception as e:
             return jsonify({"error": f"Error fetching PDF: {str(e)}"}), 500
+
+        try:
+            # try XML (gzipped)
+            obj = s3_client.get_object(Bucket=bucket, Key=s3_key_xml)
+            content = gzip.decompress(obj['Body'].read())
+            content_type = "application/xml"
+            return Response(
+                content,
+                content_type=content_type,
+                headers={"Content-Disposition": f"attachment; filename={harvest_id}.xml"}
+            )
+        except Exception as e:
+            return jsonify({"error": f"Error fetching XML: {str(e)}"}), 500
 
     return jsonify({"error": "File not found"}), 404
 

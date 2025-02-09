@@ -16,6 +16,7 @@ from .util import guess_mime_type
 class Harvester:
     HTML_BUCKET = 'openalex-harvested-html'
     PDF_BUCKET = 'openalex-harvested-pdfs'
+    XML_BUCKET = 'openalex-grobid-xml'
 
     def __init__(self, s3=None):
         self._s3 = s3 or boto3.client('s3', region_name='us-east-1')
@@ -94,6 +95,20 @@ class Harvester:
         response = dynamodb.describe_table(TableName=table.name)
         return response["Table"]["ItemCount"]
 
+    def _create_item_dict(self, item: dict) -> OrderedDict:
+        """Create a standardized OrderedDict for item responses."""
+        return OrderedDict([
+            ("id", item.get("id")),
+            ("url", item.get("url")),
+            ("resolved_url", item.get("resolved_url")),
+            ("native_id", item.get("native_id")),
+            ("native_id_namespace", item.get("native_id_namespace")),
+            ("download_url",
+             f"http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com/taxicab/{item.get('id')}"),
+            ("s3_path", item.get("s3_path")),
+            ("created_date", item.get("created_date")),
+        ])
+
     def metadata(self):
         # get count of records in HTML table
         html_count = self.get_dynamodb_table_count(self.html_table)
@@ -129,22 +144,9 @@ class Harvester:
                                 key=lambda x: x.get('created_date', ''),
                                 reverse=True)[:20]
 
-        key_order = [
-            "id",
-            "url",
-            "resolved_url",
-            "native_id",
-            "native_id_namespace",
-            "s3_path",
-            "created_date",
-        ]
-
-        def to_ordered_dict(item):
-            return OrderedDict((key, item[key]) for key in key_order if key in item)
-
-        ordered_html_items = [to_ordered_dict(item) for item in html_items]
-        ordered_pdf_items = [to_ordered_dict(item) for item in pdf_items]
-        ordered_grobid_items = [to_ordered_dict(item) for item in grobid_items]
+        ordered_html_items = [self._create_item_dict(item) for item in html_items]
+        ordered_pdf_items = [self._create_item_dict(item) for item in pdf_items]
+        ordered_grobid_items = [self._create_item_dict(item) for item in grobid_items]
 
         return {
             'meta': {
@@ -187,20 +189,9 @@ class Harvester:
             Limit=1
         )
 
-        def to_ordered_dict(item):
-            return OrderedDict([
-                ("id", item.get("id")),
-                ("url", item.get("url")),
-                ("resolved_url", item.get("resolved_url")),
-                ("native_id", item.get("native_id")),
-                ("native_id_namespace", item.get("native_id_namespace")),
-                ("s3_path", item.get("s3_path")),
-                ("created_date", item.get("created_date")),
-            ])
-
-        html_items = [to_ordered_dict(item) for item in html_response.get('Items', [])]
-        pdf_items = [to_ordered_dict(item) for item in pdf_response.get('Items', [])]
-        grobid_items = [to_ordered_dict(item) for item in grobid_response.get('Items', [])]
+        html_items = [self._create_item_dict(item) for item in html_response.get('Items', [])]
+        pdf_items = [self._create_item_dict(item) for item in pdf_response.get('Items', [])]
+        grobid_items = [self._create_item_dict(item) for item in grobid_response.get('Items', [])]
 
         return {
             'html': html_items,
