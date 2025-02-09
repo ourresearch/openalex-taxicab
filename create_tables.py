@@ -4,7 +4,7 @@ import boto3
 def create_harvested_tables():
     dynamodb = boto3.client('dynamodb', region_name='us-east-1')
 
-    # GSI definitions for both tables
+    # GSI definitions for tables
     gsi_definitions = [
         {
             'IndexName': 'by_normalized_doi',
@@ -63,9 +63,9 @@ def create_harvested_tables():
         BillingMode='PAY_PER_REQUEST'
     )
 
-    # create PDF table with same structure
+    # create grobid table with same structure
     dynamodb.create_table(
-        TableName='harvested-pdf',
+        TableName='grobid-xml',
         KeySchema=[
             {'AttributeName': 'id', 'KeyType': 'HASH'}
         ],
