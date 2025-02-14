@@ -171,22 +171,19 @@ class Harvester:
         html_response = self.html_table.query(
             IndexName='by_normalized_doi',
             KeyConditionExpression='normalized_doi = :doi',
-            ExpressionAttributeValues={':doi': normalized_doi},
-            Limit=1
+            ExpressionAttributeValues={':doi': normalized_doi}
         )
 
         pdf_response = self.pdf_table.query(
             IndexName='by_normalized_doi',
             KeyConditionExpression='normalized_doi = :doi',
-            ExpressionAttributeValues={':doi': normalized_doi},
-            Limit=1
+            ExpressionAttributeValues={':doi': normalized_doi}
         )
 
         grobid_response = self.grobid_table.query(
             IndexName='by_normalized_doi',
             KeyConditionExpression='normalized_doi = :doi',
-            ExpressionAttributeValues={':doi': normalized_doi},
-            Limit=1
+            ExpressionAttributeValues={':doi': normalized_doi}
         )
 
         html_items = [self._create_item_dict(item) for item in html_response.get('Items', [])]
