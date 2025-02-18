@@ -7,6 +7,7 @@ from typing import Optional
 from urllib.parse import quote
 
 import boto3
+from boto3.dynamodb.conditions import Key
 import tenacity
 
 from .http_cache import http_get
@@ -115,30 +116,46 @@ class Harvester:
         pdf_count = self.get_dynamodb_table_count(self.pdf_table)
         grobid_count = self.get_dynamodb_table_count(self.grobid_table)
 
-        # get most recent HTML records
-        html_sample = self.html_table.scan(
-            Limit=20,
-            FilterExpression='attribute_exists(created_date)'
-        )
+        html_sample_doi = self.html_table.query(
+            IndexName="by_native_id_namespace_with_sort",
+            KeyConditionExpression=Key("native_id_namespace").eq("doi"),
+            ScanIndexForward=False,
+            Limit=10
+        ).get("Items", [])
 
-        # get most recent PDF records
-        pdf_sample = self.pdf_table.scan(
-            Limit=20,
-            FilterExpression='attribute_exists(created_date)'
-        )
+        html_sample_pmh = self.html_table.query(
+            IndexName="by_native_id_namespace_with_sort",
+            KeyConditionExpression=Key("native_id_namespace").eq("pmh"),
+            ScanIndexForward=False,
+            Limit=10
+        ).get("Items", [])
+
+        pdf_sample_doi = self.pdf_table.query(
+            IndexName="by_native_id_namespace_with_sort",
+            KeyConditionExpression=Key("native_id_namespace").eq("doi"),
+            ScanIndexForward=False,
+            Limit=10
+        ).get("Items", [])
+
+        pdf_sample_pmh = self.pdf_table.query(
+            IndexName="by_native_id_namespace_with_sort",
+            KeyConditionExpression=Key("native_id_namespace").eq("pmh"),
+            ScanIndexForward=False,
+            Limit=10
+        ).get("Items", [])
 
         grobid_sample = self.grobid_table.scan(
             Limit=20,
             FilterExpression='attribute_exists(created_date)'
         )
 
-        # sort the samples by created_date since scan doesn't guarantee order
-        html_items = sorted(html_sample['Items'],
-                            key=lambda x: x.get('created_date', ''),
-                            reverse=True)[:20]
-        pdf_items = sorted(pdf_sample['Items'],
-                           key=lambda x: x.get('created_date', ''),
-                           reverse=True)[:20]
+        # merge and sort results for HTML
+        html_sample = html_sample_doi + html_sample_pmh
+        html_items = sorted(html_sample, key=lambda x: x["created_timestamp"], reverse=True)
+
+        # merge and sort results for PDF
+        pdf_sample = pdf_sample_doi + pdf_sample_pmh
+        pdf_items = sorted(pdf_sample, key=lambda x: x["created_timestamp"], reverse=True)
 
         grobid_items = sorted(grobid_sample['Items'],
                                 key=lambda x: x.get('created_date', ''),
