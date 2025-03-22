@@ -107,6 +107,7 @@ class Harvester:
             ("download_url",
              f"http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com/taxicab/{item.get('id')}"),
             ("s3_path", item.get("s3_path")),
+            ("version", item.get("type")),
             ("created_date", item.get("created_date")),
         ])
 
