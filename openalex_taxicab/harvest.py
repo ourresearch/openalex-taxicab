@@ -214,6 +214,36 @@ class Harvester:
             'grobid': grobid_items
         }
 
+    def fetch_by_pmh_id(self, pmh_id: str) -> dict:
+        """Fetch content by PMH ID"""
+        html_response = self.html_table.query(
+            IndexName='by_native_id',
+            KeyConditionExpression='native_id = :pmh_id',
+            ExpressionAttributeValues={':pmh_id': pmh_id}
+        )
+
+        pdf_response = self.pdf_table.query(
+            IndexName='by_native_id',
+            KeyConditionExpression='native_id = :pmh_id',
+            ExpressionAttributeValues={':pmh_id': pmh_id}
+        )
+
+        grobid_response = self.grobid_table.query(
+            IndexName='by_native_id',
+            KeyConditionExpression='native_id = :pmh_id',
+            ExpressionAttributeValues={':pmh_id': pmh_id}
+        )
+
+        html_items = [self._create_item_dict(item) for item in html_response.get('Items', [])]
+        pdf_items = [self._create_item_dict(item) for item in pdf_response.get('Items', [])]
+        grobid_items = [self._create_item_dict(item) for item in grobid_response.get('Items', [])]
+
+        return {
+            'html': html_items,
+            'pdf': pdf_items,
+            'grobid': grobid_items
+        }
+
     def _store_content(
             self,
             harvest_id: str,

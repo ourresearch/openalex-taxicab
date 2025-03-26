@@ -46,6 +46,11 @@ def fetch_harvested_content_by_doi(doi):
     result = harvester.fetch_by_doi(doi)
     return jsonify(result)
 
+@app.route("/taxicab/pmh/<path:pmh_id>", methods=['GET'])
+def fetch_harvested_content_by_pmh_id(pmh_id):
+    pmh_id = str(pmh_id)
+    result = harvester.fetch_by_pmh_id(pmh_id)
+    return jsonify(result)
 
 @app.route("/taxicab/<uuid:harvest_id>", methods=['GET'])
 def fetch_harvested_content(harvest_id):
