@@ -352,7 +352,11 @@ class Harvester:
         if content_type == 'pdf' and not self._is_valid_pdf(content):
             raise ValueError(f"Invalid PDF content from {url}")
 
-        # Only store successful responses with content
+        # skip if not valid content type
+        if 'html' not in content_type and 'pdf' not in content_type:
+            raise ValueError(f"Invalid content type from {url}, got {content_type}")
+
+        # Only store successful responses with valid content
         if status_code == 200 and content and not is_soft_block:
             self._store_content(
                 harvest_id,
