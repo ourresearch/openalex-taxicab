@@ -331,7 +331,7 @@ class Harvester:
             return OrderedDict([
                 ("id", None),
                 ("url", url),
-                ("code", last_attempt.status_code),
+                ("status_code", last_attempt.status_code),
                 ("resolved_url", last_attempt.url),
                 ("native_id", native_id),
                 ("native_id_namespace", native_id_namespace),
@@ -367,7 +367,7 @@ class Harvester:
         return OrderedDict([
             ("id", harvest_id),
             ("url", url),
-            ("code", status_code),
+            ("status_code", status_code),
             ("resolved_url", resolved_url),
             ("native_id", native_id),
             ("native_id_namespace", native_id_namespace),
