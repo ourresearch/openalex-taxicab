@@ -101,29 +101,33 @@ def get_session_id():
 
 def chooser_redirect(r):
     """
-    Check if the response contains a "Chooser" title and extract redirect links.
+    Handle Crossref record pages and extract the first redirect link.
 
     This function works with ResponseObject instances returned by Zyte API.
+    Identifies Crossref pages by their meta description and returns the first link
+    in the resource container.
     """
     # Get the content as text
     try:
         content = r.text_small() if hasattr(r, 'text_small') else r.content
 
-        # If content is bytes, decode it
+        # if content is bytes, decode it
         if isinstance(content, bytes):
             content = content.decode('utf-8', 'ignore')
 
-        # Look for the Chooser title
-        if '<title>Chooser</title>' in content:
-            # Find resource links
-            links = re.findall(
-                r'<div class="resource-line">.*?<a\s+href="(.*?)".*?</div>',
-                content, re.DOTALL
-            )
+        # check if it's a Crossref page using the meta description
+        crossref_identifier = 'choose from multiple link options via crossref'
 
-            if links:
-                logger.info(f'Found chooser redirect to: {links[0]}')
-                return links[0]
+        if crossref_identifier in content.lower():
+            # extract the first resource link
+            pattern = r'<div class="resource-line">.*?<a\s+href="([^"]+)"[^>]*>'
+            match = re.search(pattern, content, re.DOTALL)
+
+            if match:
+                url = match.group(1)
+                logger.info(f'Found Crossref redirect: {url}')
+                return url
+
     except Exception as e:
         logger.error(f"Error in chooser_redirect: {str(e)}")
 
