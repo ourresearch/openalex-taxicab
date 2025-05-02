@@ -160,6 +160,7 @@ def call_requests_get(url=None, headers=None, read_timeout=300, connect_timeout=
                       stream=False, publisher=None, session_id=None, ask_slowly=False,
                       verify=False, cookies=None, redirected_url=None, attempt_n=0):
     if redirected_url:
+        logger.info(f"Redirected URL: {redirected_url}")
         url = redirected_url
 
     # default parameters setup
@@ -173,6 +174,7 @@ def call_requests_get(url=None, headers=None, read_timeout=300, connect_timeout=
     matching_policies = get_matching_policies(url)
     if matching_policies:
         policy = matching_policies[min(attempt_n, len(matching_policies) - 1)]
+        logger.info(f"Policy found for {url}, policy: {policy}")
 
         if policy.profile == 'api' and policy.params is not None:
             logger.info(f'Using Zyte API profile for url: {url}')
@@ -190,6 +192,13 @@ def call_requests_get(url=None, headers=None, read_timeout=300, connect_timeout=
 
     # set URL in parameters
     zyte_params["url"] = url
+
+    if 'doi.org/10.1016' in url:
+        zyte_params  = {
+            "url": url,
+            "httpResponseHeaders": True,
+            "browserHtml": True,
+        }
 
     # make the API call
     zyte_api_response = call_with_zyte_api(url, zyte_params)
@@ -325,6 +334,7 @@ def call_with_zyte_api(url, params=None):
     logger.info(f"calling zyte api for {url}")
     if "wiley.com" in url:
         # get cookies
+        logger.info(f"getting cookies for {url} due to wiley.com")
         cookies_response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
                                          json={
                                              "url": url,
