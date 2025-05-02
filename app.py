@@ -4,6 +4,8 @@ from flask import Flask, request, jsonify, Response
 import boto3
 
 from openalex_taxicab.harvest import Harvester
+from openalex_taxicab.http_cache import http_get
+from openalex_taxicab.util import guess_mime_type
 
 app = Flask(__name__)
 app.json.sort_keys = False
@@ -38,6 +40,22 @@ def harvest_content():
 
     status_code = 201 if result['id'] else 200
     return jsonify(result), status_code
+
+@app.route("/test-zyte", methods=['GET'])
+def test_zyte():
+    url = request.args.get('url')
+    if not url:
+        return jsonify({"error": "URL parameter is required"}), 400
+    try:
+        response = http_get(url)
+        return jsonify({
+            "status_code": response.status_code,
+            "resolved_url": response.url,
+            "content_preview": response.content[:5000],
+            "content_type":guess_mime_type(response.content),
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/taxicab/doi/<path:doi>", methods=['GET'])
