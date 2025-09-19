@@ -28,6 +28,9 @@ class Harvester:
             r2_access_key = os.environ.get('R2_ACCESS_KEY_ID')
             r2_secret_key = os.environ.get('R2_SECRET_ACCESS_KEY')
 
+            if not all([r2_account_id, r2_access_key, r2_secret_key]):
+                raise ValueError("R2 credentials not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY environment variables.")
+
             self._s3 = boto3.client(
                 's3',
                 endpoint_url=f'https://{r2_account_id}.r2.cloudflarestorage.com',
@@ -35,6 +38,8 @@ class Harvester:
                 aws_secret_access_key=r2_secret_key,
                 region_name='auto'
             )
+        else:
+            self._s3 = s3
 
         self._dynamodb = None
         self._html_table = None
