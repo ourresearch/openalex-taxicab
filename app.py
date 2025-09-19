@@ -1,5 +1,4 @@
 import gzip
-import os
 
 from flask import Flask, request, jsonify, Response
 import boto3
@@ -11,20 +10,7 @@ from openalex_taxicab.util import guess_mime_type
 app = Flask(__name__)
 app.json.sort_keys = False
 
-r2_account_id = os.environ.get('R2_ACCOUNT_ID')
-r2_access_key = os.environ.get('R2_ACCESS_KEY_ID')
-r2_secret_key = os.environ.get('R2_SECRET_ACCESS_KEY')
-
-if not all([r2_account_id, r2_access_key, r2_secret_key]):
-    raise ValueError("R2 credentials not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY environment variables.")
-
-s3_client = boto3.client(
-    's3',
-    endpoint_url=f'https://{r2_account_id}.r2.cloudflarestorage.com',
-    aws_access_key_id=r2_access_key,
-    aws_secret_access_key=r2_secret_key,
-    region_name='auto'  # R2 uses 'auto' as region
-)
+s3_client = boto3.client("s3", region_name="us-east-1")
 harvester = Harvester(s3=s3_client)
 
 @app.route("/")
