@@ -2,6 +2,7 @@ import uuid
 from collections import OrderedDict
 from datetime import datetime
 import gzip
+import os
 import re
 from typing import Optional
 from urllib.parse import quote
@@ -16,12 +17,25 @@ from .util import guess_mime_type
 
 
 class Harvester:
-    HTML_BUCKET = 'openalex-harvested-html'
-    PDF_BUCKET = 'openalex-harvested-pdfs'
-    XML_BUCKET = 'openalex-harvested-grobid-xml'
+    HTML_BUCKET = 'openalex-html'
+    PDF_BUCKET = 'openalex-pdfs'
+    XML_BUCKET = 'openalex-grobid-xml'
 
     def __init__(self, s3=None):
-        self._s3 = s3 or boto3.client('s3', region_name='us-east-1')
+        if s3 is None:
+            # Configure R2 client if no S3 client provided
+            r2_account_id = os.environ.get('R2_ACCOUNT_ID')
+            r2_access_key = os.environ.get('R2_ACCESS_KEY_ID')
+            r2_secret_key = os.environ.get('R2_SECRET_ACCESS_KEY')
+
+            self._s3 = boto3.client(
+                's3',
+                endpoint_url=f'https://{r2_account_id}.r2.cloudflarestorage.com',
+                aws_access_key_id=r2_access_key,
+                aws_secret_access_key=r2_secret_key,
+                region_name='auto'
+            )
+
         self._dynamodb = None
         self._html_table = None
         self._pdf_table = None
