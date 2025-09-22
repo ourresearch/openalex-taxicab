@@ -18,6 +18,7 @@ r2_secret_key = os.environ.get('R2_SECRET_ACCESS_KEY')
 if not all([r2_account_id, r2_access_key, r2_secret_key]):
     raise ValueError("R2 credentials not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY environment variables.")
 
+# R2 client for current storage
 s3_client = boto3.client(
     's3',
     endpoint_url=f'https://{r2_account_id}.r2.cloudflarestorage.com',
@@ -25,6 +26,9 @@ s3_client = boto3.client(
     aws_secret_access_key=r2_secret_key,
     region_name='auto'  # R2 uses 'auto' as region
 )
+
+# AWS S3 client for legacy bucket fallback
+aws_s3_client = boto3.client('s3', region_name='us-east-1')
 harvester = Harvester(s3=s3_client)
 
 @app.route("/")
@@ -141,6 +145,22 @@ def fetch_harvested_content(harvest_id):
             pass  # if XML is not found, try the next bucket
         except Exception as e:
             return jsonify({"error": f"Error fetching XML: {str(e)}"}), 500
+
+    # If not found in R2, check legacy S3 bucket for HTML files
+    try:
+        s3_key_html = f"{harvest_id}.html.gz"
+        obj = aws_s3_client.get_object(Bucket='openalex-harvested-html', Key=s3_key_html)
+        content = gzip.decompress(obj['Body'].read())
+        content_type = "text/html"
+        return Response(
+            content,
+            content_type=content_type,
+            headers={"Content-Disposition": f"inline; filename={harvest_id}.html"}
+        )
+    except aws_s3_client.exceptions.NoSuchKey:
+        pass  # file not in legacy bucket either
+    except Exception as e:
+        return jsonify({"error": f"Error fetching HTML from legacy S3: {str(e)}"}), 500
 
     return jsonify({"error": "File not found"}), 404
 
