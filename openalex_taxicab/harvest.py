@@ -372,7 +372,7 @@ class Harvester:
             raise ValueError(f"Invalid PDF content from {url}")
 
         # skip if not valid content type
-        if 'html' not in content_type and 'pdf' not in content_type:
+        if not content_type or ('html' not in content_type and 'pdf' not in content_type):
             raise ValueError(f"Invalid content type from {url}, got {content_type}")
 
         # Only store successful responses with valid content

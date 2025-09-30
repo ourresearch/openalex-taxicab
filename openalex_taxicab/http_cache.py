@@ -27,7 +27,9 @@ BROWSER_HTML_URLS = [
     "sciencedirect.com",
     "scholarship.libraries.rutgers.edu",
     "science.org",
-    "wiley.com"
+    "wiley.com",
+    "ncbi.nlm.nih.gov",
+    "pmc.ncbi.nlm.nih.gov"
 ]
 
 CRAWLERA_KEY = os.environ.get("CRAWLERA_KEY")
@@ -205,12 +207,24 @@ def http_get(url,
             "httpResponseHeaders": True,
         }
 
-        if is_browser_html_url(url):
+        # Check if URL is likely a PDF
+        is_likely_pdf_url = url.lower().endswith('.pdf') or '/pdf/' in url.lower()
+
+        # Special handling for PMC PDFs that need JavaScript to bypass challenges
+        is_pmc_pdf = ('ncbi.nlm.nih.gov' in url or 'pmc.ncbi.nlm.nih.gov' in url) and is_likely_pdf_url
+
+        if is_pmc_pdf:
+            logger.info(f"Using browserHtml with httpResponseBody for PMC PDF: {url}")
+            zyte_params["browserHtml"] = True
+            zyte_params["httpResponseBody"] = True
+            zyte_params["javascript"] = True
+        elif is_browser_html_url(url) and not is_likely_pdf_url:
             logger.info(f"Setting browserHtml to True and javascript to True for {url}")
             zyte_params["browserHtml"] = True
             zyte_params["httpResponseBody"] = False
             zyte_params["javascript"] = True
 
+        if is_browser_html_url(url) or is_pmc_pdf:
             # Apply site-specific settings
             if 'saemobilus.sae.org/articles' in url:
                 zyte_params["actions"] = [{"action": "waitForSelector",
@@ -276,13 +290,17 @@ def http_get(url,
                 url=zyte_api_response.get('url', url),
             )
 
-            content_type = r.headers.get("Content-Type", "").lower()
-            is_pdf = "application/pdf" in content_type
-
-            # Try to detect PDF signature in content
-            if not is_pdf and isinstance(r.content, bytes) and len(r.content) > 4:
+            # Check if content is PDF by signature first (most reliable)
+            is_pdf = False
+            if isinstance(r.content, bytes) and len(r.content) > 4:
                 is_pdf = r.content.startswith(b'%PDF-')
 
+            # Also check Content-Type header as backup
+            if not is_pdf:
+                content_type = r.headers.get("Content-Type", "").lower()
+                is_pdf = "application/pdf" in content_type
+
+            # Only decode to UTF-8 if it's definitely not a PDF
             if not is_pdf and isinstance(r.content, bytes):
                 try:
                     r.content = r.content.decode('utf-8', 'ignore')
@@ -346,7 +364,40 @@ def call_with_zyte_api(url, params=None):
     os.environ["HTTPS_PROXY"] = ''
 
     logger.info(f"calling zyte api for {url}")
-    if "wiley.com" in url:
+
+    # Special handling for PMC PDFs
+    if ("ncbi.nlm.nih.gov" in url or "pmc.ncbi.nlm.nih.gov" in url) and (".pdf" in url or "/pdf/" in url):
+        logger.info(f"getting cookies for PMC PDF {url}")
+        # First request to solve challenge and get cookies
+        cookies_response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
+                                         json={
+                                             "url": url,
+                                             "browserHtml": True,
+                                             "javascript": True,
+                                             "experimental": {
+                                                 "responseCookies": True
+                                             }
+                                         }, verify=False)
+        cookies_response_data = json.loads(cookies_response.text)
+        cookies = cookies_response_data.get("experimental", {}).get("responseCookies", {})
+
+        # Second request with cookies to get actual PDF
+        if cookies:
+            logger.info(f"Using cookies to fetch PDF: {cookies}")
+            response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
+                                     json={
+                                         "url": url,
+                                         "httpResponseHeaders": True,
+                                         "httpResponseBody": True,
+                                         "experimental": {
+                                             "requestCookies": cookies
+                                         }
+                                     }, verify=False)
+        else:
+            logger.info("No cookies returned, using standard request")
+            response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
+                                     json=params, verify=False)
+    elif "wiley.com" in url:
         # get cookies
         logger.info(f"getting cookies for {url} due to wiley.com")
         cookies_response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
