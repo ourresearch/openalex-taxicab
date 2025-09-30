@@ -9,7 +9,6 @@ from urllib.parse import quote
 
 import boto3
 from boto3.dynamodb.conditions import Key
-import requests
 import tenacity
 
 from .http_cache import http_get
@@ -344,10 +343,7 @@ class Harvester:
         harvest_id = str(uuid.uuid4())
 
         try:
-            if native_id_namespace == 'doi':
-                response = http_get(url, ask_slowly=True)
-            else:
-                response = requests.get(url)
+            response = http_get(url, ask_slowly=True)
         except tenacity.RetryError as e:
             # get status code from the last failed attempt
             last_attempt = e.last_attempt.result()
