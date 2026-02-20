@@ -88,7 +88,9 @@ class Harvester:
             'We apologize for the inconvenience',
             '<title>APA PsycNet</title>',
             'Your request cannot be processed at this time',
-            '/cookieAbsent'
+            '/cookieAbsent',
+            'Project MUSE -- Verification required!',
+            '<div class="frc-captcha"',
         ]
 
         content_str = content.decode('utf-8', errors='ignore') if isinstance(content, bytes) else str(content)
@@ -366,6 +368,8 @@ class Harvester:
         created_date = datetime.now().isoformat()
         content_type = guess_mime_type(content) if content else None
         is_soft_block = self._check_soft_block(content) if content_type != 'pdf' else False
+        if not is_soft_block and resolved_url and 'muse.jhu.edu/verify' in resolved_url:
+            is_soft_block = True
 
         # Skip invalid PDFs
         if content_type == 'pdf' and not self._is_valid_pdf(content):
