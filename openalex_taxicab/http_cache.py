@@ -369,6 +369,62 @@ def http_get(url,
         logger.info(f"Finished http_get for {url} in {elapsed(start_time, 2)} seconds")
 
 
+COOKIE_DOMAINS = [
+    "iop.org",
+    "wiley.com",
+]
+
+
+def _needs_cookie_fetch(url):
+    """Check if URL needs the two-step cookie approach."""
+    # PMC PDFs
+    if ("ncbi.nlm.nih.gov" in url or "pmc.ncbi.nlm.nih.gov" in url) and (".pdf" in url or "/pdf/" in url):
+        return True
+    return any(domain in url for domain in COOKIE_DOMAINS)
+
+
+def _fetch_with_cookies(url, zyte_api_url, zyte_api_key, fallback_params):
+    """Fetch with browser to bypass bot protection. Uses the browser response
+    directly if it has valid HTML content, otherwise gets cookies and makes a
+    second request (needed for PDFs and some publishers)."""
+    logger.info(f"getting cookies for {url}")
+    browser_response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
+                                     json={
+                                         "url": url,
+                                         "browserHtml": True,
+                                         "javascript": True,
+                                         "experimental": {
+                                             "responseCookies": True
+                                         }
+                                     }, verify=False)
+    browser_data = json.loads(browser_response.text)
+    browser_html = browser_data.get("browserHtml", "")
+    cookies = browser_data.get("experimental", {}).get("responseCookies", {})
+
+    # If browser response has valid HTML content, use it directly
+    is_pdf_url = url.lower().endswith('.pdf') or '/pdf/' in url.lower()
+    if browser_html and not is_pdf_url and '<title>Radware Bot Manager' not in browser_html:
+        logger.info(f"Using browser HTML directly for {url}")
+        return browser_response
+
+    # Otherwise use cookies for a second request (PDFs, challenge pages)
+    if cookies:
+        logger.info(f"Using cookies for second request to {url}")
+        return requests.post(zyte_api_url, auth=(zyte_api_key, ''),
+                             json={
+                                 "url": url,
+                                 "httpResponseHeaders": True,
+                                 "httpResponseBody": True,
+                                 "experimental": {
+                                     "requestCookies": cookies
+                                 }
+                             }, verify=False)
+    else:
+        logger.info(f"No cookies returned for {url}, using standard request")
+        return requests.post(zyte_api_url, auth=(zyte_api_key, ''),
+                             json=fallback_params, verify=False)
+
+
 def call_with_zyte_api(url, params=None):
     zyte_api_url = "https://api.zyte.com/v1/extract"
     zyte_api_key = os.getenv("ZYTE_API_KEY")
@@ -386,74 +442,8 @@ def call_with_zyte_api(url, params=None):
 
     logger.info(f"calling zyte api for {url}")
 
-    # Special handling for PMC PDFs
-    if ("ncbi.nlm.nih.gov" in url or "pmc.ncbi.nlm.nih.gov" in url) and (".pdf" in url or "/pdf/" in url):
-        logger.info(f"getting cookies for PMC PDF {url}")
-        # First request to solve challenge and get cookies
-        cookies_response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
-                                         json={
-                                             "url": url,
-                                             "browserHtml": True,
-                                             "javascript": True,
-                                             "experimental": {
-                                                 "responseCookies": True
-                                             }
-                                         }, verify=False)
-        cookies_response_data = json.loads(cookies_response.text)
-        cookies = cookies_response_data.get("experimental", {}).get("responseCookies", {})
-
-        # Second request with cookies to get actual PDF
-        if cookies:
-            logger.info(f"Using cookies to fetch PDF: {cookies}")
-            response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
-                                     json={
-                                         "url": url,
-                                         "httpResponseHeaders": True,
-                                         "httpResponseBody": True,
-                                         "experimental": {
-                                             "requestCookies": cookies
-                                         }
-                                     }, verify=False)
-        else:
-            logger.info("No cookies returned, using standard request")
-            response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
-                                     json=params, verify=False)
-    elif "wiley.com" in url:
-        # get cookies
-        logger.info(f"getting cookies for {url} due to wiley.com")
-        cookies_response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
-                                         json={
-                                             "url": url,
-                                             "browserHtml": True,
-                                             "javascript": True,
-                                             "experimental": {
-                                                 "responseCookies": True
-                                             }
-                                         }, verify=False)
-        cookies_response = json.loads(cookies_response.text)
-        cookies = cookies_response.get("experimental", {}).get(
-            "responseCookies", {})
-
-        # use cookies to get valid response
-        if cookies:
-            response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
-                                     json={
-                                         "url": url,
-                                         "httpResponseHeaders": True,
-                                         "httpResponseBody": True,
-                                         "experimental": {
-                                             "requestCookies": cookies
-                                         }
-                                     }, verify=False)
-        else:
-            response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
-                                     json={
-                                         "url": url,
-                                         "httpResponseHeaders": True,
-                                         "httpResponseBody": True,
-                                         "requestHeaders": {
-                                             "referer": "https://www.google.com/"},
-                                     }, verify=False)
+    if _needs_cookie_fetch(url):
+        response = _fetch_with_cookies(url, zyte_api_url, zyte_api_key, params)
     else:
         response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
                                  json=params, verify=False)
