@@ -24,6 +24,7 @@ BROWSER_HTML_URLS = [
     "cghjournal.org",
     "doi.org/10.1016",
     "elsevier.com",
+    "iop.org",
     "sciencedirect.com",
     "scholarship.libraries.rutgers.edu",
     "science.org",
@@ -82,10 +83,20 @@ def is_browser_html_url(url):
               for pattern in BROWSER_HTML_URLS)
 
 
+BOT_PROTECTION_DOMAINS = [
+    'perfdrive.com',
+    'distilnetworks.com',
+    'datadome.co',
+    'imperva.com',
+    'kasada.io',
+]
+
+
 def resolve_doi_redirects(doi_url, max_redirects=10):
     """
     Follow all redirects for a DOI URL using regular requests
-    and return the final destination URL
+    and return the final destination URL. If the final URL lands on a
+    known bot protection domain, walk back to the last real publisher URL.
     """
     try:
         # Create a session to handle cookies and redirects
@@ -102,8 +113,18 @@ def resolve_doi_redirects(doi_url, max_redirects=10):
         redirect_chain = [r.url for r in response.history] + [response.url]
         logger.info(f"DOI redirect chain: {' -> '.join(redirect_chain)}")
 
+        final_url = response.url
+
+        # If final URL is a bot protection page, walk back to the last real URL
+        if any(domain in final_url for domain in BOT_PROTECTION_DOMAINS):
+            for url in reversed(redirect_chain[:-1]):
+                if not any(domain in url for domain in BOT_PROTECTION_DOMAINS):
+                    logger.info(f"Bot protection detected at {final_url}, using {url} instead")
+                    final_url = url
+                    break
+
         return {
-            "final_url": response.url,
+            "final_url": final_url,
             "redirect_chain": redirect_chain,
             "status_code": response.status_code
         }
