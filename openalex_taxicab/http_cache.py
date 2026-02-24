@@ -23,8 +23,10 @@ requests.packages.urllib3.disable_warnings()
 BROWSER_HTML_URLS = [
     "cghjournal.org",
     "doi.org/10.1016",
+    "doi.org/10.1037",
     "elsevier.com",
     "iop.org",
+    "psycnet.apa.org",
     "sciencedirect.com",
     "scholarship.libraries.rutgers.edu",
     "science.org",
