@@ -258,7 +258,7 @@ def http_get(url,
                     {"action": "waitForSelector", "timeout": 15,
                      "selector": {"type": "css", "state": "visible",
                                   "value": "div.author-collaboration div.author-group"}}]
-            elif 'sciencedirect.com/science/article' in url:
+            elif 'sciencedirect.com/science/article' in url or 'linkinghub.elsevier.com/retrieve/pii' in url:
                 zyte_params["actions"] = [
                     {"action": "evaluate",
                      "source": '(function(){ var btn = document.getElementById("show-more-btn"); if(btn) btn.click(); })()'},
