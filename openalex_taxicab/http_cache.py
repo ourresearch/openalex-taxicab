@@ -20,6 +20,10 @@ logger = _make_logger()
 
 requests.packages.urllib3.disable_warnings()
 
+DIRECT_FETCH_URLS = [
+    "doaj.org",
+]
+
 BROWSER_HTML_URLS = [
     "cghjournal.org",
     "doi.org/10.1016",
@@ -80,8 +84,13 @@ class ResponseObject:
                 f'Bad status code for URL {self.url}: {self.status_code}')
 
 
+def is_direct_fetch_url(url):
+    return any(re.search(f"(^|[./])({re.escape(pattern)})(/|$)", url)
+              for pattern in DIRECT_FETCH_URLS)
+
+
 def is_browser_html_url(url):
-    return any(re.search(f"(^|[./])({re.escape(pattern)})(\/|$)", url)
+    return any(re.search(f"(^|[./])({re.escape(pattern)})(/|$)", url)
               for pattern in BROWSER_HTML_URLS)
 
 
@@ -222,6 +231,31 @@ def http_get(url,
             if redirect_info and redirect_info["status_code"] < 400:
                 url = redirect_info["final_url"]
                 logger.info(f"DOI resolved to: {url}")
+
+        # Direct fetch for open-access sites that don't need Zyte
+        if is_direct_fetch_url(url):
+            logger.info(f"Direct fetch (bypassing Zyte) for {url}")
+            try:
+                direct_resp = requests.get(
+                    url,
+                    headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
+                    timeout=(connect_timeout, read_timeout),
+                    verify=verify,
+                )
+                r = ResponseObject(
+                    content=direct_resp.content,
+                    headers=[{"name": k, "value": v} for k, v in direct_resp.headers.items()],
+                    status_code=direct_resp.status_code,
+                    url=direct_resp.url,
+                )
+                if not isinstance(r.content, bytes) or not r.content.startswith(b'%PDF-'):
+                    try:
+                        r.content = r.content.decode('utf-8', 'ignore') if isinstance(r.content, bytes) else r.content
+                    except (UnicodeDecodeError, AttributeError):
+                        pass
+                return r
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Direct fetch failed for {url}: {e}, falling back to Zyte")
 
         # Set up Zyte API parameters
         zyte_params = {
