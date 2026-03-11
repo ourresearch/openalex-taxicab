@@ -22,6 +22,8 @@ requests.packages.urllib3.disable_warnings()
 
 DIRECT_FETCH_URLS = [
     "doaj.org",
+    "pure.amsterdamumc.nl",
+    "pure.au.dk",
 ]
 
 BROWSER_HTML_URLS = [
