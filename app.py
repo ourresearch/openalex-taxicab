@@ -50,11 +50,19 @@ def harvest_content():
         }), 400
 
     # fetch content
-    result = harvester.harvest(
-        url=data['url'],
-        native_id=data['native_id'],
-        native_id_namespace=data['native_id_namespace']
-    )
+    try:
+        result = harvester.harvest(
+            url=data['url'],
+            native_id=data['native_id'],
+            native_id_namespace=data['native_id_namespace']
+        )
+    except ValueError as e:
+        return jsonify({
+            'error': str(e),
+            'url': data['url'],
+            'native_id': data['native_id'],
+            'native_id_namespace': data['native_id_namespace'],
+        }), 400
 
     status_code = 201 if result['id'] else 200
     return jsonify(result), status_code

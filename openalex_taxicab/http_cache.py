@@ -189,7 +189,7 @@ def before_retry(retry_state):
 
 
 def is_retry_status(response):
-    return response.status_code in {429, 500, 502, 503, 504, 520, 403}
+    return response.status_code in {429, 500, 502, 503, 504}
 
 
 @retry(stop=stop_after_attempt(2),
