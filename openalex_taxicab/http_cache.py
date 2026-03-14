@@ -31,6 +31,7 @@ BROWSER_HTML_URLS = [
     "cghjournal.org",
     "doi.org/10.1016",
     "doi.org/10.1037",
+    "dsp.tecnalia.com",
     "elsevier.com",
     "iop.org",
     "psycnet.apa.org",
@@ -224,16 +225,17 @@ def http_get(url,
     try:
         logger.info(f"LIVE GET on {url}")
 
-        # Check if it's a DOI URL that needs resolution
+        # Check if it's a DOI or Handle URL that needs resolution
         is_doi_url = 'doi.org/' in url
+        is_handle_url = 'hdl.handle.net/' in url
 
-        if is_doi_url and not attempt_n:  # Only resolve on first attempt
-            logger.info(f"Resolving DOI URL: {url}")
+        if (is_doi_url or is_handle_url) and not attempt_n:  # Only resolve on first attempt
+            logger.info(f"Resolving {'DOI' if is_doi_url else 'Handle'} URL: {url}")
             redirect_info = resolve_doi_redirects(url)
 
             if redirect_info and redirect_info["status_code"] < 400:
                 url = redirect_info["final_url"]
-                logger.info(f"DOI resolved to: {url}")
+                logger.info(f"Resolved to: {url}")
 
         # Direct fetch for open-access sites that don't need Zyte
         if is_direct_fetch_url(url):
