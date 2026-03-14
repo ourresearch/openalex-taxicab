@@ -89,6 +89,8 @@ class ResponseObject:
 
 
 def is_direct_fetch_url(url):
+    if re.search(r'(^|[./])dspace\.[a-z]', url):
+        return True
     return any(re.search(f"(^|[./])({re.escape(pattern)})(/|$)", url)
               for pattern in DIRECT_FETCH_URLS)
 
