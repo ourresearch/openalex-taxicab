@@ -22,6 +22,7 @@ requests.packages.urllib3.disable_warnings()
 
 DIRECT_FETCH_URLS = [
     "doaj.org",
+    "kerwa.ucr.ac.cr",
     "pure.amsterdamumc.nl",
     "pure.au.dk",
 ]
@@ -189,7 +190,7 @@ def before_retry(retry_state):
 
 
 def is_retry_status(response):
-    return response.status_code in {429, 500, 502, 503, 504}
+    return response.status_code in {429, 500, 502, 503}
 
 
 @retry(stop=stop_after_attempt(2),
