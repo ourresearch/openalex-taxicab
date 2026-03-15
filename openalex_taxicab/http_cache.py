@@ -22,9 +22,16 @@ requests.packages.urllib3.disable_warnings()
 
 DIRECT_FETCH_URLS = [
     "doaj.org",
+    "handle.uba.uva.nl",
     "kerwa.ucr.ac.cr",
+    "nusl.cz",
+    "publications.rwth-aachen.de",
     "pure.amsterdamumc.nl",
     "pure.au.dk",
+    "pure.qub.ac.uk",
+    "pure.uva.nl",
+    "research.wu.ac.at",
+    "researchprofiles.ku.dk",
 ]
 
 BROWSER_HTML_URLS = [
