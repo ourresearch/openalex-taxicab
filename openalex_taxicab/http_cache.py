@@ -24,6 +24,7 @@ DIRECT_FETCH_URLS = [
     "doaj.org",
     "handle.uba.uva.nl",
     "kerwa.ucr.ac.cr",
+    "nbn-resolving.de",
     "nusl.cz",
     "publications.rwth-aachen.de",
     "pure.amsterdamumc.nl",
