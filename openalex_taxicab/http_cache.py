@@ -192,6 +192,171 @@ def chooser_redirect(r):
     return None
 
 
+def _fetch_dspace7_metadata(resolved_url):
+    """Fetch metadata from the DSpace 7 REST API and synthesize an HTML page
+    with standard citation_* meta tags.
+
+    DSpace 7 pages are client-rendered Angular SPAs that contain no
+    server-side metadata.  This function extracts the handle from the
+    resolved URL, queries the REST API, and builds an HTML document that
+    Parseland's generic publisher parser can extract authors, abstract,
+    license, and PDF URLs from.
+
+    Returns synthesized HTML string on success, or None on failure.
+    """
+    # Extract base URL and handle from the resolved URL
+    # e.g. https://kops.uni-konstanz.de/handle/123456789/66470
+    handle_match = re.search(r'(https?://[^/]+)/handle/(.+?)(?:\?|#|$)', resolved_url)
+    if not handle_match:
+        return None
+
+    base_url = handle_match.group(1)
+    handle = handle_match.group(2)
+
+    # Search for the item by handle via the discover API
+    try:
+        search_resp = requests.get(
+            f"{base_url}/server/api/discover/search/objects",
+            params={"query": f"handle:{handle}"},
+            headers={"Accept": "application/json"},
+            timeout=15,
+        )
+        if search_resp.status_code != 200:
+            logger.warning(f"DSpace 7 discover API returned {search_resp.status_code} for {resolved_url}")
+            return None
+
+        search_data = search_resp.json()
+        objects = (search_data
+                   .get("_embedded", {})
+                   .get("searchResult", {})
+                   .get("_embedded", {})
+                   .get("objects", []))
+        if not objects:
+            logger.warning(f"DSpace 7 discover API returned no results for handle {handle}")
+            return None
+
+        item = objects[0].get("_embedded", {}).get("indexableObject", {})
+        metadata = item.get("metadata", {})
+    except Exception as e:
+        logger.error(f"DSpace 7 REST API error for {resolved_url}: {e}")
+        return None
+
+    # Build HTML with citation_* meta tags
+    meta_tags = []
+
+    # Title
+    for t in metadata.get("dc.title", []):
+        meta_tags.append(f'<meta name="citation_title" content="{_esc(t["value"])}">')
+
+    # Authors
+    for a in metadata.get("dc.contributor.author", []):
+        meta_tags.append(f'<meta name="citation_author" content="{_esc(a["value"])}">')
+
+    # Abstract
+    for ab in metadata.get("dc.description.abstract", []):
+        meta_tags.append(f'<meta name="description" content="{_esc(ab["value"])}">')
+
+    # DOI
+    for doi in metadata.get("dc.identifier.doi", []):
+        meta_tags.append(f'<meta name="citation_doi" content="{_esc(doi["value"])}">')
+
+    # Date
+    for d in metadata.get("dc.date.issued", []):
+        meta_tags.append(f'<meta name="citation_date" content="{_esc(d["value"])}">')
+
+    # Language
+    for lang in metadata.get("dc.language.iso", []):
+        meta_tags.append(f'<meta name="citation_language" content="{_esc(lang["value"])}">')
+
+    # Journal / source
+    for src in metadata.get("source.periodicalTitle", []):
+        meta_tags.append(f'<meta name="citation_journal_title" content="{_esc(src["value"])}">')
+
+    # Publisher
+    for pub in metadata.get("source.publisher", []) or metadata.get("dc.publisher", []):
+        meta_tags.append(f'<meta name="citation_publisher" content="{_esc(pub["value"])}">')
+
+    # ISSN
+    for issn in metadata.get("source.identifier.issn", []):
+        meta_tags.append(f'<meta name="citation_issn" content="{_esc(issn["value"])}">')
+
+    # Volume / issue / pages
+    for vol in metadata.get("source.bibliographicInfo.volume", []):
+        meta_tags.append(f'<meta name="citation_volume" content="{_esc(vol["value"])}">')
+    for iss in metadata.get("source.bibliographicInfo.issue", []):
+        meta_tags.append(f'<meta name="citation_issue" content="{_esc(iss["value"])}">')
+    for fp in metadata.get("source.bibliographicInfo.firstPage", []):
+        meta_tags.append(f'<meta name="citation_firstpage" content="{_esc(fp["value"])}">')
+    for lp in metadata.get("source.bibliographicInfo.lastPage", []):
+        meta_tags.append(f'<meta name="citation_lastpage" content="{_esc(lp["value"])}">')
+
+    # License / rights
+    for rights in metadata.get("dc.rights", []):
+        meta_tags.append(f'<meta name="dc.rights" content="{_esc(rights["value"])}">')
+    for rights_uri in metadata.get("dc.rights.uri", []):
+        meta_tags.append(f'<meta name="dc.rights.uri" content="{_esc(rights_uri["value"])}">')
+
+    # Canonical URL
+    meta_tags.append(f'<link rel="canonical" href="{_esc(resolved_url)}">')
+
+    # Try to get PDF bitstream URL
+    bundles_url = item.get("_links", {}).get("bundles", {}).get("href")
+    if bundles_url:
+        try:
+            bundles_resp = requests.get(
+                bundles_url,
+                headers={"Accept": "application/json"},
+                timeout=10,
+            )
+            if bundles_resp.status_code == 200:
+                bundles = bundles_resp.json().get("_embedded", {}).get("bundles", [])
+                for bundle in bundles:
+                    if bundle.get("name") == "ORIGINAL":
+                        bitstreams_url = bundle.get("_links", {}).get("bitstreams", {}).get("href")
+                        if bitstreams_url:
+                            bs_resp = requests.get(
+                                bitstreams_url,
+                                headers={"Accept": "application/json"},
+                                timeout=10,
+                            )
+                            if bs_resp.status_code == 200:
+                                for bs in bs_resp.json().get("_embedded", {}).get("bitstreams", []):
+                                    fmt = bs.get("format", "")
+                                    name = bs.get("name", "")
+                                    if name.lower().endswith(".pdf") or "pdf" in str(fmt).lower():
+                                        content_url = bs.get("_links", {}).get("content", {}).get("href")
+                                        if content_url:
+                                            meta_tags.append(f'<meta name="citation_pdf_url" content="{_esc(content_url)}">')
+                                            break
+        except Exception as e:
+            logger.warning(f"DSpace 7 bitstream lookup failed for {resolved_url}: {e}")
+
+    meta_block = "\n".join(meta_tags)
+    title = metadata.get("dc.title", [{}])[0].get("value", "") if metadata.get("dc.title") else ""
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>{_esc(title)}</title>
+{meta_block}
+</head>
+<body>
+<!-- Synthesized from DSpace 7 REST API -->
+</body>
+</html>"""
+
+
+def _esc(text):
+    """Escape text for safe inclusion in HTML attribute values."""
+    if not text:
+        return ""
+    return (text
+            .replace("&", "&amp;")
+            .replace('"', "&quot;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;"))
+
+
 def before_retry(retry_state):
     redirected_url = retry_state.outcome.result().url
     logger.info(f"retrying due to {retry_state.outcome.result().status_code}")
@@ -267,6 +432,18 @@ def http_get(url,
                         r.content = r.content.decode('utf-8', 'ignore') if isinstance(r.content, bytes) else r.content
                     except (UnicodeDecodeError, AttributeError):
                         pass
+                # DSpace 7 without server-side rendering returns a bare Angular
+                # SPA shell (`<ds-app></ds-app>`) with no metadata.  Some
+                # DSpace 7 instances use Angular Universal (SSR) and include
+                # full content — we only intercept the empty shell case.
+                if (isinstance(r.content, str)
+                        and '<ds-app>' in r.content
+                        and '</ds-app>' in r.content
+                        and len(r.content) < 2000):
+                    synthesized = _fetch_dspace7_metadata(r.url)
+                    if synthesized:
+                        logger.info(f"DSpace 7 SPA detected at {r.url}, synthesized HTML from REST API")
+                        r.content = synthesized
                 return r
             except requests.exceptions.RequestException as e:
                 logger.error(f"Direct fetch failed for {url}: {e}, falling back to Zyte")
