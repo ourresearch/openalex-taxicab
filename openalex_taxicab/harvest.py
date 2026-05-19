@@ -344,8 +344,10 @@ class Harvester:
 
         harvest_id = str(uuid.uuid4())
 
+        doi = native_id if native_id_namespace == 'doi' else None
+
         try:
-            response = http_get(url, ask_slowly=True)
+            response = http_get(url, ask_slowly=True, doi=doi)
         except tenacity.RetryError as e:
             # get status code from the last failed attempt
             last_attempt = e.last_attempt.result()

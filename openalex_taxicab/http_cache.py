@@ -1,6 +1,7 @@
 from base64 import b64decode
 import os
 import re
+import uuid
 from dataclasses import dataclass
 from time import time
 from typing import Optional
@@ -388,7 +389,8 @@ def http_get(url,
              verify=False,
              cookies=None,
              redirected_url=None,
-             attempt_n=0):
+             attempt_n=0,
+             doi=None):
     """
     Unified function that handles both DOI resolution and Zyte API calls.
     """
@@ -403,6 +405,12 @@ def http_get(url,
 
     try:
         logger.info(f"LIVE GET on {url}")
+
+        # For hosts that gate direct PDF URLs with Cloudflare-style fingerprint
+        # checks, fetch via the DOI landing page within a shared Zyte session.
+        # See _fetch_via_landing_page and LANDING_PAGE_REWRITE_HOSTS.
+        if doi and not attempt_n and _should_use_landing_page_rewrite(url):
+            return _fetch_via_landing_page(url, doi)
 
         # Check if it's a DOI or Handle URL that needs resolution
         is_doi_url = 'doi.org/' in url
@@ -634,6 +642,132 @@ COOKIE_DOMAINS = [
     "iop.org",
     "wiley.com",
 ]
+
+
+# Hosts that hide direct PDF URLs behind Cloudflare-style fingerprint checks.
+# Direct httpResponseBody calls to the PDF URL get banned (Zyte 520), but
+# fetching the DOI landing page first and then the PDF URL within the same
+# Zyte session reuses the same egress IP + cookies, which the protection
+# accepts. See _fetch_via_landing_page.
+LANDING_PAGE_REWRITE_HOSTS = [
+    "journals.sagepub.com",
+    "karger.com",
+    "rupress.org",
+    "mdpi.com",
+]
+
+_CITATION_PDF_RE = re.compile(
+    r'<meta\s+[^>]*name=["\']citation_pdf_url["\'][^>]*content=["\']([^"\']+)["\']',
+    re.IGNORECASE,
+)
+_CITATION_PDF_RE_REV = re.compile(
+    r'<meta\s+[^>]*content=["\']([^"\']+)["\'][^>]*name=["\']citation_pdf_url["\']',
+    re.IGNORECASE,
+)
+
+
+def _looks_like_direct_pdf_url(url):
+    u = url.lower()
+    return (
+        u.endswith('.pdf')
+        or '.pdf?' in u
+        or '/pdf/' in u
+        or u.endswith('/pdf')
+        or '/pdf?' in u
+        or '/pdfdirect/' in u
+    )
+
+
+def _should_use_landing_page_rewrite(url):
+    if not _looks_like_direct_pdf_url(url):
+        return False
+    return any(re.search(f"(^|[./])({re.escape(host)})(/|$)", url)
+               for host in LANDING_PAGE_REWRITE_HOSTS)
+
+
+def _extract_citation_pdf_url(html):
+    m = _CITATION_PDF_RE.search(html) or _CITATION_PDF_RE_REV.search(html)
+    return m.group(1) if m else None
+
+
+def _fetch_via_landing_page(direct_pdf_url, doi):
+    """Two-step Zyte session fetch for Cloudflare-protected publishers.
+
+    1. Browser-fetch https://doi.org/<doi> with a fresh session id, capturing
+       the landing-page HTML.
+    2. Extract <meta name="citation_pdf_url" content="..."> from that HTML.
+    3. Plain-HTTP fetch the citation URL with the same session id; Zyte
+       routes both calls through the same egress IP and persists cookies,
+       which is what the bot protection requires.
+
+    Returns a ResponseObject. The body may be a PDF (`%PDF-` bytes) or HTML
+    (the publisher's abstract page when the work is paywalled) — the caller
+    decides what to do with each case.
+    """
+    zyte_api_url = "https://api.zyte.com/v1/extract"
+    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    session_id = str(uuid.uuid4())
+    doi_url = f"https://doi.org/{doi}"
+
+    logger.info(f"Landing-page rewrite: session={session_id[:8]} doi={doi}")
+
+    # Step 1: browser-fetch the DOI landing page
+    step1_resp = requests.post(
+        zyte_api_url, auth=(zyte_api_key, ''),
+        json={
+            "url": doi_url,
+            "browserHtml": True,
+            "javascript": True,
+            "session": {"id": session_id},
+        },
+        verify=False,
+    )
+    step1 = step1_resp.json()
+    if step1.get("status"):
+        logger.warning(f"Landing-page step1 failed for {doi}: {step1.get('status')} {step1.get('detail','')[:120]}")
+        return ResponseObject(
+            content=b'',
+            headers=[],
+            status_code=step1.get("status") or 500,
+            url=doi_url,
+        )
+
+    html = step1.get("browserHtml", "")
+    landing_url = step1.get("url", doi_url)
+    citation_url = _extract_citation_pdf_url(html) or direct_pdf_url
+    logger.info(f"Landing-page rewrite: landing={landing_url} citation_pdf_url={citation_url}")
+
+    # Step 2: plain-HTTP fetch the PDF URL with the same session
+    step2_resp = requests.post(
+        zyte_api_url, auth=(zyte_api_key, ''),
+        json={
+            "url": citation_url,
+            "httpResponseBody": True,
+            "httpResponseHeaders": True,
+            "session": {"id": session_id},
+        },
+        verify=False,
+    )
+    step2 = step2_resp.json()
+    if step2.get("status"):
+        logger.warning(f"Landing-page step2 failed for {citation_url}: {step2.get('status')} {step2.get('detail','')[:120]}")
+        return ResponseObject(
+            content=b'',
+            headers=[],
+            status_code=step2.get("status") or 500,
+            url=citation_url,
+        )
+
+    body = b64decode(step2.get("httpResponseBody", "")) if step2.get("httpResponseBody") else b''
+    is_pdf = body[:5] == b"%PDF-"
+    content = body if is_pdf else body.decode('utf-8', 'ignore')
+
+    return ResponseObject(
+        content=content,
+        headers=step2.get("httpResponseHeaders", []),
+        status_code=step2.get("statusCode") or 200,
+        url=step2.get("url", citation_url),
+    )
 
 
 def _needs_cookie_fetch(url):
