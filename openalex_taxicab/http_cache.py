@@ -664,7 +664,17 @@ def _fetch_with_cookies(url, zyte_api_url, zyte_api_key, fallback_params):
 
     # If browser response has valid HTML content, use it directly
     is_pdf_url = url.lower().endswith('.pdf') or '/pdf/' in url.lower()
-    if browser_html and not is_pdf_url and '<title>Radware Bot Manager' not in browser_html:
+    # When Zyte's browser navigates to a PDF, browserHtml captures Chromium's
+    # PDF-viewer stub (a ~174-byte shell with a `chrome-extension://...pdf_embed`
+    # link) rather than the PDF binary. Force the fall-through so the
+    # second request fetches the real PDF with the captured cookies.
+    is_chrome_pdf_wrapper = (
+        browser_html
+        and len(browser_html) < 2000
+        and 'chrome-extension://' in browser_html[:500]
+        and 'pdf' in browser_html[:500].lower()
+    )
+    if browser_html and not is_pdf_url and not is_chrome_pdf_wrapper and '<title>Radware Bot Manager' not in browser_html:
         logger.info(f"Using browser HTML directly for {url}")
         return browser_response
 
