@@ -31,6 +31,7 @@ DIRECT_FETCH_URLS = [
     "pure.au.dk",
     "pure.qub.ac.uk",
     "pure.uva.nl",
+    "repository.kulib.kyoto-u.ac.jp",
     "research.wu.ac.at",
     "researchprofiles.ku.dk",
 ]
@@ -98,6 +99,9 @@ class ResponseObject:
 
 def is_direct_fetch_url(url):
     if re.search(r'(^|[./])dspace\.[a-z]', url):
+        return True
+    # DSpace 7 repos hosted on NII's JAIRO Cloud
+    if re.search(r'\.repo\.nii\.ac\.jp(/|$)', url):
         return True
     return any(re.search(f"(^|[./])({re.escape(pattern)})(/|$)", url)
               for pattern in DIRECT_FETCH_URLS)
@@ -440,7 +444,31 @@ def http_get(url,
                 if (isinstance(r.content, str)
                         and '<ds-app>' in r.content
                         and '</ds-app>' in r.content
-                        and len(r.content) < 2000):
+                        and len(r.content.split('<ds-app>')[1].split('</ds-app>')[0].strip()) == 0):
+                    # DSpace 7 bitstream/download URLs: rewrite to REST API
+                    # content endpoint to get the actual PDF
+                    bitstream_match = re.search(
+                        r'(https?://[^/]+)/bitstreams/([0-9a-f-]+)/download',
+                        r.url
+                    )
+                    if bitstream_match:
+                        api_url = f"{bitstream_match.group(1)}/server/api/core/bitstreams/{bitstream_match.group(2)}/content"
+                        logger.info(f"DSpace 7 SPA detected on bitstream URL {r.url}, fetching PDF from REST API: {api_url}")
+                        try:
+                            pdf_resp = requests.get(
+                                api_url,
+                                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
+                                timeout=(connect_timeout, read_timeout),
+                                verify=verify,
+                            )
+                            if pdf_resp.status_code == 200 and pdf_resp.content[:5] == b'%PDF-':
+                                r.content = pdf_resp.content
+                                r.url = api_url
+                                return r
+                        except requests.exceptions.RequestException as e:
+                            logger.warning(f"DSpace 7 REST API PDF fetch failed for {api_url}: {e}")
+
+                    # Landing page: synthesize HTML with metadata from REST API
                     synthesized = _fetch_dspace7_metadata(r.url)
                     if synthesized:
                         logger.info(f"DSpace 7 SPA detected at {r.url}, synthesized HTML from REST API")
