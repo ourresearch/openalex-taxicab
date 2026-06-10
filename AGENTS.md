@@ -54,6 +54,12 @@ python3 scripts/taxicab_eval.py \
   --out eval_runs/
 ```
 
+For Browserbase evidence mode, install the optional local SDK first:
+
+```bash
+python3 -m pip install --user browserbase
+```
+
 ## Reporting
 
 - oxjobs control surface: `/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit`.

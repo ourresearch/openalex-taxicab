@@ -21,6 +21,12 @@ python3 scripts/taxicab_eval.py --base-url http://harvester-load-balancer-366186
 python3 scripts/taxicab_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --limit 100 --out eval_runs/
 ```
 
+Optional Browserbase evidence mode requires the local SDK:
+
+```bash
+python3 -m pip install --user browserbase
+```
+
 Before push, run a secret scan:
 
 ```bash
