@@ -86,6 +86,28 @@ class ClassifierTests(unittest.TestCase):
         )
         self.assertEqual(row.category, CATEGORY_GOOD_HTML)
 
+    def test_article_page_with_login_recaptcha_widget_is_not_bot_block(self):
+        body = """
+        <html><head><title>Megavoltage Irradiation in the Treatment of Carcinoma</title>
+        <meta name="citation_title" content="Megavoltage Irradiation in the Treatment of Carcinoma">
+        <meta name="citation_author" content="Example Author">
+        </head><body><main><h1>Megavoltage Irradiation in the Treatment of Carcinoma</h1>
+        <p>This landing page has article-level title, author metadata, and visible scholarly
+        content. It also has a login widget that references recaptcha, but the page itself is
+        not a captcha interstitial and remains usable for Taxicab retrieval evaluation.</p>
+        <form><div class="g-recaptcha"></div></form></main></body></html>
+        """
+        row = classify_content(ContentEvidence(content_type="text/html", body=body), run_id="test")
+        self.assertEqual(row.category, CATEGORY_GOOD_HTML)
+
+    def test_powered_and_protected_privacy_page_is_strong_bot_block(self):
+        body = """
+        <html><head><title></title><meta http-equiv="refresh" content="5"></head>
+        <body><p>Powered and protected by Privacy</p></body></html>
+        """
+        row = classify_content(ContentEvidence(content_type="text/html", body=body), run_id="test")
+        self.assertEqual(row.category, CATEGORY_BOT_BLOCK_403)
+
     def test_lookup_empty_is_missing_harvest(self):
         row, record = classify_lookup_payload(run_id="test", doi="10.1/a", lookup_json={"html": [], "pdf": [], "grobid": []})
         self.assertIsNone(record)

@@ -53,22 +53,20 @@ SUPPORT_CANDIDATE_CATEGORIES = {
     CATEGORY_DOWNLOAD_404,
 }
 
-BOT_BLOCK_PATTERNS = tuple(
+STRONG_BOT_BLOCK_PATTERNS = tuple(
     re.compile(pattern, re.IGNORECASE)
     for pattern in (
         r"are you a robot",
         r"please verify",
         r"unusual traffic",
-        r"recaptcha",
-        r"\bg-recaptcha\b",
         r"\bhcaptcha\b",
-        r"captcha",
         r"access denied",
         r"request cannot be processed at this time",
         r"we apologize for the inconvenience",
         r"shieldsquare captcha",
         r"errors\.edgesuite\.net",
-        r"akamai",
+        r"powered\s+and\s+protected\s+by\s+privacy",
+        r"akamai bot manager",
         r"validate\.perfdrive\.com",
         r"distil_r_captcha",
         r"<title[^>]*>\s*just a moment",
@@ -78,6 +76,15 @@ BOT_BLOCK_PATTERNS = tuple(
         r"<title[^>]*>\s*apa psycnet",
         r"project muse -- verification required",
         r"<div[^>]+class=[\"'][^\"']*frc-captcha",
+    )
+)
+
+WEAK_BOT_BLOCK_PATTERNS = tuple(
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"recaptcha",
+        r"\bg-recaptcha\b",
+        r"captcha",
     )
 )
 
@@ -240,6 +247,16 @@ def html_like(text: str, content_type: str) -> bool:
     return any(marker in lower for marker in HTML_MARKERS)
 
 
+def has_article_signal(text: str, visible: str, title: str) -> bool:
+    lower = text.lower()
+    if any(marker in lower for marker in ("citation_title", "citation_author", "<article", "application/ld+json")):
+        return True
+    if title and len(visible) >= 200:
+        block_titles = ("just a moment", "checking your browser", "access denied", "login", "sign in")
+        return not any(block_title in title.lower() for block_title in block_titles)
+    return False
+
+
 def evidence_snippet(text: str, max_chars: int = 320) -> str:
     visible = visible_text(text) or re.sub(r"\s+", " ", text).strip()
     return visible[:max_chars]
@@ -263,7 +280,8 @@ def classify_content(evidence: ContentEvidence, *, run_id: str = "") -> EvalRow:
     elif lower_content_type and "html" not in lower_content_type and not html_like(text, lower_content_type):
         category = CATEGORY_INVALID_CONTENT
     else:
-        bot_pattern = first_matching_pattern(text, BOT_BLOCK_PATTERNS)
+        strong_bot_pattern = first_matching_pattern(text, STRONG_BOT_BLOCK_PATTERNS)
+        weak_bot_pattern = first_matching_pattern(text, WEAK_BOT_BLOCK_PATTERNS)
         router_pattern = first_matching_pattern(text, ROUTER_PATTERNS)
         js_pattern = first_matching_pattern(text, JS_REQUIRED_PATTERNS)
         script_heavy_shell = (
@@ -272,9 +290,9 @@ def classify_content(evidence: ContentEvidence, *, run_id: str = "") -> EvalRow:
             and "<script" in text.lower()
             and not any(marker in text.lower() for marker in ("citation_title", "citation_author", "<article"))
         )
-        if bot_pattern:
+        if strong_bot_pattern or (weak_bot_pattern and not has_article_signal(text, visible, title)):
             category = CATEGORY_BOT_BLOCK_403
-            error = error or f"matched bot pattern: {bot_pattern}"
+            error = error or f"matched bot pattern: {strong_bot_pattern or weak_bot_pattern}"
         elif router_pattern:
             category = CATEGORY_ROUTER_ONLY
             error = error or f"matched router pattern: {router_pattern}"
