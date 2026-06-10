@@ -91,7 +91,6 @@ ROUTER_PATTERNS = tuple(
         r"<title[^>]*>\s*301 moved",
         r"<title[^>]*>\s*302 found",
         r"<meta\s+http-equiv=[\"']?refresh[\"']?\s+content=[\"']?\d",
-        r"dx\.doi\.org",
     )
 )
 

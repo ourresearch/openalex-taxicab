@@ -437,7 +437,7 @@ def run_live(args: argparse.Namespace, run_id: str) -> int:
     run_dir.mkdir(parents=True, exist_ok=True)
     evidence_dir = run_dir / "browserbase"
     rows_path = run_dir / "rows.ndjson"
-    completed: list[EvalRow] = list(prior_rows.values()) if args.resume else []
+    completed: list[EvalRow] = list(prior_rows.values()) if (args.resume or args.states) else []
 
     with open(rows_path, "a", encoding="utf-8") as append_handle:
         with ThreadPoolExecutor(max_workers=workers) as executor:

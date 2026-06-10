@@ -63,6 +63,29 @@ class ClassifierTests(unittest.TestCase):
         row = classify_content(ContentEvidence(content_type="text/html", body=body), run_id="test")
         self.assertEqual(row.category, CATEGORY_GOOD_HTML)
 
+    def test_article_page_with_dx_doi_reference_is_not_router_only(self):
+        body = """
+        <html><head><title>Approach to the patient: reninoma</title>
+        <meta name="citation_title" content="Approach to the patient: reninoma">
+        <meta name="citation_author" content="Example Author">
+        <meta name="citation_doi" content="10.1210/clinem/dgad516">
+        </head><body><article><h1>Approach to the patient: reninoma</h1>
+        <p>This Oxford Academic landing page contains real article content and references
+        https://dx.doi.org/10.1210/clinem/dgad516 in metadata. The DOI link is a normal
+        article identifier, not evidence that the response is a router stub.</p>
+        <p>The article page has enough visible content for downstream extraction and should
+        remain good HTML.</p></article></body></html>
+        """
+        row = classify_content(
+            ContentEvidence(
+                content_type="text/html",
+                body=body,
+                resolved_url="https://academic.oup.com/jcem/advance-article/doi/10.1210/clinem/dgad516/7255998",
+            ),
+            run_id="test",
+        )
+        self.assertEqual(row.category, CATEGORY_GOOD_HTML)
+
     def test_lookup_empty_is_missing_harvest(self):
         row, record = classify_lookup_payload(run_id="test", doi="10.1/a", lookup_json={"html": [], "pdf": [], "grobid": []})
         self.assertIsNone(record)
