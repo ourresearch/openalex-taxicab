@@ -2,12 +2,42 @@
 
 Academic content harvesting API. Fetches HTML and PDFs from publisher websites via Zyte API, stores in Cloudflare R2 + DynamoDB.
 
+## Agent Operating Rules
+
+- Active repo: `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab`.
+- Do not use `/Users/shubh-trips/Documents/openalex-taxicab`; it is an empty duplicate checkout.
+- `main` auto-deploys to ECS through `.github/workflows/aws.yml`. Work on a `codex/` branch and push only after focused verification.
+- Never print or commit secret values. Secret names may appear in docs, but raw values for `ZYTE_API_KEY`, `BROWSERBASE_API_KEY`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, `R2_SECRET_ACCESS_KEY`, and `CRAWLERA_KEY` must stay out of tracked files and reports.
+- Zyte remains the production retrieval core. Browserbase is evidence/recoverability unless a later, separately tested production fallback is approved.
+- Taxicab V1 reporting lives in `/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit` (#133). #336 is Parseland-only.
+- Evaluation code must not import `app.py`; Flask app import requires R2 credentials at import time.
+
+## Taxicab V1 Eval Commands
+
+```bash
+python3 -m unittest discover -s tests
+python3 scripts/taxicab_eval.py --fixture-smoke --out /tmp/taxicab-fixture-smoke
+python3 scripts/taxicab_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --smoke --out /tmp/taxicab-live-smoke
+python3 scripts/taxicab_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --limit 100 --out eval_runs/
+```
+
+Before push, run a secret scan:
+
+```bash
+rg -n "ZYTE_API_KEY|BROWSERBASE_API_KEY|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|R2_SECRET|CRAWLERA_KEY" .
+```
+
+Inspect matches before committing; variable names are OK, secret values are not.
+
 ## Project Structure
 
 - `app.py` - Flask REST API endpoints
 - `openalex_taxicab/harvest.py` - Core harvesting logic, soft-block detection, S3/DynamoDB storage
 - `openalex_taxicab/http_cache.py` - HTTP requests via Zyte API, DOI resolution, publisher-specific handling
+- `openalex_taxicab/eval_harness.py` - Taxicab V1 retrieval-quality classifier and artifact writer
+- `openalex_taxicab/publisher_index.py` - DOI-prefix/domain publisher classifier, vendored from Parseland
 - `openalex_taxicab/util.py` - Utility functions (MIME type detection, timing)
+- `scripts/taxicab_eval.py` - Read-only/reharvest eval CLI
 
 ## Testing Locally
 

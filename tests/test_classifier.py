@@ -1,0 +1,125 @@
+import json
+import tempfile
+import unittest
+from pathlib import Path
+
+from openalex_taxicab.eval_harness import (
+    CATEGORIES,
+    CATEGORY_BOT_BLOCK_403,
+    CATEGORY_DOWNLOAD_404,
+    CATEGORY_EMPTY_RESPONSE,
+    CATEGORY_GOOD_HTML,
+    CATEGORY_INVALID_CONTENT,
+    CATEGORY_JS_REQUIRED,
+    CATEGORY_MISSING_HARVEST,
+    CATEGORY_PDF_INSTEAD_OF_HTML,
+    CATEGORY_ROUTER_ONLY,
+    CATEGORY_TAXICAB_ERROR,
+    CATEGORY_TIMEOUT,
+    ContentEvidence,
+    classify_content,
+    classify_lookup_payload,
+    classify_reharvest_post,
+    classify_uuid_download_error,
+    make_transport_row,
+    summarize_rows,
+    write_artifacts,
+)
+
+
+FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures" / "eval"
+
+
+class ClassifierTests(unittest.TestCase):
+    def classify_fixture(self, name, content_type="text/html"):
+        return classify_content(
+            ContentEvidence(
+                doi=f"fixture/{name}",
+                publisher="fixture",
+                resolved_url=f"https://example.org/{name}",
+                content_type=content_type,
+                body=(FIXTURE_DIR / name).read_bytes(),
+            ),
+            run_id="test",
+        )
+
+    def test_manifest_fixtures_match_expected_categories(self):
+        manifest = json.loads((FIXTURE_DIR / "manifest.json").read_text())
+        for item in manifest["fixtures"]:
+            with self.subTest(item=item["file"]):
+                row = self.classify_fixture(item["file"], item["content_type"])
+                self.assertEqual(row.category, item["expected"])
+
+    def test_weak_cloudflare_reference_is_not_bot_block(self):
+        body = """
+        <html><head><title>Real article</title>
+        <meta name="citation_title" content="Real article"></head>
+        <body><article><p>This is a real article page with enough text for extraction.
+        It mentions a Cloudflare CDN URL in a script tag but it is not a challenge page.
+        The rest of this paragraph is normal article content with authors, abstract-like
+        text, and scholarly landing-page context.</p></article>
+        <script src="https://static.cloudflareinsights.com/beacon.min.js"></script></body></html>
+        """
+        row = classify_content(ContentEvidence(content_type="text/html", body=body), run_id="test")
+        self.assertEqual(row.category, CATEGORY_GOOD_HTML)
+
+    def test_lookup_empty_is_missing_harvest(self):
+        row, record = classify_lookup_payload(run_id="test", doi="10.1/a", lookup_json={"html": [], "pdf": [], "grobid": []})
+        self.assertIsNone(record)
+        self.assertEqual(row.category, CATEGORY_MISSING_HARVEST)
+
+    def test_lookup_pdf_without_html_is_pdf_instead_of_html(self):
+        row, record = classify_lookup_payload(run_id="test", doi="10.1/a", lookup_json={"html": [], "pdf": [{"id": "p"}], "grobid": []})
+        self.assertIsNone(record)
+        self.assertEqual(row.category, CATEGORY_PDF_INSTEAD_OF_HTML)
+
+    def test_uuid_404_is_download_404(self):
+        row = classify_uuid_download_error(run_id="test", doi="10.1/a", status_code=404)
+        self.assertEqual(row.category, CATEGORY_DOWNLOAD_404)
+
+    def test_reharvest_overlay_categories(self):
+        self.assertEqual(
+            classify_reharvest_post(run_id="test", doi="10.1/a", status_code=429).category,
+            CATEGORY_BOT_BLOCK_403,
+        )
+        self.assertEqual(
+            classify_reharvest_post(run_id="test", doi="10.1/a", status_code=None).category,
+            CATEGORY_TIMEOUT,
+        )
+        self.assertEqual(
+            classify_reharvest_post(run_id="test", doi="10.1/a", status_code=400).category,
+            CATEGORY_INVALID_CONTENT,
+        )
+        self.assertEqual(
+            classify_reharvest_post(run_id="test", doi="10.1/a", status_code=500).category,
+            CATEGORY_TAXICAB_ERROR,
+        )
+        self.assertEqual(
+            classify_reharvest_post(run_id="test", doi="10.1/a", status_code=200, payload={"is_soft_block": True}).category,
+            CATEGORY_BOT_BLOCK_403,
+        )
+
+    def test_summary_invariant_and_artifacts(self):
+        rows = [
+            self.classify_fixture("good_article.html"),
+            make_transport_row(run_id="test", doi="10.1/missing", category=CATEGORY_MISSING_HARVEST),
+            make_transport_row(run_id="test", doi="10.1/timeout", category=CATEGORY_TIMEOUT),
+        ]
+        summary = summarize_rows(rows, run_id="test")
+        self.assertEqual(summary["total"], 3)
+        self.assertEqual(sum(summary["category_counts"].values()), 3)
+        self.assertEqual(summary["good_html"], 1)
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = write_artifacts(rows, Path(tmp), run_id="test")
+            for path in paths.values():
+                self.assertTrue(path.exists())
+
+    def test_all_categories_are_representable(self):
+        represented = set(CATEGORIES)
+        self.assertIn(CATEGORY_EMPTY_RESPONSE, represented)
+        self.assertIn(CATEGORY_JS_REQUIRED, represented)
+        self.assertIn(CATEGORY_ROUTER_ONLY, represented)
+
+
+if __name__ == "__main__":
+    unittest.main()
