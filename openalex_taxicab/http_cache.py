@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from time import time
 from typing import Optional
 import json
+from urllib.parse import parse_qs, urlsplit
 
 import requests
 import tenacity
@@ -111,6 +112,24 @@ def is_direct_fetch_url(url):
 def is_browser_html_url(url):
     return any(re.search(f"(^|[./])({re.escape(pattern)})(/|$)", url)
               for pattern in BROWSER_HTML_URLS)
+
+
+def sciencedirect_article_url_from_pdf_asset(url):
+    """Map ScienceDirect signed PDF asset URLs back to article landing pages."""
+    if not url:
+        return None
+
+    parsed = urlsplit(url)
+    if parsed.netloc.lower() != "pdf.sciencedirectassets.com":
+        return None
+
+    query_pii = parse_qs(parsed.query).get("pii", [""])[0]
+    path_match = re.search(r"/[0-9]+-s2\.0-([A-Za-z0-9]+)/[^/]+\.pdf$", parsed.path, re.IGNORECASE)
+    pii = query_pii or (path_match.group(1) if path_match else "")
+    if not pii or not re.fullmatch(r"[A-Za-z0-9]+", pii):
+        return None
+
+    return f"https://www.sciencedirect.com/science/article/pii/{pii}"
 
 
 BOT_PROTECTION_DOMAINS = [
@@ -423,6 +442,11 @@ def http_get(url,
             if redirect_info and redirect_info["status_code"] < 400:
                 url = redirect_info["final_url"]
                 logger.info(f"Resolved to: {url}")
+
+        sciencedirect_article_url = sciencedirect_article_url_from_pdf_asset(url)
+        if sciencedirect_article_url:
+            logger.info(f"Rewriting ScienceDirect PDF asset URL to article landing page: {sciencedirect_article_url}")
+            url = sciencedirect_article_url
 
         # Direct fetch for open-access sites that don't need Zyte
         if is_direct_fetch_url(url):
