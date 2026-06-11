@@ -11,6 +11,7 @@ Academic content harvesting API. Fetches HTML and PDFs from publisher websites v
 - Zyte remains the production retrieval core. Browserbase is evidence/recoverability unless a later, separately tested production fallback is approved.
 - Taxicab V1 reporting lives in `/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit` (#133). #336 is Parseland-only.
 - Evaluation code must not import `app.py`; Flask app import requires R2 credentials at import time.
+- Before continuing the improvement loop, read `NEXT_TO_DO.md` in this repo and in oxjobs `working/taxicab-audit/NEXT_TO_DO.md`.
 
 ## Taxicab V1 Eval Commands
 
@@ -35,11 +36,14 @@ python3 scripts/taxicab_eval.py \
   --out /tmp/taxicab-reharvest-watchdog
 ```
 
-Optional Browserbase evidence mode requires the local SDK:
+Optional Browserbase evidence mode uses Browserbase REST plus Playwright. The local Browserbase Python SDK is no longer required for `scripts/taxicab_eval.py` because SDK import hung in this environment.
 
 ```bash
-python3 -m pip install --user browserbase
+python3 -m playwright --version
+python3 scripts/taxicab_eval.py --with-browserbase --browserbase-mode session ...
 ```
+
+Known current Browserbase state: REST session create/release works with the ignored Parseland eval env key, but local Playwright startup/CDP connection hung during the expanded MDPI sample. See `NEXT_TO_DO.md` before spending more Browserbase time.
 
 Before push, run a secret scan:
 

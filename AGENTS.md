@@ -6,6 +6,7 @@
 - Do not use `/Users/shubh-trips/Documents/openalex-taxicab`; it is an empty duplicate checkout.
 - Use `codex/taxicab-v1-eval-system` for the Taxicab V1 eval system unless a newer `codex/` branch is already active.
 - Preserve unrelated local changes.
+- Read `NEXT_TO_DO.md` before choosing a cluster. It is the handoff contract for Codex/Claude continuity.
 
 ## Production Safety
 
@@ -73,11 +74,14 @@ python3 scripts/taxicab_eval.py \
   --out /tmp/taxicab-reharvest-watchdog
 ```
 
-For Browserbase evidence mode, install the optional local SDK first:
+For Browserbase evidence mode, the harness uses Browserbase REST plus Playwright. The local Browserbase Python SDK is intentionally not required because SDK import hung in this environment.
 
 ```bash
-python3 -m pip install --user browserbase
+python3 -m playwright --version
+python3 scripts/taxicab_eval.py --with-browserbase --browserbase-mode session ...
 ```
+
+Current Browserbase caveat: Browserbase REST session create/release is healthy, but local Playwright startup/CDP connection blocked the expanded MDPI run. Do not reinterpret that as Taxicab or Zyte recovery failure; treat it as a local evidence-runner issue.
 
 ## Reporting
 
