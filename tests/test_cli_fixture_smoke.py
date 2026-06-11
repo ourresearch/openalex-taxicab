@@ -9,7 +9,14 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from openalex_taxicab.eval_harness import EvalRow
-from scripts.taxicab_eval import collect_browserbase_evidence, main, read_doi_file, row_doi_and_input_url, row_publisher
+from scripts.taxicab_eval import (
+    browserbase_metadata_value,
+    collect_browserbase_evidence,
+    main,
+    read_doi_file,
+    row_doi_and_input_url,
+    row_publisher,
+)
 
 
 class HangingPostHandler(BaseHTTPRequestHandler):
@@ -45,6 +52,10 @@ class DaemonThreadingHTTPServer(ThreadingHTTPServer):
 
 
 class CliFixtureSmokeTests(unittest.TestCase):
+    def test_browserbase_metadata_value_sanitizes_doi(self):
+        self.assertEqual(browserbase_metadata_value("10.3390/app8030428"), "10.3390_app8030428")
+        self.assertEqual(len(browserbase_metadata_value("x" * 200)), 120)
+
     def test_doi_file_reads_quarry_candidate_csv(self):
         with tempfile.TemporaryDirectory() as tmp:
             queue = Path(tmp) / "browserbase-candidates.csv"
@@ -97,6 +108,42 @@ class CliFixtureSmokeTests(unittest.TestCase):
                 evidence = collect_browserbase_evidence(row, evidence_dir=Path(tmp))
 
                 self.assertEqual(evidence["verdict"], "not_configured")
+                self.assertEqual(evidence["target_url"], "https://www.mdpi.com/2076-3417/8/3/428")
+                self.assertTrue(Path(evidence["evidence_path"]).exists())
+        finally:
+            if old_key is not None:
+                os.environ["BROWSERBASE_API_KEY"] = old_key
+
+    def test_browserbase_session_not_configured_records_mode(self):
+        old_key = os.environ.pop("BROWSERBASE_API_KEY", None)
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                row = EvalRow(
+                    run_id="test",
+                    doi="10.3390/app8030428",
+                    category="router_only",
+                    publisher="mdpi",
+                    host="mdpi.com",
+                    input_url="https://doi.org/10.3390/app8030428",
+                    resolved_url="https://www.mdpi.com/2076-3417/8/3/428",
+                    status_code=200,
+                    content_type="text/html",
+                    size_bytes=100,
+                    title="",
+                    evidence_snippet="bm-verify",
+                    support_candidate=True,
+                    uuid="uuid",
+                    html_record_count=1,
+                    created_date="",
+                    duration_ms=1,
+                    mode="read_only",
+                    error="",
+                )
+
+                evidence = collect_browserbase_evidence(row, evidence_dir=Path(tmp), mode="session")
+
+                self.assertEqual(evidence["verdict"], "not_configured")
+                self.assertEqual(evidence["mode"], "session")
                 self.assertEqual(evidence["target_url"], "https://www.mdpi.com/2076-3417/8/3/428")
                 self.assertTrue(Path(evidence["evidence_path"]).exists())
         finally:

@@ -8,6 +8,7 @@ import csv
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -257,6 +258,8 @@ def classify_live_row(
     run_id: str,
     reharvest: bool,
     with_browserbase: bool,
+    browserbase_mode: str,
+    browserbase_timeout: float,
     evidence_dir: Path,
 ) -> EvalRow:
     doi, input_url = row_doi_and_input_url(row)
@@ -276,7 +279,13 @@ def classify_live_row(
             error=post.error,
         )
         if overlay is not None:
-            return maybe_add_browserbase(overlay, with_browserbase=with_browserbase, evidence_dir=evidence_dir)
+            return maybe_add_browserbase(
+                overlay,
+                with_browserbase=with_browserbase,
+                browserbase_mode=browserbase_mode,
+                browserbase_timeout=browserbase_timeout,
+                evidence_dir=evidence_dir,
+            )
         time.sleep(2)
 
     lookup = client.lookup_doi(doi)
@@ -314,7 +323,13 @@ def classify_live_row(
         mode="reharvest" if reharvest else "read_only",
     )
     if row_result is not None:
-        return maybe_add_browserbase(row_result, with_browserbase=with_browserbase, evidence_dir=evidence_dir)
+        return maybe_add_browserbase(
+            row_result,
+            with_browserbase=with_browserbase,
+            browserbase_mode=browserbase_mode,
+            browserbase_timeout=browserbase_timeout,
+            evidence_dir=evidence_dir,
+        )
 
     assert html_record is not None
     uuid = str(html_record.get("id") or "")
@@ -371,7 +386,13 @@ def classify_live_row(
             ),
             run_id=run_id,
         )
-    return maybe_add_browserbase(result, with_browserbase=with_browserbase, evidence_dir=evidence_dir)
+    return maybe_add_browserbase(
+        result,
+        with_browserbase=with_browserbase,
+        browserbase_mode=browserbase_mode,
+        browserbase_timeout=browserbase_timeout,
+        evidence_dir=evidence_dir,
+    )
 
 
 def make_row_watchdog_timeout(
@@ -406,6 +427,8 @@ def classify_live_row_worker(
     run_id: str,
     reharvest: bool,
     with_browserbase: bool,
+    browserbase_mode: str,
+    browserbase_timeout: float,
     evidence_dir: str,
 ) -> None:
     try:
@@ -416,6 +439,8 @@ def classify_live_row_worker(
             run_id=run_id,
             reharvest=reharvest,
             with_browserbase=with_browserbase,
+            browserbase_mode=browserbase_mode,
+            browserbase_timeout=browserbase_timeout,
             evidence_dir=Path(evidence_dir),
         )
     except Exception as exc:
@@ -455,6 +480,8 @@ def run_rows_with_thread_pool(
     run_id: str,
     reharvest: bool,
     with_browserbase: bool,
+    browserbase_mode: str,
+    browserbase_timeout: float,
     evidence_dir: Path,
     workers: int,
     append_handle: Any,
@@ -470,6 +497,8 @@ def run_rows_with_thread_pool(
                 run_id=run_id,
                 reharvest=reharvest,
                 with_browserbase=with_browserbase,
+                browserbase_mode=browserbase_mode,
+                browserbase_timeout=browserbase_timeout,
                 evidence_dir=evidence_dir,
             )
             for row in rows_to_run
@@ -514,6 +543,8 @@ def run_rows_with_process_watchdog(
                 "run_id": run_id,
                 "reharvest": args.reharvest,
                 "with_browserbase": args.with_browserbase,
+                "browserbase_mode": args.browserbase_mode,
+                "browserbase_timeout": args.browserbase_timeout,
                 "evidence_dir": str(evidence_dir),
             },
         )
@@ -572,10 +603,22 @@ def run_rows_with_process_watchdog(
             )
 
 
-def maybe_add_browserbase(row: EvalRow, *, with_browserbase: bool, evidence_dir: Path) -> EvalRow:
+def maybe_add_browserbase(
+    row: EvalRow,
+    *,
+    with_browserbase: bool,
+    browserbase_mode: str,
+    browserbase_timeout: float,
+    evidence_dir: Path,
+) -> EvalRow:
     if not with_browserbase or row.category == "good_html":
         return row
-    evidence = collect_browserbase_evidence(row, evidence_dir=evidence_dir)
+    evidence = collect_browserbase_evidence(
+        row,
+        evidence_dir=evidence_dir,
+        mode=browserbase_mode,
+        timeout_seconds=browserbase_timeout,
+    )
     return replace(
         row,
         browserbase_available=bool(evidence.get("available")),
@@ -585,16 +628,48 @@ def maybe_add_browserbase(row: EvalRow, *, with_browserbase: bool, evidence_dir:
     )
 
 
-def collect_browserbase_evidence(row: EvalRow, *, evidence_dir: Path) -> dict[str, Any]:
+def collect_browserbase_evidence(
+    row: EvalRow,
+    *,
+    evidence_dir: Path,
+    mode: str = "fetch",
+    timeout_seconds: float = 30,
+) -> dict[str, Any]:
     evidence_dir.mkdir(parents=True, exist_ok=True)
     out_base = evidence_dir / hashlib.sha1(row.doi.lower().encode()).hexdigest()
     target_url = row.resolved_url or row.input_url or f"https://doi.org/{row.doi}"
     api_key = os.environ.get("BROWSERBASE_API_KEY")
     if not api_key:
-        payload = {"available": False, "verdict": "not_configured", "doi": row.doi, "target_url": target_url}
+        payload = {"available": False, "verdict": "not_configured", "doi": row.doi, "target_url": target_url, "mode": mode}
         out_base.with_suffix(".json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
         payload["evidence_path"] = str(out_base.with_suffix(".json"))
         return payload
+    if mode == "session":
+        return collect_browserbase_session_evidence(
+            row,
+            evidence_dir=evidence_dir,
+            out_base=out_base,
+            target_url=target_url,
+            api_key=api_key,
+            timeout_seconds=timeout_seconds,
+        )
+    return collect_browserbase_fetch_evidence(
+        row,
+        evidence_dir=evidence_dir,
+        out_base=out_base,
+        target_url=target_url,
+        api_key=api_key,
+    )
+
+
+def collect_browserbase_fetch_evidence(
+    row: EvalRow,
+    *,
+    evidence_dir: Path,
+    out_base: Path,
+    target_url: str,
+    api_key: str,
+) -> dict[str, Any]:
     try:
         from browserbase import Browserbase
 
@@ -610,15 +685,110 @@ def collect_browserbase_evidence(row: EvalRow, *, evidence_dir: Path) -> dict[st
         out_base.with_suffix(".html").write_text(content, encoding="utf-8", errors="replace")
         verdict = assess_browserbase_html(content, final_url=final_url)
         verdict["doi"] = row.doi
+        verdict["mode"] = "fetch"
         verdict["target_url"] = target_url
         verdict["evidence_path"] = str(out_base.with_suffix(".html"))
         out_base.with_suffix(".json").write_text(json.dumps(verdict, indent=2), encoding="utf-8")
         return verdict
     except Exception as exc:
-        payload = {"available": False, "verdict": "error", "error": str(exc), "doi": row.doi, "target_url": target_url}
+        payload = {"available": False, "verdict": "error", "error": str(exc), "doi": row.doi, "target_url": target_url, "mode": "fetch"}
         out_base.with_suffix(".json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
         payload["evidence_path"] = str(out_base.with_suffix(".json"))
         return payload
+
+
+def browserbase_metadata_value(value: str) -> str:
+    return re.sub(r"[^A-Za-z0-9_.-]+", "_", value)[:120]
+
+
+def collect_browserbase_session_evidence(
+    row: EvalRow,
+    *,
+    evidence_dir: Path,
+    out_base: Path,
+    target_url: str,
+    api_key: str,
+    timeout_seconds: float,
+) -> dict[str, Any]:
+    session_id = ""
+    bb = None
+    try:
+        from browserbase import Browserbase
+        from playwright.sync_api import sync_playwright
+
+        project_id = os.environ.get("BROWSERBASE_PROJECT_ID") or None
+        bb = Browserbase(api_key=api_key)
+        create_kwargs: dict[str, Any] = {
+            "browser_settings": {
+                "solve_captchas": True,
+                "viewport": {"width": 1365, "height": 900},
+            },
+            "proxies": True,
+            "api_timeout": max(30, int(timeout_seconds) + 20),
+            "user_metadata": {"tool": "taxicab_eval", "doi": browserbase_metadata_value(row.doi), "mode": "session"},
+        }
+        if project_id:
+            create_kwargs["project_id"] = project_id
+        session = bb.sessions.create(**create_kwargs)
+        session_id = str(getattr(session, "id", "") or "")
+        connect_url = str(getattr(session, "connect_url", "") or "")
+        if not connect_url:
+            raise RuntimeError("Browserbase session did not return connect_url")
+
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.connect_over_cdp(connect_url, timeout=int(timeout_seconds * 1000))
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+            page = context.pages[0] if context.pages else context.new_page()
+            page.goto(target_url, wait_until="domcontentloaded", timeout=int(timeout_seconds * 1000))
+            try:
+                page.wait_for_load_state("networkidle", timeout=min(10000, int(timeout_seconds * 1000)))
+            except Exception:
+                pass
+            page.wait_for_timeout(5000)
+            final_url = page.url
+            try:
+                title = page.title()
+            except Exception:
+                title = ""
+            content = page.content()
+            out_base.with_suffix(".html").write_text(content, encoding="utf-8", errors="replace")
+            screenshot_path = out_base.with_suffix(".png")
+            try:
+                page.screenshot(path=str(screenshot_path), full_page=True, timeout=10000)
+            except Exception:
+                screenshot_path = Path("")
+            browser.close()
+
+        verdict = assess_browserbase_html(content, final_url=final_url)
+        verdict["doi"] = row.doi
+        verdict["mode"] = "session"
+        verdict["target_url"] = target_url
+        verdict["session_id"] = session_id
+        verdict["title"] = verdict.get("title") or title
+        verdict["evidence_path"] = str(out_base.with_suffix(".html"))
+        if screenshot_path:
+            verdict["screenshot_path"] = str(screenshot_path)
+        out_base.with_suffix(".json").write_text(json.dumps(verdict, indent=2), encoding="utf-8")
+        return verdict
+    except Exception as exc:
+        payload = {
+            "available": False,
+            "verdict": "error",
+            "error": str(exc),
+            "doi": row.doi,
+            "target_url": target_url,
+            "mode": "session",
+            "session_id": session_id,
+        }
+        out_base.with_suffix(".json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        payload["evidence_path"] = str(out_base.with_suffix(".json"))
+        return payload
+    finally:
+        if bb is not None and session_id:
+            try:
+                bb.sessions.update(session_id, status="REQUEST_RELEASE")
+            except Exception:
+                pass
 
 
 def run_fixture_smoke(out_dir: Path, run_id: str) -> int:
@@ -724,6 +894,8 @@ def run_live(args: argparse.Namespace, run_id: str) -> int:
                 run_id=run_id,
                 reharvest=args.reharvest,
                 with_browserbase=args.with_browserbase,
+                browserbase_mode=args.browserbase_mode,
+                browserbase_timeout=args.browserbase_timeout,
                 evidence_dir=evidence_dir,
                 workers=workers,
                 append_handle=append_handle,
@@ -764,6 +936,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--fixture-smoke", action="store_true")
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--with-browserbase", action="store_true")
+    parser.add_argument("--browserbase-mode", choices=["fetch", "session"], default="fetch")
+    parser.add_argument("--browserbase-timeout", type=float, default=30)
     parser.add_argument("--reharvest", action="store_true")
     parser.add_argument("--progress-every", type=int, default=25)
     return parser
