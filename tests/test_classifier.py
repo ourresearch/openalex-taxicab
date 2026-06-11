@@ -100,6 +100,33 @@ class ClassifierTests(unittest.TestCase):
         row = classify_content(ContentEvidence(content_type="text/html", body=body), run_id="test")
         self.assertEqual(row.category, CATEGORY_GOOD_HTML)
 
+    def test_article_page_with_enable_javascript_widget_is_not_js_required(self):
+        body = """
+        <html><head><title>Internalization choices under competition</title>
+        <meta name="citation_title" content="Internalization choices under competition">
+        <meta name="citation_author" content="Example Author">
+        </head><body><main><h1>Internalization choices under competition</h1>
+        <p>This publisher landing page contains article-level title, author metadata, and
+        enough visible scholarly text for downstream extraction. It includes reader-widget
+        copy that says enable JavaScript, but the returned HTML itself still exposes usable
+        article metadata and content.</p>
+        <aside>Please enable JavaScript for the enhanced reader experience.</aside>
+        </main></body></html>
+        """
+        row = classify_content(ContentEvidence(content_type="text/html", body=body), run_id="test")
+        self.assertEqual(row.category, CATEGORY_GOOD_HTML)
+
+    def test_anubis_enable_javascript_page_is_bot_block(self):
+        body = """
+        <html><head><title>Making sure you're not a bot!</title></head>
+        <body><h1>Making sure you're not a bot!</h1>
+        <p>Loading... You are seeing this because the administrator of this website
+        has set up Anubis to protect the server against automated traffic. Please
+        enable JavaScript to continue.</p></body></html>
+        """
+        row = classify_content(ContentEvidence(content_type="text/html", body=body), run_id="test")
+        self.assertEqual(row.category, CATEGORY_BOT_BLOCK_403)
+
     def test_powered_and_protected_privacy_page_is_strong_bot_block(self):
         body = """
         <html><head><title></title><meta http-equiv="refresh" content="5"></head>

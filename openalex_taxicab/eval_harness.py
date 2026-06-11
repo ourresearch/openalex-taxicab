@@ -63,6 +63,9 @@ STRONG_BOT_BLOCK_PATTERNS = tuple(
         r"access denied",
         r"request cannot be processed at this time",
         r"we apologize for the inconvenience",
+        r"making sure you(?:'|&#x27;|&apos;)?re not a bot",
+        r"anubis to protect the server",
+        r"establishing a secure connection",
         r"shieldsquare captcha",
         r"errors\.edgesuite\.net",
         r"powered\s+and\s+protected\s+by\s+privacy",
@@ -101,13 +104,19 @@ ROUTER_PATTERNS = tuple(
     )
 )
 
-JS_REQUIRED_PATTERNS = tuple(
+WEAK_JS_REQUIRED_PATTERNS = tuple(
     re.compile(pattern, re.IGNORECASE)
     for pattern in (
         r"enable javascript",
         r"javascript is disabled",
         r"requires javascript",
         r"please enable js",
+    )
+)
+
+STRONG_JS_REQUIRED_PATTERNS = tuple(
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
         r"<app-root[^>]*>\s*</app-root>",
         r"<ds-app[^>]*>\s*</ds-app>",
         r"<div[^>]+id=[\"'](?:root|app)[\"'][^>]*>\s*</div>",
@@ -252,7 +261,19 @@ def has_article_signal(text: str, visible: str, title: str) -> bool:
     if any(marker in lower for marker in ("citation_title", "citation_author", "<article", "application/ld+json")):
         return True
     if title and len(visible) >= 200:
-        block_titles = ("just a moment", "checking your browser", "access denied", "login", "sign in")
+        block_titles = (
+            "just a moment",
+            "checking your browser",
+            "access denied",
+            "login",
+            "sign in",
+            "making sure you're not a bot",
+            "not a bot",
+            "robot check",
+            "captcha",
+            "verification required",
+            "secure connection",
+        )
         return not any(block_title in title.lower() for block_title in block_titles)
     return False
 
@@ -283,7 +304,8 @@ def classify_content(evidence: ContentEvidence, *, run_id: str = "") -> EvalRow:
         strong_bot_pattern = first_matching_pattern(text, STRONG_BOT_BLOCK_PATTERNS)
         weak_bot_pattern = first_matching_pattern(text, WEAK_BOT_BLOCK_PATTERNS)
         router_pattern = first_matching_pattern(text, ROUTER_PATTERNS)
-        js_pattern = first_matching_pattern(text, JS_REQUIRED_PATTERNS)
+        weak_js_pattern = first_matching_pattern(text, WEAK_JS_REQUIRED_PATTERNS)
+        strong_js_pattern = first_matching_pattern(text, STRONG_JS_REQUIRED_PATTERNS)
         script_heavy_shell = (
             size < 4096
             and len(visible) < 200
@@ -296,9 +318,13 @@ def classify_content(evidence: ContentEvidence, *, run_id: str = "") -> EvalRow:
         elif router_pattern:
             category = CATEGORY_ROUTER_ONLY
             error = error or f"matched router pattern: {router_pattern}"
-        elif js_pattern or script_heavy_shell:
+        elif strong_js_pattern or script_heavy_shell or (weak_js_pattern and not has_article_signal(text, visible, title)):
             category = CATEGORY_JS_REQUIRED
-            error = error or (f"matched js pattern: {js_pattern}" if js_pattern else "script-heavy shell")
+            error = error or (
+                f"matched js pattern: {strong_js_pattern or weak_js_pattern}"
+                if strong_js_pattern or weak_js_pattern
+                else "script-heavy shell"
+            )
         elif len(visible) < 200 and size < 1024:
             category = CATEGORY_EMPTY_RESPONSE
         elif not html_like(text, lower_content_type):
