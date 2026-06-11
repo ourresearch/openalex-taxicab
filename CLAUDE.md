@@ -21,6 +21,20 @@ python3 scripts/taxicab_eval.py --base-url http://harvester-load-balancer-366186
 python3 scripts/taxicab_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --limit 100 --out eval_runs/
 ```
 
+For live reharvest samples, prefer a per-row watchdog:
+
+```bash
+python3 scripts/taxicab_eval.py \
+  --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
+  --corpus /tmp/sample.csv \
+  --reharvest \
+  --workers 2 \
+  --timeout 20 \
+  --retries 1 \
+  --row-timeout 60 \
+  --out /tmp/taxicab-reharvest-watchdog
+```
+
 Optional Browserbase evidence mode requires the local SDK:
 
 ```bash
@@ -33,7 +47,7 @@ Before push, run a secret scan:
 rg -n "ZYTE_API_KEY|BROWSERBASE_API_KEY|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|R2_SECRET|CRAWLERA_KEY" .
 ```
 
-Inspect matches before committing; variable names are OK, secret values are not.
+Inspect matches before committing; variable names are OK, secret values and signed provider URLs are not.
 
 ## Project Structure
 

@@ -36,6 +36,9 @@ python3 scripts/taxicab_eval.py --fixture-smoke --out /tmp/taxicab-fixture-smoke
 rg -n "ZYTE_API_KEY|BROWSERBASE_API_KEY|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|R2_SECRET|CRAWLERA_KEY" .
 ```
 
+The broad scan above intentionally finds variable names in docs and code.
+Inspect matches and reject raw values, tokens, cookies, or signed provider URLs.
+
 For live read-only smoke:
 
 ```bash
@@ -52,6 +55,22 @@ python3 scripts/taxicab_eval.py \
   --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
   --limit 100 \
   --out eval_runs/
+```
+
+For explicit low-concurrency reharvest samples, bound each row with
+`--row-timeout` so a pathological Taxicab/Zyte request records `timeout`
+instead of holding the whole run open:
+
+```bash
+python3 scripts/taxicab_eval.py \
+  --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
+  --corpus /tmp/sample.csv \
+  --reharvest \
+  --workers 2 \
+  --timeout 20 \
+  --retries 1 \
+  --row-timeout 60 \
+  --out /tmp/taxicab-reharvest-watchdog
 ```
 
 For Browserbase evidence mode, install the optional local SDK first:

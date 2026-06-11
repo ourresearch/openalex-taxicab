@@ -13,7 +13,9 @@ import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import replace
+from multiprocessing import Process, Queue
 from pathlib import Path
+from queue import Empty
 from typing import Any
 from urllib.parse import quote
 
@@ -36,6 +38,7 @@ from openalex_taxicab.eval_harness import (  # noqa: E402
     latest_row_by_doi,
     make_transport_row,
     read_rows_ndjson,
+    row_from_dict,
     write_artifacts,
 )
 from openalex_taxicab.publisher_index import classify_row as classify_publisher  # noqa: E402
@@ -166,6 +169,12 @@ def read_corpus(path: Path) -> list[dict[str, str]]:
     return rows
 
 
+def row_doi_and_input_url(row: dict[str, str]) -> tuple[str, str]:
+    doi = (row.get("DOI") or row.get("doi") or "").strip()
+    input_url = (row.get("Link") or row.get("link") or f"https://doi.org/{doi}").strip()
+    return doi, input_url
+
+
 def run_dir_for(out: Path, run_id: str) -> Path:
     if out.name == run_id:
         return out
@@ -196,8 +205,7 @@ def classify_live_row(
     with_browserbase: bool,
     evidence_dir: Path,
 ) -> EvalRow:
-    doi = (row.get("DOI") or row.get("doi") or "").strip()
-    input_url = (row.get("Link") or row.get("link") or f"https://doi.org/{doi}").strip()
+    doi, input_url = row_doi_and_input_url(row)
     publisher = classify_publisher(row, allow_network=False)
 
     if reharvest:
@@ -310,6 +318,204 @@ def classify_live_row(
             run_id=run_id,
         )
     return maybe_add_browserbase(result, with_browserbase=with_browserbase, evidence_dir=evidence_dir)
+
+
+def make_row_watchdog_timeout(
+    row: dict[str, str],
+    *,
+    run_id: str,
+    reharvest: bool,
+    row_timeout: float,
+) -> EvalRow:
+    doi, input_url = row_doi_and_input_url(row)
+    publisher = classify_publisher(row, allow_network=False)
+    return make_transport_row(
+        run_id=run_id,
+        doi=doi,
+        category=CATEGORY_TIMEOUT,
+        publisher=publisher,
+        input_url=input_url,
+        duration_ms=int(row_timeout * 1000),
+        mode="reharvest" if reharvest else "read_only",
+        error=f"row exceeded wall-clock timeout of {row_timeout:g}s",
+    )
+
+
+def classify_live_row_worker(
+    output_queue: Queue,
+    token: int,
+    row: dict[str, str],
+    *,
+    base_url: str,
+    timeout: float,
+    retries: int,
+    run_id: str,
+    reharvest: bool,
+    with_browserbase: bool,
+    evidence_dir: str,
+) -> None:
+    try:
+        client = TaxicabClient(base_url, timeout=timeout, retries=retries)
+        result = classify_live_row(
+            row,
+            client=client,
+            run_id=run_id,
+            reharvest=reharvest,
+            with_browserbase=with_browserbase,
+            evidence_dir=Path(evidence_dir),
+        )
+    except Exception as exc:
+        doi, input_url = row_doi_and_input_url(row)
+        result = make_transport_row(
+            run_id=run_id,
+            doi=doi,
+            category=CATEGORY_TAXICAB_ERROR,
+            publisher=classify_publisher(row, allow_network=False),
+            input_url=input_url,
+            mode="reharvest" if reharvest else "read_only",
+            error=f"row worker failed: {exc}",
+        )
+    output_queue.put((token, result.to_dict()))
+
+
+def append_completed_row(
+    append_handle: Any,
+    completed: list[EvalRow],
+    row: EvalRow,
+    *,
+    idx: int,
+    total: int,
+    progress_every: int,
+) -> None:
+    completed.append(row)
+    append_handle.write(json.dumps(row.to_dict(), ensure_ascii=False, sort_keys=True) + "\n")
+    append_handle.flush()
+    if idx % max(1, progress_every) == 0:
+        print(f"{idx}/{total} {row.category} {row.doi}")
+
+
+def run_rows_with_thread_pool(
+    rows_to_run: list[dict[str, str]],
+    *,
+    client: TaxicabClient,
+    run_id: str,
+    reharvest: bool,
+    with_browserbase: bool,
+    evidence_dir: Path,
+    workers: int,
+    append_handle: Any,
+    completed: list[EvalRow],
+    progress_every: int,
+) -> None:
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = [
+            executor.submit(
+                classify_live_row,
+                row,
+                client=client,
+                run_id=run_id,
+                reharvest=reharvest,
+                with_browserbase=with_browserbase,
+                evidence_dir=evidence_dir,
+            )
+            for row in rows_to_run
+        ]
+        for idx, future in enumerate(as_completed(futures), start=1):
+            append_completed_row(
+                append_handle,
+                completed,
+                future.result(),
+                idx=idx,
+                total=len(rows_to_run),
+                progress_every=progress_every,
+            )
+
+
+def run_rows_with_process_watchdog(
+    rows_to_run: list[dict[str, str]],
+    *,
+    args: argparse.Namespace,
+    run_id: str,
+    evidence_dir: Path,
+    workers: int,
+    append_handle: Any,
+    completed: list[EvalRow],
+) -> None:
+    output_queue: Queue = Queue()
+    pending = list(enumerate(rows_to_run))
+    active: dict[int, tuple[Process, dict[str, str], float]] = {}
+    finished_tokens: set[int] = set()
+    written = 0
+    poll_seconds = 0.2
+
+    def start_next() -> None:
+        token, input_row = pending.pop(0)
+        process = Process(
+            target=classify_live_row_worker,
+            args=(output_queue, token, input_row),
+            kwargs={
+                "base_url": args.base_url,
+                "timeout": args.timeout,
+                "retries": args.retries,
+                "run_id": run_id,
+                "reharvest": args.reharvest,
+                "with_browserbase": args.with_browserbase,
+                "evidence_dir": str(evidence_dir),
+            },
+        )
+        process.start()
+        active[token] = (process, input_row, time.monotonic())
+
+    while pending or active:
+        while pending and len(active) < workers:
+            start_next()
+
+        while True:
+            try:
+                token, row_data = output_queue.get(timeout=poll_seconds)
+            except Empty:
+                break
+            if token in finished_tokens:
+                continue
+            process_info = active.pop(token, None)
+            if process_info is not None:
+                process_info[0].join(timeout=1)
+            finished_tokens.add(token)
+            written += 1
+            append_completed_row(
+                append_handle,
+                completed,
+                row_from_dict(row_data),
+                idx=written,
+                total=len(rows_to_run),
+                progress_every=args.progress_every,
+            )
+
+        now = time.monotonic()
+        for token, (process, input_row, started_at) in list(active.items()):
+            if now - started_at <= args.row_timeout:
+                continue
+            process.terminate()
+            process.join(timeout=5)
+            if process.is_alive():
+                process.kill()
+                process.join(timeout=5)
+            active.pop(token, None)
+            finished_tokens.add(token)
+            written += 1
+            append_completed_row(
+                append_handle,
+                completed,
+                make_row_watchdog_timeout(
+                    input_row,
+                    run_id=run_id,
+                    reharvest=args.reharvest,
+                    row_timeout=args.row_timeout,
+                ),
+                idx=written,
+                total=len(rows_to_run),
+                progress_every=args.progress_every,
+            )
 
 
 def maybe_add_browserbase(row: EvalRow, *, with_browserbase: bool, evidence_dir: Path) -> EvalRow:
@@ -433,33 +639,36 @@ def run_live(args: argparse.Namespace, run_id: str) -> int:
     else:
         workers = min(args.workers, 16)
     workers = max(1, workers)
-    client = TaxicabClient(args.base_url, timeout=args.timeout, retries=args.retries)
     run_dir.mkdir(parents=True, exist_ok=True)
     evidence_dir = run_dir / "browserbase"
     rows_path = run_dir / "rows.ndjson"
     completed: list[EvalRow] = list(prior_rows.values()) if (args.resume or args.states) else []
 
     with open(rows_path, "a", encoding="utf-8") as append_handle:
-        with ThreadPoolExecutor(max_workers=workers) as executor:
-            futures = [
-                executor.submit(
-                    classify_live_row,
-                    row,
-                    client=client,
-                    run_id=run_id,
-                    reharvest=args.reharvest,
-                    with_browserbase=args.with_browserbase,
-                    evidence_dir=evidence_dir,
-                )
-                for row in rows_to_run
-            ]
-            for idx, future in enumerate(as_completed(futures), start=1):
-                row = future.result()
-                completed.append(row)
-                append_handle.write(json.dumps(row.to_dict(), ensure_ascii=False, sort_keys=True) + "\n")
-                append_handle.flush()
-                if idx % max(1, args.progress_every) == 0:
-                    print(f"{idx}/{len(rows_to_run)} {row.category} {row.doi}")
+        if args.row_timeout and args.row_timeout > 0:
+            run_rows_with_process_watchdog(
+                rows_to_run,
+                args=args,
+                run_id=run_id,
+                evidence_dir=evidence_dir,
+                workers=workers,
+                append_handle=append_handle,
+                completed=completed,
+            )
+        else:
+            client = TaxicabClient(args.base_url, timeout=args.timeout, retries=args.retries)
+            run_rows_with_thread_pool(
+                rows_to_run,
+                client=client,
+                run_id=run_id,
+                reharvest=args.reharvest,
+                with_browserbase=args.with_browserbase,
+                evidence_dir=evidence_dir,
+                workers=workers,
+                append_handle=append_handle,
+                completed=completed,
+                progress_every=args.progress_every,
+            )
 
     final_rows = list(latest_row_by_doi(completed).values())
     write_artifacts(
@@ -486,6 +695,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--states", help="Comma-separated prior categories to rerun from an existing run")
     parser.add_argument("--workers", type=int, default=8)
     parser.add_argument("--timeout", type=float, default=30)
+    parser.add_argument("--row-timeout", type=float, default=0, help="Optional wall-clock timeout per row; runs rows in killable child processes when set")
     parser.add_argument("--retries", type=int, default=3)
     parser.add_argument("--run-id")
     parser.add_argument("--resume", action="store_true")
