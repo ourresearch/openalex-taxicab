@@ -7,13 +7,16 @@ import time
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from unittest.mock import patch
 
 from openalex_taxicab.eval_harness import EvalRow
 from scripts.taxicab_eval import (
     browserbase_metadata_value,
     collect_browserbase_evidence,
+    create_browserbase_session,
     main,
     read_doi_file,
+    release_browserbase_session,
     row_doi_and_input_url,
     row_publisher,
 )
@@ -49,6 +52,15 @@ class EmptyLookupHandler(BaseHTTPRequestHandler):
 
 class DaemonThreadingHTTPServer(ThreadingHTTPServer):
     daemon_threads = True
+
+
+class FakeBrowserbaseResponse:
+    def __init__(self, status_code=201, payload=None):
+        self.status_code = status_code
+        self._payload = payload or {"id": "session-1", "connectUrl": "wss://connect.example"}
+
+    def json(self):
+        return self._payload
 
 
 class CliFixtureSmokeTests(unittest.TestCase):
@@ -149,6 +161,47 @@ class CliFixtureSmokeTests(unittest.TestCase):
         finally:
             if old_key is not None:
                 os.environ["BROWSERBASE_API_KEY"] = old_key
+
+    def test_browserbase_session_create_uses_rest_api(self):
+        old_project = os.environ.pop("BROWSERBASE_PROJECT_ID", None)
+        try:
+            with patch("scripts.taxicab_eval.requests.post", return_value=FakeBrowserbaseResponse()) as post:
+                session = create_browserbase_session(api_key="secret-key", doi="10.3390/app8030428", timeout_seconds=75)
+
+            self.assertEqual(session["id"], "session-1")
+            self.assertEqual(session["connect_url"], "wss://connect.example")
+            args, kwargs = post.call_args
+            self.assertEqual(args[0], "https://api.browserbase.com/v1/sessions")
+            self.assertEqual(kwargs["headers"]["X-BB-API-Key"], "secret-key")
+            self.assertEqual(kwargs["json"]["proxies"], True)
+            self.assertEqual(kwargs["json"]["browserSettings"]["timeout"], 95)
+            self.assertEqual(kwargs["json"]["userMetadata"]["doi"], "10.3390_app8030428")
+            self.assertNotIn("projectId", kwargs["json"])
+        finally:
+            if old_project is not None:
+                os.environ["BROWSERBASE_PROJECT_ID"] = old_project
+
+    def test_browserbase_session_create_includes_project_id_when_configured(self):
+        old_project = os.environ.get("BROWSERBASE_PROJECT_ID")
+        os.environ["BROWSERBASE_PROJECT_ID"] = "project-123"
+        try:
+            with patch("scripts.taxicab_eval.requests.post", return_value=FakeBrowserbaseResponse()) as post:
+                create_browserbase_session(api_key="secret-key", doi="10.3390/app8030428", timeout_seconds=30)
+
+            self.assertEqual(post.call_args.kwargs["json"]["projectId"], "project-123")
+        finally:
+            if old_project is None:
+                os.environ.pop("BROWSERBASE_PROJECT_ID", None)
+            else:
+                os.environ["BROWSERBASE_PROJECT_ID"] = old_project
+
+    def test_browserbase_session_release_uses_request_release(self):
+        with patch("scripts.taxicab_eval.requests.post", return_value=FakeBrowserbaseResponse(status_code=200)) as post:
+            release_browserbase_session(api_key="secret-key", session_id="session-1")
+
+        args, kwargs = post.call_args
+        self.assertEqual(args[0], "https://api.browserbase.com/v1/sessions/session-1")
+        self.assertEqual(kwargs["json"], {"status": "REQUEST_RELEASE"})
 
     def test_fixture_smoke_exits_zero_and_writes_artifacts(self):
         with tempfile.TemporaryDirectory() as tmp:

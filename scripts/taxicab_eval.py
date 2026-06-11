@@ -671,17 +671,22 @@ def collect_browserbase_fetch_evidence(
     api_key: str,
 ) -> dict[str, Any]:
     try:
-        from browserbase import Browserbase
-
-        bb = Browserbase(api_key=api_key)
-        response = bb.fetch_api.create(
-            url=target_url,
-            format="raw",
-            proxies=True,
-            allow_redirects=True,
+        response = requests.post(
+            "https://api.browserbase.com/v1/fetch",
+            headers=browserbase_headers(api_key),
+            json={
+                "url": target_url,
+                "format": "raw",
+                "proxies": True,
+                "allowRedirects": True,
+            },
+            timeout=45,
         )
-        content = getattr(response, "content", "") or ""
-        final_url = getattr(response, "url", "") or row.resolved_url
+        if response.status_code != 200:
+            raise RuntimeError(f"Browserbase fetch returned HTTP {response.status_code}")
+        payload = response.json()
+        content = str(payload.get("content") or "")
+        final_url = row.resolved_url or target_url
         out_base.with_suffix(".html").write_text(content, encoding="utf-8", errors="replace")
         verdict = assess_browserbase_html(content, final_url=final_url)
         verdict["doi"] = row.doi
@@ -701,6 +706,49 @@ def browserbase_metadata_value(value: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", value)[:120]
 
 
+def browserbase_headers(api_key: str) -> dict[str, str]:
+    return {"Content-Type": "application/json", "X-BB-API-Key": api_key}
+
+
+def create_browserbase_session(*, api_key: str, doi: str, timeout_seconds: float) -> dict[str, str]:
+    project_id = os.environ.get("BROWSERBASE_PROJECT_ID") or None
+    browser_timeout = max(60, int(timeout_seconds) + 20)
+    payload: dict[str, Any] = {
+        "browserSettings": {
+            "solveCaptchas": True,
+            "timeout": browser_timeout,
+            "viewport": {"width": 1365, "height": 900},
+        },
+        "proxies": True,
+        "userMetadata": {"tool": "taxicab_eval", "doi": browserbase_metadata_value(doi), "mode": "session"},
+    }
+    if project_id:
+        payload["projectId"] = project_id
+    response = requests.post(
+        "https://api.browserbase.com/v1/sessions",
+        headers=browserbase_headers(api_key),
+        json=payload,
+        timeout=30,
+    )
+    if response.status_code != 201:
+        raise RuntimeError(f"Browserbase session create returned HTTP {response.status_code}")
+    data = response.json()
+    session_id = str(data.get("id") or "")
+    connect_url = str(data.get("connectUrl") or data.get("connect_url") or "")
+    if not session_id or not connect_url:
+        raise RuntimeError("Browserbase session create response omitted id or connectUrl")
+    return {"id": session_id, "connect_url": connect_url}
+
+
+def release_browserbase_session(*, api_key: str, session_id: str) -> None:
+    requests.post(
+        f"https://api.browserbase.com/v1/sessions/{session_id}",
+        headers=browserbase_headers(api_key),
+        json={"status": "REQUEST_RELEASE"},
+        timeout=15,
+    )
+
+
 def collect_browserbase_session_evidence(
     row: EvalRow,
     *,
@@ -711,29 +759,12 @@ def collect_browserbase_session_evidence(
     timeout_seconds: float,
 ) -> dict[str, Any]:
     session_id = ""
-    bb = None
     try:
-        from browserbase import Browserbase
         from playwright.sync_api import sync_playwright
 
-        project_id = os.environ.get("BROWSERBASE_PROJECT_ID") or None
-        bb = Browserbase(api_key=api_key)
-        create_kwargs: dict[str, Any] = {
-            "browser_settings": {
-                "solve_captchas": True,
-                "viewport": {"width": 1365, "height": 900},
-            },
-            "proxies": True,
-            "api_timeout": max(30, int(timeout_seconds) + 20),
-            "user_metadata": {"tool": "taxicab_eval", "doi": browserbase_metadata_value(row.doi), "mode": "session"},
-        }
-        if project_id:
-            create_kwargs["project_id"] = project_id
-        session = bb.sessions.create(**create_kwargs)
-        session_id = str(getattr(session, "id", "") or "")
-        connect_url = str(getattr(session, "connect_url", "") or "")
-        if not connect_url:
-            raise RuntimeError("Browserbase session did not return connect_url")
+        session = create_browserbase_session(api_key=api_key, doi=row.doi, timeout_seconds=timeout_seconds)
+        session_id = session["id"]
+        connect_url = session["connect_url"]
 
         with sync_playwright() as playwright:
             browser = playwright.chromium.connect_over_cdp(connect_url, timeout=int(timeout_seconds * 1000))
@@ -784,9 +815,9 @@ def collect_browserbase_session_evidence(
         payload["evidence_path"] = str(out_base.with_suffix(".json"))
         return payload
     finally:
-        if bb is not None and session_id:
+        if session_id:
             try:
-                bb.sessions.update(session_id, status="REQUEST_RELEASE")
+                release_browserbase_session(api_key=api_key, session_id=session_id)
             except Exception:
                 pass
 
