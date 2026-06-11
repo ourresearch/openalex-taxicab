@@ -169,10 +169,64 @@ def read_corpus(path: Path) -> list[dict[str, str]]:
     return rows
 
 
+def normalize_input_row(row: dict[str, Any]) -> dict[str, str]:
+    normalized = {str(key): "" if value is None else str(value) for key, value in row.items()}
+    doi = (normalized.get("DOI") or normalized.get("doi") or "").strip()
+    if doi and "DOI" not in normalized:
+        normalized["DOI"] = doi
+    input_url = (
+        normalized.get("Link")
+        or normalized.get("link")
+        or normalized.get("url")
+        or normalized.get("resolved_url")
+        or (f"https://doi.org/{doi}" if doi else "")
+    ).strip()
+    if input_url:
+        normalized["Link"] = input_url
+    return normalized
+
+
+def read_doi_file(path: Path) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    suffix = path.suffix.lower()
+    if suffix == ".csv":
+        with open(path, newline="", encoding="utf-8") as handle:
+            reader = csv.DictReader(handle)
+            for item in reader:
+                row = normalize_input_row(item)
+                if row.get("DOI") or row.get("doi"):
+                    rows.append(row)
+        return rows
+    if suffix in {".jsonl", ".ndjson"}:
+        with open(path, encoding="utf-8") as handle:
+            for line in handle:
+                if not line.strip():
+                    continue
+                row = normalize_input_row(json.loads(line))
+                if row.get("DOI") or row.get("doi"):
+                    rows.append(row)
+        return rows
+
+    with open(path, encoding="utf-8") as handle:
+        for line in handle:
+            doi = line.strip()
+            if not doi or doi.startswith("#"):
+                continue
+            rows.append({"DOI": doi, "Link": f"https://doi.org/{doi}"})
+    return rows
+
+
 def row_doi_and_input_url(row: dict[str, str]) -> tuple[str, str]:
     doi = (row.get("DOI") or row.get("doi") or "").strip()
     input_url = (row.get("Link") or row.get("link") or f"https://doi.org/{doi}").strip()
     return doi, input_url
+
+
+def row_publisher(row: dict[str, str], *, resolved_url: str = "") -> str:
+    explicit = (row.get("publisher") or row.get("Publisher") or "").strip()
+    if explicit:
+        return explicit
+    return classify_publisher(row, allow_network=False, resolved_url=resolved_url)
 
 
 def run_dir_for(out: Path, run_id: str) -> Path:
@@ -190,7 +244,7 @@ def apply_filters(
 ) -> list[dict[str, str]]:
     filtered = rows
     if publisher:
-        filtered = [row for row in filtered if classify_publisher(row, allow_network=False) == publisher]
+        filtered = [row for row in filtered if row_publisher(row) == publisher]
     if states:
         filtered = [row for row in filtered if prior_rows.get((row.get("DOI") or row.get("doi") or "").strip(), None) and prior_rows[(row.get("DOI") or row.get("doi") or "").strip()].category in states]
     return filtered
@@ -206,7 +260,7 @@ def classify_live_row(
     evidence_dir: Path,
 ) -> EvalRow:
     doi, input_url = row_doi_and_input_url(row)
-    publisher = classify_publisher(row, allow_network=False)
+    publisher = row_publisher(row)
 
     if reharvest:
         post = client.reharvest(doi, input_url)
@@ -265,7 +319,7 @@ def classify_live_row(
     assert html_record is not None
     uuid = str(html_record.get("id") or "")
     resolved_url = str(html_record.get("resolved_url") or html_record.get("url") or "")
-    publisher = classify_publisher(row, allow_network=False, resolved_url=resolved_url)
+    publisher = row_publisher(row, resolved_url=resolved_url)
     download = client.download_uuid(uuid)
     html_count = int(html_record.get("_html_record_count") or 0)
     created_date = str(html_record.get("created_date") or "")
@@ -328,7 +382,7 @@ def make_row_watchdog_timeout(
     row_timeout: float,
 ) -> EvalRow:
     doi, input_url = row_doi_and_input_url(row)
-    publisher = classify_publisher(row, allow_network=False)
+    publisher = row_publisher(row)
     return make_transport_row(
         run_id=run_id,
         doi=doi,
@@ -370,7 +424,7 @@ def classify_live_row_worker(
             run_id=run_id,
             doi=doi,
             category=CATEGORY_TAXICAB_ERROR,
-            publisher=classify_publisher(row, allow_network=False),
+            publisher=row_publisher(row),
             input_url=input_url,
             mode="reharvest" if reharvest else "read_only",
             error=f"row worker failed: {exc}",
@@ -534,9 +588,10 @@ def maybe_add_browserbase(row: EvalRow, *, with_browserbase: bool, evidence_dir:
 def collect_browserbase_evidence(row: EvalRow, *, evidence_dir: Path) -> dict[str, Any]:
     evidence_dir.mkdir(parents=True, exist_ok=True)
     out_base = evidence_dir / hashlib.sha1(row.doi.lower().encode()).hexdigest()
+    target_url = row.resolved_url or row.input_url or f"https://doi.org/{row.doi}"
     api_key = os.environ.get("BROWSERBASE_API_KEY")
     if not api_key:
-        payload = {"available": False, "verdict": "not_configured", "doi": row.doi}
+        payload = {"available": False, "verdict": "not_configured", "doi": row.doi, "target_url": target_url}
         out_base.with_suffix(".json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
         payload["evidence_path"] = str(out_base.with_suffix(".json"))
         return payload
@@ -545,7 +600,7 @@ def collect_browserbase_evidence(row: EvalRow, *, evidence_dir: Path) -> dict[st
 
         bb = Browserbase(api_key=api_key)
         response = bb.fetch_api.create(
-            url=f"https://doi.org/{row.doi}",
+            url=target_url,
             format="raw",
             proxies=True,
             allow_redirects=True,
@@ -555,11 +610,12 @@ def collect_browserbase_evidence(row: EvalRow, *, evidence_dir: Path) -> dict[st
         out_base.with_suffix(".html").write_text(content, encoding="utf-8", errors="replace")
         verdict = assess_browserbase_html(content, final_url=final_url)
         verdict["doi"] = row.doi
+        verdict["target_url"] = target_url
         verdict["evidence_path"] = str(out_base.with_suffix(".html"))
         out_base.with_suffix(".json").write_text(json.dumps(verdict, indent=2), encoding="utf-8")
         return verdict
     except Exception as exc:
-        payload = {"available": False, "verdict": "error", "error": str(exc), "doi": row.doi}
+        payload = {"available": False, "verdict": "error", "error": str(exc), "doi": row.doi, "target_url": target_url}
         out_base.with_suffix(".json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
         payload["evidence_path"] = str(out_base.with_suffix(".json"))
         return payload
@@ -620,6 +676,11 @@ def run_live(args: argparse.Namespace, run_id: str) -> int:
         corpus_rows = SMOKE_DOIS
         corpus_sha = "smoke"
         corpus_label = "built-in smoke"
+    elif args.doi_file:
+        doi_file = Path(args.doi_file)
+        corpus_rows = read_doi_file(doi_file)
+        corpus_sha = sha1_file(doi_file)
+        corpus_label = str(doi_file)
     else:
         corpus_rows = read_corpus(corpus_path)
         corpus_sha = sha1_file(corpus_path)
@@ -690,6 +751,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--corpus", default=str(DEFAULT_CORPUS))
     parser.add_argument("--base-url", default=DEFAULT_BASE_URL)
     parser.add_argument("--out", default="eval_runs")
+    parser.add_argument("--doi-file", help="CSV, NDJSON, or text DOI/candidate queue. CSV supports DOI/doi plus Link/link/resolved_url.")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--publisher")
     parser.add_argument("--states", help="Comma-separated prior categories to rerun from an existing run")
