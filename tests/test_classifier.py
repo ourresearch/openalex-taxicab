@@ -118,11 +118,12 @@ class ClassifierTests(unittest.TestCase):
         self.assertEqual(row.category, CATEGORY_GOOD_HTML)
 
     def test_generic_404_page_is_not_good_html(self):
+        filler = " ".join(["navigation search menu login"] * 80)
         body = """
         <html><head><title>Not Found | American Diabetes Association</title></head>
         <body><h1>404: This page could not be found.</h1>
-        <p>The requested publisher page is unavailable.</p></body></html>
-        """
+        <p>The requested publisher page is unavailable.</p><p>{filler}</p></body></html>
+        """.format(filler=filler)
         row = classify_content(
             ContentEvidence(content_type="text/html", body=body, resolved_url="https://diabetesjournals.org/CustomError"),
             run_id="test",
@@ -130,11 +131,13 @@ class ClassifierTests(unittest.TestCase):
         self.assertEqual(row.category, CATEGORY_INVALID_CONTENT)
 
     def test_cloudflare_520_page_is_not_browserbase_available(self):
+        filler = " ".join(["browser working cloudflare working host error"] * 80)
         body = """
         <html><head><title>jaypeedigital.com | 520: Web server is returning an unknown error</title></head>
         <body><h1>Web server is returning an unknown error</h1>
-        <p>Error code 520. Browser Working. Cloudflare Working. Host Error.</p></body></html>
-        """
+        <p>Error code 520. Browser Working. Cloudflare Working. Host Error.</p>
+        <p>{filler}</p></body></html>
+        """.format(filler=filler)
         verdict = assess_browserbase_html(body, final_url="http://www.jaypeedigital.com/login.aspx")
         self.assertFalse(verdict["available"])
         self.assertEqual(verdict["verdict"], CATEGORY_INVALID_CONTENT)

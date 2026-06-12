@@ -292,6 +292,10 @@ def has_article_signal(text: str, visible: str, title: str) -> bool:
             "captcha",
             "verification required",
             "secure connection",
+            "not found",
+            "web server is returning an unknown error",
+            "host error",
+            "error code",
         )
         return not any(block_title in title.lower() for block_title in block_titles)
     return False
