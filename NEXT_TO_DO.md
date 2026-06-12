@@ -1,6 +1,6 @@
 # Taxicab V1 next work for Codex and Claude
 
-Last updated: 2026-06-11 19:44 America/Los_Angeles.
+Last updated: 2026-06-12 14:47 America/Los_Angeles.
 
 This file is the handoff contract for the Taxicab retrieval-quality project. Read it before doing new work. Keep it current before ending a long session.
 
@@ -15,7 +15,7 @@ This file is the handoff contract for the Taxicab retrieval-quality project. Rea
 ## Git state to expect
 
 - Taxicab branch: `codex/taxicab-v1-eval-system`
-- Latest pushed Taxicab branch commit at handoff: `0522d6e taxicab: tighten browserbase error title guard`
+- Latest pushed Taxicab branch includes code fix `2acd1eb taxicab: reject expired login evidence`; this file's current commit is the branch HEAD.
 - Taxicab production `main` auto-deploys to ECS. Do not push production scraping changes to `main` without targeted proof plus full 10K no-regression proof.
 - Oxjobs main has #133 reporting updates through the Browserbase REST runner artifact. If the next agent changes reporting, stage only `working/taxicab-audit`.
 
@@ -74,6 +74,7 @@ eval_runs/full10k-missing-tail-clean-bd4a8e3/residuals/zyte-support-candidates.c
 - IOP Browserbase session evidence was completed on 2026-06-11: current Taxicab read-only stayed `bot_block_403` for 14/14 `iopscience.iop.org` residual rows; Browserbase sessions recovered article-level `good_html` for 2/14 and stayed `bot_block_403` for 12/14, with screenshots captured for 14/14. Compact public artifact: `working/taxicab-audit/evidence/report133-iop-browserbase-session-fc4896d.json`; support packet: `working/taxicab-audit/evidence/report133-iop-zyte-support-packet.md`.
 - Browserbase evidence classifier was tightened on branch commits `a6bfebf` and `0522d6e` so generic 404/520/browser error pages no longer count as Browserbase `good_html`. Tests now cover large error pages and real articles that merely mention 404/520 terms.
 - DOI.org JS-required cluster was triaged on 2026-06-11: Taxicab remains non-good for 11/11 rows after the error-page guard (10 `js_required`, one `invalid_content`); Browserbase sessions recovered article-level `good_html` for 4/11 and classified 7/11 as invalid/error. Compact public artifact: `working/taxicab-audit/evidence/report133-doiorg-js-browserbase-session-0522d6e.json`; triage note: `working/taxicab-audit/evidence/report133-doiorg-js-triage-0522d6e.md`.
+- Wolters Kluwer/Lippincott JS-required cluster was triaged on 2026-06-12: Taxicab read-only remains `js_required` for 11/11 rows on `login.wolterskluwer.com`; the first Browserbase pass exposed a false-positive `good_html` bug on `Page Expired` login pages; branch commit `2acd1eb` fixes expired-login evidence classification; corrected Browserbase session evidence is 0/11 `good_html`, 11/11 `invalid_content`, with 11 screenshots captured locally. Compact public artifact: `working/taxicab-audit/evidence/report133-wolterskluwer-pageexpired-browserbase-session-2acd1eb.json`; triage note: `working/taxicab-audit/evidence/report133-wolterskluwer-pageexpired-triage-2acd1eb.md`.
 
 ## Browserbase and secrets
 
@@ -201,7 +202,33 @@ Browser-recoverable examples:
 
 Do not send this as one broad Zyte packet. Split by final host before deciding whether a Taxicab resolver/rendering fix or host-specific Zyte support packet is justified.
 
-### 5. Missing-harvest residual tail
+### 5. Wolters Kluwer / Lippincott expired-login cluster
+
+Evidence complete; next action is resolver/direct-article URL discovery, not a production Browserbase fallback and not a broad Zyte rendering packet from the stored URL.
+
+```text
+category at baseline: js_required
+publisher: lippincott
+host: login.wolterskluwer.com
+rows: 11
+Taxicab read-only confirmation: 11/11 js_required on Wolters Kluwer Ping authorization resume URLs
+Browserbase full sessions after commit 2acd1eb: 0/11 good_html, 11/11 invalid_content, 11/11 screenshots captured
+root evidence: rendered page title "Page Expired"; final URL stays login.wolterskluwer.com/as/.../resume/as/authorization.ping
+```
+
+Artifacts:
+
+```text
+/tmp/taxicab-wolterskluwer-js11-08259ff.csv
+/tmp/taxicab-wolterskluwer-readonly/wolterskluwer-js11-readonly-08259ff/
+/tmp/taxicab-wolterskluwer-browserbase-fixed/wolterskluwer-js11-browserbase-session-pageexpired-08259ff/
+/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit/evidence/report133-wolterskluwer-pageexpired-browserbase-session-2acd1eb.json
+/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit/evidence/report133-wolterskluwer-pageexpired-triage-2acd1eb.md
+```
+
+Do not report these rows as browser-recoverable. If this cluster is revisited, first discover stable article landing URLs from DOI resolver metadata, LWW journal URLs, or publisher link templates, then run a targeted Taxicab/Browserbase comparison from those URLs. Starting Browserbase from the stored expired login resume URL only reproduces the expired login page.
+
+### 6. Missing-harvest residual tail
 
 There are 48 `missing_harvest` rows left, including 35 unknown/unknown. This is now lower-yield than MDPI but still useful. Any further public KPI claim needs:
 
@@ -210,7 +237,7 @@ There are 48 `missing_harvest` rows left, including 35 unknown/unknown. This is 
 3. timeout sentinel if any watchdog artifacts appear;
 4. clean full 10K read-only gate.
 
-### 6. Browserbase session runner
+### 7. Browserbase session runner
 
 The local Playwright startup check passed and the 10-row MDPI session sample completed. Keep using row watchdogs and low concurrency.
 
