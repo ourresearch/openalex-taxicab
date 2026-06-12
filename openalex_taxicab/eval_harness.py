@@ -123,6 +123,25 @@ STRONG_JS_REQUIRED_PATTERNS = tuple(
     )
 )
 
+ERROR_PAGE_PATTERNS = tuple(
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"<title[^>]*>\s*(?:404\s+)?not found\b",
+        r"\b404:\s*this page could not be found\b",
+        r"\bserver error 404 page not found\b",
+        r"\bweb server is returning an unknown error\b",
+        r"\berror code 520\b",
+        r"\bfailed to execute request after \d+ tries\b",
+    )
+)
+
+ERROR_URL_PATTERNS = tuple(
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"/customerror(?:$|[?#])",
+    )
+)
+
 HTML_MARKERS = tuple(
     marker.lower()
     for marker in (
@@ -306,6 +325,8 @@ def classify_content(evidence: ContentEvidence, *, run_id: str = "") -> EvalRow:
         router_pattern = first_matching_pattern(text, ROUTER_PATTERNS)
         weak_js_pattern = first_matching_pattern(text, WEAK_JS_REQUIRED_PATTERNS)
         strong_js_pattern = first_matching_pattern(text, STRONG_JS_REQUIRED_PATTERNS)
+        error_page_pattern = first_matching_pattern(text, ERROR_PAGE_PATTERNS)
+        error_url_pattern = first_matching_pattern(evidence.resolved_url, ERROR_URL_PATTERNS)
         script_heavy_shell = (
             size < 4096
             and len(visible) < 200
@@ -315,6 +336,9 @@ def classify_content(evidence: ContentEvidence, *, run_id: str = "") -> EvalRow:
         if strong_bot_pattern or (weak_bot_pattern and not has_article_signal(text, visible, title)):
             category = CATEGORY_BOT_BLOCK_403
             error = error or f"matched bot pattern: {strong_bot_pattern or weak_bot_pattern}"
+        elif (error_page_pattern or error_url_pattern) and not has_article_signal(text, visible, title):
+            category = CATEGORY_INVALID_CONTENT
+            error = error or f"matched error page pattern: {error_page_pattern or error_url_pattern}"
         elif router_pattern:
             category = CATEGORY_ROUTER_ONLY
             error = error or f"matched router pattern: {router_pattern}"

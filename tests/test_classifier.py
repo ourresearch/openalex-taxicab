@@ -22,6 +22,7 @@ from openalex_taxicab.eval_harness import (
     classify_reharvest_post,
     classify_uuid_download_error,
     make_transport_row,
+    assess_browserbase_html,
     summarize_rows,
     write_artifacts,
 )
@@ -112,6 +113,42 @@ class ClassifierTests(unittest.TestCase):
         article metadata and content.</p>
         <aside>Please enable JavaScript for the enhanced reader experience.</aside>
         </main></body></html>
+        """
+        row = classify_content(ContentEvidence(content_type="text/html", body=body), run_id="test")
+        self.assertEqual(row.category, CATEGORY_GOOD_HTML)
+
+    def test_generic_404_page_is_not_good_html(self):
+        body = """
+        <html><head><title>Not Found | American Diabetes Association</title></head>
+        <body><h1>404: This page could not be found.</h1>
+        <p>The requested publisher page is unavailable.</p></body></html>
+        """
+        row = classify_content(
+            ContentEvidence(content_type="text/html", body=body, resolved_url="https://diabetesjournals.org/CustomError"),
+            run_id="test",
+        )
+        self.assertEqual(row.category, CATEGORY_INVALID_CONTENT)
+
+    def test_cloudflare_520_page_is_not_browserbase_available(self):
+        body = """
+        <html><head><title>jaypeedigital.com | 520: Web server is returning an unknown error</title></head>
+        <body><h1>Web server is returning an unknown error</h1>
+        <p>Error code 520. Browser Working. Cloudflare Working. Host Error.</p></body></html>
+        """
+        verdict = assess_browserbase_html(body, final_url="http://www.jaypeedigital.com/login.aspx")
+        self.assertFalse(verdict["available"])
+        self.assertEqual(verdict["verdict"], CATEGORY_INVALID_CONTENT)
+
+    def test_article_page_that_mentions_404_is_still_good_html(self):
+        body = """
+        <html><head><title>HTTP failures in scholarly infrastructure</title>
+        <meta name="citation_title" content="HTTP failures in scholarly infrastructure">
+        <meta name="citation_author" content="Example Author"></head>
+        <body><article><h1>HTTP failures in scholarly infrastructure</h1>
+        <p>This real article discusses 404 Not Found and 520 errors as research objects.
+        The returned landing page has article metadata, authors, and enough visible text
+        for downstream extraction, so the error terminology is not itself a publisher
+        error page.</p></article></body></html>
         """
         row = classify_content(ContentEvidence(content_type="text/html", body=body), run_id="test")
         self.assertEqual(row.category, CATEGORY_GOOD_HTML)
