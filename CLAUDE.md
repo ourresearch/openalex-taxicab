@@ -8,6 +8,7 @@ Academic content harvesting API. Fetches HTML and PDFs from publisher websites v
 - Do not use `/Users/shubh-trips/Documents/openalex-taxicab`; it is an empty duplicate checkout.
 - `main` auto-deploys to ECS through `.github/workflows/aws.yml`. Work on a `codex/` branch and push only after focused verification.
 - Never print or commit secret values. Secret names may appear in docs, but raw values for `ZYTE_API_KEY`, `BROWSERBASE_API_KEY`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, `R2_SECRET_ACCESS_KEY`, and `CRAWLERA_KEY` must stay out of tracked files and reports.
+- Use the local ignored credential files before asking Shubh to authenticate. `.env` contains Taxicab provider/R2/Zyte material, and `.env.aws` contains AWS CLI-style session variables. Load them into process environment without echoing values; ask for auth only if the files are missing or a safe command proves the session is expired.
 - Zyte remains the production retrieval core. Browserbase is evidence/recoverability unless a later, separately tested production fallback is approved.
 - Taxicab V1 reporting lives in `/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit` (#133). #336 is Parseland-only.
 - Evaluation code must not import `app.py`; Flask app import requires R2 credentials at import time.
@@ -43,7 +44,7 @@ python3 -m playwright --version
 python3 scripts/taxicab_eval.py --with-browserbase --browserbase-mode session ...
 ```
 
-Known current Browserbase state: REST session create/release works with the ignored Parseland eval env key, but local Playwright startup/CDP connection hung during the expanded MDPI sample. See `NEXT_TO_DO.md` before spending more Browserbase time.
+Known current Browserbase state: REST session create/release works with the ignored Parseland eval env key. Local Playwright startup now passes, and the expanded 10-row MDPI Browserbase session run completed under `--row-timeout 150`. See `NEXT_TO_DO.md` before spending more Browserbase time.
 
 Before push, run a secret scan:
 

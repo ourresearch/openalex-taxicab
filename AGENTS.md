@@ -24,6 +24,7 @@
 ## Secrets
 
 - Never print or commit secret values.
+- Load local ignored `.env` / `.env.aws` first for provider, R2, Zyte, and AWS CLI-style variables. Do not ask Shubh to re-auth unless those files are missing or a safe AWS command proves the local session is expired.
 - AWS CLI may be used for discovery, but do not echo decrypted Secrets Manager or SSM values.
 - Secret variable names can appear in docs and `.env.example`; raw values cannot.
 
@@ -81,7 +82,7 @@ python3 -m playwright --version
 python3 scripts/taxicab_eval.py --with-browserbase --browserbase-mode session ...
 ```
 
-Current Browserbase caveat: Browserbase REST session create/release is healthy, but local Playwright startup/CDP connection blocked the expanded MDPI run. Do not reinterpret that as Taxicab or Zyte recovery failure; treat it as a local evidence-runner issue.
+Current Browserbase state: Browserbase REST session create/release is healthy. Local Playwright startup now passes, and the expanded 10-row MDPI Browserbase session run completed under `--row-timeout 150`.
 
 ## Reporting
 

@@ -75,7 +75,8 @@ eval_runs/full10k-missing-tail-clean-bd4a8e3/residuals/zyte-support-candidates.c
 ## Browserbase and secrets
 
 - Do not print secrets.
-- Active Taxicab `.env` has Zyte/R2/AWS style keys but does not have `BROWSERBASE_API_KEY` or `BROWSERBASE_PROJECT_ID`.
+- Load local ignored credential files before asking Shubh to authenticate. Active Taxicab `.env` has Zyte/R2/AWS-style material, and `.env.aws` has AWS CLI-style session variables. Do not echo values. Ask for auth only if a safe command proves the local session is expired or the files are missing.
+- Active Taxicab `.env` does not have `BROWSERBASE_API_KEY` or `BROWSERBASE_PROJECT_ID`.
 - Adjacent ignored file `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env` has `BROWSERBASE_API_KEY`.
 - `BROWSERBASE_PROJECT_ID` has not been found; Browserbase REST session creation works without it when the API key infers the project.
 - Live probe result: Browserbase REST session create returned HTTP 201 in 0.22s and release returned HTTP 200.
