@@ -1,6 +1,6 @@
 # Taxicab V1 next work for Codex and Claude
 
-Last updated: 2026-06-11 18:52 America/Los_Angeles.
+Last updated: 2026-06-11 19:44 America/Los_Angeles.
 
 This file is the handoff contract for the Taxicab retrieval-quality project. Read it before doing new work. Keep it current before ending a long session.
 
@@ -15,7 +15,7 @@ This file is the handoff contract for the Taxicab retrieval-quality project. Rea
 ## Git state to expect
 
 - Taxicab branch: `codex/taxicab-v1-eval-system`
-- Latest pushed Taxicab branch commit before this IOP handoff slice: `fc4896d taxicab: document local aws credential source`
+- Latest pushed Taxicab branch commit at handoff: `0522d6e taxicab: tighten browserbase error title guard`
 - Taxicab production `main` auto-deploys to ECS. Do not push production scraping changes to `main` without targeted proof plus full 10K no-regression proof.
 - Oxjobs main has #133 reporting updates through the Browserbase REST runner artifact. If the next agent changes reporting, stage only `working/taxicab-audit`.
 
@@ -72,6 +72,8 @@ eval_runs/full10k-missing-tail-clean-bd4a8e3/residuals/zyte-support-candidates.c
 - Live #133 graph verification passed after oxjobs deploy: public raw report contains `<svg class="curve"` and the standalone curve asset returns `200 image/svg+xml`.
 - MDPI Browserbase session evidence was expanded on 2026-06-11: Taxicab stayed `router_only` for 10/10 sampled MDPI rows, while Browserbase full sessions recovered `good_html` for 10/10. Compact public artifact: `working/taxicab-audit/evidence/report133-mdpi-browserbase-session-expanded10-9287bb9.json`.
 - IOP Browserbase session evidence was completed on 2026-06-11: current Taxicab read-only stayed `bot_block_403` for 14/14 `iopscience.iop.org` residual rows; Browserbase sessions recovered article-level `good_html` for 2/14 and stayed `bot_block_403` for 12/14, with screenshots captured for 14/14. Compact public artifact: `working/taxicab-audit/evidence/report133-iop-browserbase-session-fc4896d.json`; support packet: `working/taxicab-audit/evidence/report133-iop-zyte-support-packet.md`.
+- Browserbase evidence classifier was tightened on branch commits `a6bfebf` and `0522d6e` so generic 404/520/browser error pages no longer count as Browserbase `good_html`. Tests now cover large error pages and real articles that merely mention 404/520 terms.
+- DOI.org JS-required cluster was triaged on 2026-06-11: Taxicab remains non-good for 11/11 rows after the error-page guard (10 `js_required`, one `invalid_content`); Browserbase sessions recovered article-level `good_html` for 4/11 and classified 7/11 as invalid/error. Compact public artifact: `working/taxicab-audit/evidence/report133-doiorg-js-browserbase-session-0522d6e.json`; triage note: `working/taxicab-audit/evidence/report133-doiorg-js-triage-0522d6e.md`.
 
 ## Browserbase and secrets
 
@@ -164,7 +166,42 @@ Recovered Browserbase examples:
 
 Do not rerun this cluster unless checking a Zyte-side/provider-side change. Send the support packet or move Lens to the next residual JS/PDF/empty split.
 
-### 4. Missing-harvest residual tail
+### 4. DOI.org JS-required cluster
+
+Evidence complete; next action is host-level splitting, not a broad Taxicab patch.
+
+```text
+category at baseline: js_required
+publisher: unknown
+host: doi.org
+rows: 11
+Taxicab after error-page guard: 10 js_required, 1 invalid_content, 0 good_html
+Browserbase full sessions: 4 good_html, 5 invalid_content, 2 error
+screenshots captured: 9/11
+```
+
+Artifacts:
+
+```text
+/tmp/taxicab-js-doiorg-unknown11-65ac863.csv
+/tmp/taxicab-js-doiorg-readonly/js-doiorg-unknown11-readonly-65ac863/
+/tmp/taxicab-js-doiorg-browserbase-final/js-doiorg-unknown11-browserbase-session-0522d6e/
+/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit/evidence/report133-doiorg-js-browserbase-session-0522d6e.json
+/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit/evidence/report133-doiorg-js-triage-0522d6e.md
+```
+
+Browser-recoverable examples:
+
+```text
+10.31399/asm.cp.istfa2015p0082 -> ASM Digital Library article page
+10.14264/uql.2015.381 -> UQ eSpace article page
+10.14264/46e82ab -> UQ eSpace article page
+10.9798/kosham.2017.17.6.135 -> Kyobo Scholar article page
+```
+
+Do not send this as one broad Zyte packet. Split by final host before deciding whether a Taxicab resolver/rendering fix or host-specific Zyte support packet is justified.
+
+### 5. Missing-harvest residual tail
 
 There are 48 `missing_harvest` rows left, including 35 unknown/unknown. This is now lower-yield than MDPI but still useful. Any further public KPI claim needs:
 
@@ -173,7 +210,7 @@ There are 48 `missing_harvest` rows left, including 35 unknown/unknown. This is 
 3. timeout sentinel if any watchdog artifacts appear;
 4. clean full 10K read-only gate.
 
-### 5. Browserbase session runner
+### 6. Browserbase session runner
 
 The local Playwright startup check passed and the 10-row MDPI session sample completed. Keep using row watchdogs and low concurrency.
 
