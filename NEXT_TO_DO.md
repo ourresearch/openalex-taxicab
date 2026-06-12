@@ -1,6 +1,6 @@
 # Taxicab V1 next work for Codex and Claude
 
-Last updated: 2026-06-11 17:02 America/Los_Angeles.
+Last updated: 2026-06-11 18:52 America/Los_Angeles.
 
 This file is the handoff contract for the Taxicab retrieval-quality project. Read it before doing new work. Keep it current before ending a long session.
 
@@ -15,7 +15,7 @@ This file is the handoff contract for the Taxicab retrieval-quality project. Rea
 ## Git state to expect
 
 - Taxicab branch: `codex/taxicab-v1-eval-system`
-- Latest pushed Taxicab branch commit at handoff: `9287bb9 taxicab: add explicit agent handoff`
+- Latest pushed Taxicab branch commit before this IOP handoff slice: `fc4896d taxicab: document local aws credential source`
 - Taxicab production `main` auto-deploys to ECS. Do not push production scraping changes to `main` without targeted proof plus full 10K no-regression proof.
 - Oxjobs main has #133 reporting updates through the Browserbase REST runner artifact. If the next agent changes reporting, stage only `working/taxicab-audit`.
 
@@ -71,6 +71,7 @@ eval_runs/full10k-missing-tail-clean-bd4a8e3/residuals/zyte-support-candidates.c
 - Report #133 has a report-336-style graph. The graph is embedded inline from `evidence/curve-latest.svg`, matching #336's inline-SVG pattern and avoiding iframe-relative asset resolution failures.
 - Live #133 graph verification passed after oxjobs deploy: public raw report contains `<svg class="curve"` and the standalone curve asset returns `200 image/svg+xml`.
 - MDPI Browserbase session evidence was expanded on 2026-06-11: Taxicab stayed `router_only` for 10/10 sampled MDPI rows, while Browserbase full sessions recovered `good_html` for 10/10. Compact public artifact: `working/taxicab-audit/evidence/report133-mdpi-browserbase-session-expanded10-9287bb9.json`.
+- IOP Browserbase session evidence was completed on 2026-06-11: current Taxicab read-only stayed `bot_block_403` for 14/14 `iopscience.iop.org` residual rows; Browserbase sessions recovered article-level `good_html` for 2/14 and stayed `bot_block_403` for 12/14, with screenshots captured for 14/14. Compact public artifact: `working/taxicab-audit/evidence/report133-iop-browserbase-session-fc4896d.json`; support packet: `working/taxicab-audit/evidence/report133-iop-zyte-support-packet.md`.
 
 ## Browserbase and secrets
 
@@ -132,7 +133,7 @@ If targeted MDPI improves, run a full 10K read-only gate before changing the pub
 
 ### 3. IOP bot-block cluster
 
-Next highest support-style cluster:
+Evidence complete; next action is Envoy/Zyte support, not a Taxicab production patch.
 
 ```text
 category: bot_block_403
@@ -140,9 +141,28 @@ publisher: iop
 host: iopscience.iop.org
 rows: 14
 recommended agents: Lens + Envoy
+Taxicab read-only confirmation: 14/14 bot_block_403
+Browserbase full sessions: 2/14 good_html, 12/14 bot_block_403, 14/14 screenshots captured
 ```
 
-Create an IOP sample from `residual-clusters.json`, run read-only confirmation, collect Browserbase evidence if Playwright is healthy, then draft a Zyte support packet. Do not make production behavior changes first.
+Artifacts:
+
+```text
+/tmp/taxicab-iop-bot14-fc4896d.csv
+/tmp/taxicab-iop-readonly/iop-bot14-readonly-fc4896d/
+/tmp/taxicab-iop-browserbase/iop-bot14-browserbase-session-fc4896d/
+/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit/evidence/report133-iop-browserbase-session-fc4896d.json
+/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit/evidence/report133-iop-zyte-support-packet.md
+```
+
+Recovered Browserbase examples:
+
+```text
+10.1088/0953-8984/18/20/017 -> Formation of clusters in the 2D t-J model: the mechanism for phase separation - IOPscience
+10.1088/1674-4926/25050016 -> A RISC-V 32-bit microprocessor on two-dimensional semiconductor platform - IOPscience
+```
+
+Do not rerun this cluster unless checking a Zyte-side/provider-side change. Send the support packet or move Lens to the next residual JS/PDF/empty split.
 
 ### 4. Missing-harvest residual tail
 
