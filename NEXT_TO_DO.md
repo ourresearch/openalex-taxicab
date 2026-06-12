@@ -1,6 +1,6 @@
 # Taxicab V1 next work for Codex and Claude
 
-Last updated: 2026-06-11 16:48 America/Los_Angeles.
+Last updated: 2026-06-11 17:02 America/Los_Angeles.
 
 This file is the handoff contract for the Taxicab retrieval-quality project. Read it before doing new work. Keep it current before ending a long session.
 
@@ -15,7 +15,7 @@ This file is the handoff contract for the Taxicab retrieval-quality project. Rea
 ## Git state to expect
 
 - Taxicab branch: `codex/taxicab-v1-eval-system`
-- Latest pushed Taxicab branch commit at handoff: `2df8910 taxicab: use browserbase rest evidence APIs`
+- Latest pushed Taxicab branch commit at handoff: `9287bb9 taxicab: add explicit agent handoff`
 - Taxicab production `main` auto-deploys to ECS. Do not push production scraping changes to `main` without targeted proof plus full 10K no-regression proof.
 - Oxjobs main has #133 reporting updates through the Browserbase REST runner artifact. If the next agent changes reporting, stage only `working/taxicab-audit`.
 
@@ -69,6 +69,8 @@ eval_runs/full10k-missing-tail-clean-bd4a8e3/residuals/zyte-support-candidates.c
 - Residual missing-harvest tail was accepted by full 10K read-only gate: +19 `good_html`, 0 regressions.
 - Browserbase evidence runner was changed on branch commit `2df8910` to use Browserbase REST APIs instead of the local Browserbase Python SDK.
 - Report #133 has a report-336-style graph. The graph is embedded inline from `evidence/curve-latest.svg`, matching #336's inline-SVG pattern and avoiding iframe-relative asset resolution failures.
+- Live #133 graph verification passed after oxjobs deploy: public raw report contains `<svg class="curve"` and the standalone curve asset returns `200 image/svg+xml`.
+- MDPI Browserbase session evidence was expanded on 2026-06-11: Taxicab stayed `router_only` for 10/10 sampled MDPI rows, while Browserbase full sessions recovered `good_html` for 10/10. Compact public artifact: `working/taxicab-audit/evidence/report133-mdpi-browserbase-session-expanded10-9287bb9.json`.
 
 ## Browserbase and secrets
 
@@ -77,13 +79,13 @@ eval_runs/full10k-missing-tail-clean-bd4a8e3/residuals/zyte-support-candidates.c
 - Adjacent ignored file `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env` has `BROWSERBASE_API_KEY`.
 - `BROWSERBASE_PROJECT_ID` has not been found; Browserbase REST session creation works without it when the API key infers the project.
 - Live probe result: Browserbase REST session create returned HTTP 201 in 0.22s and release returned HTTP 200.
-- Current blocker: local Playwright startup/CDP connection hung during expanded MDPI Browserbase session attempts. Do not treat that as a Taxicab/Zyte verdict. It is a local evidence-runner problem.
+- Current runner state: local Playwright startup passed, and `--with-browserbase --browserbase-mode session` completed the 10-row MDPI sample under `--row-timeout 150`. Keep using row watchdogs for Browserbase session loops.
 
 ## Immediate next actions
 
-### 1. Verify the #133 graph after deploy
+### 1. #133 graph deploy
 
-After the oxjobs graph-fix commit is pushed, verify:
+Done after oxjobs commit `3b195316`: live report HTML contains `<svg class="curve"` and the standalone curve asset returns `200 image/svg+xml`. Re-run if the report is regenerated:
 
 ```bash
 curl -L -sS -o /tmp/ox133.html https://oxjobs.org/reports/133
@@ -92,7 +94,7 @@ rg -n '<svg class="curve"|<img class="curve"' /tmp/ox133-report.html
 curl -L -sS -o /tmp/ox133-curve.svg -w '%{http_code} %{content_type}\n' 'https://oxjobs.org/reports/133/raw?path=evidence/curve-latest.svg'
 ```
 
-Expected: report HTML contains `<svg class="curve"` and not `<img class="curve"`; the standalone curve asset still returns `200 image/svg+xml`.
+Expected: report HTML contains `<svg class="curve"` and not `<img class="curve"`; the standalone curve asset returns `200 image/svg+xml`.
 
 ### 2. MDPI router protection: Envoy, not Mechanic
 
@@ -106,11 +108,12 @@ rows: 119
 current 10-row Taxicab read-only check: 10/10 router_only
 Zyte-core reharvest sample: 0/5 recovered, all bm-verify/router shells
 Browserbase Fetch: 0/5 recovered
-Browserbase full session: 5/5 recovered to good_html, screenshots captured locally
+Browserbase full session: 10/10 recovered to good_html, 9/10 screenshots captured locally
 support packet: oxjobs working/taxicab-audit/evidence/report133-mdpi-zyte-support-packet.md
+compact artifact: oxjobs working/taxicab-audit/evidence/report133-mdpi-browserbase-session-expanded10-9287bb9.json
 ```
 
-Next step: send or otherwise escalate the MDPI support packet to Zyte. Do not patch Taxicab production behavior for MDPI unless Zyte support evidence or a narrow routing/config hypothesis says Taxicab can safely fix it. After a Zyte response or provider-side change, run:
+Next step: send or otherwise escalate the MDPI support packet to Zyte. Do not patch Taxicab production behavior for MDPI unless Zyte support evidence or a narrow routing/config hypothesis says Taxicab can safely fix it. After Zyte responds or provider-side behavior changes, run:
 
 ```bash
 python3 scripts/taxicab_eval.py \
@@ -149,9 +152,9 @@ There are 48 `missing_harvest` rows left, including 35 unknown/unknown. This is 
 3. timeout sentinel if any watchdog artifacts appear;
 4. clean full 10K read-only gate.
 
-### 5. Local Playwright runner
+### 5. Browserbase session runner
 
-Before more Browserbase session sampling, fix or avoid the local Playwright startup/CDP hang.
+The local Playwright startup check passed and the 10-row MDPI session sample completed. Keep using row watchdogs and low concurrency.
 
 Useful checks:
 
@@ -165,7 +168,7 @@ with sync_playwright() as p:
 PY
 ```
 
-If Playwright still hangs, do not keep launching long Browserbase session loops. Use existing completed Browserbase session artifacts for MDPI and move Envoy/Zyte support forward.
+If Playwright hangs again, do not keep launching long Browserbase session loops. Use existing completed Browserbase session artifacts for MDPI and move Envoy/Zyte support forward.
 
 ## Required gates before commits
 
