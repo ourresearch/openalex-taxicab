@@ -69,6 +69,37 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertEqual(response.url, article_url)
         self.assertIn("ScienceDirect article", response.content)
 
+    def test_http_get_uses_browser_html_for_asme(self):
+        article_url = "https://asmedigitalcollection.asme.org/PVP/proceedings/PVP2007/42878/379/324449"
+        captured = {}
+
+        def fake_call_with_zyte_api(url, params=None):
+            captured["url"] = url
+            captured["params"] = params
+            return {
+                "statusCode": 200,
+                "url": "https://asmedigitalcollection.asme.org/PVP/proceedings-abstract/PVP2007/42878/379/324449",
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "browserHtml": (
+                    "<html><head><title>ASME article</title>"
+                    "<meta name=\"citation_title\" content=\"ASME article\"></head>"
+                    "<body><article>Article landing page HTML.</article></body></html>"
+                ),
+            }
+
+        with patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=fake_call_with_zyte_api):
+            response = http_get(article_url)
+
+        self.assertEqual(captured["url"], article_url)
+        self.assertTrue(captured["params"]["browserHtml"])
+        self.assertTrue(captured["params"]["javascript"])
+        self.assertFalse(captured["params"]["httpResponseBody"])
+        self.assertEqual(
+            response.url,
+            "https://asmedigitalcollection.asme.org/PVP/proceedings-abstract/PVP2007/42878/379/324449",
+        )
+        self.assertIn("ASME article", response.content)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -39,6 +39,7 @@ DIRECT_FETCH_URLS = [
 ]
 
 BROWSER_HTML_URLS = [
+    "asmedigitalcollection.asme.org",
     "cghjournal.org",
     "doi.org/10.1016",
     "doi.org/10.1037",
