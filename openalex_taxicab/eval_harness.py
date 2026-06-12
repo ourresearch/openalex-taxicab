@@ -132,6 +132,9 @@ ERROR_PAGE_PATTERNS = tuple(
         r"\bweb server is returning an unknown error\b",
         r"\berror code 520\b",
         r"\bfailed to execute request after \d+ tries\b",
+        r"<title[^>]*>\s*page expired\b",
+        r"\bthe page you are trying to access is no longer available\b",
+        r"\bopen a new product login page\b",
     )
 )
 
@@ -139,6 +142,7 @@ ERROR_URL_PATTERNS = tuple(
     re.compile(pattern, re.IGNORECASE)
     for pattern in (
         r"/customerror(?:$|[?#])",
+        r"login\.wolterskluwer\.com/as/[^/?#]+/resume/as/authorization\.ping",
     )
 )
 
@@ -296,6 +300,7 @@ def has_article_signal(text: str, visible: str, title: str) -> bool:
             "web server is returning an unknown error",
             "host error",
             "error code",
+            "page expired",
         )
         return not any(block_title in title.lower() for block_title in block_titles)
     return False

@@ -156,6 +156,36 @@ class ClassifierTests(unittest.TestCase):
         row = classify_content(ContentEvidence(content_type="text/html", body=body), run_id="test")
         self.assertEqual(row.category, CATEGORY_GOOD_HTML)
 
+    def test_wolterskluwer_page_expired_is_not_browserbase_available(self):
+        filler = " ".join(["product login expired session"] * 80)
+        body = """
+        <html><head><title>Page Expired</title>
+        <meta name="robots" content="noindex, nofollow"></head>
+        <body><h1>Page Expired</h1>
+        <p>The page you are trying to access is no longer available.
+        Please close the tab and open a new product Login page.</p>
+        <p>{filler}</p></body></html>
+        """.format(filler=filler)
+        verdict = assess_browserbase_html(
+            body,
+            final_url="https://login.wolterskluwer.com/as/example/resume/as/authorization.ping",
+        )
+        self.assertFalse(verdict["available"])
+        self.assertEqual(verdict["verdict"], CATEGORY_INVALID_CONTENT)
+
+    def test_article_page_that_mentions_page_expired_is_still_good_html(self):
+        body = """
+        <html><head><title>Page expired errors in web archives</title>
+        <meta name="citation_title" content="Page expired errors in web archives">
+        <meta name="citation_author" content="Example Author"></head>
+        <body><article><h1>Page expired errors in web archives</h1>
+        <p>This real article discusses page expired errors as a research topic.
+        The publisher landing page exposes citation metadata, authors, and enough
+        visible article content for downstream extraction.</p></article></body></html>
+        """
+        row = classify_content(ContentEvidence(content_type="text/html", body=body), run_id="test")
+        self.assertEqual(row.category, CATEGORY_GOOD_HTML)
+
     def test_anubis_enable_javascript_page_is_bot_block(self):
         body = """
         <html><head><title>Making sure you're not a bot!</title></head>
