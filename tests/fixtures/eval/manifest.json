@@ -1,0 +1,115 @@
+{
+  "fixtures": [
+    {
+      "file": "good_article.html",
+      "expected": "good_html",
+      "doi": "10.1002/example.good",
+      "publisher": "wiley",
+      "resolved_url": "https://onlinelibrary.wiley.com/doi/10.1002/example.good",
+      "content_type": "text/html"
+    },
+    {
+      "file": "tiny_real_abstract.html",
+      "expected": "good_html",
+      "doi": "10.1371/example.abstract",
+      "publisher": "plos",
+      "resolved_url": "https://journals.plos.org/plosone/article?id=10.1371/example.abstract",
+      "content_type": "text/html"
+    },
+    {
+      "file": "cloudflare_just_a_moment.html",
+      "expected": "bot_block_403",
+      "content_type": "text/html"
+    },
+    {
+      "file": "akamai_access_denied.html",
+      "expected": "bot_block_403",
+      "content_type": "text/html"
+    },
+    {
+      "file": "shieldsquare.html",
+      "expected": "bot_block_403",
+      "content_type": "text/html"
+    },
+    {
+      "file": "generic_captcha.html",
+      "expected": "bot_block_403",
+      "content_type": "text/html"
+    },
+    {
+      "file": "doi_org_stub.html",
+      "expected": "router_only",
+      "resolved_url": "https://doi.org/10.5555/router",
+      "content_type": "text/html"
+    },
+    {
+      "file": "crossref_chooser.html",
+      "expected": "router_only",
+      "content_type": "text/html"
+    },
+    {
+      "file": "meta_refresh.html",
+      "expected": "router_only",
+      "content_type": "text/html"
+    },
+    {
+      "file": "spa_empty_root.html",
+      "expected": "js_required",
+      "content_type": "text/html"
+    },
+    {
+      "file": "enable_javascript.html",
+      "expected": "js_required",
+      "content_type": "text/html"
+    },
+    {
+      "file": "tiny_script_shell.html",
+      "expected": "js_required",
+      "content_type": "text/html"
+    },
+    {
+      "file": "pdf_magic.bin",
+      "expected": "pdf_instead_of_html",
+      "content_type": "application/pdf"
+    },
+    {
+      "file": "empty.html",
+      "expected": "empty_response",
+      "content_type": "text/html"
+    },
+    {
+      "file": "whitespace.html",
+      "expected": "empty_response",
+      "content_type": "text/html"
+    },
+    {
+      "file": "binary_garbage.bin",
+      "expected": "invalid_content",
+      "content_type": "application/octet-stream"
+    }
+  ],
+  "synthetic_rows": [
+    {
+      "doi": "10.5555/missing",
+      "expected": "missing_harvest",
+      "error": "no html records"
+    },
+    {
+      "doi": "10.5555/download404",
+      "expected": "download_404",
+      "status_code": 404,
+      "error": "File not found"
+    },
+    {
+      "doi": "10.5555/timeout",
+      "expected": "timeout",
+      "error": "request timed out"
+    },
+    {
+      "doi": "10.5555/taxicab-error",
+      "expected": "taxicab_error",
+      "status_code": 500,
+      "error": "service error"
+    }
+  ]
+}
