@@ -34,15 +34,20 @@ PDF report/control:
 
 ```text
 Gate 0: HTML Phase 1 main sync.
+Status: complete.
+Commit: 07c974e taxicab: sync phase 1 eval context
+Pushed: origin/main
+
+Gate 1: Taxicab PDF branch.
 Status: in progress.
-Purpose: put Phase 1 eval/docs/handoff context on Taxicab main without changing production scraping behavior.
-Next exact command: python3 -m unittest discover -s tests
+Branch: codex/taxicab-pdf-phase2
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && git pull --rebase
 ```
 
 After Gate 0 is pushed:
 
 ```text
-Gate 1: create codex/taxicab-pdf-phase2 from current origin/main.
+Gate 1: create codex/taxicab-pdf-phase2 from current origin/main. [done]
 Gate 2: create new auto-ID oxjobs taxicab-pdf job and report scaffold.
 Gate 3: implement PDF harness and offline validator tests.
 Gate 4: run PDF baseline on the 10K Goldie corpus.
@@ -92,6 +97,17 @@ proof before pushing to `main`.
 
 Oxjobs uses `main` as the reporting source of truth. Push report/docs changes
 to oxjobs `main` frequently after checks.
+
+## Last Verification
+
+```text
+Taxicab main-sync commit: 07c974e
+python3 -m unittest discover -s tests: 54 tests passed
+python3 scripts/taxicab_eval.py --fixture-smoke --out /tmp/taxicab-fixture-smoke: passed, 20 fixtures, 11 categories
+python3 scripts/taxicab_eval.py --smoke --out /tmp/taxicab-html-main-sync-smoke: passed, 8 rows, 0 timeout, 0 taxicab_error
+git diff --cached --check: passed
+secret pattern scan: no raw secret pattern findings
+```
 
 ## Provider Policy
 

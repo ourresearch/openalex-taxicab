@@ -11,15 +11,16 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: sync the Phase 1 eval/docs/handoff state to Taxicab main.
-PDF Phase 2: active after the main-sync commit, target >=95% good_pdf.
+Current gate: create the PDF Phase 2 oxjobs report/control surface.
+PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: python3 -m unittest discover -s tests
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && git pull --rebase
 ```
 
-After the HTML main-sync commit is pushed, create `codex/taxicab-pdf-phase2`
-from current `origin/main`, create a new auto-ID oxjob named `taxicab-pdf`,
-and start the PDF harness/report slice.
+HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
+to Taxicab `origin/main`. The current Taxicab branch is
+`codex/taxicab-pdf-phase2`. Next create a new auto-ID oxjob named
+`taxicab-pdf` and start the PDF harness/report slice.
 
 ## Absolute paths
 
@@ -32,8 +33,8 @@ and start the PDF harness/report slice.
 
 ## Git state to expect
 
-- Taxicab branch for this sync slice: `main`.
-- Next Taxicab branch after sync: `codex/taxicab-pdf-phase2`.
+- Taxicab branch for PDF Phase 2: `codex/taxicab-pdf-phase2`.
+- Taxicab main-sync commit: `07c974e taxicab: sync phase 1 eval context`.
 - Latest accepted production measurement is `full10k-mdpi-jbc-preprints-clean-e22b60e`: **9,583/10,000 `good_html` (95.83%)**, target crossed by 83 rows, +135 rows over the Oxford gate, 0 good-to-non-good regressions.
 - Production `main` contains the accepted Preprints, JBC, and MDPI retrieval fixes plus deploy-stability/health-check changes:
   - `9ef6c9b taxicab: use browser html for preprints`
@@ -205,26 +206,28 @@ scripts/create-job.py taxicab-pdf --owner shubhankar --status working
 
 ### 0. Finish the HTML main-sync gate
 
-The current local main-sync slice should contain only non-production Phase 1
-eval/docs/handoff files plus `GOAL.md`. Run:
+Complete.
 
-```bash
-python3 -m unittest discover -s tests
-python3 scripts/taxicab_eval.py --fixture-smoke --out /tmp/taxicab-fixture-smoke
-rg -n "(ZYTE_API_KEY|BROWSERBASE_API_KEY|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|R2_SECRET|CRAWLERA_KEY)=[^[:space:]]+" .
-git status --short
+Verification:
+
+```text
+commit: 07c974e taxicab: sync phase 1 eval context
+push: origin/main
+unit tests: 54 passed
+fixture smoke: passed, 20 fixtures, 11 categories
+live read-only smoke: passed, 8 rows, 0 timeout, 0 taxicab_error
+secret pattern scan: no raw secret pattern findings
 ```
 
-If green, commit and push to `main`:
+### 1. Create the PDF oxjobs report/control job
 
 ```bash
-git add <owned files>
-git commit -m "taxicab: sync phase 1 eval context"
-git pull --rebase origin main
-git push origin main
+cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
+git pull --rebase
+scripts/create-job.py taxicab-pdf --owner shubhankar --status working
 ```
 
-### 1. Continue from the post-95 residual queue
+### 2. Continue from the post-95 residual queue
 
 Use the accepted post-95 queue:
 
