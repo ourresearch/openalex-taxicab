@@ -284,6 +284,13 @@ def pdf_text_smoke(decoded_pdf: str) -> str:
     return re.sub(r"\s+", " ", joined).strip()
 
 
+def has_pdf_eof_marker(body: bytes) -> bool:
+    # Text scanning intentionally decodes only the head of large PDFs. EOF
+    # validation must use the complete byte payload or valid large PDFs are
+    # misclassified as truncated.
+    return b"%%EOF" in body
+
+
 def evidence_snippet(text: str, max_chars: int = 320) -> str:
     return re.sub(r"\s+", " ", text).strip()[:max_chars]
 
@@ -346,7 +353,7 @@ def classify_pdf_content(evidence: PdfEvidence, *, run_id: str = "") -> PdfEvalR
         if "/Encrypt" in decoded:
             category = PDF_CATEGORY_ENCRYPTED_OR_UNREADABLE_PDF
             validation_errors.append("pdf appears encrypted")
-        elif "%%EOF" not in decoded[-4096:]:
+        elif not has_pdf_eof_marker(body):
             category = PDF_CATEGORY_CORRUPT_OR_TRUNCATED_PDF
             validation_errors.append("missing eof marker")
         elif page_count <= 0:

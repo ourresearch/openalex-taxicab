@@ -6,6 +6,11 @@ Current goal state: HTML retrieval Phase 1 is complete at 9,583/10,000
 `good_html` (95.83%). PDF retrieval Phase 2 is active and targets >=95%
 `good_pdf` on the PDF-expected subset of the 10K Goldie corpus. Use
 `GOAL.md` as the current control file and update it before long handoffs.
+Latest PDF measurement gate: the corrected limit-100 read-only run is 15/100
+`good_pdf`, with 77 `missing_pdf_harvest`, 5 `corrupt_or_truncated_pdf`, two
+`encrypted_or_unreadable_pdf`, one `bot_block_403`, and no timeout or Taxicab
+API errors. The lift from 1/100 to 15/100 came from fixing EOF validation on
+large PDFs, not from production scraping behavior.
 
 ## Agent Operating Rules
 
@@ -63,15 +68,27 @@ rg -n "ZYTE_API_KEY|BROWSERBASE_API_KEY|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|
 
 Inspect matches before committing; variable names are OK, secret values and signed provider URLs are not.
 
+## Taxicab PDF Phase 2 Eval Commands
+
+```bash
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --smoke --out /tmp/taxicab-pdf-live-smoke
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --out pdf_eval_runs/
+```
+
+PDF Phase 2 reports live in oxjobs #461 at `/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf`.
+
 ## Project Structure
 
 - `app.py` - Flask REST API endpoints
 - `openalex_taxicab/harvest.py` - Core harvesting logic, soft-block detection, S3/DynamoDB storage
 - `openalex_taxicab/http_cache.py` - HTTP requests via Zyte API, DOI resolution, publisher-specific handling
 - `openalex_taxicab/eval_harness.py` - Taxicab V1 retrieval-quality classifier and artifact writer
+- `openalex_taxicab/pdf_eval_harness.py` - Taxicab PDF retrieval-quality classifier and artifact writer
 - `openalex_taxicab/publisher_index.py` - DOI-prefix/domain publisher classifier, vendored from Parseland
 - `openalex_taxicab/util.py` - Utility functions (MIME type detection, timing)
 - `scripts/taxicab_eval.py` - Read-only/reharvest eval CLI
+- `scripts/taxicab_pdf_eval.py` - Read-only PDF eval CLI
 
 ## Testing Locally
 

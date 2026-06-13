@@ -11,7 +11,7 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: commit the PDF limit-100 baseline slice.
+Current gate: commit the PDF EOF-validator correction slice, then run the full 10K read-only PDF baseline.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Next exact command: git status --short
@@ -23,10 +23,14 @@ to Taxicab `origin/main`. The current Taxicab branch is
 scaffold pushed to oxjobs `main`. The PDF offline harness slice now has
 passing tests and fixture smoke. The PDF read-only GET path also has a
 5-row live smoke against the load balancer with 0 timeouts and 0 Taxicab errors.
-The first limit-100 read-only baseline completed with 1/100 `good_pdf`,
-77 `missing_pdf_harvest`, 19 `corrupt_or_truncated_pdf`, two
-`encrypted_or_unreadable_pdf`, one `bot_block_403`, and 0 `timeout` /
-0 `taxicab_error`.
+The first limit-100 read-only baseline completed with 1/100 `good_pdf`.
+That run exposed an eval bug: the classifier decoded only the first 256KB for
+text scanning and then checked `%%EOF` inside that truncated slice. The
+corrected EOF validator checks the complete byte body. The corrected limit-100
+run is 15/100 `good_pdf`, 77 `missing_pdf_harvest`, 5
+`corrupt_or_truncated_pdf`, two `encrypted_or_unreadable_pdf`, one
+`bot_block_403`, and 0 `timeout` / 0 `taxicab_error`. Treat the 1/100 -> 15/100
+lift as measurement correctness, not production scraping behavior.
 
 ## Absolute paths
 
@@ -262,15 +266,11 @@ live smoke counts: 1 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
 
 ### 4. Commit the PDF limit-100 baseline state
 
-Current verification:
-
-```bash
-python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --limit 100 --out pdf_eval_runs/ --run-id pdf-limit100-readonly-6661cde --timeout 45 --retries 1 --progress-every 10
-```
-
-Result:
+Complete.
 
 ```text
+commit: e011267 taxicab: record pdf limit-100 baseline
+run_id: pdf-limit100-readonly-6661cde
 good_pdf: 1
 missing_pdf_harvest: 77
 corrupt_or_truncated_pdf: 19
@@ -280,16 +280,60 @@ timeout: 0
 taxicab_error: 0
 ```
 
+### 5. Commit the PDF EOF-validator correction
+
+Current verification:
+
+```bash
+python3 -m unittest tests.test_pdf_eval_harness
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke-eof --out /tmp/taxicab-pdf-fixture-smoke-eof
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --limit 100 --out pdf_eval_runs/ --run-id pdf-limit100-readonly-eof-fix --timeout 45 --retries 1 --progress-every 10
+```
+
+Corrected result:
+
+```text
+good_pdf: 15
+missing_pdf_harvest: 77
+corrupt_or_truncated_pdf: 5
+encrypted_or_unreadable_pdf: 2
+bot_block_403: 1
+timeout: 0
+taxicab_error: 0
+```
+
 Commit/push:
 
 ```bash
-git add .gitignore GOAL.md NEXT_TO_DO.md
-git commit -m "taxicab: record pdf limit-100 baseline"
+python3 -m unittest discover -s tests
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke-eof-final --out /tmp/taxicab-pdf-fixture-smoke-eof-final
+git diff --check
+rg -n "(ZYTE_API_KEY|BROWSERBASE_API_KEY|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|R2_SECRET|CRAWLERA_KEY)=[^[:space:]]+" .
+git add openalex_taxicab/pdf_eval_harness.py tests/test_pdf_eval_harness.py GOAL.md NEXT_TO_DO.md AGENTS.md CLAUDE.md
+git commit -m "taxicab: fix pdf eof validation"
 git pull --rebase origin codex/taxicab-pdf-phase2
 git push origin codex/taxicab-pdf-phase2
 ```
 
-### 5. Continue from the post-95 residual queue
+### 6. Run the full 10K PDF read-only baseline
+
+After the EOF-validator commit is pushed:
+
+```bash
+python3 scripts/taxicab_pdf_eval.py \
+  --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
+  --out pdf_eval_runs/ \
+  --run-id pdf-full10k-readonly-<commit> \
+  --timeout 45 \
+  --retries 1 \
+  --progress-every 100
+```
+
+Then copy `summary.json`, `hardness.json`, and `report.html` into oxjobs
+#461, publish with `python3 scripts/publish-report.py 461`, commit, pull
+--rebase, and push oxjobs `main`.
+
+### 7. Continue from the post-95 HTML residual queue only if PDF work is paused
 
 Use the accepted post-95 queue:
 
@@ -301,7 +345,7 @@ zyte candidates: working/taxicab-audit/evidence/report133-zyte-support-candidate
 
 The next high-signal work is PDF-vs-landing splitting, IOP/MUSE bot-block evidence, Optica/Crossref/router cleanup, residual DOI.org JS host splitting, and unknown-publisher interpretability. MDPI, JBC, and Preprints are complete unless new residual rows appear.
 
-### 2. If making production scraping changes
+### 8. If making production scraping changes
 
 Keep the loop strict:
 
@@ -314,7 +358,7 @@ full 10K read-only gate if production behavior changed
 
 Do not update the public KPI from a targeted gate alone. Full gate acceptance still requires 0 unexplained good-to-non-good regressions, 0 `taxicab_error`, and no unresolved timeout artifacts.
 
-### 3. ECS deploy notes
+### 9. ECS deploy notes
 
 The default `aws ecs wait services-stable` can time out on this large service even after useful tasks are serving. The accepted `e22b60e` rollout was validated by live LB checks and targeted/full retrieval gates after the waiter timed out. When AWS auth is fresh, inspect target health directly instead of relying only on the GitHub waiter:
 
@@ -326,7 +370,7 @@ aws logs tail <log-group> --since 30m
 
 If local AWS auth is expired, ask Shubh to refresh with `aws login`. The ignored `.env` and `.env.aws` files exist, but a previous safe check showed the refreshed credentials were still expired. Do not print values from either file.
 
-### 4. IOP bot-block cluster
+### 10. IOP bot-block cluster
 
 Evidence complete; next action is Envoy/Zyte support, not a Taxicab production patch.
 

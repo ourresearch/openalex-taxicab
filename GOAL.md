@@ -27,7 +27,7 @@ HTML report/control:
 
 PDF report/control:
   /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf
-  pending creation via scripts/create-job.py
+  job #461
 ```
 
 ## Current Gate
@@ -41,7 +41,7 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && git pull --rebase
+Next exact command: python3 -m unittest discover -s tests
 ```
 
 After Gate 0 is pushed:
@@ -49,8 +49,8 @@ After Gate 0 is pushed:
 ```text
 Gate 1: create codex/taxicab-pdf-phase2 from current origin/main. [done]
 Gate 2: create new auto-ID oxjobs taxicab-pdf job and report scaffold. [done, #461]
-Gate 3: implement PDF harness, offline validator tests, and live smoke. [in progress]
-Gate 4: run PDF limit-100 and full 10K baseline on the Goldie corpus. [limit-100 done]
+Gate 3: implement PDF harness, offline validator tests, and live smoke. [done]
+Gate 4: run PDF limit-100 and full 10K baseline on the Goldie corpus. [limit-100 corrected; full 10K next]
 Gate 5: run PDF improvement loop until >=95% good_pdf.
 Gate 6: push verified PDF production changes to Taxicab main.
 ```
@@ -74,10 +74,12 @@ Recovered in latest gate:
   Rxiv/Preprints: +8
 
 PDF:
-  baseline pending
+  full 10K baseline pending
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
-  limit-100: 1/100 good_pdf, 77 missing_pdf_harvest, 19 corrupt_or_truncated_pdf, 2 encrypted_or_unreadable_pdf, 1 bot_block_403
+  limit-100 initial: 1/100 good_pdf, 77 missing_pdf_harvest, 19 corrupt_or_truncated_pdf, 2 encrypted_or_unreadable_pdf, 1 bot_block_403
+  limit-100 corrected after EOF validator fix: 15/100 good_pdf, 77 missing_pdf_harvest, 5 corrupt_or_truncated_pdf, 2 encrypted_or_unreadable_pdf, 1 bot_block_403
+  note: the 1/100 -> 15/100 lift is measurement/validator correctness, not production scraping behavior.
   target denominator: pdf_expected_total
 ```
 
@@ -125,6 +127,12 @@ result: 5 rows; 1 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf, 0
 PDF limit-100 read-only baseline:
 python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --limit 100 --out pdf_eval_runs/ --run-id pdf-limit100-readonly-6661cde --timeout 45 --retries 1 --progress-every 10: passed
 result: 1/100 good_pdf; 77 missing_pdf_harvest; 19 corrupt_or_truncated_pdf; 2 encrypted_or_unreadable_pdf; 1 bot_block_403; 0 timeout; 0 taxicab_error
+
+PDF EOF validator correction:
+python3 -m unittest tests.test_pdf_eval_harness: 11 tests passed
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke-eof --out /tmp/taxicab-pdf-fixture-smoke-eof: passed, 15 fixtures, 15 categories
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --limit 100 --out pdf_eval_runs/ --run-id pdf-limit100-readonly-eof-fix --timeout 45 --retries 1 --progress-every 10: passed
+result: 15/100 good_pdf; 77 missing_pdf_harvest; 5 corrupt_or_truncated_pdf; 2 encrypted_or_unreadable_pdf; 1 bot_block_403; 0 timeout; 0 taxicab_error
 ```
 
 ## Provider Policy

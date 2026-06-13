@@ -124,6 +124,23 @@ class PdfEvalHarnessTests(unittest.TestCase):
         self.assertTrue(row.doi_match)
         self.assertGreater(row.title_overlap, 0)
 
+    def test_large_valid_pdf_uses_full_body_for_eof_check(self):
+        body = (FIXTURE_DIR / "valid_fulltext.pdf").read_bytes()
+        eof_index = body.rfind(b"%%EOF")
+        self.assertGreater(eof_index, 0)
+        padded = body[:eof_index] + (b"0" * (300 * 1024)) + body[eof_index:]
+        row = classify_pdf_content(
+            PdfEvidence(
+                doi="10.5555/goodpdf",
+                title="Example Full Text Article",
+                body=padded,
+                content_type="application/pdf",
+            ),
+            run_id="test",
+        )
+        self.assertEqual(row.category, PDF_CATEGORY_GOOD_PDF)
+        self.assertNotIn("missing eof marker", row.validation_errors)
+
     def test_no_pdf_expected_short_circuits_content(self):
         row = classify_pdf_content(
             PdfEvidence(

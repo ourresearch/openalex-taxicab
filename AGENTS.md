@@ -5,6 +5,12 @@ Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
 PDF-expected portion of the 10K Goldie corpus. Read `GOAL.md` and
 `NEXT_TO_DO.md` before changing code.
 
+Latest PDF metric: after the EOF-validator correction, the limit-100 read-only
+gate is 15/100 `good_pdf`, 77 `missing_pdf_harvest`, 5
+`corrupt_or_truncated_pdf`, two `encrypted_or_unreadable_pdf`, one
+`bot_block_403`, and 0 `timeout` / 0 `taxicab_error`. This is measurement
+correctness, not production scraping lift.
+
 ## Repository
 
 - Use `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab`.
@@ -67,6 +73,19 @@ python3 scripts/taxicab_eval.py \
   --out eval_runs/
 ```
 
+For PDF Phase 2:
+
+```bash
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke
+python3 scripts/taxicab_pdf_eval.py \
+  --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
+  --smoke \
+  --out /tmp/taxicab-pdf-live-smoke
+python3 scripts/taxicab_pdf_eval.py \
+  --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
+  --out pdf_eval_runs/
+```
+
 For explicit low-concurrency reharvest samples, bound each row with
 `--row-timeout` so a pathological Taxicab/Zyte request records `timeout`
 instead of holding the whole run open:
@@ -95,6 +114,6 @@ Current Browserbase state: Browserbase REST session create/release is healthy. L
 ## Reporting
 
 - oxjobs control surface: `/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit`.
-- PDF Phase 2 will use a separate auto-ID oxjob named `taxicab-pdf` with its own report surface.
+- PDF Phase 2 uses oxjobs #461 `taxicab-pdf` with its own report surface at `/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf`.
 - Keep Taxicab retrieval KPIs separate from Parseland extraction KPIs.
 - Keep HTML and PDF Taxicab KPIs separate. Report `good_html_rate` for #133 and `good_pdf_rate` for the new PDF job.
