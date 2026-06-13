@@ -11,7 +11,7 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: commit the PDF read-only live-smoke slice.
+Current gate: commit the PDF limit-100 baseline slice.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Next exact command: git status --short
@@ -23,6 +23,10 @@ to Taxicab `origin/main`. The current Taxicab branch is
 scaffold pushed to oxjobs `main`. The PDF offline harness slice now has
 passing tests and fixture smoke. The PDF read-only GET path also has a
 5-row live smoke against the load balancer with 0 timeouts and 0 Taxicab errors.
+The first limit-100 read-only baseline completed with 1/100 `good_pdf`,
+77 `missing_pdf_harvest`, 19 `corrupt_or_truncated_pdf`, two
+`encrypted_or_unreadable_pdf`, one `bot_block_403`, and 0 `timeout` /
+0 `taxicab_error`.
 
 ## Absolute paths
 
@@ -246,25 +250,46 @@ secret pattern scan: no raw secret pattern findings
 
 ### 3. Commit the PDF read-only live-smoke path
 
-Current verification:
+Complete.
 
 ```text
+commit: 6661cde taxicab: add pdf read-only eval path
 python3 -m unittest discover -s tests: 64 tests passed
 python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke: passed, 15 fixtures, 15 categories
 python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --smoke --run-id pdf-live-smoke --out /tmp/taxicab-pdf-live-smoke --timeout 30 --retries 1 --progress-every 1: passed
 live smoke counts: 1 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
 ```
 
+### 4. Commit the PDF limit-100 baseline state
+
+Current verification:
+
+```bash
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --limit 100 --out pdf_eval_runs/ --run-id pdf-limit100-readonly-6661cde --timeout 45 --retries 1 --progress-every 10
+```
+
+Result:
+
+```text
+good_pdf: 1
+missing_pdf_harvest: 77
+corrupt_or_truncated_pdf: 19
+encrypted_or_unreadable_pdf: 2
+bot_block_403: 1
+timeout: 0
+taxicab_error: 0
+```
+
 Commit/push:
 
 ```bash
-git add openalex_taxicab/pdf_eval_harness.py scripts/taxicab_pdf_eval.py tests/test_pdf_eval_harness.py GOAL.md NEXT_TO_DO.md
-git commit -m "taxicab: add pdf read-only eval path"
+git add .gitignore GOAL.md NEXT_TO_DO.md
+git commit -m "taxicab: record pdf limit-100 baseline"
 git pull --rebase origin codex/taxicab-pdf-phase2
 git push origin codex/taxicab-pdf-phase2
 ```
 
-### 4. Continue from the post-95 residual queue
+### 5. Continue from the post-95 residual queue
 
 Use the accepted post-95 queue:
 

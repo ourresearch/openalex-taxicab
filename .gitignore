@@ -5,3 +5,4 @@ __pycache__/
 docker-compose.override.yml
 .env.aws
 eval_runs/
+pdf_eval_runs/
