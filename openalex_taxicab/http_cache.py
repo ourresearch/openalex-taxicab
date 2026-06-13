@@ -430,9 +430,20 @@ def http_get(url,
             logger.info(f"Resolving {'DOI' if is_doi_url else 'Handle'} URL: {url}")
             redirect_info = resolve_doi_redirects(url)
 
-            if redirect_info and redirect_info["status_code"] < 400:
-                url = redirect_info["final_url"]
-                logger.info(f"Resolved to: {url}")
+            if redirect_info:
+                final_url = redirect_info.get("final_url")
+                should_use_resolved_url = (
+                    final_url
+                    and (
+                        redirect_info["status_code"] < 400
+                        or is_browser_html_url(final_url)
+                        or is_direct_fetch_url(final_url)
+                        or sciencedirect_article_url_from_pdf_asset(final_url)
+                    )
+                )
+                if should_use_resolved_url:
+                    url = final_url
+                    logger.info(f"Resolved to: {url}")
 
         sciencedirect_article_url = sciencedirect_article_url_from_pdf_asset(url)
         if sciencedirect_article_url:
