@@ -43,6 +43,7 @@ BROWSER_HTML_URLS = [
     "doi.org/10.1037",
     "dsp.tecnalia.com",
     "elsevier.com",
+    "espace.library.uq.edu.au",
     "iop.org",
     "psycnet.apa.org",
     "sciencedirect.com",

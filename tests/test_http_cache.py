@@ -100,6 +100,34 @@ class ScienceDirectUrlTests(unittest.TestCase):
         )
         self.assertIn("ASME article", response.content)
 
+    def test_http_get_uses_browser_html_for_uq_espace(self):
+        article_url = "https://espace.library.uq.edu.au/view/UQ:352154"
+        captured = {}
+
+        def fake_call_with_zyte_api(url, params=None):
+            captured["url"] = url
+            captured["params"] = params
+            return {
+                "statusCode": 200,
+                "url": article_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "browserHtml": (
+                    "<html><head><title>UQ eSpace article</title>"
+                    "<meta name=\"citation_title\" content=\"UQ eSpace article\"></head>"
+                    "<body><article>Rendered repository item.</article></body></html>"
+                ),
+            }
+
+        with patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=fake_call_with_zyte_api):
+            response = http_get(article_url)
+
+        self.assertEqual(captured["url"], article_url)
+        self.assertTrue(captured["params"]["browserHtml"])
+        self.assertTrue(captured["params"]["javascript"])
+        self.assertFalse(captured["params"]["httpResponseBody"])
+        self.assertEqual(response.url, article_url)
+        self.assertIn("UQ eSpace article", response.content)
+
 
 if __name__ == "__main__":
     unittest.main()
