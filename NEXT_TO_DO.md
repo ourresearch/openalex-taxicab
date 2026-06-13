@@ -1,6 +1,6 @@
 # Taxicab V1 next work for Codex and Claude
 
-Last updated: 2026-06-12 23:35 America/Los_Angeles.
+Last updated: 2026-06-13 01:03 PDT.
 
 This file is the handoff contract for the Taxicab retrieval-quality project. Read it before doing new work. Keep it current before ending a long session.
 
@@ -15,9 +15,17 @@ This file is the handoff contract for the Taxicab retrieval-quality project. Rea
 ## Git state to expect
 
 - Taxicab branch: `codex/taxicab-v1-eval-system`
-- Latest Taxicab production main includes `d1aa4ef taxicab: use browser html for uq espace`; ECS deploy completed green.
-- Taxicab branch history includes `1cc9f6c taxicab: use browser html for uq espace`; production main cherry-picked it as `d1aa4ef`.
-- Taxicab production `main` auto-deploys to ECS. Do not push production scraping changes to `main` without targeted proof plus full 10K no-regression proof.
+- Latest accepted production measurement is still based on `d1aa4ef taxicab: use browser html for uq espace` plus the Oxford cache refresh. The accepted KPI is **94.48%**, not 95% yet.
+- Production `main` now also contains narrow Preprints, JBC, and MDPI retrieval fixes plus deploy-stability/health-check changes:
+  - `9ef6c9b taxicab: use browser html for preprints`
+  - `ab5de79 taxicab: use resolved browser routes after doi redirects`
+  - `5aba149 taxicab: route jbc linkinghub dois to fulltext`
+  - `876887a taxicab: use browser html for mdpi`
+  - `62b5f01 taxicab: wait for ecs deploy stability`
+  - `54bbe83 taxicab: make health check lightweight`
+- Those main commits are **not accepted into the public KPI yet** because the ECS service is mixed/unstable and the deploy waiter is failing. Do not run a full 10K acceptance gate or publish a 95% claim until the fleet is stable and live targeted checks are consistent.
+- Taxicab branch `codex/taxicab-v1-eval-system` contains the same code-line changes. At this handoff it may be ahead of origin by the deploy-stability and lightweight-health commits; push it after tests and this handoff update.
+- Taxicab production `main` auto-deploys to ECS. Further production pushes should be limited to deploy diagnostics/stability unless a targeted recovery has already passed local proof and production risk is understood.
 - Oxjobs main has #133 reporting updates through `4fd1fcce #133 taxicab-audit: accept oxford cache refresh gate`. If the next agent changes reporting, stage only `working/taxicab-audit`.
 
 ## Current accepted measurement
@@ -46,6 +54,18 @@ download_404: 0
 invalid_content: 17
 taxicab_error: 0
 timeout: 0
+```
+
+## Current unaccepted recovery candidates
+
+These are local/partial-production wins that should push Taxicab over 95% once ECS is stable and targeted reharvest/read-only gates pass. Do not count them in public reporting yet.
+
+```text
+Preprints router cluster: 8/8 recovered locally with browserHtml after DOI redirect routing fix
+JBC empty-response cluster: 8/8 recovered locally by rewriting old JBC LinkingHub/PDF URLs to /fulltext
+MDPI router cluster: 10/10 sampled recovered locally with browserHtml; residual cluster has 119 rows
+Theoretical gross lift if MDPI holds across the residual cluster: enough to clear the 52-row gap to 95%
+Current blocker: ECS deployment is mixed/rolling back, so production still intermittently serves old routing or times out
 ```
 
 Authoritative local artifacts:
@@ -88,6 +108,10 @@ eval_runs/full10k-oxford-reharvest-clean-d1aa4ef/report.html
 - ASME JS-required cluster was completed on 2026-06-12: initial Taxicab read-only was 8/8 `js_required`; Browserbase sessions recovered 5/8 article pages; direct Zyte no-storage browserHtml recovered 6/8; production main `fab783d` deployed the narrow ASME browserHtml route; bounded reharvest plus one-row retry recovered 8/8; final read-only confirmation stayed 8/8 `good_html`; full 10K accepted `full10k-asme-deployed-clean-fab783d` at 9,436/10,000 `good_html`. Public artifacts: `working/taxicab-audit/evidence/report133-asme-browserhtml-candidate-619739d.json`, `working/taxicab-audit/evidence/report133-asme-reharvest-live-fab783d.json`, `working/taxicab-audit/evidence/report133-asme-readonly-after-reharvest-fab783d.json`, and `working/taxicab-audit/evidence/report133-asme-fullgate-fab783d.json`.
 - UQ eSpace / DOI.org recoverable rows were completed on 2026-06-12: two UQ eSpace DOI.org rows required Zyte `browserHtml=true` to avoid a small browser-compatibility shell, while the ASM Digital Library and Kyobo Scholar rows recovered after DOI.org final-host reharvest/read-back. Production main `d1aa4ef` deployed the narrow UQ eSpace browserHtml route; full 10K accepted `full10k-uq-deployed-clean-d1aa4ef` at 9,440/10,000 `good_html`. Public artifacts: `working/taxicab-audit/evidence/report133-uq-reharvest-d1aa4ef.json`, `working/taxicab-audit/evidence/report133-uq-readonly-d1aa4ef.json`, and `working/taxicab-audit/evidence/report133-uq-fullgate-d1aa4ef.json`.
 - Oxford/OUP cache-refresh was completed on 2026-06-12 with no production code change: targeted Oxford reharvest recovered 8/11 non-good rows, read-only confirmation persisted 8/11, and a three-row timeout sentinel cleared aggressive full-run measurement artifacts. The clean full 10K gate accepted `full10k-oxford-reharvest-clean-d1aa4ef` at 9,448/10,000 `good_html` (94.48%), net +8 rows, gap 52, 0 good-to-non-good regressions, 0 `timeout`, and 0 `taxicab_error`. Public artifacts: `working/taxicab-audit/evidence/report133-oxford-reharvest-d1aa4ef.json`, `working/taxicab-audit/evidence/report133-oxford-readonly-d1aa4ef.json`, `working/taxicab-audit/evidence/report133-oxford-timeout-sentinel-d1aa4ef.json`, and `working/taxicab-audit/evidence/report133-oxford-fullgate-d1aa4ef.json`.
+- Preprints local recovery was proven on 2026-06-13: the Oxford residual set had eight `router_only` rows on `preprints.org`; default Zyte through the DOI URL returned 2.6-2.8 KB privacy/router shells, while forced `browserHtml` on the resolved Preprints URL returned 331 KB to 1.86 MB article HTML for 8/8 rows. Production main has the narrow route and DOI-redirect fix, but targeted production reharvest initially still saw old behavior before the ECS deploy instability was diagnosed.
+- JBC local recovery was proven on 2026-06-13: eight `jbc.org` `empty_response` rows were old Elsevier/LinkingHub DOIs landing on tiny `/pdf` viewer shells; local routing rewrites compact JBC PII URLs to `https://www.jbc.org/article/<PII>/fulltext`; 8/8 no-storage probes classified `good_html`. Production main contains this route, but live `/test-zyte` is mixed because some requests still hit old tasks.
+- MDPI local recovery was proven on 2026-06-13: residual cluster has 119 `router_only` rows on `mdpi.com`; 10-row Taxicab read-only confirmation stayed `router_only`; Browserbase session evidence recovered 10/10; local Zyte `browserHtml` on the resolved MDPI URL recovered 10/10 large article pages with article signals. Production main contains the narrow `mdpi.com` browserHtml route, but live `/test-zyte` is mixed and sometimes times out because ECS has not stabilized.
+- Deploy-stability instrumentation was added on 2026-06-13: `.github/workflows/aws.yml` now waits for ECS service stability after `update-service`, and `/` plus `/health` are lightweight JSON health endpoints while the old metadata response moved to `/metadata`. The deploy waiter currently fails after about 10 minutes because the service rolls back to older task definitions; this is the active blocker before accepting the MDPI/JBC/Preprints lift.
 
 ## Browserbase and secrets
 
@@ -99,24 +123,64 @@ eval_runs/full10k-oxford-reharvest-clean-d1aa4ef/report.html
 
 ## Immediate next actions
 
-### 1. MDPI router protection: Envoy, not Mechanic
+### 1. Stabilize ECS before claiming the 95% lift
 
-This is the largest residual cluster and can cross the 95% target if Zyte recovers it.
+This is the blocker. Local code is likely enough to cross 95% because MDPI alone has 119 candidate rows and the accepted gap is only 52 rows, but production cannot be measured cleanly while the ECS service is mixed.
+
+Known deploy evidence:
+
+```text
+GitHub deploy run for 62b5f01: failed at aws ecs wait services-stable after about 10 minutes
+GitHub deploy run for 54bbe83: failed at aws ecs wait services-stable after about 10 minutes
+Service rolled back toward older task definition 63 while newer task definitions 65/66/67 were partially present
+Live / root sampling returned a mixture of new lightweight health JSON, old metadata JSON, and request timeouts
+Live /test-zyte sampling returned a mixture of new JBC/MDPI article recoveries, old JBC /pdf shell behavior, and 504 timeout
+```
+
+Next diagnostic, once AWS CLI auth is usable:
+
+```bash
+aws ecs describe-services --cluster harvester --services harvester-service
+aws ecs list-tasks --cluster harvester --service-name harvester-service --desired-status RUNNING
+aws ecs describe-tasks --cluster harvester --tasks <task-arns>
+aws elbv2 describe-target-health --target-group-arn <target-group-arn>
+aws logs describe-log-groups --log-group-name-prefix /ecs
+aws logs tail <log-group> --since 30m
+```
+
+If local AWS auth is expired, ask Shubh to refresh with `aws login`. The ignored `.env` and `.env.aws` files exist, but a previous safe check showed the refreshed credentials were still expired. Do not print values from either file.
+
+Avoid another `main` push unless it is specifically for deploy diagnostics/stability. Any `main` push triggers the ECS deploy workflow again.
+
+### 2. Push the Taxicab branch handoff and parity commits
+
+Before pushing branch `codex/taxicab-v1-eval-system`, run:
+
+```bash
+python3 -m unittest discover -s tests
+python3 scripts/taxicab_eval.py --fixture-smoke --out /tmp/taxicab-fixture-smoke
+git diff --check
+```
+
+Then commit this `NEXT_TO_DO.md` update and push the branch. The branch should include the deploy waiter and health endpoint commits so Claude/Codex can continue from the same state.
+
+### 3. MDPI production gate after ECS stabilizes
+
+MDPI is now a Mechanic candidate, not only Envoy. Browserbase proved recoverability, and local Zyte `browserHtml` proved a narrow Taxicab-side route can recover article HTML. The production route is already on `main`, but the fleet must be stable first.
 
 Current evidence:
 
 ```text
 cluster: router_only / mdpi / mdpi.com
 rows: 119
-current 10-row Taxicab read-only check: 10/10 router_only
-Zyte-core reharvest sample: 0/5 recovered, all bm-verify/router shells
-Browserbase Fetch: 0/5 recovered
-Browserbase full session: 10/10 recovered to good_html, 9/10 screenshots captured locally
-support packet: oxjobs working/taxicab-audit/evidence/report133-mdpi-zyte-support-packet.md
+current 10-row Taxicab read-only check before route: 10/10 router_only
+Browserbase full session: 10/10 recovered to good_html
+local Zyte browserHtml no-storage sample after route: 10/10 good_html
+production state: mixed fleet; some /test-zyte calls recover article HTML, some time out or hit old behavior
 compact artifact: oxjobs working/taxicab-audit/evidence/report133-mdpi-browserbase-session-expanded10-9287bb9.json
 ```
 
-Next step: send or otherwise escalate the MDPI support packet to Zyte. Do not patch Taxicab production behavior for MDPI unless Zyte support evidence or a narrow routing/config hypothesis says Taxicab can safely fix it. After Zyte responds or provider-side behavior changes, run:
+After ECS is stable, run:
 
 ```bash
 python3 scripts/taxicab_eval.py \
@@ -130,9 +194,51 @@ python3 scripts/taxicab_eval.py \
   --progress-every 1
 ```
 
-If targeted MDPI improves, run a full 10K read-only gate before changing the public KPI.
+If targeted MDPI improves, run the full 119-row cluster reharvest/read-only confirmation and then a full 10K read-only gate before changing the public KPI.
 
-### 2. IOP bot-block cluster
+### 4. JBC production gate after ECS stabilizes
+
+Current evidence:
+
+```text
+cluster: empty_response / jbc / jbc.org
+rows: 8
+root cause: old JBC/Elsevier LinkingHub DOI paths land on tiny /pdf viewer shells
+local route: rewrite compact JBC PII paths to /fulltext
+local no-storage result: 8/8 good_html
+production state: mixed fleet; some /test-zyte calls use /fulltext and some still show old /pdf shell behavior
+```
+
+After ECS is stable, reharvest the eight JBC DOI rows from the accepted residual set and run read-only confirmation. If it stays 8/8 `good_html`, include it in the next full 10K gate.
+
+### 5. Preprints production gate after ECS stabilizes
+
+Current evidence:
+
+```text
+cluster: router_only / rxiv / preprints.org
+rows: 8
+root cause: DOI URL path returned privacy/router shells while resolved Preprints browserHtml returns article pages
+local result after DOI redirect routing fix: 8/8 good_html
+production state: initial reharvest before ECS diagnosis still returned router shells; rerun only after stable deploy
+```
+
+After ECS is stable, reharvest and read-only confirm the eight Preprints rows. Include it in the next full 10K gate if it stays recovered.
+
+### 6. Report update only after accepted full gate
+
+Do not update oxjobs #133 to claim 95% until a clean full 10K read-only gate confirms:
+
+```text
+good_html >= 9500
+good-to-non-good regressions: 0 or fully explained
+timeout: 0 or sentinel-cleared
+taxicab_error: 0
+```
+
+When accepted, update the #133 report in the report-336 style: BLUF box, green improvement numbers, red regressions, inline SVG graph, and recovered publishers listed directly under the BLUF.
+
+### 7. IOP bot-block cluster
 
 Evidence complete; next action is Envoy/Zyte support, not a Taxicab production patch.
 
