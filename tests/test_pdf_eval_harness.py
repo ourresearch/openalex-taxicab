@@ -16,7 +16,7 @@ from openalex_taxicab.pdf_eval_harness import (
     summarize_pdf_rows,
     write_pdf_artifacts,
 )
-from scripts.taxicab_pdf_eval import TaxicabClient, classify_live_pdf_row, main
+from scripts.taxicab_pdf_eval import TaxicabClient, classify_live_pdf_row, main, row_pdf_expected, row_pdf_url
 
 
 FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures" / "pdf"
@@ -154,6 +154,14 @@ class PdfEvalHarnessTests(unittest.TestCase):
         )
         self.assertEqual(row.category, PDF_CATEGORY_NO_PDF_EXPECTED)
 
+    def test_pdf_expected_uses_corpus_pdf_columns(self):
+        self.assertTrue(row_pdf_expected({"PDF URL": "https://example.org/full.pdf"}))
+        self.assertTrue(row_pdf_expected({"PDF URL": "", "Resolves To PDF": "TRUE"}))
+        self.assertFalse(row_pdf_expected({"PDF URL": "", "Resolves To PDF": "FALSE"}))
+        self.assertFalse(row_pdf_expected({"pdf_expected": "false", "PDF URL": "https://example.org/full.pdf"}))
+        self.assertTrue(row_pdf_expected({"DOI": "10.5555/no-column"}))
+        self.assertEqual(row_pdf_url({"PDF URL": "https://example.org/full.pdf"}), "https://example.org/full.pdf")
+
     def test_html_without_specific_interstitial_is_html_instead_of_pdf(self):
         row = classify_pdf_content(
             PdfEvidence(
@@ -238,6 +246,20 @@ class PdfEvalHarnessTests(unittest.TestCase):
             server.shutdown()
             thread.join(timeout=5)
             server.server_close()
+
+    def test_live_pdf_row_skips_lookup_when_pdf_not_expected(self):
+        client = TaxicabClient("http://127.0.0.1:9", timeout=0.1, retries=0)
+        row = classify_live_pdf_row(
+            {
+                "DOI": "10.5555/no-pdf-expected",
+                "Link": "https://doi.org/10.5555/no-pdf-expected",
+                "PDF URL": "",
+                "Resolves To PDF": "FALSE",
+            },
+            client=client,
+            run_id="test",
+        )
+        self.assertEqual(row.category, PDF_CATEGORY_NO_PDF_EXPECTED)
 
     def test_live_pdf_row_missing_and_download_404(self):
         server = DaemonThreadingHTTPServer(("127.0.0.1", 0), PdfLookupHandler)

@@ -11,7 +11,7 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: publish the full 10K read-only PDF baseline to oxjobs #461.
+Current gate: commit denominator enrichment, then rerun the full 10K PDF baseline with `pdf_expected_total` from corpus PDF fields.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Next exact command: git status --short
@@ -44,6 +44,11 @@ The full 10K read-only PDF baseline completed on Taxicab commit `22b78b7`:
 `interstitial_or_paywall`, 2 `bot_block_403`, 0 timeout, and 0
 `taxicab_error`. This is the raw all-10K denominator; denominator enrichment is
 still needed before claiming a final PDF-expected KPI.
+
+Denominator enrichment is now implemented locally: rows with empty `PDF URL`
+and no explicit `Resolves To PDF=TRUE` become `no_pdf_expected` without hitting
+Taxicab. Limit-100 denominator check: `pdf_expected_total=65`, 13/65
+`good_pdf` (20.00%), 35 `no_pdf_expected`, 0 timeout, 0 `taxicab_error`.
 
 ## Absolute paths
 
@@ -351,24 +356,19 @@ taxicab_error: 0
 
 ### 7. Publish the full baseline to oxjobs #461
 
-Next exact commands:
+Complete in oxjobs commit `9fb20f77`, with cluster table refinement in
+`c1108056`.
+
+### 8. Commit denominator enrichment and rerun full baseline
+
+Next exact commands after committing this code slice:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
-git pull --rebase origin main
-cp /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab/pdf_eval_runs/pdf-full10k-readonly-22b78b7/summary.json working/taxicab-pdf/evidence/latest-summary.json
-cp /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab/pdf_eval_runs/pdf-full10k-readonly-22b78b7/summary.json working/taxicab-pdf/evidence/report461-full10k-summary-22b78b7.json
-cp /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab/pdf_eval_runs/pdf-full10k-readonly-22b78b7/hardness.json working/taxicab-pdf/evidence/hardness-set.json
-python3 scripts/publish-report.py 461
-git diff --check -- working/taxicab-pdf
-rg -n "(ZYTE_API_KEY|BROWSERBASE_API_KEY|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|R2_SECRET|CRAWLERA_KEY)=[^[:space:]]+" working/taxicab-pdf
-git add working/taxicab-pdf
-git commit -m "#461 taxicab-pdf: publish full 10k baseline"
-git pull --rebase origin main
-git push origin main
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --out pdf_eval_runs/ --run-id pdf-full10k-denominator-<commit> --workers 8 --timeout 45 --retries 1 --progress-every 100
 ```
 
-### 8. Continue from the post-95 HTML residual queue only if PDF work is paused
+### 9. Continue from the post-95 HTML residual queue only if PDF work is paused
 
 Use the accepted post-95 queue:
 

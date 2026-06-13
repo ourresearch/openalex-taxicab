@@ -20,6 +20,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from openalex_taxicab.pdf_eval_harness import (  # noqa: E402
     PDF_CATEGORIES,
+    PDF_CATEGORY_NO_PDF_EXPECTED,
     PDF_CATEGORY_TAXICAB_ERROR,
     PDF_CATEGORY_TIMEOUT,
     PdfEvidence,
@@ -139,7 +140,21 @@ def row_pdf_expected(row: dict[str, str]) -> bool:
             return False
         if value in {"1", "true", "yes", "y"}:
             return True
+    pdf_url_columns = ("PDF URL", "pdf_url", "pdf", "fulltext_pdf_url")
+    if any(key in row for key in pdf_url_columns):
+        if any((row.get(key) or "").strip() for key in pdf_url_columns):
+            return True
+        resolves = str(row.get("Resolves To PDF") or row.get("resolves_to_pdf") or "").strip().lower()
+        return resolves in {"1", "true", "yes", "y"}
     return True
+
+
+def row_pdf_url(row: dict[str, str]) -> str:
+    for key in ("PDF URL", "pdf_url", "pdf", "fulltext_pdf_url"):
+        value = (row.get(key) or "").strip()
+        if value:
+            return value
+    return ""
 
 
 def row_title(row: dict[str, str]) -> str:
@@ -229,6 +244,21 @@ def classify_live_pdf_row(
     work_id = row_work_id(row)
     expected = row_pdf_expected(row)
     title = row_title(row)
+    corpus_pdf_url = row_pdf_url(row)
+
+    if not expected:
+        return make_pdf_transport_row(
+            run_id=run_id,
+            doi=doi,
+            work_id=work_id,
+            category=PDF_CATEGORY_NO_PDF_EXPECTED,
+            publisher=publisher,
+            input_url=input_url,
+            candidate_url=corpus_pdf_url,
+            candidate_source="corpus_pdf_url" if corpus_pdf_url else "",
+            mode="read_only",
+            error="pdf not expected for row",
+        )
 
     lookup = client.lookup_doi(doi)
     if lookup.error == "timeout":
@@ -237,11 +267,13 @@ def classify_live_pdf_row(
             doi=doi,
             work_id=work_id,
             category=PDF_CATEGORY_TIMEOUT,
-            publisher=publisher,
-            input_url=input_url,
-            duration_ms=lookup.duration_ms,
-            error="doi lookup timed out",
-        )
+                publisher=publisher,
+                input_url=input_url,
+                candidate_url=corpus_pdf_url,
+                candidate_source="corpus_pdf_url" if corpus_pdf_url else "",
+                duration_ms=lookup.duration_ms,
+                error="doi lookup timed out",
+            )
     if lookup.status_code != 200 or lookup.error:
         return make_pdf_transport_row(
             run_id=run_id,
@@ -250,6 +282,8 @@ def classify_live_pdf_row(
             category=PDF_CATEGORY_TAXICAB_ERROR,
             publisher=publisher,
             input_url=input_url,
+            candidate_url=corpus_pdf_url,
+            candidate_source="corpus_pdf_url" if corpus_pdf_url else "",
             status_code=lookup.status_code,
             duration_ms=lookup.duration_ms,
             error=lookup.error or f"doi lookup returned {lookup.status_code}",
@@ -262,6 +296,8 @@ def classify_live_pdf_row(
         pdf_expected=expected,
         publisher=publisher,
         input_url=input_url,
+        candidate_url=corpus_pdf_url,
+        candidate_source="corpus_pdf_url" if corpus_pdf_url else "",
         duration_ms=lookup.duration_ms,
     )
     if transport_row is not None:
