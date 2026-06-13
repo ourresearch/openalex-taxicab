@@ -156,6 +156,43 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertEqual(response.url, article_url)
         self.assertIn("Preprints article", response.content)
 
+    def test_http_get_uses_browser_html_after_preprints_doi_redirect_even_when_head_403(self):
+        doi_url = "https://doi.org/10.20944/preprints202005.0515.v1"
+        article_url = "https://www.preprints.org/manuscript/202005.0515/v1"
+        captured = {}
+
+        def fake_call_with_zyte_api(url, params=None):
+            captured["url"] = url
+            captured["params"] = params
+            return {
+                "statusCode": 200,
+                "url": article_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "browserHtml": (
+                    "<html><head><title>Preprints article</title>"
+                    "<meta name=\"citation_title\" content=\"Preprints article\"></head>"
+                    "<body><article>Rendered preprint landing page.</article></body></html>"
+                ),
+            }
+
+        with patch(
+            "openalex_taxicab.http_cache.resolve_doi_redirects",
+            return_value={
+                "final_url": article_url,
+                "redirect_chain": [doi_url, article_url],
+                "status_code": 403,
+            },
+        ), patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=fake_call_with_zyte_api):
+            response = http_get(doi_url)
+
+        self.assertEqual(captured["url"], article_url)
+        self.assertEqual(captured["params"]["url"], article_url)
+        self.assertTrue(captured["params"]["browserHtml"])
+        self.assertTrue(captured["params"]["javascript"])
+        self.assertFalse(captured["params"]["httpResponseBody"])
+        self.assertEqual(response.url, article_url)
+        self.assertIn("Preprints article", response.content)
+
 
 if __name__ == "__main__":
     unittest.main()
