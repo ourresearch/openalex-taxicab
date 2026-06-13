@@ -33,6 +33,22 @@ harvester = Harvester(s3=s3_client)
 
 @app.route("/")
 def index():
+    return jsonify({
+        "status": "ok",
+        "service": "openalex-taxicab",
+    })
+
+
+@app.route("/health")
+def health():
+    return jsonify({
+        "status": "ok",
+        "service": "openalex-taxicab",
+    })
+
+
+@app.route("/metadata")
+def metadata():
     metadata = harvester.metadata()
     return jsonify(metadata)
 
