@@ -400,6 +400,153 @@ def classify_pdf_content(evidence: PdfEvidence, *, run_id: str = "") -> PdfEvalR
     )
 
 
+def parse_created_date(value: str | None) -> datetime:
+    if not value:
+        return datetime.min.replace(tzinfo=timezone.utc)
+    text = str(value)
+    if text.endswith("Z"):
+        text = text[:-1] + "+00:00"
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError:
+        return datetime.min.replace(tzinfo=timezone.utc)
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed
+
+
+def select_pdf_record(lookup_json: dict[str, Any]) -> tuple[dict[str, Any] | None, int]:
+    pdf_records = lookup_json.get("pdf") if isinstance(lookup_json, dict) else None
+    if not isinstance(pdf_records, list):
+        return None, 0
+    records = [record for record in pdf_records if isinstance(record, dict)]
+    if not records:
+        return None, 0
+    chosen = max(records, key=lambda r: (parse_created_date(r.get("created_date")), str(r.get("id") or "")))
+    return chosen, len(records)
+
+
+def classify_pdf_lookup_payload(
+    *,
+    run_id: str,
+    doi: str,
+    lookup_json: Any,
+    pdf_expected: bool = True,
+    work_id: str = "",
+    publisher: str = "unknown",
+    input_url: str = "",
+    duration_ms: int | None = None,
+    mode: str = "read_only",
+) -> tuple[PdfEvalRow | None, dict[str, Any] | None]:
+    if not pdf_expected:
+        return (
+            make_pdf_transport_row(
+                run_id=run_id,
+                doi=doi,
+                work_id=work_id,
+                category=PDF_CATEGORY_NO_PDF_EXPECTED,
+                publisher=publisher,
+                input_url=input_url,
+                duration_ms=duration_ms,
+                mode=mode,
+                error="pdf not expected for row",
+            ),
+            None,
+        )
+    if not isinstance(lookup_json, dict):
+        return (
+            make_pdf_transport_row(
+                run_id=run_id,
+                doi=doi,
+                work_id=work_id,
+                category=PDF_CATEGORY_TAXICAB_ERROR,
+                publisher=publisher,
+                input_url=input_url,
+                duration_ms=duration_ms,
+                mode=mode,
+                error="lookup response is not a JSON object",
+            ),
+            None,
+        )
+    pdf_record, pdf_count = select_pdf_record(lookup_json)
+    if pdf_record is None:
+        return (
+            make_pdf_transport_row(
+                run_id=run_id,
+                doi=doi,
+                work_id=work_id,
+                category=PDF_CATEGORY_MISSING_PDF_HARVEST,
+                publisher=publisher,
+                input_url=input_url,
+                pdf_record_count=0,
+                duration_ms=duration_ms,
+                mode=mode,
+                error="no pdf records",
+            ),
+            None,
+        )
+    if not pdf_record.get("id"):
+        return (
+            make_pdf_transport_row(
+                run_id=run_id,
+                doi=doi,
+                work_id=work_id,
+                category=PDF_CATEGORY_TAXICAB_ERROR,
+                publisher=publisher,
+                input_url=input_url,
+                pdf_record_count=pdf_count,
+                duration_ms=duration_ms,
+                mode=mode,
+                error="pdf record missing id",
+            ),
+            None,
+        )
+    return None, pdf_record | {"_pdf_record_count": pdf_count}
+
+
+def classify_pdf_uuid_download_error(
+    *,
+    run_id: str,
+    doi: str,
+    status_code: int | None,
+    work_id: str = "",
+    publisher: str = "unknown",
+    input_url: str = "",
+    candidate_url: str = "",
+    candidate_source: str = "",
+    resolved_url: str = "",
+    uuid: str = "",
+    pdf_record_count: int = 0,
+    duration_ms: int | None = None,
+    mode: str = "read_only",
+    error: str = "",
+) -> PdfEvalRow:
+    if status_code == 404:
+        category = PDF_CATEGORY_DOWNLOAD_404
+    elif status_code in (403, 429):
+        category = PDF_CATEGORY_BOT_BLOCK_403
+    else:
+        category = PDF_CATEGORY_TAXICAB_ERROR
+    return make_pdf_transport_row(
+        run_id=run_id,
+        doi=doi,
+        work_id=work_id,
+        category=category,
+        publisher=publisher,
+        host=host_from_url(resolved_url or candidate_url),
+        input_url=input_url,
+        candidate_url=candidate_url,
+        candidate_source=candidate_source,
+        resolved_url=resolved_url,
+        status_code=status_code,
+        uuid=uuid,
+        pdf_record_count=pdf_record_count,
+        duration_ms=duration_ms,
+        mode=mode,
+        error=error or f"uuid download failed with status {status_code}",
+    )
+
+
 def make_pdf_transport_row(
     *,
     run_id: str,
@@ -665,11 +812,14 @@ __all__ = [
     "PdfEvalRow",
     "build_pdf_hardness",
     "classify_pdf_content",
+    "classify_pdf_lookup_payload",
+    "classify_pdf_uuid_download_error",
     "default_pdf_run_id",
     "latest_pdf_row_by_doi",
     "make_pdf_transport_row",
     "read_pdf_rows_ndjson",
     "render_pdf_html_report",
+    "select_pdf_record",
     "summarize_pdf_rows",
     "write_pdf_artifacts",
 ]

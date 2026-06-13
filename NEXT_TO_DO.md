@@ -11,7 +11,7 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: commit the PDF offline harness/fixture smoke slice.
+Current gate: commit the PDF read-only live-smoke slice.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Next exact command: git status --short
@@ -21,7 +21,8 @@ HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
 to Taxicab `origin/main`. The current Taxicab branch is
 `codex/taxicab-pdf-phase2`. Oxjobs #461 `taxicab-pdf` exists and has a report
 scaffold pushed to oxjobs `main`. The PDF offline harness slice now has
-passing tests and fixture smoke.
+passing tests and fixture smoke. The PDF read-only GET path also has a
+5-row live smoke against the load balancer with 0 timeouts and 0 Taxicab errors.
 
 ## Absolute paths
 
@@ -233,25 +234,37 @@ report manifest: working/taxicab-pdf/report.yaml
 
 ### 2. Commit the PDF offline harness
 
-Current verification:
+Complete.
 
 ```text
+commit: e53adae taxicab: add pdf eval fixture harness
 python3 -m unittest discover -s tests: 62 tests passed
 python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke: passed, 15 fixtures, 15 categories
 git diff --check: passed
 secret pattern scan: no raw secret pattern findings
 ```
 
+### 3. Commit the PDF read-only live-smoke path
+
+Current verification:
+
+```text
+python3 -m unittest discover -s tests: 64 tests passed
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke: passed, 15 fixtures, 15 categories
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --smoke --run-id pdf-live-smoke --out /tmp/taxicab-pdf-live-smoke --timeout 30 --retries 1 --progress-every 1: passed
+live smoke counts: 1 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
+```
+
 Commit/push:
 
 ```bash
-git add openalex_taxicab/pdf_eval_harness.py scripts/taxicab_pdf_eval.py tests/test_pdf_eval_harness.py tests/fixtures/pdf GOAL.md NEXT_TO_DO.md
-git commit -m "taxicab: add pdf eval fixture harness"
+git add openalex_taxicab/pdf_eval_harness.py scripts/taxicab_pdf_eval.py tests/test_pdf_eval_harness.py GOAL.md NEXT_TO_DO.md
+git commit -m "taxicab: add pdf read-only eval path"
 git pull --rebase origin codex/taxicab-pdf-phase2
 git push origin codex/taxicab-pdf-phase2
 ```
 
-### 3. Continue from the post-95 residual queue
+### 4. Continue from the post-95 residual queue
 
 Use the accepted post-95 queue:
 

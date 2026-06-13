@@ -1,6 +1,8 @@
 import json
 import tempfile
+import threading
 import unittest
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from openalex_taxicab.pdf_eval_harness import (
@@ -14,10 +16,73 @@ from openalex_taxicab.pdf_eval_harness import (
     summarize_pdf_rows,
     write_pdf_artifacts,
 )
-from scripts.taxicab_pdf_eval import main
+from scripts.taxicab_pdf_eval import TaxicabClient, classify_live_pdf_row, main
 
 
 FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures" / "pdf"
+
+
+class PdfLookupHandler(BaseHTTPRequestHandler):
+    pdf_body = (FIXTURE_DIR / "valid_fulltext.pdf").read_bytes()
+
+    def do_GET(self):
+        if self.path.startswith("/taxicab/doi/10.5555%2Fgoodpdf"):
+            body = json.dumps(
+                {
+                    "html": [],
+                    "pdf": [
+                        {
+                            "id": "pdf-good",
+                            "resolved_url": "https://example.org/fulltext.pdf",
+                            "created_date": "2026-06-13T00:00:00+00:00",
+                        }
+                    ],
+                    "grobid": [],
+                }
+            ).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        if self.path.startswith("/taxicab/doi/10.5555%2Fmissingpdf"):
+            body = b'{"html": [], "pdf": [], "grobid": []}'
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        if self.path.startswith("/taxicab/doi/10.5555%2Fdownload404"):
+            body = b'{"html": [], "pdf": [{"id": "pdf-missing", "resolved_url": "https://example.org/missing.pdf"}], "grobid": []}'
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        if self.path.startswith("/taxicab/pdf-good"):
+            self.send_response(200)
+            self.send_header("Content-Type", "application/pdf")
+            self.send_header("Content-Length", str(len(self.pdf_body)))
+            self.end_headers()
+            self.wfile.write(self.pdf_body)
+            return
+        if self.path.startswith("/taxicab/pdf-missing"):
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b"File not found")
+            return
+        self.send_response(404)
+        self.end_headers()
+
+    def log_message(self, format, *args):
+        return
+
+
+class DaemonThreadingHTTPServer(ThreadingHTTPServer):
+    daemon_threads = True
 
 
 class PdfEvalHarnessTests(unittest.TestCase):
@@ -133,6 +198,52 @@ class PdfEvalHarnessTests(unittest.TestCase):
             self.assertTrue((run_dir / "summary.json").exists())
             self.assertTrue((run_dir / "hardness.json").exists())
             self.assertTrue((run_dir / "report.html").exists())
+
+    def test_live_pdf_row_reads_taxicab_pdf_record(self):
+        server = DaemonThreadingHTTPServer(("127.0.0.1", 0), PdfLookupHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            client = TaxicabClient(f"http://127.0.0.1:{server.server_port}", timeout=2, retries=0)
+            row = classify_live_pdf_row(
+                {
+                    "DOI": "10.5555/goodpdf",
+                    "Link": "https://doi.org/10.5555/goodpdf",
+                    "title": "Example Full Text Article",
+                },
+                client=client,
+                run_id="test",
+            )
+            self.assertEqual(row.category, PDF_CATEGORY_GOOD_PDF)
+            self.assertEqual(row.uuid, "pdf-good")
+            self.assertEqual(row.pdf_record_count, 1)
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
+
+    def test_live_pdf_row_missing_and_download_404(self):
+        server = DaemonThreadingHTTPServer(("127.0.0.1", 0), PdfLookupHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            client = TaxicabClient(f"http://127.0.0.1:{server.server_port}", timeout=2, retries=0)
+            missing = classify_live_pdf_row(
+                {"DOI": "10.5555/missingpdf", "Link": "https://doi.org/10.5555/missingpdf"},
+                client=client,
+                run_id="test",
+            )
+            download_404 = classify_live_pdf_row(
+                {"DOI": "10.5555/download404", "Link": "https://doi.org/10.5555/download404"},
+                client=client,
+                run_id="test",
+            )
+            self.assertEqual(missing.category, "missing_pdf_harvest")
+            self.assertEqual(download_404.category, "download_404")
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
 
     def test_all_pdf_categories_are_represented_by_fixture_smoke(self):
         manifest = json.loads((FIXTURE_DIR / "manifest.json").read_text())

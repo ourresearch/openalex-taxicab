@@ -49,8 +49,8 @@ After Gate 0 is pushed:
 ```text
 Gate 1: create codex/taxicab-pdf-phase2 from current origin/main. [done]
 Gate 2: create new auto-ID oxjobs taxicab-pdf job and report scaffold. [done, #461]
-Gate 3: implement PDF harness and offline validator tests. [in progress]
-Gate 4: run PDF baseline on the 10K Goldie corpus.
+Gate 3: implement PDF harness, offline validator tests, and live smoke. [in progress]
+Gate 4: run PDF limit-100 and full 10K baseline on the Goldie corpus.
 Gate 5: run PDF improvement loop until >=95% good_pdf.
 Gate 6: push verified PDF production changes to Taxicab main.
 ```
@@ -76,6 +76,7 @@ Recovered in latest gate:
 PDF:
   baseline pending
   offline fixture smoke: 15 categories represented
+  live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   target denominator: pdf_expected_total
 ```
 
@@ -114,6 +115,11 @@ python3 -m unittest discover -s tests: 62 tests passed
 python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke: passed, 15 fixtures, 15 categories
 git diff --check: passed
 secret pattern scan: no raw secret pattern findings
+
+PDF read-only live smoke:
+python3 -m unittest discover -s tests: 64 tests passed
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --smoke --run-id pdf-live-smoke --out /tmp/taxicab-pdf-live-smoke --timeout 30 --retries 1 --progress-every 1: passed
+result: 5 rows; 1 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
 ```
 
 ## Provider Policy
