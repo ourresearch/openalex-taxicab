@@ -48,8 +48,8 @@ After Gate 0 is pushed:
 
 ```text
 Gate 1: create codex/taxicab-pdf-phase2 from current origin/main. [done]
-Gate 2: create new auto-ID oxjobs taxicab-pdf job and report scaffold.
-Gate 3: implement PDF harness and offline validator tests.
+Gate 2: create new auto-ID oxjobs taxicab-pdf job and report scaffold. [done, #461]
+Gate 3: implement PDF harness and offline validator tests. [in progress]
 Gate 4: run PDF baseline on the 10K Goldie corpus.
 Gate 5: run PDF improvement loop until >=95% good_pdf.
 Gate 6: push verified PDF production changes to Taxicab main.
@@ -75,6 +75,7 @@ Recovered in latest gate:
 
 PDF:
   baseline pending
+  offline fixture smoke: 15 categories represented
   target denominator: pdf_expected_total
 ```
 
@@ -106,6 +107,12 @@ python3 -m unittest discover -s tests: 54 tests passed
 python3 scripts/taxicab_eval.py --fixture-smoke --out /tmp/taxicab-fixture-smoke: passed, 20 fixtures, 11 categories
 python3 scripts/taxicab_eval.py --smoke --out /tmp/taxicab-html-main-sync-smoke: passed, 8 rows, 0 timeout, 0 taxicab_error
 git diff --cached --check: passed
+secret pattern scan: no raw secret pattern findings
+
+PDF harness setup:
+python3 -m unittest discover -s tests: 62 tests passed
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke: passed, 15 fixtures, 15 categories
+git diff --check: passed
 secret pattern scan: no raw secret pattern findings
 ```
 

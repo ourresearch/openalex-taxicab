@@ -11,16 +11,17 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: create the PDF Phase 2 oxjobs report/control surface.
+Current gate: commit the PDF offline harness/fixture smoke slice.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && git pull --rebase
+Next exact command: git status --short
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
 to Taxicab `origin/main`. The current Taxicab branch is
-`codex/taxicab-pdf-phase2`. Next create a new auto-ID oxjob named
-`taxicab-pdf` and start the PDF harness/report slice.
+`codex/taxicab-pdf-phase2`. Oxjobs #461 `taxicab-pdf` exists and has a report
+scaffold pushed to oxjobs `main`. The PDF offline harness slice now has
+passing tests and fixture smoke.
 
 ## Absolute paths
 
@@ -221,13 +222,36 @@ secret pattern scan: no raw secret pattern findings
 
 ### 1. Create the PDF oxjobs report/control job
 
-```bash
-cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
-git pull --rebase
-scripts/create-job.py taxicab-pdf --owner shubhankar --status working
+Complete.
+
+```text
+job: #461 taxicab-pdf
+creation commit: 55396854 #461 taxicab-pdf: create job
+scaffold commit: 0ad032e2 #461 taxicab-pdf: add report scaffold
+report manifest: working/taxicab-pdf/report.yaml
 ```
 
-### 2. Continue from the post-95 residual queue
+### 2. Commit the PDF offline harness
+
+Current verification:
+
+```text
+python3 -m unittest discover -s tests: 62 tests passed
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke: passed, 15 fixtures, 15 categories
+git diff --check: passed
+secret pattern scan: no raw secret pattern findings
+```
+
+Commit/push:
+
+```bash
+git add openalex_taxicab/pdf_eval_harness.py scripts/taxicab_pdf_eval.py tests/test_pdf_eval_harness.py tests/fixtures/pdf GOAL.md NEXT_TO_DO.md
+git commit -m "taxicab: add pdf eval fixture harness"
+git pull --rebase origin codex/taxicab-pdf-phase2
+git push origin codex/taxicab-pdf-phase2
+```
+
+### 3. Continue from the post-95 residual queue
 
 Use the accepted post-95 queue:
 

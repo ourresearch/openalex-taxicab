@@ -1,0 +1,109 @@
+{
+  "fixtures": [
+    {
+      "file": "valid_fulltext.pdf",
+      "expected": "good_pdf",
+      "doi": "10.5555/goodpdf",
+      "title": "Example Full Text Article",
+      "publisher": "fixture",
+      "candidate_url": "https://example.org/fulltext.pdf",
+      "content_type": "application/pdf"
+    },
+    {
+      "file": "no_pdf_expected.txt",
+      "expected": "no_pdf_expected",
+      "doi": "10.5555/no-pdf",
+      "title": "Work without PDF",
+      "pdf_expected": false,
+      "content_type": "text/plain"
+    },
+    {
+      "file": "bot_block.html",
+      "expected": "bot_block_403",
+      "doi": "10.5555/bot",
+      "title": "Blocked PDF",
+      "content_type": "text/html",
+      "status_code": 403
+    },
+    {
+      "file": "html_instead.html",
+      "expected": "html_instead_of_pdf",
+      "doi": "10.5555/html",
+      "title": "HTML Instead",
+      "content_type": "text/html"
+    },
+    {
+      "file": "js_redirect.html",
+      "expected": "js_redirect_unresolved",
+      "doi": "10.5555/js",
+      "title": "JS Redirect",
+      "content_type": "text/html"
+    },
+    {
+      "file": "paywall.html",
+      "expected": "interstitial_or_paywall",
+      "doi": "10.5555/paywall",
+      "title": "Paywalled PDF",
+      "content_type": "text/html"
+    },
+    {
+      "file": "empty_response.bin",
+      "expected": "empty_response",
+      "doi": "10.5555/empty",
+      "title": "Empty PDF",
+      "content_type": "application/pdf"
+    },
+    {
+      "file": "corrupt_truncated.pdf",
+      "expected": "corrupt_or_truncated_pdf",
+      "doi": "10.5555/corrupt",
+      "title": "Corrupt PDF",
+      "content_type": "application/pdf"
+    },
+    {
+      "file": "wrong_article.pdf",
+      "expected": "wrong_pdf_content",
+      "doi": "10.5555/goodpdf",
+      "title": "Example Full Text Article",
+      "content_type": "application/pdf"
+    },
+    {
+      "file": "supplement.pdf",
+      "expected": "supplement_or_preview_pdf",
+      "doi": "10.5555/goodpdf",
+      "title": "Example Full Text Article",
+      "content_type": "application/pdf"
+    },
+    {
+      "file": "encrypted.pdf",
+      "expected": "encrypted_or_unreadable_pdf",
+      "doi": "10.5555/encrypted",
+      "title": "Encrypted PDF",
+      "content_type": "application/pdf"
+    }
+  ],
+  "synthetic_rows": [
+    {
+      "doi": "10.5555/missing-pdf",
+      "expected": "missing_pdf_harvest",
+      "error": "no pdf records"
+    },
+    {
+      "doi": "10.5555/download404",
+      "expected": "download_404",
+      "status_code": 404,
+      "error": "File not found"
+    },
+    {
+      "doi": "10.5555/timeout",
+      "expected": "timeout",
+      "error": "request timed out"
+    },
+    {
+      "doi": "10.5555/taxicab-error",
+      "expected": "taxicab_error",
+      "status_code": 500,
+      "error": "service error"
+    }
+  ]
+}
