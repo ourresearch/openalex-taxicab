@@ -1,6 +1,6 @@
 # Taxicab V1 next work for Codex and Claude
 
-Last updated: 2026-06-12 19:42 America/Los_Angeles.
+Last updated: 2026-06-12 22:20 America/Los_Angeles.
 
 This file is the handoff contract for the Taxicab retrieval-quality project. Read it before doing new work. Keep it current before ending a long session.
 
@@ -15,32 +15,32 @@ This file is the handoff contract for the Taxicab retrieval-quality project. Rea
 ## Git state to expect
 
 - Taxicab branch: `codex/taxicab-v1-eval-system`
-- Latest Taxicab production main includes `fab783d taxicab: use browser html for asme`; ECS deploy completed green.
-- Taxicab branch history includes `0adc2aa taxicab: record asme browserhtml candidate`; this handoff records the later accepted ASME gate.
+- Latest Taxicab production main includes `d1aa4ef taxicab: use browser html for uq espace`; ECS deploy completed green.
+- Taxicab branch history includes `1cc9f6c taxicab: use browser html for uq espace`; production main cherry-picked it as `d1aa4ef`.
 - Taxicab production `main` auto-deploys to ECS. Do not push production scraping changes to `main` without targeted proof plus full 10K no-regression proof.
-- Oxjobs main has #133 reporting updates through `3b629bc6 #133 taxicab-audit: accept asme browserhtml gate`. If the next agent changes reporting, stage only `working/taxicab-audit`.
+- Oxjobs main has #133 reporting updates through `a0a55bd6 #133 taxicab-audit: accept uq espace gate`. If the next agent changes reporting, stage only `working/taxicab-audit`.
 
 ## Current accepted measurement
 
-Accepted full run: `full10k-asme-deployed-clean-fab783d`
+Accepted full run: `full10k-uq-deployed-clean-d1aa4ef`
 
 ```text
-good_html: 9,436 / 10,000
-good_html_rate: 94.36%
-gap_to_95_rows: 64
-non_good_rows: 564
-residual_clusters: 186
+good_html: 9,440 / 10,000
+good_html_rate: 94.40%
+gap_to_95_rows: 60
+non_good_rows: 560
+residual_clusters: current queue in oxjobs evidence/report133-quarry-residual-clusters-uq-d1aa4ef.json
 ```
 
 Category counts:
 
 ```text
-good_html: 9436
+good_html: 9440
 router_only: 165
 pdf_instead_of_html: 135
 empty_response: 68
-js_required: 66
 bot_block_403: 65
+js_required: 62
 missing_harvest: 48
 download_404: 0
 invalid_content: 17
@@ -51,15 +51,16 @@ timeout: 0
 Authoritative local artifacts:
 
 ```text
-eval_runs/full10k-asme-deployed-clean-fab783d/rows.ndjson
-eval_runs/full10k-asme-deployed-clean-fab783d/summary.json
-eval_runs/full10k-asme-deployed-clean-fab783d/hardness.json
-eval_runs/full10k-asme-deployed-clean-fab783d/report.html
-/tmp/taxicab-asme-deployed/asme-js8-reharvest-fab783d/summary.json
-/tmp/taxicab-asme-deployed/asme-js8-readonly-final-fab783d/summary.json
-/tmp/taxicab-asme-deployed/quarry-full10k-asme-fab783d/residual-clusters.json
-/tmp/taxicab-asme-deployed/quarry-full10k-asme-fab783d/browserbase-candidates.csv
-/tmp/taxicab-asme-deployed/quarry-full10k-asme-fab783d/zyte-support-candidates.csv
+eval_runs/full10k-uq-deployed-clean-d1aa4ef/rows.ndjson
+eval_runs/full10k-uq-deployed-clean-d1aa4ef/summary.json
+eval_runs/full10k-uq-deployed-clean-d1aa4ef/hardness.json
+eval_runs/full10k-uq-deployed-clean-d1aa4ef/report.html
+/tmp/taxicab-uq-espace/uq2-reharvest-retry-d1aa4ef/summary.json
+/tmp/taxicab-uq-espace/doiorg-recoverable4-readonly-final-d1aa4ef/summary.json
+/tmp/taxicab-uq-espace/quarry-full10k-uq-d1aa4ef/residual-clusters.json
+/tmp/taxicab-uq-espace/quarry-full10k-uq-d1aa4ef/browserbase-candidates.csv
+/tmp/taxicab-uq-espace/quarry-full10k-uq-d1aa4ef/zyte-support-candidates.csv
+/tmp/taxicab-missing48-asme/missing48-reharvest-asme-fab783d/summary.json
 ```
 
 ## What is already done
@@ -71,15 +72,18 @@ eval_runs/full10k-asme-deployed-clean-fab783d/report.html
 - ScienceDirect PDF asset rewrite was deployed to Taxicab `main` at `bd4a8e3` and accepted by full 10K read-only gate: +19 `good_html`, 0 regressions.
 - Residual missing-harvest tail was accepted by full 10K read-only gate: +19 `good_html`, 0 regressions.
 - ASME browserHtml routing was deployed to Taxicab `main` at `fab783d` and accepted by the production loop: bounded ASME reharvest recovered 7/8, one-row retry recovered the last row, final ASME read-only confirmation was 8/8 `good_html`, and the clean full 10K gate accepted 9,436/10,000 `good_html` (94.36%), net +4 rows.
+- UQ eSpace browserHtml routing was deployed to Taxicab `main` at `d1aa4ef` and accepted by the production loop: targeted UQ reharvest recovered 2/2 after ECS propagation, the four DOI.org recoverable rows read back as 4/4 `good_html`, and the clean full 10K gate accepted 9,440/10,000 `good_html` (94.40%), net +4 rows, gap 60, 0 good-to-non-good regressions.
+- Remaining `missing_harvest` tail was rechecked after the ASME gate: bounded reharvest recovered 0/48, with 20 still missing, 21 `invalid_content`, six timeout, and one bot block. Treat this tail as lower priority.
 - Browserbase evidence runner was changed on branch commit `2df8910` to use Browserbase REST APIs instead of the local Browserbase Python SDK.
 - Report #133 has a report-336-style graph. The graph is embedded inline from `evidence/curve-latest.svg`, matching #336's inline-SVG pattern and avoiding iframe-relative asset resolution failures.
-- Live #133 graph verification passed after oxjobs deploy: public raw report contains `<svg class="curve"` and not `<img class="curve"`. Latest live report also contains `94.36%`, `accepted_full_10k_net_plus_4`, and the ASME full-gate JSON returns 9,436 `good_html`.
+- Live #133 graph verification passed after oxjobs commit `a0a55bd6`: public raw report contains `<svg class="curve"` and not `<img class="curve"`. Latest live report contains `94.40%`, and the UQ full-gate JSON returns 9,440 `good_html`.
 - MDPI Browserbase session evidence was expanded on 2026-06-11: Taxicab stayed `router_only` for 10/10 sampled MDPI rows, while Browserbase full sessions recovered `good_html` for 10/10. Compact public artifact: `working/taxicab-audit/evidence/report133-mdpi-browserbase-session-expanded10-9287bb9.json`.
 - IOP Browserbase session evidence was completed on 2026-06-11: current Taxicab read-only stayed `bot_block_403` for 14/14 `iopscience.iop.org` residual rows; Browserbase sessions recovered article-level `good_html` for 2/14 and stayed `bot_block_403` for 12/14, with screenshots captured for 14/14. Compact public artifact: `working/taxicab-audit/evidence/report133-iop-browserbase-session-fc4896d.json`; support packet: `working/taxicab-audit/evidence/report133-iop-zyte-support-packet.md`.
 - Browserbase evidence classifier was tightened on branch commits `a6bfebf` and `0522d6e` so generic 404/520/browser error pages no longer count as Browserbase `good_html`. Tests now cover large error pages and real articles that merely mention 404/520 terms.
 - DOI.org JS-required cluster was triaged on 2026-06-11: Taxicab remains non-good for 11/11 rows after the error-page guard (10 `js_required`, one `invalid_content`); Browserbase sessions recovered article-level `good_html` for 4/11 and classified 7/11 as invalid/error. Compact public artifact: `working/taxicab-audit/evidence/report133-doiorg-js-browserbase-session-0522d6e.json`; triage note: `working/taxicab-audit/evidence/report133-doiorg-js-triage-0522d6e.md`.
 - Wolters Kluwer/Lippincott JS-required cluster was triaged on 2026-06-12: Taxicab read-only remains `js_required` for 11/11 rows on `login.wolterskluwer.com`; the first Browserbase pass exposed a false-positive `good_html` bug on `Page Expired` login pages; branch commit `2acd1eb` fixes expired-login evidence classification; corrected Browserbase session evidence is 0/11 `good_html`, 11/11 `invalid_content`, with 11 screenshots captured locally. Compact public artifact: `working/taxicab-audit/evidence/report133-wolterskluwer-pageexpired-browserbase-session-2acd1eb.json`; triage note: `working/taxicab-audit/evidence/report133-wolterskluwer-pageexpired-triage-2acd1eb.md`.
 - ASME JS-required cluster was completed on 2026-06-12: initial Taxicab read-only was 8/8 `js_required`; Browserbase sessions recovered 5/8 article pages; direct Zyte no-storage browserHtml recovered 6/8; production main `fab783d` deployed the narrow ASME browserHtml route; bounded reharvest plus one-row retry recovered 8/8; final read-only confirmation stayed 8/8 `good_html`; full 10K accepted `full10k-asme-deployed-clean-fab783d` at 9,436/10,000 `good_html`. Public artifacts: `working/taxicab-audit/evidence/report133-asme-browserhtml-candidate-619739d.json`, `working/taxicab-audit/evidence/report133-asme-reharvest-live-fab783d.json`, `working/taxicab-audit/evidence/report133-asme-readonly-after-reharvest-fab783d.json`, and `working/taxicab-audit/evidence/report133-asme-fullgate-fab783d.json`.
+- UQ eSpace / DOI.org recoverable rows were completed on 2026-06-12: two UQ eSpace DOI.org rows required Zyte `browserHtml=true` to avoid a small browser-compatibility shell, while the ASM Digital Library and Kyobo Scholar rows recovered after DOI.org final-host reharvest/read-back. Production main `d1aa4ef` deployed the narrow UQ eSpace browserHtml route; full 10K accepted `full10k-uq-deployed-clean-d1aa4ef` at 9,440/10,000 `good_html`. Public artifacts: `working/taxicab-audit/evidence/report133-uq-reharvest-d1aa4ef.json`, `working/taxicab-audit/evidence/report133-uq-readonly-d1aa4ef.json`, and `working/taxicab-audit/evidence/report133-uq-fullgate-d1aa4ef.json`.
 
 ## Browserbase and secrets
 
@@ -150,7 +154,32 @@ Artifacts:
 
 Do not rerun this cluster unless checking a Zyte-side/provider-side change. Send the support packet or move Lens to the next residual JS/PDF/empty split.
 
-### 3. DOI.org JS-required cluster
+### 3. OUP / Oxford JS shells
+
+Current UQ residuals show Oxford/OUP JS rows as the next plausible Taxicab-side browserHtml probe after MDPI/IOP support lanes.
+
+```text
+publisher: oxford
+main host: academic.oup.com
+current matrix: 9 js_required, one missing_harvest under oxford
+recommended agents: Quarry + Lens + Mechanic
+```
+
+Next step: build a small DOI file from `working/taxicab-audit/evidence/report133-quarry-residual-clusters-uq-d1aa4ef.json`, run read-only confirmation, then run a no-storage direct Zyte `browserHtml=true` probe before proposing any production route.
+
+### 4. Optica router/wait shells
+
+Prior Quarry noted `opg.optica.org` rows with `viewmedia.cfm?...html=true` wait shells. Current UQ summary shows seven `opg.optica.org` router rows.
+
+Next step: create a target DOI file from the UQ residual cluster artifact, run read-only confirmation, then test URL cleanup or browserHtml no-storage. Do not patch until a narrow hypothesis recovers article HTML.
+
+### 5. Crossref chooser and Project MUSE residuals
+
+Current host matrix includes Crossref chooser/router rows and `muse.jhu.edu` verify/bot rows. These are Taxicab-side candidates only after separate host-specific probes.
+
+Next step: split into two DOI files, one for Crossref chooser and one for MUSE verify, then test URL extraction/rewrite without storage.
+
+### 6. DOI.org JS-required cluster
 
 Evidence complete; next action is host-level splitting, not a broad Taxicab patch.
 
@@ -174,9 +203,9 @@ Artifacts:
 /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit/evidence/report133-doiorg-js-triage-0522d6e.md
 ```
 
-Do not send this as one broad Zyte packet. Split by final host before deciding whether a Taxicab resolver/rendering fix or host-specific Zyte support packet is justified.
+Do not send this as one broad Zyte packet. The browser-recoverable rows are now complete: ASM Digital Library, UQ eSpace, and Kyobo Scholar read back as 4/4 `good_html` after targeted reharvest/read-only confirmation. Only revisit remaining DOI.org rows after splitting by final host.
 
-### 4. Wolters Kluwer / Lippincott expired-login cluster
+### 7. Wolters Kluwer / Lippincott expired-login cluster
 
 Evidence complete; next action is resolver/direct-article URL discovery, not a production Browserbase fallback and not a broad Zyte rendering packet from the stored URL.
 
@@ -192,7 +221,7 @@ root evidence: rendered page title "Page Expired"; final URL stays login.wolters
 
 Do not report these rows as browser-recoverable. If this cluster is revisited, first discover stable article landing URLs from DOI resolver metadata, LWW journal URLs, or publisher link templates, then run a targeted Taxicab/Browserbase comparison from those URLs.
 
-### 5. ASME browserHtml route
+### 8. ASME browserHtml route
 
 Complete and accepted. Do not redo ASME unless new ASME residual rows appear in the current queue.
 
@@ -222,18 +251,44 @@ eval_runs/full10k-asme-deployed-clean-fab783d/
 /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit/evidence/report133-asme-fullgate-fab783d.json
 ```
 
-### 6. Missing-harvest residual tail
+### 9. Missing-harvest residual tail
 
-There are 48 `missing_harvest` rows left, including 35 unknown/unknown. This is now lower-yield than MDPI but still useful. Any further public KPI claim needs:
+There are 48 `missing_harvest` rows left, including 35 unknown/unknown. The latest bounded reharvest recovered 0/48, so this is now lower-yield than MDPI, IOP, and host-specific JS/router work. Any further public KPI claim needs:
 
 1. bounded reharvest with `--row-timeout`;
 2. read-only confirmation of recovered rows;
 3. timeout sentinel if any watchdog artifacts appear;
 4. clean full 10K read-only gate.
 
-### 7. #133 graph/report verification
+### 10. UQ eSpace / DOI.org browserHtml route
 
-Done after oxjobs commit `3b629bc6`: live report HTML contains `<svg class="curve"`, does not contain `<img class="curve"`, includes `94.36%`, and exposes the accepted ASME full-gate JSON. Re-run if the report is regenerated:
+Complete and accepted. Do not redo UQ unless new UQ eSpace residual rows appear.
+
+```text
+production commit: d1aa4ef taxicab: use browser html for uq espace
+production deploy: GitHub Actions ECS deploy passed
+targeted UQ reharvest after ECS propagation: 2/2 good_html
+final DOI.org recoverable read-only confirmation: 4/4 good_html
+clean full 10K gate: full10k-uq-deployed-clean-d1aa4ef
+public KPI: 9,440/10,000 good_html (94.40%)
+net lift: +4 good_html rows
+good-to-non-good regressions: 0
+```
+
+Artifacts:
+
+```text
+/tmp/taxicab-uq-espace/uq2-reharvest-retry-d1aa4ef/
+/tmp/taxicab-uq-espace/doiorg-recoverable4-readonly-final-d1aa4ef/
+eval_runs/full10k-uq-deployed-clean-d1aa4ef/
+/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit/evidence/report133-uq-reharvest-d1aa4ef.json
+/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit/evidence/report133-uq-readonly-d1aa4ef.json
+/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit/evidence/report133-uq-fullgate-d1aa4ef.json
+```
+
+### 11. #133 graph/report verification
+
+Done after oxjobs commit `a0a55bd6`: live report HTML contains `<svg class="curve"`, does not contain `<img class="curve"`, includes `94.40%`, and exposes the accepted UQ full-gate JSON. Re-run if the report is regenerated:
 
 ```bash
 curl -L -sS -o /tmp/ox133.html https://oxjobs.org/reports/133
@@ -244,7 +299,7 @@ curl -L -sS -o /tmp/ox133-curve.svg -w '%{http_code} %{content_type}\n' 'https:/
 
 Expected: report HTML contains `<svg class="curve"` and not `<img class="curve"`; the standalone curve asset returns `200 image/svg+xml`.
 
-### 8. Browserbase session runner
+### 12. Browserbase session runner
 
 The local Playwright startup check passed and the 10-row MDPI session sample completed. Keep using row watchdogs and low concurrency.
 
