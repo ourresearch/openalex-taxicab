@@ -8,11 +8,35 @@ sys.modules.setdefault("magic", types.SimpleNamespace(Magic=lambda mime=True: ty
 
 from openalex_taxicab.http_cache import (
     http_get,
+    jbc_fulltext_url_from_url,
     sciencedirect_article_url_from_pdf_asset,
 )
 
 
 class ScienceDirectUrlTests(unittest.TestCase):
+    def test_rewrites_jbc_pdf_url_to_fulltext(self):
+        self.assertEqual(
+            jbc_fulltext_url_from_url("https://www.jbc.org/article/S0021-9258(17)43626-X/pdf"),
+            "https://www.jbc.org/article/S0021-9258(17)43626-X/fulltext",
+        )
+
+    def test_rewrites_jbc_linkinghub_url_to_fulltext(self):
+        self.assertEqual(
+            jbc_fulltext_url_from_url("https://linkinghub.elsevier.com/retrieve/pii/S002192581743626X"),
+            "https://www.jbc.org/article/S0021-9258(17)43626-X/fulltext",
+        )
+
+    def test_rewrites_jbc_doi_url_to_fulltext(self):
+        self.assertEqual(
+            jbc_fulltext_url_from_url("https://doi.org/10.1016/s0021-9258(17)43626-x"),
+            "https://www.jbc.org/article/S0021-9258(17)43626-X/fulltext",
+        )
+
+    def test_does_not_rewrite_non_jbc_linkinghub_url(self):
+        self.assertIsNone(
+            jbc_fulltext_url_from_url("https://linkinghub.elsevier.com/retrieve/pii/S0140673624000012")
+        )
+
     def test_extracts_sciencedirect_article_url_from_query_pii(self):
         url = (
             "https://pdf.sciencedirectassets.com/286905/1-s2.0-S2238785424X00034/"
@@ -155,6 +179,33 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertFalse(captured["params"]["httpResponseBody"])
         self.assertEqual(response.url, article_url)
         self.assertIn("Preprints article", response.content)
+
+    def test_http_get_rewrites_jbc_linkinghub_to_fulltext_before_zyte(self):
+        linkinghub_url = "https://linkinghub.elsevier.com/retrieve/pii/S002192581743626X"
+        article_url = "https://www.jbc.org/article/S0021-9258(17)43626-X/fulltext"
+        captured = {}
+
+        def fake_call_with_zyte_api(url, params=None):
+            captured["url"] = url
+            captured["params"] = params
+            return {
+                "statusCode": 200,
+                "url": article_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "httpResponseBody": (
+                    "PGh0bWw+PGhlYWQ+PHRpdGxlPkpCQyBhcnRpY2xlPC90aXRsZT48L2hlYWQ+"
+                    "PGJvZHk+PGFydGljbGU+Sm91cm5hbCBvZiBCaW9sb2dpY2FsIENoZW1pc3RyeTwvYXJ0aWNsZT48L2JvZHk+PC9odG1sPg=="
+                ),
+            }
+
+        with patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=fake_call_with_zyte_api):
+            response = http_get(linkinghub_url)
+
+        self.assertEqual(captured["url"], article_url)
+        self.assertEqual(captured["params"]["url"], article_url)
+        self.assertNotIn("browserHtml", captured["params"])
+        self.assertEqual(response.url, article_url)
+        self.assertIn("JBC article", str(response.content))
 
     def test_http_get_uses_browser_html_after_preprints_doi_redirect_even_when_head_403(self):
         doi_url = "https://doi.org/10.20944/preprints202005.0515.v1"

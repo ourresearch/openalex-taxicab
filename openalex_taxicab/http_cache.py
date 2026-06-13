@@ -135,6 +135,45 @@ def sciencedirect_article_url_from_pdf_asset(url):
     return f"https://www.sciencedirect.com/science/article/pii/{pii}"
 
 
+def _format_jbc_pii(pii: str) -> str | None:
+    compact = re.sub(r"[^A-Za-z0-9]", "", pii or "").upper()
+    if len(compact) != 17 or not compact.startswith("S00219258"):
+        return None
+    return f"S{compact[1:5]}-{compact[5:9]}({compact[9:11]}){compact[11:16]}-{compact[16]}"
+
+
+def jbc_fulltext_url_from_url(url):
+    """Map legacy JBC DOI/LinkingHub/PDF URLs to the HTML landing page."""
+    if not url:
+        return None
+
+    parsed = urlsplit(url)
+    host = parsed.netloc.lower()
+    path = parsed.path
+
+    if host.endswith("jbc.org"):
+        match = re.search(r"/article/([^/]+)/pdf/?$", path, re.IGNORECASE)
+        if match:
+            pii = match.group(1)
+            return f"{parsed.scheme or 'https'}://{parsed.netloc}/article/{pii}/fulltext"
+        return None
+
+    match = None
+    if host == "linkinghub.elsevier.com":
+        match = re.search(r"/retrieve/pii/([A-Za-z0-9]+)", path, re.IGNORECASE)
+    elif host == "doi.org":
+        match = re.search(r"/10\.1016/(s0021-9258\(\d{2}\)\d{5}-[A-Za-z0-9])", path, re.IGNORECASE)
+
+    if not match:
+        return None
+
+    formatted_pii = _format_jbc_pii(match.group(1))
+    if not formatted_pii:
+        return None
+
+    return f"https://www.jbc.org/article/{formatted_pii}/fulltext"
+
+
 BOT_PROTECTION_DOMAINS = [
     'perfdrive.com',
     'distilnetworks.com',
@@ -461,6 +500,11 @@ def http_get(url,
         if sciencedirect_article_url:
             logger.info(f"Rewriting ScienceDirect PDF asset URL to article landing page: {sciencedirect_article_url}")
             url = sciencedirect_article_url
+
+        jbc_fulltext_url = jbc_fulltext_url_from_url(url)
+        if jbc_fulltext_url:
+            logger.info(f"Rewriting JBC PDF/LinkingHub URL to article landing page: {jbc_fulltext_url}")
+            url = jbc_fulltext_url
 
         # Direct fetch for open-access sites that don't need Zyte
         if is_direct_fetch_url(url):
