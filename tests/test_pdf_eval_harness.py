@@ -262,6 +262,49 @@ class PdfEvalHarnessTests(unittest.TestCase):
             thread.join(timeout=5)
             server.server_close()
 
+    def test_pdf_cli_workers_write_expected_summary(self):
+        server = DaemonThreadingHTTPServer(("127.0.0.1", 0), PdfLookupHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                doi_file = Path(tmp) / "sample.csv"
+                doi_file.write_text(
+                    "DOI,Link,title\n"
+                    "10.5555/goodpdf,https://doi.org/10.5555/goodpdf,Example Full Text Article\n"
+                    "10.5555/missingpdf,https://doi.org/10.5555/missingpdf,\n"
+                    "10.5555/download404,https://doi.org/10.5555/download404,\n",
+                    encoding="utf-8",
+                )
+                code = main(
+                    [
+                        "--base-url",
+                        f"http://127.0.0.1:{server.server_port}",
+                        "--doi-file",
+                        str(doi_file),
+                        "--run-id",
+                        "pdf-workers-test",
+                        "--out",
+                        tmp,
+                        "--workers",
+                        "2",
+                        "--timeout",
+                        "2",
+                        "--retries",
+                        "0",
+                    ]
+                )
+                self.assertEqual(code, 0)
+                summary = json.loads((Path(tmp) / "pdf-workers-test" / "summary.json").read_text())
+                self.assertEqual(summary["total"], 3)
+                self.assertEqual(summary["category_counts"][PDF_CATEGORY_GOOD_PDF], 1)
+                self.assertEqual(summary["category_counts"]["missing_pdf_harvest"], 1)
+                self.assertEqual(summary["category_counts"]["download_404"], 1)
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
+
     def test_all_pdf_categories_are_represented_by_fixture_smoke(self):
         manifest = json.loads((FIXTURE_DIR / "manifest.json").read_text())
         represented = set()

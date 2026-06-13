@@ -83,7 +83,8 @@ python3 scripts/taxicab_pdf_eval.py \
   --out /tmp/taxicab-pdf-live-smoke
 python3 scripts/taxicab_pdf_eval.py \
   --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
-  --out pdf_eval_runs/
+  --out pdf_eval_runs/ \
+  --workers 8
 ```
 
 For explicit low-concurrency reharvest samples, bound each row with

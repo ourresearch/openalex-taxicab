@@ -9,6 +9,8 @@ import hashlib
 import json
 import subprocess
 import sys
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote
@@ -355,17 +357,40 @@ def run_live(args: argparse.Namespace, run_id: str) -> int:
     run_dir.mkdir(parents=True, exist_ok=True)
     prior_rows = latest_pdf_row_by_doi(read_pdf_rows_ndjson(run_dir / "rows.ndjson")) if args.resume else {}
     rows_to_run = [row for row in corpus_rows if (row.get("DOI") or row.get("doi") or "").strip() not in prior_rows]
-    client = TaxicabClient(args.base_url, timeout=args.timeout, retries=args.retries)
     completed = list(prior_rows.values())
     rows_path = run_dir / "rows.ndjson"
+    workers = max(1, min(args.workers, 16))
+    thread_local = threading.local()
+
+    def get_client() -> TaxicabClient:
+        client = getattr(thread_local, "client", None)
+        if client is None:
+            client = TaxicabClient(args.base_url, timeout=args.timeout, retries=args.retries)
+            thread_local.client = client
+        return client
+
+    def classify_with_thread_client(row: dict[str, str]) -> Any:
+        return classify_live_pdf_row(row, client=get_client(), run_id=run_id)
+
     with open(rows_path, "a", encoding="utf-8") as handle:
-        for idx, row in enumerate(rows_to_run, start=1):
-            result = classify_live_pdf_row(row, client=client, run_id=run_id)
-            completed.append(result)
-            handle.write(json.dumps(result.to_dict(), ensure_ascii=False, sort_keys=True) + "\n")
-            handle.flush()
-            if idx % max(1, args.progress_every) == 0:
-                print(f"{idx}/{len(rows_to_run)} {result.category} {result.doi}")
+        if workers == 1:
+            for idx, row in enumerate(rows_to_run, start=1):
+                result = classify_live_pdf_row(row, client=get_client(), run_id=run_id)
+                completed.append(result)
+                handle.write(json.dumps(result.to_dict(), ensure_ascii=False, sort_keys=True) + "\n")
+                handle.flush()
+                if idx % max(1, args.progress_every) == 0:
+                    print(f"{idx}/{len(rows_to_run)} {result.category} {result.doi}")
+        else:
+            with ThreadPoolExecutor(max_workers=workers) as executor:
+                futures = [executor.submit(classify_with_thread_client, row) for row in rows_to_run]
+                for idx, future in enumerate(as_completed(futures), start=1):
+                    result = future.result()
+                    completed.append(result)
+                    handle.write(json.dumps(result.to_dict(), ensure_ascii=False, sort_keys=True) + "\n")
+                    handle.flush()
+                    if idx % max(1, args.progress_every) == 0:
+                        print(f"{idx}/{len(rows_to_run)} {result.category} {result.doi}")
 
     final_rows = list(latest_pdf_row_by_doi(completed).values())
     write_pdf_artifacts(

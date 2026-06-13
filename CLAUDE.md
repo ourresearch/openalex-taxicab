@@ -73,7 +73,7 @@ Inspect matches before committing; variable names are OK, secret values and sign
 ```bash
 python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke
 python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --smoke --out /tmp/taxicab-pdf-live-smoke
-python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --out pdf_eval_runs/
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --out pdf_eval_runs/ --workers 8
 ```
 
 PDF Phase 2 reports live in oxjobs #461 at `/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf`.

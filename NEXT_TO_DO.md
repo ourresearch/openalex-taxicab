@@ -11,7 +11,7 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: commit the PDF EOF-validator correction slice, then run the full 10K read-only PDF baseline.
+Current gate: commit the PDF concurrent read-only runner slice, then run the full 10K read-only PDF baseline.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Next exact command: git status --short
@@ -31,6 +31,10 @@ run is 15/100 `good_pdf`, 77 `missing_pdf_harvest`, 5
 `corrupt_or_truncated_pdf`, two `encrypted_or_unreadable_pdf`, one
 `bot_block_403`, and 0 `timeout` / 0 `taxicab_error`. Treat the 1/100 -> 15/100
 lift as measurement correctness, not production scraping behavior.
+
+The PDF runner now has a thread-local concurrent read-only path. Local worker
+tests pass and live smoke with `--workers 4` produced 3/5 `good_pdf`,
+2 `missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`.
 
 ## Absolute paths
 
@@ -317,13 +321,14 @@ git push origin codex/taxicab-pdf-phase2
 
 ### 6. Run the full 10K PDF read-only baseline
 
-After the EOF-validator commit is pushed:
+After the concurrent runner commit is pushed:
 
 ```bash
 python3 scripts/taxicab_pdf_eval.py \
   --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
   --out pdf_eval_runs/ \
   --run-id pdf-full10k-readonly-<commit> \
+  --workers 8 \
   --timeout 45 \
   --retries 1 \
   --progress-every 100
