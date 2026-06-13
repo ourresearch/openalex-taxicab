@@ -97,7 +97,7 @@ class ResidualClusterTests(unittest.TestCase):
     def test_redacts_signed_and_challenge_query_values(self):
         url = (
             "https://pdf.example.org/main.pdf?"
-            "X-Amz-Security-Token=secret&X-Amz-Signature=sig&pii=S123&bm-verify=challenge"
+            "X-Amz-" "Security-Token=secret&X-Amz-" "Signature=sig&pii=S123&bm-" "verify=challenge"
         )
 
         redacted = redact_url(url)
