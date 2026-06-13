@@ -67,3 +67,14 @@ jobs:
           --service $ECS_SERVICE \
           --task-definition $NEW_TASKDEF_ARN \
           --force-new-deployment
+
+    - name: Wait for ECS Service Stability
+      run: |
+        aws ecs wait services-stable \
+          --cluster $ECS_CLUSTER \
+          --services $ECS_SERVICE
+
+        aws ecs describe-services \
+          --cluster $ECS_CLUSTER \
+          --services $ECS_SERVICE \
+          --query 'services[0].{status:status,runningCount:runningCount,desiredCount:desiredCount,taskDefinition:taskDefinition,deployments:deployments[*].{status:status,rolloutState:rolloutState,taskDefinition:taskDefinition,runningCount:runningCount,desiredCount:desiredCount,failedTasks:failedTasks}}'
