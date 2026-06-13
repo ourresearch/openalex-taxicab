@@ -1,6 +1,6 @@
 # Taxicab V1 next work for Codex and Claude
 
-Last updated: 2026-06-12 14:47 America/Los_Angeles.
+Last updated: 2026-06-12 15:10 America/Los_Angeles.
 
 This file is the handoff contract for the Taxicab retrieval-quality project. Read it before doing new work. Keep it current before ending a long session.
 
@@ -15,7 +15,7 @@ This file is the handoff contract for the Taxicab retrieval-quality project. Rea
 ## Git state to expect
 
 - Taxicab branch: `codex/taxicab-v1-eval-system`
-- Latest pushed Taxicab branch includes code fix `2acd1eb taxicab: reject expired login evidence`; this file's current commit is the branch HEAD.
+- Latest pushed Taxicab branch includes ASME candidate fix `619739d taxicab: use browser html for asme`; this file's current commit is the branch HEAD.
 - Taxicab production `main` auto-deploys to ECS. Do not push production scraping changes to `main` without targeted proof plus full 10K no-regression proof.
 - Oxjobs main has #133 reporting updates through the Browserbase REST runner artifact. If the next agent changes reporting, stage only `working/taxicab-audit`.
 
@@ -75,6 +75,7 @@ eval_runs/full10k-missing-tail-clean-bd4a8e3/residuals/zyte-support-candidates.c
 - Browserbase evidence classifier was tightened on branch commits `a6bfebf` and `0522d6e` so generic 404/520/browser error pages no longer count as Browserbase `good_html`. Tests now cover large error pages and real articles that merely mention 404/520 terms.
 - DOI.org JS-required cluster was triaged on 2026-06-11: Taxicab remains non-good for 11/11 rows after the error-page guard (10 `js_required`, one `invalid_content`); Browserbase sessions recovered article-level `good_html` for 4/11 and classified 7/11 as invalid/error. Compact public artifact: `working/taxicab-audit/evidence/report133-doiorg-js-browserbase-session-0522d6e.json`; triage note: `working/taxicab-audit/evidence/report133-doiorg-js-triage-0522d6e.md`.
 - Wolters Kluwer/Lippincott JS-required cluster was triaged on 2026-06-12: Taxicab read-only remains `js_required` for 11/11 rows on `login.wolterskluwer.com`; the first Browserbase pass exposed a false-positive `good_html` bug on `Page Expired` login pages; branch commit `2acd1eb` fixes expired-login evidence classification; corrected Browserbase session evidence is 0/11 `good_html`, 11/11 `invalid_content`, with 11 screenshots captured locally. Compact public artifact: `working/taxicab-audit/evidence/report133-wolterskluwer-pageexpired-browserbase-session-2acd1eb.json`; triage note: `working/taxicab-audit/evidence/report133-wolterskluwer-pageexpired-triage-2acd1eb.md`.
+- ASME JS-required cluster was triaged on 2026-06-12: Taxicab read-only remains `js_required` for 8/8 rows on `asmedigitalcollection.asme.org`; Browserbase sessions recovered 5/8 article pages and hit bot blocks on 3/8; direct Zyte no-storage probe with `browserHtml=true` and `javascript=true` on the original Taxicab URLs recovered 6/8 `good_html` and left 2/8 `bot_block_403`; branch commit `619739d` adds ASME to the browser-rendered Zyte route with tests. Compact public artifact: `working/taxicab-audit/evidence/report133-asme-browserhtml-candidate-619739d.json`; triage note: `working/taxicab-audit/evidence/report133-asme-browserhtml-triage-619739d.md`.
 
 ## Browserbase and secrets
 
@@ -228,7 +229,35 @@ Artifacts:
 
 Do not report these rows as browser-recoverable. If this cluster is revisited, first discover stable article landing URLs from DOI resolver metadata, LWW journal URLs, or publisher link templates, then run a targeted Taxicab/Browserbase comparison from those URLs. Starting Browserbase from the stored expired login resume URL only reproduces the expired login page.
 
-### 6. Missing-harvest residual tail
+### 6. ASME browserHtml candidate
+
+Evidence complete; a branch candidate exists but public KPI acceptance still requires deploy, reharvest/read-only confirmation, and a full 10K no-regression gate.
+
+```text
+category at baseline: js_required
+publisher: asme
+host: asmedigitalcollection.asme.org
+rows: 8
+Taxicab read-only confirmation: 8/8 js_required
+Browserbase full sessions: 5/8 good_html, 3/8 bot_block_403, 8/8 screenshots captured
+Direct Zyte no-storage probe on original Taxicab URLs with browserHtml+javascript: 6/8 good_html, 2/8 bot_block_403
+branch candidate: 619739d taxicab: use browser html for asme
+```
+
+Artifacts:
+
+```text
+/tmp/taxicab-asme-js8-8823957.csv
+/tmp/taxicab-asme-readonly/asme-js8-readonly-8823957/
+/tmp/taxicab-asme-browserbase/asme-js8-browserbase-session-8823957/
+/tmp/taxicab-asme-zyte-browserhtml-original-probe-619739d.json
+/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit/evidence/report133-asme-browserhtml-candidate-619739d.json
+/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit/evidence/report133-asme-browserhtml-triage-619739d.md
+```
+
+Next gate: deploy candidate `619739d` through the normal production path only after explicit acceptance of this branch candidate, then run bounded ASME `--reharvest`, ASME read-only confirmation, and a full 10K read-only no-regression gate before updating the public KPI. The two remaining ASME `crawlprevention/governor` rows are Envoy/Zyte support candidates, not solved by the browserHtml route.
+
+### 7. Missing-harvest residual tail
 
 There are 48 `missing_harvest` rows left, including 35 unknown/unknown. This is now lower-yield than MDPI but still useful. Any further public KPI claim needs:
 
@@ -237,7 +266,7 @@ There are 48 `missing_harvest` rows left, including 35 unknown/unknown. This is 
 3. timeout sentinel if any watchdog artifacts appear;
 4. clean full 10K read-only gate.
 
-### 7. Browserbase session runner
+### 8. Browserbase session runner
 
 The local Playwright startup check passed and the 10-row MDPI session sample completed. Keep using row watchdogs and low concurrency.
 
