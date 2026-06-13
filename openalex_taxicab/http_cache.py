@@ -51,7 +51,8 @@ BROWSER_HTML_URLS = [
     "science.org",
     "wiley.com",
     "ncbi.nlm.nih.gov",
-    "pmc.ncbi.nlm.nih.gov"
+    "pmc.ncbi.nlm.nih.gov",
+    "preprints.org",
 ]
 
 CRAWLERA_KEY = os.environ.get("CRAWLERA_KEY")
