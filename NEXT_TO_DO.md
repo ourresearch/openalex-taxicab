@@ -11,7 +11,7 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: commit the PDF concurrent read-only runner slice, then run the full 10K read-only PDF baseline.
+Current gate: publish the full 10K read-only PDF baseline to oxjobs #461.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Next exact command: git status --short
@@ -35,6 +35,15 @@ lift as measurement correctness, not production scraping behavior.
 The PDF runner now has a thread-local concurrent read-only path. Local worker
 tests pass and live smoke with `--workers 4` produced 3/5 `good_pdf`,
 2 `missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`.
+
+The full 10K read-only PDF baseline completed on Taxicab commit `22b78b7`:
+2,148/10,000 `good_pdf` (21.48%), gap 7,352 rows to 95%, 7,230
+`missing_pdf_harvest`, 453 `corrupt_or_truncated_pdf`, 121
+`encrypted_or_unreadable_pdf`, 13 `html_instead_of_pdf`, 13
+`js_redirect_unresolved`, 11 `supplement_or_preview_pdf`, 9
+`interstitial_or_paywall`, 2 `bot_block_403`, 0 timeout, and 0
+`taxicab_error`. This is the raw all-10K denominator; denominator enrichment is
+still needed before claiming a final PDF-expected KPI.
 
 ## Absolute paths
 
@@ -321,24 +330,45 @@ git push origin codex/taxicab-pdf-phase2
 
 ### 6. Run the full 10K PDF read-only baseline
 
-After the concurrent runner commit is pushed:
+Complete.
 
-```bash
-python3 scripts/taxicab_pdf_eval.py \
-  --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
-  --out pdf_eval_runs/ \
-  --run-id pdf-full10k-readonly-<commit> \
-  --workers 8 \
-  --timeout 45 \
-  --retries 1 \
-  --progress-every 100
+```text
+run_id: pdf-full10k-readonly-22b78b7
+good_pdf: 2,148 / 10,000
+good_pdf_rate: 21.48%
+gap_to_95_rows: 7,352
+missing_pdf_harvest: 7,230
+corrupt_or_truncated_pdf: 453
+encrypted_or_unreadable_pdf: 121
+html_instead_of_pdf: 13
+js_redirect_unresolved: 13
+supplement_or_preview_pdf: 11
+interstitial_or_paywall: 9
+bot_block_403: 2
+timeout: 0
+taxicab_error: 0
 ```
 
-Then copy `summary.json`, `hardness.json`, and `report.html` into oxjobs
-#461, publish with `python3 scripts/publish-report.py 461`, commit, pull
---rebase, and push oxjobs `main`.
+### 7. Publish the full baseline to oxjobs #461
 
-### 7. Continue from the post-95 HTML residual queue only if PDF work is paused
+Next exact commands:
+
+```bash
+cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
+git pull --rebase origin main
+cp /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab/pdf_eval_runs/pdf-full10k-readonly-22b78b7/summary.json working/taxicab-pdf/evidence/latest-summary.json
+cp /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab/pdf_eval_runs/pdf-full10k-readonly-22b78b7/summary.json working/taxicab-pdf/evidence/report461-full10k-summary-22b78b7.json
+cp /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab/pdf_eval_runs/pdf-full10k-readonly-22b78b7/hardness.json working/taxicab-pdf/evidence/hardness-set.json
+python3 scripts/publish-report.py 461
+git diff --check -- working/taxicab-pdf
+rg -n "(ZYTE_API_KEY|BROWSERBASE_API_KEY|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|R2_SECRET|CRAWLERA_KEY)=[^[:space:]]+" working/taxicab-pdf
+git add working/taxicab-pdf
+git commit -m "#461 taxicab-pdf: publish full 10k baseline"
+git pull --rebase origin main
+git push origin main
+```
+
+### 8. Continue from the post-95 HTML residual queue only if PDF work is paused
 
 Use the accepted post-95 queue:
 
@@ -350,7 +380,7 @@ zyte candidates: working/taxicab-audit/evidence/report133-zyte-support-candidate
 
 The next high-signal work is PDF-vs-landing splitting, IOP/MUSE bot-block evidence, Optica/Crossref/router cleanup, residual DOI.org JS host splitting, and unknown-publisher interpretability. MDPI, JBC, and Preprints are complete unless new residual rows appear.
 
-### 8. If making production scraping changes
+### 9. If making production scraping changes
 
 Keep the loop strict:
 

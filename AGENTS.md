@@ -5,11 +5,11 @@ Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
 PDF-expected portion of the 10K Goldie corpus. Read `GOAL.md` and
 `NEXT_TO_DO.md` before changing code.
 
-Latest PDF metric: after the EOF-validator correction, the limit-100 read-only
-gate is 15/100 `good_pdf`, 77 `missing_pdf_harvest`, 5
-`corrupt_or_truncated_pdf`, two `encrypted_or_unreadable_pdf`, one
-`bot_block_403`, and 0 `timeout` / 0 `taxicab_error`. This is measurement
-correctness, not production scraping lift.
+Latest PDF metric: raw full 10K read-only baseline is 2,148/10,000
+`good_pdf` (21.48%) on the current all-rows denominator, with 7,230
+`missing_pdf_harvest`, 453 `corrupt_or_truncated_pdf`, 121
+`encrypted_or_unreadable_pdf`, 0 timeout, and 0 `taxicab_error`. Denominator
+enrichment is still needed before claiming a final PDF-expected KPI.
 
 ## Repository
 

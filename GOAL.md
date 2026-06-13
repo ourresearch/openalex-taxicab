@@ -50,9 +50,10 @@ After Gate 0 is pushed:
 Gate 1: create codex/taxicab-pdf-phase2 from current origin/main. [done]
 Gate 2: create new auto-ID oxjobs taxicab-pdf job and report scaffold. [done, #461]
 Gate 3: implement PDF harness, offline validator tests, and live smoke. [done]
-Gate 4: run PDF limit-100 and full 10K baseline on the Goldie corpus. [limit-100 corrected; concurrent runner smoke passed; full 10K next]
-Gate 5: run PDF improvement loop until >=95% good_pdf.
-Gate 6: push verified PDF production changes to Taxicab main.
+Gate 4: run PDF limit-100 and full 10K baseline on the Goldie corpus. [done]
+Gate 5: publish full baseline to oxjobs #461. [next]
+Gate 6: run PDF improvement loop until >=95% good_pdf.
+Gate 7: push verified PDF production changes to Taxicab main.
 ```
 
 ## Latest Accepted Metrics
@@ -74,7 +75,13 @@ Recovered in latest gate:
   Rxiv/Preprints: +8
 
 PDF:
-  full 10K baseline pending
+  full 10K baseline: 2,148/10,000 good_pdf (21.48%)
+  gap to 95%: 7,352 rows
+  dominant category: 7,230 missing_pdf_harvest
+  other major categories: 453 corrupt_or_truncated_pdf; 121 encrypted_or_unreadable_pdf
+  timeout: 0
+  taxicab_error: 0
+  run_id: pdf-full10k-readonly-22b78b7
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
@@ -140,6 +147,10 @@ python3 -m unittest discover -s tests: 66 tests passed
 python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke-workers --out /tmp/taxicab-pdf-fixture-smoke-workers: passed, 15 fixtures, 15 categories
 python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --smoke --run-id pdf-live-smoke-workers-358111f --out /tmp/taxicab-pdf-live-smoke-workers --timeout 30 --retries 1 --workers 4 --progress-every 1: passed
 result: 5 rows; 3 good_pdf; 2 missing_pdf_harvest; 0 timeout; 0 taxicab_error
+
+PDF full 10K read-only baseline:
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --out pdf_eval_runs/ --run-id pdf-full10k-readonly-22b78b7 --workers 8 --timeout 45 --retries 1 --progress-every 100: passed
+result: 2,148/10,000 good_pdf (21.48%); 7,230 missing_pdf_harvest; 453 corrupt_or_truncated_pdf; 121 encrypted_or_unreadable_pdf; 13 html_instead_of_pdf; 13 js_redirect_unresolved; 11 supplement_or_preview_pdf; 9 interstitial_or_paywall; 2 bot_block_403; 0 timeout; 0 taxicab_error
 ```
 
 ## Provider Policy
