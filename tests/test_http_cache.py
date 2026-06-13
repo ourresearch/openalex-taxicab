@@ -244,6 +244,43 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertEqual(response.url, article_url)
         self.assertIn("Preprints article", response.content)
 
+    def test_http_get_uses_browser_html_after_mdpi_doi_redirect_even_when_head_403(self):
+        doi_url = "https://doi.org/10.3390/app8030428"
+        article_url = "https://www.mdpi.com/2076-3417/8/3/428"
+        captured = {}
+
+        def fake_call_with_zyte_api(url, params=None):
+            captured["url"] = url
+            captured["params"] = params
+            return {
+                "statusCode": 200,
+                "url": article_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "browserHtml": (
+                    "<html><head><title>MDPI article</title>"
+                    "<meta name=\"citation_title\" content=\"MDPI article\"></head>"
+                    "<body><article>Rendered MDPI article with abstract.</article></body></html>"
+                ),
+            }
+
+        with patch(
+            "openalex_taxicab.http_cache.resolve_doi_redirects",
+            return_value={
+                "final_url": article_url,
+                "redirect_chain": [doi_url, article_url],
+                "status_code": 403,
+            },
+        ), patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=fake_call_with_zyte_api):
+            response = http_get(doi_url)
+
+        self.assertEqual(captured["url"], article_url)
+        self.assertEqual(captured["params"]["url"], article_url)
+        self.assertTrue(captured["params"]["browserHtml"])
+        self.assertTrue(captured["params"]["javascript"])
+        self.assertFalse(captured["params"]["httpResponseBody"])
+        self.assertEqual(response.url, article_url)
+        self.assertIn("MDPI article", response.content)
+
 
 if __name__ == "__main__":
     unittest.main()

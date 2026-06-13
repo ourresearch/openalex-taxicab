@@ -47,6 +47,7 @@ BROWSER_HTML_URLS = [
     "elsevier.com",
     "espace.library.uq.edu.au",
     "iop.org",
+    "mdpi.com",
     "psycnet.apa.org",
     "sciencedirect.com",
     "scholarship.libraries.rutgers.edu",
