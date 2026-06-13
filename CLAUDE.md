@@ -6,12 +6,10 @@ Current goal state: HTML retrieval Phase 1 is complete at 9,583/10,000
 `good_html` (95.83%). PDF retrieval Phase 2 is active and targets >=95%
 `good_pdf` on the PDF-expected subset of the 10K Goldie corpus. Use
 `GOAL.md` as the current control file and update it before long handoffs.
-Latest PDF measurement gate: raw full 10K read-only baseline is 2,148/10,000
-`good_pdf` (21.48%) on the current all-rows denominator, with 7,230
-`missing_pdf_harvest`, 453 `corrupt_or_truncated_pdf`, 121
+Latest PDF measurement gate: denominator-enriched full 10K read-only baseline
+is 1,837/6,293 `good_pdf` (29.19%), with 3,707 `no_pdf_expected`, 3,939
+`missing_pdf_harvest`, 373 `corrupt_or_truncated_pdf`, 102
 `encrypted_or_unreadable_pdf`, 0 timeout, and 0 Taxicab API errors.
-Denominator enrichment is still needed before claiming the final PDF-expected
-KPI.
 
 ## Agent Operating Rules
 

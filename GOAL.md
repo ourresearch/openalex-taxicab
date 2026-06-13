@@ -52,9 +52,10 @@ Gate 2: create new auto-ID oxjobs taxicab-pdf job and report scaffold. [done, #4
 Gate 3: implement PDF harness, offline validator tests, and live smoke. [done]
 Gate 4: run PDF limit-100 and full 10K baseline on the Goldie corpus. [done]
 Gate 5: publish full baseline to oxjobs #461. [done]
-Gate 6: enrich PDF-expected denominator. [in progress]
-Gate 7: run PDF improvement loop until >=95% good_pdf.
-Gate 8: push verified PDF production changes to Taxicab main.
+Gate 6: enrich PDF-expected denominator. [done]
+Gate 7: publish denominator-enriched baseline to oxjobs #461. [next]
+Gate 8: run PDF improvement loop until >=95% good_pdf.
+Gate 9: push verified PDF production changes to Taxicab main.
 ```
 
 ## Latest Accepted Metrics
@@ -77,6 +78,9 @@ Recovered in latest gate:
 
 PDF:
   full 10K baseline: 2,148/10,000 good_pdf (21.48%)
+  denominator-enriched full baseline: 1,837/6,293 good_pdf (29.19%)
+  no_pdf_expected: 3,707
+  denominator-enriched gap to 95%: 4,142 rows
   gap to 95%: 7,352 rows
   dominant category: 7,230 missing_pdf_harvest
   other major categories: 453 corrupt_or_truncated_pdf; 121 encrypted_or_unreadable_pdf
@@ -159,6 +163,10 @@ python3 -m unittest discover -s tests: 68 tests passed
 python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke-denominator --out /tmp/taxicab-pdf-fixture-smoke-denominator: passed, 15 fixtures, 15 categories
 python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --limit 100 --out pdf_eval_runs/ --run-id pdf-limit100-denominator --workers 8 --timeout 45 --retries 1 --progress-every 10: passed
 result: pdf_expected_total 65; 13 good_pdf; 35 no_pdf_expected; 45 missing_pdf_harvest; 5 corrupt_or_truncated_pdf; 1 encrypted_or_unreadable_pdf; 1 bot_block_403; 0 timeout; 0 taxicab_error
+
+PDF denominator-enriched full 10K baseline:
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --out pdf_eval_runs/ --run-id pdf-full10k-denominator-3f7cd47 --workers 8 --timeout 45 --retries 1 --progress-every 100: passed
+result: 1,837/6,293 good_pdf (29.19%); 3,707 no_pdf_expected; 3,939 missing_pdf_harvest; 373 corrupt_or_truncated_pdf; 102 encrypted_or_unreadable_pdf; 11 html_instead_of_pdf; 11 js_redirect_unresolved; 10 supplement_or_preview_pdf; 8 interstitial_or_paywall; 2 bot_block_403; 0 timeout; 0 taxicab_error
 ```
 
 ## Provider Policy

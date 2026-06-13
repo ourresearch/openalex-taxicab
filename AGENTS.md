@@ -5,11 +5,10 @@ Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
 PDF-expected portion of the 10K Goldie corpus. Read `GOAL.md` and
 `NEXT_TO_DO.md` before changing code.
 
-Latest PDF metric: raw full 10K read-only baseline is 2,148/10,000
-`good_pdf` (21.48%) on the current all-rows denominator, with 7,230
-`missing_pdf_harvest`, 453 `corrupt_or_truncated_pdf`, 121
-`encrypted_or_unreadable_pdf`, 0 timeout, and 0 `taxicab_error`. Denominator
-enrichment is still needed before claiming a final PDF-expected KPI.
+Latest PDF metric: denominator-enriched full 10K read-only baseline is
+1,837/6,293 `good_pdf` (29.19%), with 3,707 `no_pdf_expected`, 3,939
+`missing_pdf_harvest`, 373 `corrupt_or_truncated_pdf`, 102
+`encrypted_or_unreadable_pdf`, 0 timeout, and 0 `taxicab_error`.
 
 ## Repository
 

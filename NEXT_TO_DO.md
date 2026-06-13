@@ -11,7 +11,7 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: commit denominator enrichment, then rerun the full 10K PDF baseline with `pdf_expected_total` from corpus PDF fields.
+Current gate: publish denominator-enriched full 10K PDF baseline to oxjobs #461.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Next exact command: git status --short
@@ -49,6 +49,14 @@ Denominator enrichment is now implemented locally: rows with empty `PDF URL`
 and no explicit `Resolves To PDF=TRUE` become `no_pdf_expected` without hitting
 Taxicab. Limit-100 denominator check: `pdf_expected_total=65`, 13/65
 `good_pdf` (20.00%), 35 `no_pdf_expected`, 0 timeout, 0 `taxicab_error`.
+
+The denominator-enriched full 10K baseline is complete:
+1,837/6,293 `good_pdf` (29.19%), 3,707 `no_pdf_expected`, 3,939
+`missing_pdf_harvest`, 373 `corrupt_or_truncated_pdf`, 102
+`encrypted_or_unreadable_pdf`, 11 `html_instead_of_pdf`, 11
+`js_redirect_unresolved`, 10 `supplement_or_preview_pdf`, 8
+`interstitial_or_paywall`, 2 `bot_block_403`, 0 timeout, and 0
+`taxicab_error`.
 
 ## Absolute paths
 
@@ -361,14 +369,37 @@ Complete in oxjobs commit `9fb20f77`, with cluster table refinement in
 
 ### 8. Commit denominator enrichment and rerun full baseline
 
-Next exact commands after committing this code slice:
+Complete.
 
-```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --out pdf_eval_runs/ --run-id pdf-full10k-denominator-<commit> --workers 8 --timeout 45 --retries 1 --progress-every 100
+```text
+commit: 3f7cd47 taxicab: derive pdf expected denominator
+run_id: pdf-full10k-denominator-3f7cd47
+pdf_expected_total: 6,293
+good_pdf: 1,837
+good_pdf_rate: 29.19%
+gap_to_95_rows: 4,142
+no_pdf_expected: 3,707
+missing_pdf_harvest: 3,939
+corrupt_or_truncated_pdf: 373
+encrypted_or_unreadable_pdf: 102
+timeout: 0
+taxicab_error: 0
 ```
 
-### 9. Continue from the post-95 HTML residual queue only if PDF work is paused
+### 9. Publish denominator-enriched baseline to oxjobs #461
+
+Next exact commands:
+
+```bash
+cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
+git pull --rebase origin main
+cp /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab/pdf_eval_runs/pdf-full10k-denominator-3f7cd47/summary.json working/taxicab-pdf/evidence/latest-summary.json
+cp /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab/pdf_eval_runs/pdf-full10k-denominator-3f7cd47/summary.json working/taxicab-pdf/evidence/report461-full10k-denominator-summary-3f7cd47.json
+cp /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab/pdf_eval_runs/pdf-full10k-denominator-3f7cd47/hardness.json working/taxicab-pdf/evidence/hardness-set.json
+python3 scripts/publish-report.py 461
+```
+
+### 10. Continue from the post-95 HTML residual queue only if PDF work is paused
 
 Use the accepted post-95 queue:
 
