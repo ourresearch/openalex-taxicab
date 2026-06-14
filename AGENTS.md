@@ -567,9 +567,16 @@ protocols.io tail run `pdf-protocols-io-missing3-reharvest-bc519d2` recovered
 left one `corrupt_or_truncated_pdf`, with 0 timeout and 0 `taxicab_error`.
 Oxjobs commit `95fd1945 #461 taxicab-pdf: add protocols io recovery` publishes
 the scrubbed summaries, reports, residual packet, and next ASA/Scitation queue.
-Next tail lane is ASA/Scitation on `asa.scitation.org` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/asa-scitation-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `bc519d2`.
+ASA/Scitation tail run `pdf-asa-scitation-missing3-reharvest-724b48e`
+recovered 0/3 `good_pdf`; direct `asa.scitation.org/doi/pdf/...` routes
+stored status-201 HTML captures and produced no durable PDF record. Read-only
+confirmation `pdf-asa-scitation-missing3-readonly-724b48e` returned all three
+rows to `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs
+commit `d457927c #461 taxicab-pdf: add asa scitation tail packet` publishes
+the scrubbed summaries, reports, provider packet, and next IOS Press queue.
+Next tail lane is IOS Press on `content.iospress.com` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/iospress-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `724b48e`.
 
 ## Repository
 
