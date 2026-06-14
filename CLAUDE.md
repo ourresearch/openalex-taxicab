@@ -28,6 +28,14 @@ Current Springer no-storage provider probe
 `interstitial_or_paywall` and five `js_redirect_unresolved`. Keep Springer in
 the Zyte/provider PDF-byte lane. Oxjobs #461 commit `84760121` publishes the
 probe summary/report and updates the combined Zyte packet.
+Current Wiley no-storage provider probe
+`wiley-current-missing-provider-probe10-8585a77` at Taxicab commit `fa95e59`
+recovered 0/10 current missing rows; best categories were nine
+`js_redirect_unresolved` and one `bot_block_403`. All 40 strategy attempts
+stayed HTML, empty, or blocked. Keep current Wiley missing-PDF rows in the
+Zyte/provider PDF-byte lane; do not broaden Wiley route rewrites from this
+evidence. Oxjobs #461 commit `3480ae82` publishes the scrubbed probe summary,
+report asset, and combined Zyte packet update.
 Latest focused evidence: no-storage run
 `wiley-residual-corrupt-provider-probe-19-a61d34b` recovered 15/19 current
 residual Wiley corrupt rows as `good_pdf`. The four residuals are two
@@ -69,7 +77,8 @@ publisher/platform buckets. This is measurement/triage lift only; it does not
 change production scraping behavior or the accepted `good_pdf` KPI. Oxjobs #461
 commit `8b1d1b2f` publishes the report slice and evidence JSON; oxjobs #461
 commit `ebe97f4d` publishes the follow-up full-gate refresh; oxjobs #461 commit
-`84760121` publishes the current Springer provider probe.
+`84760121` publishes the current Springer provider probe; oxjobs #461 commit
+`3480ae82` publishes the current Wiley provider probe.
 Current tooling slice: generic no-storage provider probing is implemented in
 `scripts/provider_pdf_probe.py` with tests in `tests/test_provider_pdf_probe.py`.
 It does not call Taxicab POST and does not write R2/DynamoDB. It sanitizes URLs
@@ -94,7 +103,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-publisher-attribution-e584811/rows.ndjson --category missing_pdf_harvest --publisher wiley --limit 10 --strategies all --out pdf_eval_runs/ --run-id wiley-current-missing-provider-probe10-8585a77 --timeout 60 --sleep 1`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-publisher-attribution-e584811/rows.ndjson --category missing_pdf_harvest --publisher elsevier --limit 10 --strategies all --out pdf_eval_runs/ --run-id elsevier-current-missing-provider-probe10-fa95e59 --timeout 60 --sleep 1`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
