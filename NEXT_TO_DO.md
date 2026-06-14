@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: JSTOR no-lift provider lane is recorded; Inlibra bounded sample or provider-guidance test is next.
+Current gate: Inlibra no-lift provider lane is recorded; Scientific.net bounded sample or provider-guidance test is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?inlibra\\.com";"i"))][0:40][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "inlibra.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/inlibra-missing-40.csv
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?scientific\\.net";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "scientific.net", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/scientificnet-missing-25.csv
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -383,12 +383,20 @@ after status-201 HTML captures at `www.jstor.org/stable/pdf` routes, with
 `19ca1aff #461 taxicab-pdf: add jstor provider packet` publishes the JSTOR
 queue, scrubbed report, provider packet, and combined request update.
 
+Inlibra run `pdf-inlibra-missing32-reharvest-54d17e9` tested 32
+`missing_pdf_harvest` rows and recovered 0 `good_pdf`: all rows stayed missing
+after status-201 HTML captures at `www.inlibra.com/document/download/pdf/uuid`
+routes, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`0df48262 #461 taxicab-pdf: add inlibra provider packet` publishes the Inlibra
+queue, scrubbed report, provider packet, and combined request update.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
 chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, APS, ACM, BMJ,
-Karger, Optica, and JSTOR PDF-byte or click/download fetches before production
-route code. If continuing independent technical work, choose Inlibra from the
-latest full gate or test provider guidance for accumulated packets. IOP is accepted as the first repeated
+Karger, Optica, JSTOR, and Inlibra PDF-byte or click/download fetches before
+production route code. If continuing independent technical work, choose
+Scientific.net from the latest full gate or test provider guidance for
+accumulated packets. IOP is accepted as the first repeated
 whole-corpus PDF KPI lift; Karger is the latest accepted lift, and the gap to
 95% remains 4,089 rows.
 

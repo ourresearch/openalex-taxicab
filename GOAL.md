@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999p complete; JSTOR recovered 0/60 and is recorded in oxjobs at 19ca1aff. Gate 21.999q, Inlibra bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?inlibra\\.com";"i"))][0:40][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "inlibra.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/inlibra-missing-40.csv
+Current phase: Gate 21.999q complete; Inlibra recovered 0/32 and is recorded in oxjobs at 0df48262. Gate 21.999r, Scientific.net bounded sample or provider-guidance test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?scientific\\.net";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "scientific.net", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/scientificnet-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -96,7 +96,8 @@ Gate 21.999m: run Karger targeted sample, read-only confirmation, and provider p
 Gate 21.999n: run full 10K read-only gate after Karger. [done, oxjobs 5ccb3df5]
 Gate 21.999o: run Optica/opg targeted sample and publish provider packet. [done, oxjobs 826bd689]
 Gate 21.999p: run JSTOR targeted sample and publish provider packet. [done, oxjobs 19ca1aff]
-Gate 21.999q: run Inlibra targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999q: run Inlibra targeted sample and publish provider packet. [done, oxjobs 0df48262]
+Gate 21.999r: run Scientific.net targeted sample, or test provider guidance for accumulated packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -243,7 +244,10 @@ PDF:
   jstor bounded reharvest: pdf-jstor-missing60-reharvest-dc6cafc, 60 DOI candidates, 0 good_pdf, 60 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   jstor finding: POST returned status 201 HTML/no durable PDF records for www.jstor.org/stable/pdf routes
   oxjobs #461 JSTOR provider packet commit: 19ca1aff #461 taxicab-pdf: add jstor provider packet
-  next lane: Inlibra bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  inlibra bounded reharvest: pdf-inlibra-missing32-reharvest-54d17e9, 32 DOI candidates, 0 good_pdf, 32 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  inlibra finding: POST returned status 201 HTML/no durable PDF records for www.inlibra.com/document/download/pdf/uuid routes
+  oxjobs #461 Inlibra provider packet commit: 0df48262 #461 taxicab-pdf: add inlibra provider packet
+  next lane: Scientific.net bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

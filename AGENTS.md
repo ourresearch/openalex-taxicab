@@ -175,8 +175,13 @@ publishes the Optica packet. JSTOR run `pdf-jstor-missing60-reharvest-dc6cafc`
 recovered 0/60 `good_pdf`; all rows stayed missing after status-201 HTML
 captures at `www.jstor.org/stable/pdf` routes, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `19ca1aff` publishes the JSTOR packet. Next
-independent lane is Inlibra or a provider-guidance test for accumulated packets.
-Current latest pushed Taxicab branch commit before this docs slice is `dc6cafc`.
+Inlibra run `pdf-inlibra-missing32-reharvest-54d17e9` recovered 0/32
+`good_pdf`; all rows stayed missing after status-201 HTML captures at
+`www.inlibra.com/document/download/pdf/uuid` routes, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `0df48262` publishes the Inlibra packet. Next
+independent lane is Scientific.net or a provider-guidance test for accumulated
+packets.
+Current latest pushed Taxicab branch commit before this docs slice is `54d17e9`.
 
 ## Repository
 
