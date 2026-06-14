@@ -574,9 +574,16 @@ confirmation `pdf-asa-scitation-missing3-readonly-724b48e` returned all three
 rows to `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs
 commit `d457927c #461 taxicab-pdf: add asa scitation tail packet` publishes
 the scrubbed summaries, reports, provider packet, and next IOS Press queue.
-Next tail lane is IOS Press on `content.iospress.com` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/iospress-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `724b48e`.
+IOS Press tail run `pdf-iospress-missing3-reharvest-c08a1e4` recovered 0/3
+`good_pdf`; two explicit IOS Press download routes returned invalid PDF content
+and one DOI redirected to Sage-hosted HTML/no durable PDF record. Read-only
+confirmation `pdf-iospress-missing3-readonly-c08a1e4` returned all three rows
+to `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`930c773c #461 taxicab-pdf: add iospress tail packet` publishes the scrubbed
+summaries, reports, provider packet, and next AAI Journals queue. Next tail
+lane is AAI Journals on `journals.aai.org` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/aai-journals-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `c08a1e4`.
 
 ## Repository
 
