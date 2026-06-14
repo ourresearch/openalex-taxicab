@@ -11,7 +11,7 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: provider/advised PDF-byte lane after ScienceDirect, Lancet, Cell, and Wiley evidence packets.
+Current gate: RSC no-lift provider lane is recorded; AIP targeted sample or provider-packet send/test is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
@@ -249,12 +249,19 @@ remaining `missing_pdf_harvest` rows from `iopscience.iop.org` and recovered
 `pdf-full10k-after-iop-remaining-e5bcd30` quantifies cumulative IOP impact at
 +45 `good_pdf` versus the denominator baseline.
 
+RSC run `pdf-rsc-missing48-reharvest-008fe7f` tested 48
+`missing_pdf_harvest` rows from `pubs.rsc.org` and recovered 0 `good_pdf`, with
+47 still missing, one timeout, and 0 `taxicab_error`. POST accepted
+`/articlelanding/.../unauth` HTML pages rather than `articlepdf` bytes. Oxjobs
+commit `68025078 #461 taxicab-pdf: add rsc provider packet` publishes the RSC
+queue, scrubbed summary/report, provider packet, and combined request update.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
-Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, and SSRN PDF-byte or
+Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, and RSC PDF-byte or
 click/download fetches before production route code. If continuing independent
-technical work, triage the 18 remaining IOP misses and 6 corrupt rows into a
-support packet, or move to RSC/AIP targeted samples. IOP is now accepted as the
-first repeated whole-corpus PDF KPI lift, but the gap to 95% remains 4,097 rows.
+technical work, move to an AIP targeted sample from the latest full gate. IOP is
+now accepted as the first repeated whole-corpus PDF KPI lift, but the gap to 95%
+remains 4,097 rows.
 
 ## Absolute paths
 

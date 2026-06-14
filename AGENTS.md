@@ -93,6 +93,14 @@ read-only confirmation preserved the same 16 durable records. Oxjobs commit
 Oxjobs commit `5cca142e` records the latest accepted full-gate impact:
 +45 `good_pdf` on the 6,293-row PDF denominator. IOP is now the first repeated
 whole-corpus PDF KPI lift, but still far short of the 95% target.
+RSC run `pdf-rsc-missing48-reharvest-008fe7f` recovered 0/48 `good_pdf`, with
+47 still `missing_pdf_harvest`, one timeout, and 0 `taxicab_error`. POST
+accepted `/articlelanding/.../unauth` HTML pages instead of `articlepdf` bytes,
+so RSC is now a Zyte/provider-advised PDF-byte lane, not a route-code change.
+Oxjobs commit `68025078` records the RSC queue, summary, report, and packet.
+Next technical lane: AIP targeted sampling or sending/testing the combined
+provider packets. Current latest pushed Taxicab branch commit before this docs
+slice is `008fe7f`.
 
 ## Repository
 
