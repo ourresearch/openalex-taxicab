@@ -41,7 +41,7 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999d, ACS no-lift provider packet recorded; provider-packet send/test or next high-volume sample is next. In progress.
+Current phase: Gate 21.999h, Sage no-lift provider packet recorded; Brill bounded sample or provider-packet send/test is next. In progress.
 Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
 ```
 
@@ -86,7 +86,8 @@ Gate 21.999c: run Taylor samples and accepted full 10K gate. [done, oxjobs 57453
 Gate 21.999d: run ACS targeted sample and publish provider packet. [done, oxjobs 482cc4fd]
 Gate 21.999e: run SPIE targeted sample and publish provider packet. [done, oxjobs c5792694]
 Gate 21.999f: run Thieme targeted sample and publish provider packet. [done, oxjobs 8cb377c7]
-Gate 21.999g: send/test accumulated provider packets or choose next high-volume sample. [next]
+Gate 21.999g: run Sage targeted sample and publish provider packet. [done, oxjobs ca3b11fe]
+Gate 21.999h: run Brill targeted sample or send/test accumulated provider packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -203,7 +204,10 @@ PDF:
   thieme bounded reharvest: pdf-thieme-missing25-reharvest-d0ea198, 25 DOI candidates, 0 good_pdf, 25 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   thieme finding: POST resolved PDF routes to abstract, ebook lookinside, or Science of Synthesis start-page HTML
   oxjobs #461 Thieme provider packet commit: 8cb377c7 #461 taxicab-pdf: add thieme provider packet
-  next lane: send/test provider packets or choose another high-volume sample from the latest full gate
+  sage bounded reharvest: pdf-sage-missing25-reharvest-2705643, 25 DOI candidates, 0 good_pdf, 11 missing_pdf_harvest, 14 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
+  sage finding: POST resolved PDF routes to abstract HTML/no durable records or invalid PDF-like responses with no page objects
+  oxjobs #461 Sage provider packet commit: ca3b11fe #461 taxicab-pdf: add sage provider packet
+  next lane: Brill bounded sample from the latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

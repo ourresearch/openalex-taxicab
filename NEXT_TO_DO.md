@@ -11,7 +11,7 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: Thieme no-lift provider lane is recorded; provider-packet send/test or next high-volume sample is next.
+Current gate: Sage no-lift provider lane is recorded; Brill bounded sample or provider-packet send/test is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
@@ -300,13 +300,24 @@ queue, scrubbed summary/report, provider packet, and combined request update.
 Treat Thieme as a Zyte/provider-advised PDF-byte lane before production route
 code.
 
+Sage run `pdf-sage-missing25-reharvest-2705643` tested 25
+`missing_pdf_harvest` rows from `journals.sagepub.com` and recovered
+0 `good_pdf`: 11 rows stayed missing, 14 rows were
+`corrupt_or_truncated_pdf`, and there were 0 timeout / 0 `taxicab_error` rows.
+PDF routes either resolved to abstract HTML/no durable PDF records or returned
+invalid PDF-like responses with no page objects. Oxjobs commit
+`ca3b11fe #461 taxicab-pdf: add sage provider packet` publishes the Sage queue,
+scrubbed summary/report, provider packet, and combined request update. Treat
+Sage as a Zyte/provider-advised PDF-byte and invalid-PDF lane before production
+route code.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
-chapter-download, ACS, SPIE, and Thieme PDF-byte or click/download fetches before
-production route code. If continuing independent technical work, choose another
-high-volume cluster from the latest full gate. IOP is accepted as the first
-repeated whole-corpus PDF KPI lift; Taylor is the latest accepted lift, and the
-gap to 95% remains 4,092 rows.
+chapter-download, ACS, SPIE, Thieme, and Sage PDF-byte or click/download fetches
+before production route code. If continuing independent technical work, choose
+Brill next from the latest full gate, then AMA/JAMA, APS, ACM, BMJ, Karger, or
+Optica. IOP is accepted as the first repeated whole-corpus PDF KPI lift; Taylor
+is the latest accepted lift, and the gap to 95% remains 4,092 rows.
 
 ## Absolute paths
 
