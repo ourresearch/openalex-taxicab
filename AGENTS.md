@@ -199,9 +199,14 @@ packet. University of Chicago Journals run
 stayed `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. POST
 accepted HTML/no durable PDF records for `journals.uchicago.edu/doi/pdf` and
 `/doi/epdf` routes, commonly resolving to `/doi/abs/...` article pages. Oxjobs
-commit `95bde36b` publishes the UChicago provider packet. Next independent lane
-is ASME from the latest full gate, unless Zyte provider guidance arrives first.
-Current latest pushed Taxicab branch commit before this docs slice is `6b41e44`.
+commit `95bde36b` publishes the UChicago provider packet. ASME run
+`pdf-asme-missing15-reharvest-c1c2b86` recovered 0/15 `good_pdf`;
+eight rows returned invalid PDF-like content and seven stayed
+`missing_pdf_harvest` after status-201 HTML/no durable PDF captures, with
+0 timeout and 0 `taxicab_error`. Oxjobs commit `10d80d80` publishes the ASME
+provider packet. Next independent lane is Cairn (`shs.cairn.info` plus
+`www.cairn.info`) from the latest full gate.
+Current latest pushed Taxicab branch commit before this docs slice is `c1c2b86`.
 
 ## Repository
 

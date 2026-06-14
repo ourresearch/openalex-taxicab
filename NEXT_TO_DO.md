@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: University of Chicago Journals provider lane is recorded; ASME bounded sample or provider-guidance test is next.
+Current gate: ASME provider lane is recorded; Cairn bounded sample or provider-guidance test is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?asmedigitalcollection\\.asme\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "asmedigitalcollection.asme.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/asme-missing-25.csv
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?cairn\\.info";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "cairn.info", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/cairn-missing-25.csv
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -428,13 +428,20 @@ commonly resolving to `/doi/abs/...` article pages. Oxjobs commit
 `95bde36b #461 taxicab-pdf: add uchicago provider packet` publishes the
 UChicago queue, scrubbed report, and provider packet.
 
+ASME run `pdf-asme-missing15-reharvest-c1c2b86` tested 15
+`missing_pdf_harvest` rows and recovered 0 `good_pdf`: eight rows returned
+invalid PDF-like content and seven stayed missing after HTML/no-record captures,
+with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`10d80d80 #461 taxicab-pdf: add asme provider packet` publishes the ASME queue,
+scrubbed report, and provider packet.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
 chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, APS, ACM, BMJ,
-Karger, Optica, JSTOR, Inlibra, Scientific.net, Persee, Nature, J-STAGE, and
-University of Chicago Journals PDF-byte or click/download fetches before
-production route code. If continuing independent technical work, choose ASME
-from the latest full gate or test provider
+Karger, Optica, JSTOR, Inlibra, Scientific.net, Persee, Nature, J-STAGE,
+University of Chicago Journals, and ASME PDF-byte or click/download fetches
+before production route code. If continuing independent technical work, choose
+Cairn from the latest full gate or test provider
 guidance for accumulated packets. IOP is accepted as the first repeated
 whole-corpus PDF KPI lift; Karger is the latest accepted lift, and the gap to
 95% remains 4,089 rows.
