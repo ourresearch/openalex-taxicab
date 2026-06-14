@@ -560,10 +560,16 @@ record. Read-only confirmation `pdf-google-drive-missing3-readonly-47e462f`
 returned all three rows to `missing_pdf_harvest`, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit
 `3bd2e947 #461 taxicab-pdf: add google drive tail packet` publishes the
-scrubbed summaries, reports, provider packet, and next protocols.io queue. Next
-tail lane is protocols.io on `www.protocols.io` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/protocols-io-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `47e462f`.
+scrubbed summaries, reports, provider packet, and next protocols.io queue.
+protocols.io tail run `pdf-protocols-io-missing3-reharvest-bc519d2` recovered
+2/3 `good_pdf`; read-only confirmation
+`pdf-protocols-io-missing3-readonly-bc519d2` preserved 2/3 durable PDFs and
+left one `corrupt_or_truncated_pdf`, with 0 timeout and 0 `taxicab_error`.
+Oxjobs commit `95fd1945 #461 taxicab-pdf: add protocols io recovery` publishes
+the scrubbed summaries, reports, residual packet, and next ASA/Scitation queue.
+Next tail lane is ASA/Scitation on `asa.scitation.org` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/asa-scitation-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `bc519d2`.
 
 ## Repository
 

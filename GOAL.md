@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999cm complete; Google Drive `drive.google.com` recovered 0/3 PDFs, read-only confirmation returned all three rows to `missing_pdf_harvest`, and the provider packet plus next protocols.io queue are recorded in oxjobs at 3bd2e947. Gate 21.999cn, protocols.io `www.protocols.io` tail sample, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/protocols-io-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-protocols-io-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
+Current phase: Gate 21.999cn complete; protocols.io `www.protocols.io` recovered 2/3 PDFs, read-only confirmation preserved the two durable records, and the residual packet plus next ASA/Scitation queue are recorded in oxjobs at 95fd1945. Gate 21.999co, ASA/Scitation `asa.scitation.org` tail sample, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/asa-scitation-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-asa-scitation-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
 ```
 
 After Gate 0 is pushed:
@@ -171,7 +171,8 @@ Gate 21.999cj: run IATED `library.iated.org` tail sample and provider packet. [d
 Gate 21.999ck: run Brepols `www.brepolsonline.net` tail sample and provider packet. [done, oxjobs 9918c055 and 6a85359b]
 Gate 21.999cl: run Copernicus Meeting Organizer `meetingorganizer.copernicus.org` tail sample and provider packet. [done, oxjobs 4bc7763f]
 Gate 21.999cm: run Google Drive `drive.google.com` tail sample and provider packet. [done, oxjobs 3bd2e947]
-Gate 21.999cn: run protocols.io `www.protocols.io` tail sample. [next]
+Gate 21.999cn: run protocols.io `www.protocols.io` tail sample and residual packet. [done, oxjobs 95fd1945]
+Gate 21.999co: run ASA/Scitation `asa.scitation.org` tail sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -521,7 +522,11 @@ PDF:
   Google Drive read-only confirmation: pdf-google-drive-missing3-readonly-47e462f, 0 durable good_pdf, 3 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   Google Drive finding: every `drive.google.com/file/d/.../view` route stored viewer HTML and no durable PDF record
   oxjobs #461 Google Drive packet commit: 3bd2e947 #461 taxicab-pdf: add google drive tail packet
-  next lane: protocols.io www.protocols.io sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/protocols-io-missing-25.csv, or send/test provider packets if Zyte guidance is available
+  protocols.io bounded reharvest: pdf-protocols-io-missing3-reharvest-bc519d2, 3 DOI candidates, 2 accepted good_pdf, 1 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
+  protocols.io read-only confirmation: pdf-protocols-io-missing3-readonly-bc519d2, 2 durable good_pdf, 1 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
+  protocols.io finding: direct PDF routes are recoverable for 2/3 rows; the residual row returns PDF bytes but fails validation with no page objects
+  oxjobs #461 protocols.io recovery commit: 95fd1945 #461 taxicab-pdf: add protocols io recovery
+  next lane: ASA/Scitation asa.scitation.org sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/asa-scitation-missing-25.csv, or run a full 10K gate if accumulating bounded recoveries
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
