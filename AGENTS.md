@@ -484,10 +484,17 @@ candidate `/pdf` routes resolved to article `/abstract` HTML and read-only
 confirmation `pdf-ejso-missing4-readonly-30ce1b5` returned all four rows to
 `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `fc590d0f #461 taxicab-pdf: add ejso tail packet` publishes the queue,
-summaries, reports, provider packet, and next AUA Journals queue. Next tail
-lane is AUA Journals on `www.auajournals.org` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/auajournals-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `30ce1b5`.
+summaries, reports, provider packet, and next AUA Journals queue. AUA Journals
+tail run `pdf-auajournals-missing4-reharvest-465c495` recovered 0/4
+`good_pdf`; all four candidate PDF/EPDF routes resolved to article DOI HTML
+and read-only confirmation `pdf-auajournals-missing4-readonly-465c495`
+returned all four rows to `missing_pdf_harvest`, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit
+`16f51e88 #461 taxicab-pdf: add auajournals tail packet` publishes the queue,
+summaries, reports, provider packet, and next Springer Publishing queue. Next
+tail lane is Springer Publishing on `connect.springerpub.com` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/springerpub-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `465c495`.
 
 ## Repository
 

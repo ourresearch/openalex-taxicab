@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999cb complete; EJSO `www.ejso.com` recovered 0/4 PDFs, read-only confirmation returned all four rows to `missing_pdf_harvest`, and the provider packet is recorded in oxjobs at fc590d0f. Gate 21.999cc, AUA Journals `www.auajournals.org` tail sample, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/auajournals-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-auajournals-missing4-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
+Current phase: Gate 21.999cc complete; AUA Journals `www.auajournals.org` recovered 0/4 PDFs, read-only confirmation returned all four rows to `missing_pdf_harvest`, and the provider packet is recorded in oxjobs at 16f51e88. Gate 21.999cd, Springer Publishing `connect.springerpub.com` tail sample, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/springerpub-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-springerpub-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
 ```
 
 After Gate 0 is pushed:
@@ -160,7 +160,8 @@ Gate 21.999by: run ADS `ui.adsabs.harvard.edu` tail sample and read-only confirm
 Gate 21.999bz: run NCTM `pubs.nctm.org` tail sample, read-only confirmation, and provider packet. [done, oxjobs 877d1107]
 Gate 21.999ca: run AAAHQ `publications.aaahq.org` tail sample, read-only confirmation, and provider packet. [done, oxjobs 63789cfc]
 Gate 21.999cb: run EJSO `www.ejso.com` tail sample, read-only confirmation, and provider packet. [done, oxjobs fc590d0f]
-Gate 21.999cc: run AUA Journals `www.auajournals.org` tail sample. [next]
+Gate 21.999cc: run AUA Journals `www.auajournals.org` tail sample and provider packet. [done, oxjobs 16f51e88]
+Gate 21.999cd: run Springer Publishing `connect.springerpub.com` tail sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -465,7 +466,11 @@ PDF:
   EJSO read-only confirmation: pdf-ejso-missing4-readonly-30ce1b5, 0 durable good_pdf, 4 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   EJSO finding: every candidate /pdf route resolved to article /abstract HTML with status-201 HTML and no durable PDF record
   oxjobs #461 EJSO packet commit: fc590d0f #461 taxicab-pdf: add ejso tail packet
-  next lane: AUA Journals www.auajournals.org sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/auajournals-missing-25.csv, or send/test provider packets if Zyte guidance is available
+  AUA Journals bounded reharvest: pdf-auajournals-missing4-reharvest-465c495, 4 DOI candidates, 0 accepted good_pdf, 4 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  AUA Journals read-only confirmation: pdf-auajournals-missing4-readonly-465c495, 0 durable good_pdf, 4 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  AUA Journals finding: every candidate PDF/EPDF route resolved to article DOI HTML with status-201 HTML and no durable PDF record
+  oxjobs #461 AUA Journals packet commit: 16f51e88 #461 taxicab-pdf: add auajournals tail packet
+  next lane: Springer Publishing connect.springerpub.com sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/springerpub-missing-25.csv, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

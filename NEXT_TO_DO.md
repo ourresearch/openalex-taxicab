@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: EJSO `www.ejso.com` tail sample is recorded at oxjobs fc590d0f; AUA Journals `www.auajournals.org` tail sample is next.
+Current gate: AUA Journals `www.auajournals.org` tail sample is recorded at oxjobs 16f51e88; Springer Publishing `connect.springerpub.com` tail sample is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/auajournals-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-auajournals-missing4-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/springerpub-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-springerpub-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -836,8 +836,8 @@ positive bounded recovery lane. NCTM is a partial-positive bounded recovery
 lane with residual XML-HTML/no-record provider debt. AAAHQ is a corrupt/HTML
 provider lane with no durable recovered PDFs. EJSO is an abstract-HTML/no-record
 provider lane with no durable recovered PDFs. If continuing independent
-technical work, choose AUA Journals `www.auajournals.org` rows from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/auajournals-missing-25.csv`
+technical work, choose Springer Publishing `connect.springerpub.com` rows from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/springerpub-missing-25.csv`
 or test
 provider guidance for accumulated
 packets. IOP is accepted as the first repeated
