@@ -16,11 +16,15 @@ stricter-reclassified as `supplement_or_preview_pdf`. `missing_pdf_harvest` is
 3,807, `corrupt_or_truncated_pdf` is 66, timeout is 0, and `taxicab_error` is 0.
 The gap to 95% is now 3,786 rows.
 Latest focused evidence: no-storage run
-`wiley-residual-corrupt-provider-probe-5-a61d34b` recovered 3/5 current
-residual Wiley corrupt rows, with one `empty_response` and one
-`supplement_or_preview_pdf`. Oxjobs #461 commit `9569e1f6` publishes this
-evidence. This is strategy evidence only; expand to all 19 residual Wiley rows
-before production route/cache decisions.
+`wiley-residual-corrupt-provider-probe-19-a61d34b` recovered 15/19 current
+residual Wiley corrupt rows as `good_pdf`. The four residuals are two
+`empty_response`, one `bot_block_403`, and one `supplement_or_preview_pdf`.
+Default-body and PDF-Accept each won six rows; Google-referer won three rows;
+browser HTML returned HTML shells/JS, so it is not the PDF-byte path here.
+Oxjobs #461 commit `6ba84787` publishes this evidence. This is strategy
+evidence only; next implement a narrow Wiley PDF-byte strategy candidate and
+prove it with bounded reharvest/read-only confirmation before any full-gate
+claim.
 Current tooling slice: generic no-storage provider probing is implemented in
 `scripts/provider_pdf_probe.py` with tests in `tests/test_provider_pdf_probe.py`.
 It does not call Taxicab POST and does not write R2/DynamoDB. It sanitizes URLs
@@ -42,7 +46,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-structured-parser-a61d34b/rows.ndjson --category corrupt_or_truncated_pdf --host onlinelibrary.wiley.com --limit 19 --strategies default_body,accept_pdf,google_referer,browser_html --run-id wiley-residual-corrupt-provider-probe-19-a61d34b --out pdf_eval_runs/`.
+`rg -n "wiley|pdfdirect|provider_pdf_probe|Zyte" openalex_taxicab scripts tests`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
