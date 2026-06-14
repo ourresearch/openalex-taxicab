@@ -23,11 +23,15 @@ summary and report. J-STAGE corrupt-provider probe
 `jstage-corrupt-provider-probe-3b-31663bc` recovered 0/3 residual corrupt PDFs:
 two application/pdf responses still had no page objects and one row timed out
 empty; browser HTML returned PDF-viewer shells. Oxjobs #461 commit `416b6fec`
-publishes the scrubbed J-STAGE summary/report. Use these probes to test
-J-STAGE/Taylor/Research Square/Nature residual subtypes before production
-scraping changes.
+publishes the scrubbed J-STAGE corrupt summary/report. J-STAGE encrypted probe
+`jstage-encrypted-provider-probe-3-31663bc` also recovered 0/3: default body
+reached application/pdf bytes for all rows but each stayed
+`encrypted_or_unreadable_pdf`; browser HTML returned the same 174-byte shells.
+Oxjobs #461 commit `a1073dd4` publishes the scrubbed encrypted summary/report.
+Use these probes to test J-STAGE/Taylor/Research Square/Nature residual
+subtypes before production scraping changes.
 Next exact command:
-`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category encrypted_or_unreadable_pdf --host jstage.jst.go.jp --limit 3 --strategies default_body,browser_html --run-id jstage-encrypted-provider-probe-3-31663bc --out pdf_eval_runs/`.
+`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category missing_pdf_harvest --host jstage.jst.go.jp --limit 3 --strategies default_body,browser_html --run-id jstage-missing-provider-probe-3-31663bc --out pdf_eval_runs/`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
