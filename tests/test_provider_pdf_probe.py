@@ -136,6 +136,21 @@ class ProviderPdfProbeTests(unittest.TestCase):
             self.assertEqual(len(filtered), 1)
             self.assertEqual(filtered[0].host, "sciencedirect.com")
 
+    def test_csv_records_classify_publisher_from_pdf_url(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "queue.csv"
+            path.write_text(
+                "doi,PDF URL\n"
+                "10.9999/example,https://www.jstor.org/stable/pdf/jj.9345416.9.pdf\n",
+                encoding="utf-8",
+            )
+
+            records = read_input_records(path)
+
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0].publisher, "jstor")
+            self.assertEqual(records[0].host, "jstor.org")
+
     def test_write_probe_artifacts_counts_best_good_per_doi(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "probe"

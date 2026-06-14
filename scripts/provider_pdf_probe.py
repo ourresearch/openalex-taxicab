@@ -31,6 +31,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
 from openalex_taxicab.pdf_eval_harness import PdfEvidence, classify_pdf_content, host_from_url  # noqa: E402
+from openalex_taxicab.publisher_index import classify_row as classify_publisher  # noqa: E402
 
 DEFAULT_ROWS = REPO_ROOT / "pdf_eval_runs" / "pdf-full10k-after-humankinetics-bbd2225" / "rows.ndjson"
 DEFAULT_STRATEGIES = ("default_body", "accept_pdf", "google_referer", "browser_html")
@@ -121,11 +122,15 @@ def record_from_row(row: dict[str, Any]) -> ProbeRecord:
         ),
     )
     input_url = _first_value(row, ("input_url", "Link", "link")) or (f"https://doi.org/{doi}" if doi else "")
-    publisher = _first_value(row, ("publisher", "Publisher")) or "unknown"
     host = _first_value(row, ("host", "candidate_host"))
     sanitized_candidate = sanitize_url(candidate_url)
     if not host:
         host = host_from_url(sanitized_candidate)
+    publisher = _first_value(row, ("publisher", "Publisher")) or classify_publisher(
+        row,
+        allow_network=False,
+        resolved_url=sanitized_candidate,
+    )
     return ProbeRecord(
         doi=doi,
         work_id=_first_value(row, ("work_id", "Work ID", "openalex_id")),

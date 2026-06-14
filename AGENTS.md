@@ -52,6 +52,15 @@ ScienceDirect current-missing sample recovered 0/10, with nine
 provider/support evidence, not Taxicab route-code candidates.
 Oxjobs #461 commit `d8e62ef8` refreshes the combined Zyte PDF-byte support
 packet with these current ScienceDirect, Wiley, and Springer follow-up probes.
+Current attribution slice: publisher classification now considers source
+`PDF URL` fields and provider-probe CSV queues classify publishers from
+candidate PDF URLs when an explicit publisher is absent. On the accepted
+structured-parser full-gate rows this reduces `missing_pdf_harvest`
+`publisher=unknown` from 966 to 642 rows, moving 324 rows into interpretable
+publisher/platform buckets such as Wiley, JSTOR, De Gruyter, Springer, Oxford,
+Lippincott, CUP, Sage, Elsevier, Brill, AIP, Taylor, IOP, ACS, ACM, SPIE, and
+Thieme. This is measurement/triage lift only; it does not change production
+scraping behavior or the accepted `good_pdf` KPI.
 Current tooling slice: `scripts/provider_pdf_probe.py` adds a generic
 no-storage Zyte provider strategy probe. It reads rows/CSV queues, strips query
 strings/fragments from artifacts, never calls Taxicab POST, and writes
@@ -79,7 +88,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && sed -n '1,240p' working/taxicab-pdf/evidence/zyte-support/pdf-byte-fetch-provider-request-4267740.md`.
+`cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && update working/taxicab-pdf with the Taxicab publisher-attribution slice, then python3 scripts/publish-report.py 461`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context

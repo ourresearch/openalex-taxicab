@@ -83,6 +83,9 @@ DOMAIN_PUBLISHER: dict[str, str | None] = {
     "sciencedirect.com": "elsevier",
     "linkinghub.elsevier.com": "elsevier",
     "elsevier.com": "elsevier",
+    "sciencedirectassets.com": "elsevier",
+    "cell.com": "elsevier",
+    "thelancet.com": "elsevier",
     "onlinelibrary.wiley.com": "wiley",
     "wiley.com": "wiley",
     "agupubs.onlinelibrary.wiley.com": "wiley",
@@ -104,6 +107,7 @@ DOMAIN_PUBLISHER: dict[str, str | None] = {
     "academic.oup.com": "oxford",
     "oup.com": "oxford",
     "cambridge.org": "cup",
+    "degruyterbrill.com": "de_gruyter",
     "frontiersin.org": "frontiers",
     "mdpi.com": "mdpi",
     "journals.plos.org": "plos",
@@ -122,9 +126,12 @@ DOMAIN_PUBLISHER: dict[str, str | None] = {
     "iopscience.iop.org": "iop",
     "iop.org": "iop",
     "pubs.aip.org": "aip_publishing",
+    "aip.scitation.org": "aip_publishing",
+    "scitation.org": "aip_publishing",
     "aip.org": "aip_publishing",
     "journals.aps.org": "aps",
     "aps.org": "aps",
+    "asme.org": "asme",
     "degruyter.com": "de_gruyter",
     "brill.com": "brill",
     "liebertpub.com": "mary_ann_liebert",
@@ -132,6 +139,7 @@ DOMAIN_PUBLISHER: dict[str, str | None] = {
     "spiedigitallibrary.org": "spie",
     "emerald.com": "emerald",
     "emeraldinsight.com": "emerald",
+    "jstor.org": "jstor",
     "hindawi.com": "hindawi",
     "scielo.br": "scielo",
     "scielo.cl": "scielo",
@@ -142,6 +150,8 @@ DOMAIN_PUBLISHER: dict[str, str | None] = {
     "f1000.com": "f1000",
     "ssrn.com": "ssrn",
     "papers.ssrn.com": "ssrn",
+    "optica.org": "optica",
+    "thieme-connect.de": "thieme",
     "researchsquare.com": "research_square",
     "biorxiv.org": "rxiv",
     "arxiv.org": "rxiv",
@@ -348,9 +358,11 @@ def classify_row(
 ) -> str:
     doi = row.get("DOI") or row.get("doi") or ""
     link = row.get("Link") or row.get("link") or row.get("url") or ""
+    pdf_url = row.get("PDF URL") or row.get("pdf_url") or row.get("pdf") or row.get("fulltext_pdf_url") or ""
     for candidate in (
         prefix_to_publisher(doi),
         domain_to_publisher(resolved_url),
+        domain_to_publisher(pdf_url),
         domain_to_publisher(link),
         registrant_to_publisher(doi, allow_network=allow_network, _cache=_cache),
     ):

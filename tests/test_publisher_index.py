@@ -24,6 +24,14 @@ class PublisherIndexTests(unittest.TestCase):
         row = {"DOI": "10.9999/example", "Link": "https://doi.org/10.9999/example"}
         self.assertEqual(classify_row(row, resolved_url="https://academic.oup.com/article/1"), "oxford")
 
+    def test_domain_fallback_uses_source_pdf_url(self):
+        row = {
+            "DOI": "10.9999/example",
+            "Link": "https://doi.org/10.9999/example",
+            "PDF URL": "https://onlinelibrary.wiley.com/doi/pdf/10.9999/example",
+        }
+        self.assertEqual(classify_row(row), "wiley")
+
     def test_unknown_stays_unknown(self):
         self.assertEqual(classify_row({"DOI": "10.9999/unknown", "Link": "https://example.invalid/x"}), "unknown")
 
