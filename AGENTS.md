@@ -304,9 +304,13 @@ AJO run `pdf-ajo-missing6-reharvest-a30f12a` recovered 0/6 `good_pdf`; five
 `www.ajo.com/article/.../pdf` rows returned invalid PDF content and one stayed
 missing, with 0 timeout and 0 `taxicab_error`. Oxjobs commit `a72d7c09`
 publishes the AJO queue, scrubbed report, and provider packet. Next independent
-lane is BioOne (`bioone.org`) from the latest full gate.
+BioOne run `pdf-bioone-missing5-reharvest-1d9e18f` recovered 0/5 `good_pdf`;
+all five `bioone.org` PDF rows stayed missing, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `b60d7147` publishes the BioOne queue,
+scrubbed report, and provider packet. Next independent lane is Canadian Science
+Publishing (`cdnsciencepub.com`) from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`a30f12a`.
+`1d9e18f`.
 
 ## Repository
 
