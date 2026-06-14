@@ -6,10 +6,11 @@ PDF-expected portion of the 10K Goldie corpus. Read `GOAL.md` and
 `NEXT_TO_DO.md` before changing code.
 
 Latest PDF metric: accepted full 10K read-only gate
-`pdf-full10k-after-taylor-e7d1361` is 1,887/6,293 `good_pdf` (29.99%),
-+50 rows versus the denominator baseline of 1,837/6,293 (29.19%) and +5 rows
+`pdf-full10k-after-karger-ca8b132` is 1,890/6,293 `good_pdf` (30.03%),
++53 rows versus the denominator baseline of 1,837/6,293 (29.19%) and +3 rows
 versus the prior accepted gate, with `missing_pdf_harvest` down from 3,939 to
-3,880, 0 timeout, and 0 `taxicab_error`. The gap to 95% is now 4,092 rows.
+3,863, 0 good-to-non-good regressions, 0 timeout, and 0 `taxicab_error`. The
+gap to 95% is now 4,089 rows.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
@@ -163,10 +164,12 @@ Karger run `pdf-karger-missing28-reharvest-9a8466e` recovered 3/28
 preserved the same three durable PDFs, with 25 rows still
 `missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`. Oxjobs commit
 `ecae684b` records the Karger queue, scrubbed summaries/reports, provider
-packet, and combined request update. Next independent lane is a full 10K
-read-only gate to accept or reject the Karger +3 at corpus scale, unless Zyte
-provider guidance is ready to test first.
-Current latest pushed Taxicab branch commit before this docs slice is `9a8466e`.
+packet, and combined request update. Full gate
+`pdf-full10k-after-karger-ca8b132` accepted the +3 at corpus scale with 0
+good-to-non-good regressions, 0 timeout, and 0 `taxicab_error`; oxjobs commit
+`5ccb3df5` publishes that report. Next independent lane is Optica/opg or a
+provider-guidance test for accumulated packets.
+Current latest pushed Taxicab branch commit before this docs slice is `ca8b132`.
 
 ## Repository
 

@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: Karger bounded recovery lane is recorded; full 10K read-only acceptance gate after Karger is next.
+Current gate: Karger full gate is accepted; Optica/opg bounded sample or provider-guidance test is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --out pdf_eval_runs/ --run-id pdf-full10k-after-karger-$(git rev-parse --short HEAD) --workers 8 --timeout 45 --retries 1 --progress-every 100
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://opg\\.optica\\.org|osapublishing\\.org|opticajournals";"i"))][0:21][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "opg.optica.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/optica-missing-21.csv
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -58,14 +58,15 @@ The denominator-enriched full 10K baseline is complete:
 `interstitial_or_paywall`, 2 `bot_block_403`, 0 timeout, and 0
 `taxicab_error`.
 
-The accepted full 10K gate after Taylor is complete:
-`pdf-full10k-after-taylor-e7d1361`, 1,887/6,293 `good_pdf` (29.99%),
-+50 rows versus the denominator baseline and +5 versus the prior gate, 3,880
-`missing_pdf_harvest`, 381 `corrupt_or_truncated_pdf`, 102 `encrypted_or_unreadable_pdf`, 11
+The accepted full 10K gate after Karger is complete:
+`pdf-full10k-after-karger-ca8b132`, 1,890/6,293 `good_pdf` (30.03%),
++53 rows versus the denominator baseline and +3 versus the prior gate, 3,863
+`missing_pdf_harvest`, 395 `corrupt_or_truncated_pdf`, 102 `encrypted_or_unreadable_pdf`, 11
 `html_instead_of_pdf`, 11 `js_redirect_unresolved`, 11
 `supplement_or_preview_pdf`, 8 `interstitial_or_paywall`, 2 `bot_block_403`,
-0 timeout, and 0 `taxicab_error`. Oxjobs commit
-`574539d2 #461 taxicab-pdf: publish taylor full gate` records the accepted report.
+0 timeout, and 0 `taxicab_error`. There were 0 good-to-non-good regressions;
+14 non-good rows moved from missing to corrupt/truncated. Oxjobs commit
+`5ccb3df5 #461 taxicab-pdf: publish karger full gate` records the accepted report.
 
 Gated PDF reharvest mode is implemented locally. It POSTs the corpus `PDF URL`
 when present, caps workers at 4, waits for write/read consistency, then re-runs
@@ -364,15 +365,18 @@ Karger run `pdf-karger-missing28-reharvest-9a8466e` tested 28
 with 25 rows still missing, 0 timeout, and 0 `taxicab_error`. Oxjobs commit
 `ecae684b #461 taxicab-pdf: add karger recovery packet` publishes the Karger
 queue, scrubbed summaries/reports, provider packet, and combined request
-update. Run a full 10K read-only gate before accepting any Karger KPI lift.
+update. Full gate `pdf-full10k-after-karger-ca8b132` accepted +3 good rows;
+oxjobs commit `5ccb3df5 #461 taxicab-pdf: publish karger full gate` publishes
+the accepted report.
 
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
 chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, APS, ACM, BMJ, and Karger PDF-byte or
 click/download fetches before production route code. If continuing independent
-technical work, run the full 10K read-only gate to accept/reject the Karger +3,
-or choose Optica from the latest full gate. IOP is accepted as the first repeated whole-corpus PDF KPI lift; Taylor
-is the latest accepted lift, and the gap to 95% remains 4,092 rows.
+technical work, choose Optica/opg from the latest full gate or test provider
+guidance for accumulated packets. IOP is accepted as the first repeated
+whole-corpus PDF KPI lift; Karger is the latest accepted lift, and the gap to
+95% remains 4,089 rows.
 
 ## Absolute paths
 
