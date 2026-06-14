@@ -388,10 +388,14 @@ De Gruyter Brill residual run
 `pdf-degruyterbrill-missing25-reharvest-f2c5e99` recovered 0/25 `good_pdf`;
 all rows stayed `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`.
 Oxjobs commit `ddb8a16f` publishes the residual queue, scrubbed report, and
-provider packet. Next tail lane is AIAA on `arc.aiaa.org` from the latest full
-gate.
+provider packet.
+AIAA tail run `pdf-aiaa-missing4-reharvest-2faaaa2` recovered 0/4 `good_pdf`;
+two rows stayed `missing_pdf_harvest` and two returned
+`corrupt_or_truncated_pdf`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`83c0b0fe` publishes the AIAA queue, scrubbed report, and provider packet.
+Next tail lane is Neurology on `www.neurology.org` from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`f2c5e99`.
+`2faaaa2`.
 
 ## Agent Operating Rules
 
