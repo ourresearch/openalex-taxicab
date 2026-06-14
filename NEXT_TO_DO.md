@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: confirm Elsevier recovered PDFs persist through read-only lookup, then publish #461 evidence and choose the next high-volume cluster.
+Current gate: publish Elsevier read-only confirmation to #461, then choose the next high-volume cluster or narrow Elsevier follow-up.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-25.csv --out pdf_eval_runs/ --run-id pdf-elsevier-missing-readonly-after-reharvest-be2f5c7 --workers 4 --timeout 60 --retries 1 --progress-every 1
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && git pull --rebase origin main && python3 scripts/publish-report.py 461
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -107,6 +107,14 @@ Elsevier run `pdf-elsevier-missing-reharvest-25-84b2c05` completed all 25 rows:
 0 `timeout`, and 0 `taxicab_error`. This is a localized +4 recovery inside a
 25-row true-missing sample; it is not a full-10K KPI lift until read-only
 confirmation and a full gate.
+
+The read-only confirmation
+`pdf-elsevier-missing-readonly-after-reharvest-be2f5c7` completed on the same
+25-row queue with 4 `good_pdf`, 21 `missing_pdf_harvest`, 0 timeout, and
+0 `taxicab_error`. The four recovered Elsevier PDFs persisted as Taxicab
+records. The six corrupt/truncated POST outcomes did not persist as corrupt
+records; they read back as missing and need separate triage if this cluster is
+continued.
 
 ## Absolute paths
 
@@ -462,13 +470,17 @@ Result:
 
 ### 11. Confirm Elsevier sample recovery and update oxjobs #461
 
-Next exact commands:
+Completed confirmation command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 git switch codex/taxicab-pdf-phase2
-python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-25.csv --out pdf_eval_runs/ --run-id pdf-elsevier-missing-readonly-after-reharvest-be2f5c7 --workers 4 --timeout 60 --retries 1 --progress-every 1
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-25.csv --out pdf_eval_runs/ --run-id pdf-elsevier-missing-readonly-after-reharvest-be2f5c7 --workers 4 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1
+```
 
+Next exact commands:
+
+```bash
 cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
 git pull --rebase origin main
 python3 scripts/publish-report.py 461

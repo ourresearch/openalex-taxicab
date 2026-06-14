@@ -25,6 +25,9 @@ true-missing sample `pdf-elsevier-missing-reharvest-25-84b2c05` finished with
 4/25 `good_pdf`, 15 `missing_pdf_harvest`, 6 `corrupt_or_truncated_pdf`,
 0 timeout, and 0 `taxicab_error`; this is localized sample recovery, not yet a
 full-10K KPI lift.
+Read-only confirmation `pdf-elsevier-missing-readonly-after-reharvest-be2f5c7`
+shows the same 4/25 `good_pdf` and 21 `missing_pdf_harvest`, with 0 timeout and
+0 `taxicab_error`; the four recovered PDFs persisted as Taxicab records.
 
 ## Repository
 

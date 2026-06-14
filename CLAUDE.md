@@ -24,7 +24,9 @@ PDF row-timeout watchdog is pushed at `be2f5c7`. Use `--row-timeout` before
 scaling reharvest samples. The resumed Elsevier true-missing sample finished
 with 4/25 `good_pdf`, 15 `missing_pdf_harvest`, 6 `corrupt_or_truncated_pdf`,
 0 timeout, and 0 Taxicab errors. Treat this as localized sample evidence until
-read-only confirmation and a full 10K gate prove KPI movement.
+full 10K gate proof. Read-only confirmation
+`pdf-elsevier-missing-readonly-after-reharvest-be2f5c7` preserved the same four
+`good_pdf` rows and left 21 rows missing, with 0 timeout and 0 Taxicab errors.
 
 ## Agent Operating Rules
 

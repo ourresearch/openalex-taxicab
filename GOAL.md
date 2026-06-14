@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 14, Elsevier read-only confirmation.
-Next exact command: python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-25.csv --out pdf_eval_runs/ --run-id pdf-elsevier-missing-readonly-after-reharvest-be2f5c7 --workers 4 --timeout 60 --retries 1 --progress-every 1
+Current phase: Gate 14, Elsevier read-only confirmation. Complete.
+Next exact command: inspect the 21 still-missing Elsevier rows from pdf-elsevier-missing-readonly-after-reharvest-be2f5c7 and choose either a narrow Elsevier candidate-route fix or the next larger cluster.
 ```
 
 After Gate 0 is pushed:
@@ -61,7 +61,7 @@ Gate 10: create Springer Zyte support/evidence packet. [done]
 Gate 11: add PDF Browserbase evidence mode. [done]
 Gate 12: add PDF row-timeout watchdog for slow PDF/CDN rows. [done]
 Gate 13: Elsevier missing-PDF bounded sample. [done]
-Gate 14: confirm recovered Elsevier PDFs with read-only follow-up, then choose the next cluster.
+Gate 14: confirm recovered Elsevier PDFs with read-only follow-up. [done]
 Gate 15: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -107,7 +107,8 @@ PDF:
   elsevier missing queue: 25 true missing_pdf_harvest rows generated from pdf-full10k-denominator-3f7cd47
   elsevier interrupted sample: 23/25 rows completed before KeyboardInterrupt; 4 good_pdf, 6 corrupt_or_truncated_pdf, 13 missing_pdf_harvest, 0 timeout/taxicab_error among completed rows
   elsevier bounded sample: pdf-elsevier-missing-reharvest-25-84b2c05 resumed with --row-timeout 120; 4/25 good_pdf, 15 missing_pdf_harvest, 6 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
-  elsevier note: localized sample recovery is +4 rows in a 25-row true-missing queue; it is not a full-10K KPI lift until read-only confirmation and a full gate
+  elsevier read-only confirmation: pdf-elsevier-missing-readonly-after-reharvest-be2f5c7, 4/25 good_pdf, 21 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  elsevier note: the four recovered rows are durable sample records; this is not a full-10K KPI lift until a full gate
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
@@ -226,6 +227,10 @@ secret pattern scan: no raw secret pattern findings
 PDF Elsevier bounded missing sample:
 python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-25.csv --reharvest --workers 2 --row-timeout 120 --resume --out pdf_eval_runs/ --run-id pdf-elsevier-missing-reharvest-25-84b2c05 --timeout 60 --retries 1 --progress-every 1: passed
 result: 4/25 good_pdf; 15 missing_pdf_harvest; 6 corrupt_or_truncated_pdf; 0 timeout; 0 taxicab_error
+
+PDF Elsevier read-only confirmation:
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-25.csv --out pdf_eval_runs/ --run-id pdf-elsevier-missing-readonly-after-reharvest-be2f5c7 --workers 4 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1: passed
+result: 4/25 good_pdf; 21 missing_pdf_harvest; 0 timeout; 0 taxicab_error
 ```
 
 ## Provider Policy
