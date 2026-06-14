@@ -426,10 +426,14 @@ corrected run `pdf-transcript-verlag-missing4-readonly-previewfix-43ab357`
 accepted 0/4 `good_pdf`; all four stored PDFs are
 `supplement_or_preview_pdf` because the candidate URLs match
 `chunk_prev/prev_*.pdf`. Oxjobs commit `433d621e` publishes the corrected
-summary, scrubbed report, and preview-candidate note. Next tail lane is PNAS on
-`www.pnas.org` from the latest full gate.
+summary, scrubbed report, and preview-candidate note. PNAS tail run
+`pdf-pnas-missing4-reharvest-3d943cf` recovered 0/4 `good_pdf`; all four rows
+classified as `corrupt_or_truncated_pdf`, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `8ff5fd14` publishes the PNAS queue, scrubbed
+report, and provider packet. Next tail lane is Peter Lang on
+`www.peterlang.com` from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`43ab357`.
+`3d943cf`.
 
 ## Agent Operating Rules
 
