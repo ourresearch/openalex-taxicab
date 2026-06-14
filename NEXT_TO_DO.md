@@ -196,10 +196,20 @@ probes returned Zyte 520 empty responses. Oxjobs commit
 `e1fe9deb #461 taxicab-pdf: add oxford provider packet` publishes the scrubbed
 Oxford summary/report and packet.
 
+CUP/Cambridge run `pdf-cup-missing-reharvest-25-39517e5` tested 25
+`missing_pdf_harvest` rows from `www.cambridge.org` and recovered 0
+`good_pdf`: all 25 stayed `missing_pdf_harvest`, with 0 timeout and
+0 `taxicab_error`. POST accepted Cambridge Core HTML pages, and direct
+no-storage explicit PDF probes returned status 200 `text/html` Cambridge Core
+article/book pages, not PDF bytes. Oxjobs commit
+`df7784c9 #461 taxicab-pdf: add cup provider packet` publishes the scrubbed
+CUP/Cambridge summary/report and packet.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
-Wiley, De Gruyter, Lippincott, and Oxford PDF-byte fetches before production
-route code. If waiting on provider input, the next independent cluster is CUP
-`10.1017`.
+Wiley, De Gruyter, Lippincott, Oxford, and CUP/Cambridge PDF-byte fetches
+before production route code. If waiting on provider input, the next
+independent cluster is unknown-publisher host clustering or a smaller ASME/IEEE
+targeted sample, not another blind full-publisher reharvest.
 
 ## Absolute paths
 

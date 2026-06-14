@@ -41,7 +41,7 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.98, Oxford bounded sample recorded; provider/advised PDF-byte lane next. In progress.
+Current phase: Gate 21.99, CUP/Cambridge bounded sample recorded; provider/advised PDF-byte lane next. In progress.
 Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
 ```
 
@@ -74,6 +74,7 @@ Gate 21.75: run Wiley bounded reharvest and publish scrubbed provider packet. [d
 Gate 21.9: run De Gruyter bounded reharvest and publish scrubbed provider packet. [done, oxjobs de7d0f2d]
 Gate 21.95: run Lippincott bounded reharvest and publish scrubbed provider packet. [done, oxjobs b88a5a79]
 Gate 21.98: run Oxford bounded reharvest and publish scrubbed provider packet. [done, oxjobs e1fe9deb]
+Gate 21.99: run CUP/Cambridge bounded reharvest and publish scrubbed provider packet. [done, oxjobs df7784c9]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -153,6 +154,10 @@ PDF:
   oxford finding: POST accepted article/abstract HTML pages; direct no-storage article-pdf probes returned Zyte 520 empty responses
   oxjobs #461 Oxford provider packet commit: e1fe9deb #461 taxicab-pdf: add oxford provider packet
   combined provider request now covers ScienceDirect, Lancet, Cell, Wiley, De Gruyter, Lippincott, and Oxford
+  cup/cambridge bounded reharvest: pdf-cup-missing-reharvest-25-39517e5, 25 DOI candidates, 0 good_pdf, 25 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  cup/cambridge finding: POST accepted Cambridge Core HTML pages; direct no-storage explicit PDF probes returned status 200 text/html Cambridge Core pages, not PDF bytes
+  oxjobs #461 CUP/Cambridge provider packet commit: df7784c9 #461 taxicab-pdf: add cup provider packet
+  combined provider request now covers ScienceDirect, Lancet, Cell, Wiley, De Gruyter, Lippincott, Oxford, and CUP/Cambridge
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

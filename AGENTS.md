@@ -72,6 +72,12 @@ Oxford run `pdf-oxford-missing-reharvest-25-b259f2e` also recovered 0/25
 `good_pdf`; POST accepted article/abstract HTML pages and direct no-storage
 `article-pdf` probes returned Zyte 520 empty responses. Oxjobs commit
 `e1fe9deb` records the scrubbed Oxford summary/report and packet.
+CUP/Cambridge run `pdf-cup-missing-reharvest-25-39517e5` also recovered 0/25
+`good_pdf`; POST accepted Cambridge Core HTML pages and direct no-storage
+explicit PDF probes returned status 200 `text/html` Cambridge Core pages.
+Oxjobs commit `df7784c9` records the scrubbed CUP/Cambridge summary/report and
+packet. The combined provider request now covers ScienceDirect, Lancet, Cell,
+Wiley, De Gruyter, Lippincott, Oxford, and CUP/Cambridge.
 
 ## Repository
 
