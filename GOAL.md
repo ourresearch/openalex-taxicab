@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999l complete; BMJ no-lift provider packet is recorded. Gate 21.999m, Karger or Optica bounded sample/provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("karger";"i"))][0:28][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "karger", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-taylor-e7d1361/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/karger-missing-28.csv
+Current phase: Gate 21.999m complete; Karger recovered 3 durable PDFs in bounded reharvest/read-only confirmation and is recorded in oxjobs at ecae684b. Gate 21.999n, full 10K read-only gate after Karger, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --out pdf_eval_runs/ --run-id pdf-full10k-after-karger-$(git rev-parse --short HEAD) --workers 8 --timeout 45 --retries 1 --progress-every 100
 ```
 
 After Gate 0 is pushed:
@@ -92,7 +92,8 @@ Gate 21.999i: run AMA/JAMA targeted sample and publish provider packet. [done, o
 Gate 21.999j: run APS targeted sample and publish provider packet. [done, oxjobs 147a9e65]
 Gate 21.999k: run ACM targeted sample and publish provider packet. [done, oxjobs 32d6a637]
 Gate 21.999l: run BMJ targeted sample and publish provider packet. [done, oxjobs 3319e184]
-Gate 21.999m: run Karger or Optica targeted sample, or send/test accumulated provider packets. [next]
+Gate 21.999m: run Karger targeted sample, read-only confirmation, and provider packet. [done, oxjobs ecae684b]
+Gate 21.999n: run full 10K read-only gate after Karger. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -227,7 +228,11 @@ PDF:
   bmj bounded reharvest: pdf-bmj-missing32-reharvest-4c213b6, 32 DOI candidates, 0 good_pdf, 31 missing_pdf_harvest, 1 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
   bmj finding: POST returned BMJ article HTML/no durable PDF records or one invalid PDF-like response
   oxjobs #461 BMJ provider packet commit: 3319e184 #461 taxicab-pdf: add bmj provider packet
-  next lane: Karger or Optica bounded sample from the latest full gate, or send/test provider packets if Zyte guidance is available
+  karger bounded reharvest: pdf-karger-missing28-reharvest-9a8466e, 28 DOI candidates, 3 good_pdf, 25 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  karger read-only confirmation: pdf-karger-missing28-readonly-9a8466e, 3 durable good_pdf, 25 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  karger finding: modern karger.com article-pdf routes can persist real PDFs; residual rows resolve to article-abstract HTML/no durable PDF record with redirectedFrom=PDF
+  oxjobs #461 Karger provider packet commit: ecae684b #461 taxicab-pdf: add karger recovery packet
+  next lane: full 10K read-only gate after Karger to accept/reject the +3, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

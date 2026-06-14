@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: BMJ no-lift provider lane is recorded; Karger or Optica bounded sample/provider-guidance test is next.
+Current gate: Karger bounded recovery lane is recorded; full 10K read-only acceptance gate after Karger is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("karger";"i"))][0:28][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "karger", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-taylor-e7d1361/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/karger-missing-28.csv
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --out pdf_eval_runs/ --run-id pdf-full10k-after-karger-$(git rev-parse --short HEAD) --workers 8 --timeout 45 --retries 1 --progress-every 100
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -358,11 +358,20 @@ BMJ run `pdf-bmj-missing32-reharvest-4c213b6` tested 32
 scrubbed summary/report, provider packet, and combined request update. Treat
 BMJ as a Zyte/provider-advised PDF-byte lane before production route code.
 
+Karger run `pdf-karger-missing28-reharvest-9a8466e` tested 28
+`missing_pdf_harvest` rows and recovered 3 `good_pdf`. Read-only confirmation
+`pdf-karger-missing28-readonly-9a8466e` preserved the same three durable PDFs,
+with 25 rows still missing, 0 timeout, and 0 `taxicab_error`. Oxjobs commit
+`ecae684b #461 taxicab-pdf: add karger recovery packet` publishes the Karger
+queue, scrubbed summaries/reports, provider packet, and combined request
+update. Run a full 10K read-only gate before accepting any Karger KPI lift.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
-chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, APS, ACM, and BMJ PDF-byte or
+chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, APS, ACM, BMJ, and Karger PDF-byte or
 click/download fetches before production route code. If continuing independent
-technical work, choose Karger or Optica from the latest full gate. IOP is accepted as the first repeated whole-corpus PDF KPI lift; Taylor
+technical work, run the full 10K read-only gate to accept/reject the Karger +3,
+or choose Optica from the latest full gate. IOP is accepted as the first repeated whole-corpus PDF KPI lift; Taylor
 is the latest accepted lift, and the gap to 95% remains 4,092 rows.
 
 ## Absolute paths
