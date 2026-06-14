@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999cq complete; AAI Journals `journals.aai.org` recovered 0/3 PDFs, read-only confirmation returned all rows to missing, and the scrubbed provider packet plus next JCVA Online queue are recorded in oxjobs at ebff6475. Gate 21.999cr, JCVA Online `www.jcvaonline.com` tail sample, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/jcvaonline-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-jcvaonline-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
+Current phase: Gate 21.999cr complete; JCVA Online `www.jcvaonline.com` recovered 0/3 PDFs, read-only confirmation returned all rows to missing, and the scrubbed provider packet plus next Human Kinetics queue are recorded in oxjobs at e48d73e8. Gate 21.999cs, Human Kinetics `journals.humankinetics.com` tail sample, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/humankinetics-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-humankinetics-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
 ```
 
 After Gate 0 is pushed:
@@ -175,7 +175,8 @@ Gate 21.999cn: run protocols.io `www.protocols.io` tail sample and residual pack
 Gate 21.999co: run ASA/Scitation `asa.scitation.org` tail sample and provider packet. [done, oxjobs d457927c]
 Gate 21.999cp: run IOS Press `content.iospress.com` tail sample and provider packet. [done, oxjobs 930c773c]
 Gate 21.999cq: run AAI Journals `journals.aai.org` tail sample and provider packet. [done, oxjobs ebff6475]
-Gate 21.999cr: run JCVA Online `www.jcvaonline.com` tail sample. [next]
+Gate 21.999cr: run JCVA Online `www.jcvaonline.com` tail sample and provider packet. [done, oxjobs e48d73e8]
+Gate 21.999cs: run Human Kinetics `journals.humankinetics.com` tail sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -541,7 +542,11 @@ PDF:
   AAI Journals read-only confirmation: pdf-aai-journals-missing3-readonly-24795ac, 0 durable good_pdf, 3 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   AAI Journals finding: explicit `journals.aai.org/article-pdf/...` routes stored HTML/no durable PDF records
   oxjobs #461 AAI Journals packet commit: ebff6475 #461 taxicab-pdf: add aai journals tail packet
-  next lane: JCVA Online www.jcvaonline.com sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/jcvaonline-missing-25.csv, or run a full 10K gate if accumulating bounded recoveries
+  JCVA Online bounded reharvest: pdf-jcvaonline-missing3-reharvest-dc3bba1, 3 DOI candidates, 0 accepted good_pdf, 2 missing_pdf_harvest after abstract-HTML captures, 1 corrupt_or_truncated_pdf invalid response, 0 timeout, 0 taxicab_error
+  JCVA Online read-only confirmation: pdf-jcvaonline-missing3-readonly-dc3bba1, 0 durable good_pdf, 3 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  JCVA Online finding: two article PDF routes resolved to abstract HTML/no durable PDF records; one candidate returned invalid PDF content
+  oxjobs #461 JCVA Online packet commit: e48d73e8 #461 taxicab-pdf: add jcvaonline tail packet
+  next lane: Human Kinetics journals.humankinetics.com sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/humankinetics-missing-25.csv, or run a full 10K gate if accumulating bounded recoveries
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

@@ -582,10 +582,17 @@ HTML/no durable PDF records. Read-only confirmation
 `pdf-aai-journals-missing3-readonly-24795ac` returned all three rows to
 `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `ebff6475 #461 taxicab-pdf: add aai journals tail packet` publishes the
-scrubbed summaries, reports, provider packet, and next JCVA Online queue. Next
-tail lane is JCVA Online on `www.jcvaonline.com` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/jcvaonline-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `24795ac`.
+scrubbed summaries, reports, provider packet, and next JCVA Online queue. JCVA
+Online run `pdf-jcvaonline-missing3-reharvest-dc3bba1` recovered 0/3
+`good_pdf`; two article PDF routes resolved to abstract HTML/no durable PDF
+records and one candidate returned invalid PDF content. Read-only confirmation
+`pdf-jcvaonline-missing3-readonly-dc3bba1` returned all three rows to
+`missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`e48d73e8 #461 taxicab-pdf: add jcvaonline tail packet` publishes the scrubbed
+summaries, reports, provider packet, and next Human Kinetics queue. Next tail
+lane is Human Kinetics on `journals.humankinetics.com` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/humankinetics-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `dc3bba1`.
 
 ## Agent Operating Rules
 
