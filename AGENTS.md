@@ -380,10 +380,14 @@ DOI-router run `pdf-doi-org-missing19-reharvest-659e13e` recovered
 0/19 `good_pdf`; 17 rows stayed `missing_pdf_harvest`, 2 timed out, and 0
 rows hit `taxicab_error`. Oxjobs commit `4c711418` publishes the DOI-router
 queue, scrubbed report, and provider packet. Next independent lane is
-ScienceDirect direct PDF asset URL rows on `pdf.sciencedirectassets.com` from
-the latest full gate.
+ScienceDirect direct asset run
+`pdf-sciencedirectassets-missing6-reharvest-16bcb5a`, which recovered
+0/6 `good_pdf`; all rows stayed `missing_pdf_harvest`, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `58ab0e73` publishes the ScienceDirect asset
+queue, scrubbed report, and provider packet. Next high-volume lane is Springer
+on `link.springer.com` from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`659e13e`.
+`16bcb5a`.
 
 ## Repository
 
