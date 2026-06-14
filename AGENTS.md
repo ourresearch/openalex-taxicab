@@ -442,9 +442,15 @@ rows stayed `missing_pdf_harvest` after status-201 HTML captures resolving to
 `www.peterlang.com/document/...`, with 0 timeout and 0 `taxicab_error`.
 Oxjobs commit `a12417e1` publishes the Peter Lang queue, scrubbed report, and
 provider packet. Next tail lane is Nomos eLibrary on
-`www.nomos-elibrary.de` from the latest full gate.
+`www.nomos-elibrary.de` from the latest full gate. Nomos eLibrary tail run
+`pdf-nomos-elibrary-missing4-reharvest-b4bbab0` recovered 0/4 `good_pdf`; all
+four rows stayed `missing_pdf_harvest` after status-201 HTML captures resolving
+to `www.inlibra.com/de/document/view/detail/uuid/...`, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `d7d1220d` publishes the Nomos queue, scrubbed
+report, and provider packet. Next tail lane is Journal of Pediatric Surgery on
+`www.jpedsurg.org` from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`eb523da`.
+`b4bbab0`.
 
 ## Repository
 
