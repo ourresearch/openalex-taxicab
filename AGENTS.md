@@ -388,10 +388,15 @@ queue, scrubbed report, and provider packet. Next high-volume lane is Springer
 run `pdf-springer-link-missing25-reharvest-d401917`, which recovered
 0/25 `good_pdf`; all rows stayed `missing_pdf_harvest`, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `469a996b` publishes the Springer queue,
-scrubbed report, and provider packet. Next high-volume lane is De Gruyter Brill
-on `www.degruyterbrill.com` from the latest full gate.
+scrubbed report, and provider packet.
+De Gruyter Brill residual run
+`pdf-degruyterbrill-missing25-reharvest-f2c5e99` recovered 0/25 `good_pdf`;
+all rows stayed `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`.
+Oxjobs commit `ddb8a16f` publishes the residual queue, scrubbed report, and
+provider packet. Next tail lane is AIAA on `arc.aiaa.org` from the latest full
+gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`d401917`.
+`f2c5e99`.
 
 ## Repository
 

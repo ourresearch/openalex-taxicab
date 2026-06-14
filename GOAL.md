@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999bj complete; Springer `link.springer.com` high-volume sample recovered 0/25 PDFs and is recorded in oxjobs at 469a996b. Gate 21.999bk, De Gruyter Brill `www.degruyterbrill.com` sample, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.degruyterbrill\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.degruyterbrill.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/degruyterbrill-missing-25.csv
+Current phase: Gate 21.999bk complete; De Gruyter Brill `www.degruyterbrill.com` residual sample recovered 0/25 PDFs and is recorded in oxjobs at ddb8a16f. Gate 21.999bl, AIAA `arc.aiaa.org` tail sample, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://arc\\.aiaa\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "arc.aiaa.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/aiaa-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -142,7 +142,8 @@ Gate 21.999bg: run AIP `pubs.aip.org` targeted sample and provider packet. [done
 Gate 21.999bh: run DOI-router PDF URL targeted sample and provider packet. [done, oxjobs 4c711418]
 Gate 21.999bi: run ScienceDirect direct PDF asset URL sample and provider packet. [done, oxjobs 58ab0e73]
 Gate 21.999bj: run Springer `link.springer.com` high-volume sample and provider packet. [done, oxjobs 469a996b]
-Gate 21.999bk: run De Gruyter Brill `www.degruyterbrill.com` sample. [next]
+Gate 21.999bk: run De Gruyter Brill `www.degruyterbrill.com` residual sample and provider packet. [done, oxjobs ddb8a16f]
+Gate 21.999bl: run AIAA `arc.aiaa.org` tail sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -410,7 +411,9 @@ PDF:
   oxjobs #461 ScienceDirect assets provider packet commit: 58ab0e73 #461 taxicab-pdf: add sciencedirect assets packet
   springer link bounded reharvest: pdf-springer-link-missing25-reharvest-d401917, 25 DOI candidates, 0 good_pdf, 25 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   oxjobs #461 Springer link provider packet commit: 469a996b #461 taxicab-pdf: add springer link provider packet
-  next lane: De Gruyter Brill www.degruyterbrill.com sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  degruyterbrill bounded reharvest: pdf-degruyterbrill-missing25-reharvest-f2c5e99, 25 DOI candidates, 0 good_pdf, 25 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  oxjobs #461 De Gruyter Brill residual packet commit: ddb8a16f #461 taxicab-pdf: add degruyterbrill residual packet
+  next lane: AIAA arc.aiaa.org sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
