@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: IATED `library.iated.org` tail sample is recorded at oxjobs 2fb1349a; Brepols `www.brepolsonline.net` tail sample is next.
+Current gate: Brepols `www.brepolsonline.net` tail sample is recorded at oxjobs 9918c055, with report allowlist fix 6a85359b; Copernicus Meeting Organizer `meetingorganizer.copernicus.org` tail sample is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/brepolsonline-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-brepolsonline-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/copernicus-meetingorganizer-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-copernicus-meetingorganizer-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -844,9 +844,11 @@ PDFs. GeoScienceWorld is an abstract-HTML/no-record provider lane with no
 durable recovered PDFs. Indian Journals is an HTML/no-record provider lane with
 no durable recovered PDFs. AJConline is an abstract-HTML/no-record provider
 lane with no durable recovered PDFs. IATED is an invalid-PDF/no-record provider
-lane with no durable recovered PDFs. If continuing independent technical work,
-choose Brepols `www.brepolsonline.net` rows from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/brepolsonline-missing-25.csv`
+lane with no durable recovered PDFs. Brepols is an invalid-PDF/no-record
+provider lane with no durable recovered PDFs. If continuing independent
+technical work, choose Copernicus Meeting Organizer
+`meetingorganizer.copernicus.org` rows from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/copernicus-meetingorganizer-missing-25.csv`
 or test
 provider guidance for accumulated
 packets. IOP is accepted as the first repeated

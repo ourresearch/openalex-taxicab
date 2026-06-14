@@ -538,10 +538,18 @@ download routes returned invalid PDF content, and read-only confirmation
 `pdf-iated-missing3-readonly-4a1e0d9` returned all three rows to
 `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `2fb1349a #461 taxicab-pdf: add iated tail packet` publishes the queue,
-summaries, reports, provider packet, and next Brepols queue. Next tail lane is
-Brepols on `www.brepolsonline.net` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/brepolsonline-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `4a1e0d9`.
+summaries, reports, provider packet, and next Brepols queue. Brepols tail run
+`pdf-brepolsonline-missing3-reharvest-d690cd3` recovered 0/3 `good_pdf`; all
+three `doi/epdf` routes returned invalid PDF content, and read-only confirmation
+`pdf-brepolsonline-missing3-readonly-d690cd3` returned all three rows to
+`missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`9918c055 #461 taxicab-pdf: add brepols tail packet` publishes the queue,
+summaries, reports, provider packet, and next Copernicus queue. Oxjobs commit
+`6a85359b #461 taxicab-pdf: expose recent tail artifacts` allowlists the recent
+tail assets. Next tail lane is Copernicus Meeting Organizer on
+`meetingorganizer.copernicus.org` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/copernicus-meetingorganizer-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `d690cd3`.
 
 ## Repository
 
