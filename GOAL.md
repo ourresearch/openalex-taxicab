@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999br complete; ATS Journals `www.atsjournals.org` tail sample recovered 0/4 PDFs and is recorded in oxjobs at 7e4dcc79. Gate 21.999bs, Transcript Verlag `www.transcript-verlag.de` tail sample, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.transcript-verlag\\.de";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.transcript-verlag.de", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/transcript-verlag-missing-25.csv
+Current phase: Gate 21.999bs complete; Transcript Verlag `www.transcript-verlag.de` preview-candidate correction accepted 0/4 PDFs and is recorded in oxjobs at 433d621e. Gate 21.999bt, PNAS `www.pnas.org` tail sample, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.pnas\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.pnas.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/pnas-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -150,7 +150,8 @@ Gate 21.999bo: run MIT Press Direct `direct.mit.edu` tail sample and provider pa
 Gate 21.999bp: run RSNA `pubs.rsna.org` tail sample and provider packet. [done, oxjobs 67a5b554]
 Gate 21.999bq: run Gold Journal `www.goldjournal.net` tail sample and provider packet. [done, oxjobs 8d1c57b4]
 Gate 21.999br: run ATS Journals `www.atsjournals.org` tail sample and provider packet. [done, oxjobs 7e4dcc79]
-Gate 21.999bs: run Transcript Verlag `www.transcript-verlag.de` tail sample. [next]
+Gate 21.999bs: run Transcript Verlag `www.transcript-verlag.de` preview-candidate correction. [done, oxjobs 433d621e]
+Gate 21.999bt: run PNAS `www.pnas.org` tail sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -428,7 +429,9 @@ PDF:
   oxjobs #461 Gold Journal tail packet commit: 8d1c57b4 #461 taxicab-pdf: add gold journal tail packet
   atsjournals bounded reharvest: pdf-atsjournals-missing4-reharvest-a618e5a, 4 DOI candidates, 0 good_pdf, 4 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   oxjobs #461 ATS Journals tail packet commit: 7e4dcc79 #461 taxicab-pdf: add ats journals tail packet
-  next lane: Transcript Verlag www.transcript-verlag.de sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  transcript-verlag corrected read-only: pdf-transcript-verlag-missing4-readonly-previewfix-43ab357, 4 DOI candidates, 0 accepted good_pdf, 4 supplement_or_preview_pdf, 0 timeout, 0 taxicab_error
+  oxjobs #461 Transcript Verlag correction commit: 433d621e #461 taxicab-pdf: add transcript preview correction
+  next lane: PNAS www.pnas.org sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

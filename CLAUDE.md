@@ -421,9 +421,15 @@ four rows stayed missing after status-201 HTML captures resolving to
 `academic.oup.com/atsjournals`, with 0 timeout and 0 `taxicab_error`. Oxjobs
 commit `7e4dcc79` publishes the ATS Journals queue, scrubbed report, and
 provider packet. Next tail lane is Transcript Verlag on
-`www.transcript-verlag.de` from the latest full gate.
+`www.transcript-verlag.de` from the latest full gate. Transcript Verlag
+corrected run `pdf-transcript-verlag-missing4-readonly-previewfix-43ab357`
+accepted 0/4 `good_pdf`; all four stored PDFs are
+`supplement_or_preview_pdf` because the candidate URLs match
+`chunk_prev/prev_*.pdf`. Oxjobs commit `433d621e` publishes the corrected
+summary, scrubbed report, and preview-candidate note. Next tail lane is PNAS on
+`www.pnas.org` from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`a618e5a`.
+`43ab357`.
 
 ## Agent Operating Rules
 
