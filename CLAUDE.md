@@ -507,10 +507,17 @@ article abstract HTML with `redirectedFrom=fulltext`, and read-only confirmation
 `pdf-dukeupress-missing3-readonly-c04d081` returned all three rows to
 `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `1e18ffdd #461 taxicab-pdf: add dukeupress tail packet` publishes the queue,
-summaries, reports, provider packet, and next GeoScienceWorld queue. Next tail
-lane is GeoScienceWorld on `pubs.geoscienceworld.org` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/geoscienceworld-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `c04d081`.
+summaries, reports, provider packet, and next GeoScienceWorld queue.
+GeoScienceWorld tail run `pdf-geoscienceworld-missing3-reharvest-98bb851`
+recovered 0/3 `good_pdf`; all three candidate `article-pdf` routes resolved to
+article abstract HTML with `redirectedFrom=fulltext`, and read-only confirmation
+`pdf-geoscienceworld-missing3-readonly-98bb851` returned all three rows to
+`missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`b3ba464e #461 taxicab-pdf: add geoscienceworld tail packet` publishes the
+queue, summaries, reports, provider packet, and next Indian Journals queue. Next
+tail lane is Indian Journals on `indianjournals.com` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/indianjournals-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `98bb851`.
 
 ## Agent Operating Rules
 
