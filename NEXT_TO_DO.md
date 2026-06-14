@@ -58,14 +58,14 @@ The denominator-enriched full 10K baseline is complete:
 `interstitial_or_paywall`, 2 `bot_block_403`, 0 timeout, and 0
 `taxicab_error`.
 
-The accepted full 10K gate after remaining IOP is complete:
-`pdf-full10k-after-iop-remaining-e5bcd30`, 1,882/6,293 `good_pdf` (29.91%),
-+45 rows versus the denominator baseline and +21 versus the prior gate, 3,885
+The accepted full 10K gate after Taylor is complete:
+`pdf-full10k-after-taylor-e7d1361`, 1,887/6,293 `good_pdf` (29.99%),
++50 rows versus the denominator baseline and +5 versus the prior gate, 3,880
 `missing_pdf_harvest`, 381 `corrupt_or_truncated_pdf`, 102 `encrypted_or_unreadable_pdf`, 11
 `html_instead_of_pdf`, 11 `js_redirect_unresolved`, 11
 `supplement_or_preview_pdf`, 8 `interstitial_or_paywall`, 2 `bot_block_403`,
 0 timeout, and 0 `taxicab_error`. Oxjobs commit
-`5cca142e #461 taxicab-pdf: publish remaining iop gate` records the accepted report.
+`574539d2 #461 taxicab-pdf: publish taylor full gate` records the accepted report.
 
 Gated PDF reharvest mode is implemented locally. It POSTs the corpus `PDF URL`
 when present, caps workers at 4, waits for write/read consistency, then re-runs
@@ -264,12 +264,23 @@ the missing rows. Oxjobs commit `85584ddd #461 taxicab-pdf: add aip provider
 packet` publishes the AIP queue, scrubbed summary/report, provider packet, and
 combined request update.
 
+Taylor mixed queue `pdf-taylor-missing25-reharvest-e7d1361` recovered and
+confirmed 2 durable direct TandF journal PDFs. Taylor TandF-only expansion
+`pdf-taylor-tandfonline29-reharvest-e7d1361` recovered and confirmed 3 more.
+The accepted full gate `pdf-full10k-after-taylor-e7d1361` is now 1,887/6,293
+`good_pdf` (29.99%), +5 vs the prior gate, with 0 regressions, 0 timeout, and
+0 `taxicab_error`. Taylor API chapter-download URLs still store HTML chapter
+pages. Oxjobs commit `574539d2 #461 taxicab-pdf: publish taylor full gate`
+publishes the Taylor queues, scrubbed summaries/reports, provider packet, graph
+update, and latest-summary/hardness artifacts.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
-Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, and AIP
-PDF-byte or click/download fetches before production route code. If continuing
-independent technical work, choose another high-volume cluster from the latest
-full gate. IOP is now accepted as the first repeated whole-corpus PDF KPI lift,
-but the gap to 95% remains 4,097 rows.
+Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, and
+Taylor API chapter-download PDF-byte or click/download fetches before
+production route code. If continuing independent technical work, choose another
+high-volume cluster from the latest full gate. IOP is accepted as the first
+repeated whole-corpus PDF KPI lift; Taylor is the latest accepted lift, and the
+gap to 95% remains 4,092 rows.
 
 ## Absolute paths
 

@@ -7,10 +7,10 @@ Current goal state: HTML retrieval Phase 1 is complete at 9,583/10,000
 `good_pdf` on the PDF-expected subset of the 10K Goldie corpus. Use
 `GOAL.md` as the current control file and update it before long handoffs.
 Latest PDF measurement gate: accepted full 10K read-only gate
-`pdf-full10k-after-iop-remaining-e5bcd30` is 1,882/6,293 `good_pdf` (29.91%),
-+45 rows versus the denominator baseline of 1,837/6,293 (29.19%) and +21 rows
-versus the prior IOP gate, with `missing_pdf_harvest` down from 3,939 to 3,885,
-0 timeout, and 0 Taxicab API errors. The gap to 95% is now 4,097 rows.
+`pdf-full10k-after-taylor-e7d1361` is 1,887/6,293 `good_pdf` (29.99%),
++50 rows versus the denominator baseline of 1,837/6,293 (29.19%) and +5 rows
+versus the prior accepted gate, with `missing_pdf_harvest` down from 3,939 to
+3,880, 0 timeout, and 0 Taxicab API errors. The gap to 95% is now 4,092 rows.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
@@ -98,10 +98,16 @@ AIP run `pdf-aip-missing45-reharvest-8ce7e7e` recovered 0/45 `good_pdf`, with
 44 still `missing_pdf_harvest`, one corrupt/truncated response, and 0 timeout /
 0 `taxicab_error`. POST returned status 201 HTML/no durable PDF for missing
 rows, so AIP/Scitation is also a Zyte/provider-advised PDF-byte lane. Oxjobs
-commit `85584ddd` records the AIP queue, summary, report, and packet. Next
-technical lane: send/test provider guidance for accumulated packets or choose a
-fresh high-volume cluster. Current latest pushed Taxicab branch commit before
-this docs slice is `8ce7e7e`.
+commit `85584ddd` records the AIP queue, summary, report, and packet.
+Taylor runs recovered five durable direct TandF journal PDFs. The accepted full
+gate `pdf-full10k-after-taylor-e7d1361` is 1,887/6,293 `good_pdf` (29.99%),
++5 vs prior gate and +50 vs denominator baseline, with 0 regressions,
+0 timeout, and 0 `taxicab_error`. Taylor API chapter-download URLs still need
+provider guidance. Oxjobs commit `574539d2` records the Taylor queues,
+summaries, reports, graph update, and packet. Next technical lane: send/test
+provider guidance for accumulated packets or choose a fresh high-volume
+cluster. Current latest pushed Taxicab branch commit before this docs slice is
+`e7d1361`.
 
 ## Agent Operating Rules
 

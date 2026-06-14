@@ -41,7 +41,7 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999b, AIP no-lift provider lane recorded; provider-packet send/test or next high-volume sample is next. In progress.
+Current phase: Gate 21.999c, Taylor accepted full-gate lift recorded; provider-packet send/test or next high-volume sample is next. In progress.
 Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
 ```
 
@@ -82,7 +82,8 @@ Gate 21.998: run accepted full 10K read-only gate after IOP. [done, oxjobs fbba7
 Gate 21.999: run remaining IOP rows and accepted full 10K read-only gate. [done, oxjobs 5cca142e]
 Gate 21.999a: run RSC bounded reharvest and publish provider packet. [done, oxjobs 68025078]
 Gate 21.999b: run AIP targeted sample and publish provider packet. [done, oxjobs 85584ddd]
-Gate 21.999c: send/test accumulated provider packets or choose next high-volume sample. [next]
+Gate 21.999c: run Taylor samples and accepted full 10K gate. [done, oxjobs 574539d2]
+Gate 21.999d: send/test accumulated provider packets or choose next high-volume sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -107,11 +108,11 @@ Recovered in latest gate:
 PDF:
   full 10K baseline: 2,148/10,000 good_pdf (21.48%)
   denominator-enriched full baseline: 1,837/6,293 good_pdf (29.19%)
-  latest accepted full gate: pdf-full10k-after-iop-remaining-e5bcd30, 1,882/6,293 good_pdf (29.91%)
-  latest accepted lift: +45 good_pdf vs denominator baseline, +21 vs prior accepted gate
+  latest accepted full gate: pdf-full10k-after-taylor-e7d1361, 1,887/6,293 good_pdf (29.99%)
+  latest accepted lift: +50 good_pdf vs denominator baseline, +5 vs prior accepted gate
   no_pdf_expected: 3,707
-  denominator-enriched gap to 95%: 4,097 rows
-  dominant category: 3,885 missing_pdf_harvest
+  denominator-enriched gap to 95%: 4,092 rows
+  dominant category: 3,880 missing_pdf_harvest
   other major categories: 381 corrupt_or_truncated_pdf; 102 encrypted_or_unreadable_pdf
   timeout: 0
   taxicab_error: 0
@@ -186,6 +187,10 @@ PDF:
   aip bounded reharvest: pdf-aip-missing45-reharvest-8ce7e7e, 45 DOI candidates, 0 good_pdf, 44 missing_pdf_harvest, 1 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
   aip finding: POST returned status 201 HTML/no durable PDF for missing rows; one candidate returned invalid PDF content
   oxjobs #461 AIP provider packet commit: 85584ddd #461 taxicab-pdf: add aip provider packet
+  taylor mixed sample: pdf-taylor-missing25-readonly-e7d1361, 2/25 durable good_pdf, 23 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  taylor TandF expansion: pdf-taylor-tandfonline29-readonly-e7d1361, 3/29 durable good_pdf, 26 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  taylor full gate: pdf-full10k-after-taylor-e7d1361, 1,887/6,293 good_pdf (29.99%), +5 vs prior gate, 0 regressions, 0 timeout, 0 taxicab_error
+  oxjobs #461 Taylor full gate commit: 574539d2 #461 taxicab-pdf: publish taylor full gate
   next lane: send/test provider packets or choose another high-volume sample from the latest full gate
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
