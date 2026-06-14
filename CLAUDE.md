@@ -431,9 +431,15 @@ summary, scrubbed report, and preview-candidate note. PNAS tail run
 classified as `corrupt_or_truncated_pdf`, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `8ff5fd14` publishes the PNAS queue, scrubbed
 report, and provider packet. Next tail lane is Peter Lang on
-`www.peterlang.com` from the latest full gate.
+`www.peterlang.com` from the latest full gate. Peter Lang tail run
+`pdf-peterlang-missing4-reharvest-eb523da` recovered 0/4 `good_pdf`; all four
+rows stayed `missing_pdf_harvest` after status-201 HTML captures resolving to
+`www.peterlang.com/document/...`, with 0 timeout and 0 `taxicab_error`.
+Oxjobs commit `a12417e1` publishes the Peter Lang queue, scrubbed report, and
+provider packet. Next tail lane is Nomos eLibrary on
+`www.nomos-elibrary.de` from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`3d943cf`.
+`eb523da`.
 
 ## Agent Operating Rules
 
