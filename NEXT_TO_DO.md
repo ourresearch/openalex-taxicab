@@ -172,10 +172,18 @@ routes, not PDF bytes. Oxjobs commit `3d7356bc #461 taxicab-pdf: add wiley
 provider packet` publishes a scrubbed summary/report, the Wiley packet, and the
 combined request `evidence/zyte-support/pdf-byte-fetch-provider-request-4267740.md`.
 
-Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell, and
-Wiley PDF-byte fetches before production route code. If waiting on provider
-input, the next independent cluster is De Gruyter `10.1515` because it has a
-clean 143-row missing cluster plus adjacent corrupt stored PDFs.
+De Gruyter run `pdf-degruyter-missing-reharvest-25-95308b7` tested 25
+`missing_pdf_harvest` rows from `www.degruyterbrill.com` and recovered
+0 `good_pdf`: all 25 stayed `missing_pdf_harvest`, with 0 timeout and
+0 `taxicab_error`. POST accepted HTML `/html` pages, and direct no-storage
+`/pdf` probes returned JS/robot-verification HTML. Oxjobs commit
+`de7d0f2d #461 taxicab-pdf: add degruyter provider packet` publishes the
+scrubbed De Gruyter summary/report and packet.
+
+Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
+Wiley, and De Gruyter PDF-byte fetches before production route code. If waiting
+on provider input, the next independent cluster is Lippincott/Wolters Kluwer
+`10.1097`, but expect access-flow work rather than a simple route patch.
 
 ## Absolute paths
 

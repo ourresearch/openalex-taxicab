@@ -60,6 +60,10 @@ Wiley run `pdf-wiley-missing-reharvest-25-4267740` recovered 0/25
 landing pages at Wiley DOI routes instead of PDF bytes. Oxjobs commit
 `3d7356bc` records the scrubbed Wiley summary/report, Wiley Zyte packet, and
 combined provider request `pdf-byte-fetch-provider-request-4267740.md`.
+De Gruyter run `pdf-degruyter-missing-reharvest-25-95308b7` also recovered
+0/25 `good_pdf`; POST accepted `/html` pages and direct no-storage `/pdf`
+probes returned JS/robot-verification HTML. Oxjobs commit `de7d0f2d` records
+the scrubbed De Gruyter summary/report and Zyte packet.
 
 ## Repository
 
