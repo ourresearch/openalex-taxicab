@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: AMA/JAMA no-lift provider lane is recorded; APS bounded sample or provider-packet send/test is next.
+Current gate: APS no-lift provider lane is recorded; ACM bounded sample or provider-packet send/test is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("dl\\\\.acm\\\\.org"))][0:22][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "dl.acm.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-taylor-e7d1361/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/acm-missing-22.csv
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -331,13 +331,23 @@ AMA/JAMA queue, scrubbed summary/report, provider packet, and combined request
 update. Treat AMA/JAMA as a Zyte/provider-advised PDF-byte and invalid-PDF lane
 before production route code.
 
+APS run `pdf-aps-missing23-reharvest-65feabe` tested 23
+`missing_pdf_harvest` rows from `link.aps.org` / `journals.aps.org` and
+recovered 0 `good_pdf`: all 23 rows stayed missing, with 0 timeout and
+0 `taxicab_error`. PDF routes resolved to APS article/abstract HTML/no durable
+PDF records; one row resolved to a `journals.aps.org/.../pdf/...` URL but still
+had no readable durable PDF record. Oxjobs commit
+`147a9e65 #461 taxicab-pdf: add aps provider packet` publishes the APS queue,
+scrubbed summary/report, provider packet, and combined request update. Treat
+APS as a Zyte/provider-advised PDF-byte lane before production route code.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
-chapter-download, ACS, SPIE, Thieme, Sage, Brill, and AMA/JAMA PDF-byte or
+chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, and APS PDF-byte or
 click/download fetches before production route code. If continuing independent
-technical work, choose APS next from the latest full gate, then ACM, BMJ,
-Karger, or Optica. IOP is accepted as the first repeated whole-corpus PDF KPI
-lift; Taylor is the latest accepted lift, and the gap to 95% remains 4,092 rows.
+technical work, choose ACM next from the latest full gate, then BMJ, Karger, or
+Optica. IOP is accepted as the first repeated whole-corpus PDF KPI lift; Taylor
+is the latest accepted lift, and the gap to 95% remains 4,092 rows.
 
 ## Absolute paths
 

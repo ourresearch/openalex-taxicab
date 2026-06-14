@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999j, AMA/JAMA no-lift provider packet recorded; APS bounded sample or provider-packet send/test is next. In progress.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
+Current phase: Gate 21.999j complete; APS no-lift provider packet is recorded. Gate 21.999k, ACM bounded sample or provider-packet send/test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("dl\\\\.acm\\\\.org"))][0:22][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "dl.acm.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-taylor-e7d1361/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/acm-missing-22.csv
 ```
 
 After Gate 0 is pushed:
@@ -89,7 +89,8 @@ Gate 21.999f: run Thieme targeted sample and publish provider packet. [done, oxj
 Gate 21.999g: run Sage targeted sample and publish provider packet. [done, oxjobs ca3b11fe]
 Gate 21.999h: run Brill targeted sample and publish provider packet. [done, oxjobs 172b7580]
 Gate 21.999i: run AMA/JAMA targeted sample and publish provider packet. [done, oxjobs d82e9ba6]
-Gate 21.999j: run APS targeted sample or send/test accumulated provider packets. [next]
+Gate 21.999j: run APS targeted sample and publish provider packet. [done, oxjobs 147a9e65]
+Gate 21.999k: run ACM targeted sample or send/test accumulated provider packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -215,7 +216,10 @@ PDF:
   ama/jama bounded reharvest: pdf-ama-jama-missing25-reharvest-005b032, 25 DOI candidates, 0 good_pdf, 18 missing_pdf_harvest, 7 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
   ama/jama finding: POST returned article HTML/no durable PDF records or invalid PDF-like responses
   oxjobs #461 AMA/JAMA provider packet commit: d82e9ba6 #461 taxicab-pdf: add ama jama provider packet
-  next lane: APS bounded sample from the latest full gate, or send/test provider packets if Zyte guidance is available
+  aps bounded reharvest: pdf-aps-missing23-reharvest-65feabe, 23 DOI candidates, 0 good_pdf, 23 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  aps finding: POST resolved APS/link.aps.org PDF routes to journals.aps.org article/abstract HTML/no durable PDF records; one candidate resolved to a journals.aps.org PDF URL but still had no readable durable PDF record
+  oxjobs #461 APS provider packet commit: 147a9e65 #461 taxicab-pdf: add aps provider packet
+  next lane: ACM bounded sample from the latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
