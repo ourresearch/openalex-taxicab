@@ -546,10 +546,17 @@ three `doi/epdf` routes returned invalid PDF content, and read-only confirmation
 `9918c055 #461 taxicab-pdf: add brepols tail packet` publishes the queue,
 summaries, reports, provider packet, and next Copernicus queue. Oxjobs commit
 `6a85359b #461 taxicab-pdf: expose recent tail artifacts` allowlists the recent
-tail assets. Next tail lane is Copernicus Meeting Organizer on
-`meetingorganizer.copernicus.org` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/copernicus-meetingorganizer-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `d690cd3`.
+tail assets. Copernicus Meeting Organizer tail run
+`pdf-copernicus-meetingorganizer-missing3-reharvest-638dd13` recovered 0/3
+`good_pdf`; all three `*.html?pdf` routes stored article HTML and produced no
+durable PDF record. Read-only confirmation
+`pdf-copernicus-meetingorganizer-missing3-readonly-638dd13` returned all three
+rows to `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs
+commit `4bc7763f #461 taxicab-pdf: add copernicus tail packet` publishes the
+scrubbed summaries, reports, provider packet, and next Google Drive queue. Next
+tail lane is Google Drive on `drive.google.com` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/google-drive-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `638dd13`.
 
 ## Repository
 

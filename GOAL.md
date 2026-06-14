@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999ck complete; Brepols `www.brepolsonline.net` recovered 0/3 PDFs, read-only confirmation returned all three rows to `missing_pdf_harvest`, and the provider packet is recorded in oxjobs at 9918c055 with the report allowlist fixed at 6a85359b. Gate 21.999cl, Copernicus Meeting Organizer `meetingorganizer.copernicus.org` tail sample, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/copernicus-meetingorganizer-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-copernicus-meetingorganizer-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
+Current phase: Gate 21.999cl complete; Copernicus Meeting Organizer `meetingorganizer.copernicus.org` recovered 0/3 PDFs, read-only confirmation returned all three rows to `missing_pdf_harvest`, and the provider packet plus next Google Drive queue are recorded in oxjobs at 4bc7763f. Gate 21.999cm, Google Drive `drive.google.com` tail sample, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/google-drive-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-google-drive-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
 ```
 
 After Gate 0 is pushed:
@@ -169,7 +169,8 @@ Gate 21.999ch: run Indian Journals `indianjournals.com` tail sample and provider
 Gate 21.999ci: run AJConline `ajconline.org` tail sample and provider packet. [done, oxjobs b4b2a251]
 Gate 21.999cj: run IATED `library.iated.org` tail sample and provider packet. [done, oxjobs 2fb1349a]
 Gate 21.999ck: run Brepols `www.brepolsonline.net` tail sample and provider packet. [done, oxjobs 9918c055 and 6a85359b]
-Gate 21.999cl: run Copernicus Meeting Organizer `meetingorganizer.copernicus.org` tail sample. [next]
+Gate 21.999cl: run Copernicus Meeting Organizer `meetingorganizer.copernicus.org` tail sample and provider packet. [done, oxjobs 4bc7763f]
+Gate 21.999cm: run Google Drive `drive.google.com` tail sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -511,7 +512,11 @@ PDF:
   Brepols finding: every doi/epdf route returned status-400 invalid PDF content and no durable PDF record
   oxjobs #461 Brepols packet commit: 9918c055 #461 taxicab-pdf: add brepols tail packet
   oxjobs #461 report allowlist fix: 6a85359b #461 taxicab-pdf: expose recent tail artifacts
-  next lane: Copernicus Meeting Organizer meetingorganizer.copernicus.org sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/copernicus-meetingorganizer-missing-25.csv, or send/test provider packets if Zyte guidance is available
+  Copernicus bounded reharvest: pdf-copernicus-meetingorganizer-missing3-reharvest-638dd13, 3 DOI candidates, 0 accepted good_pdf, 3 missing_pdf_harvest after POST accepted HTML captures, 0 timeout, 0 taxicab_error
+  Copernicus read-only confirmation: pdf-copernicus-meetingorganizer-missing3-readonly-638dd13, 0 durable good_pdf, 3 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  Copernicus finding: every `*.html?pdf` route stored article HTML and no durable PDF record
+  oxjobs #461 Copernicus packet commit: 4bc7763f #461 taxicab-pdf: add copernicus tail packet
+  next lane: Google Drive drive.google.com sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/google-drive-missing-25.csv, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
