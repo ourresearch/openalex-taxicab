@@ -359,10 +359,16 @@ CHEST run `pdf-chestnet-missing5-reharvest-4c6cd17` recovered 1/5 `good_pdf`;
 read-only confirmation `pdf-chestnet-missing5-readonly-4c6cd17` preserved the
 same durable PDF and left four rows missing, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `ee27cd5e` publishes the CHEST queue, scrubbed
-reports, and provider packet. Next independent lane is Green Journal
-(`thegreenjournal.com`) from the latest full gate.
+reports, and provider packet.
+Green Journal run `pdf-thegreenjournal-missing4-reharvest-a211471` recovered
+0/4 `good_pdf`; all four rows stayed `missing_pdf_harvest` after explicit
+`thegreenjournal.com` PDF/action routes resolved to article abstract HTML or no
+durable PDF record, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`0e0bb05f` publishes the Green Journal queue, scrubbed report, and provider
+packet. Next independent lane is SciELO (`scielo.br`) from the latest full
+gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`4c6cd17`.
+`a211471`.
 
 ## Repository
 

@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: CHEST provider lane is recorded at oxjobs ee27cd5e; Green Journal bounded sample or provider-guidance test is next.
+Current gate: Green Journal provider lane is recorded at oxjobs 0e0bb05f; SciELO bounded sample or provider-guidance test is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://(www\\.)?thegreenjournal\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "thegreenjournal.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/thegreenjournal-missing-25.csv
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://(www\\.)?scielo\\.br";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "scielo.br", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/scielo-missing-25.csv
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -656,6 +656,12 @@ preserved the same durable PDF and left four rows missing, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit
 `ee27cd5e #461 taxicab-pdf: add chestnet recovery packet` publishes the CHEST
 queue, scrubbed reports, and provider packet.
+Green Journal run `pdf-thegreenjournal-missing4-reharvest-a211471` tested 4
+`missing_pdf_harvest` rows from `thegreenjournal.com` and recovered
+0 `good_pdf`; all four stayed `missing_pdf_harvest`, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit
+`0e0bb05f #461 taxicab-pdf: add green journal provider packet` publishes the
+Green Journal queue, scrubbed report, and provider packet.
 
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
@@ -663,7 +669,7 @@ chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, APS, ACM, BMJ,
 Karger, Optica, JSTOR, Inlibra, Scientific.net, Persee, Nature, J-STAGE,
 University of Chicago Journals, ASME, Cairn, Physiology, ASCE, PDCNet, EurekaSelect, ActaHort, V&R eLibrary, IWA Publishing, AMS journals, JPET/ASPET, OnePetro, Mary Ann Liebert, AACR Figshare, AMPP, Healio, Sage Knowledge, IGI Global, UC Press, RUPress, Emerald, JACC, AJO, BioOne, Canadian Science Publishing, Edward Elgar, American Concrete Institute, American Journal of Surgery, AJOG, Scholarly Publishing Collective, Royal Society Publishing, KoreaScience, Journal of Pharmaceutical Sciences, and CHEST PDF-byte or click/download fetches
 before production route code. If continuing independent technical work, choose
-Green Journal from the latest full gate or test provider
+SciELO from the latest full gate or test provider
 guidance for accumulated packets. IOP is accepted as the first repeated
 whole-corpus PDF KPI lift; Karger is the latest accepted lift, and the gap to
 95% remains 4,089 rows.
