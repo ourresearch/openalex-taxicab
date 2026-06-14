@@ -12,8 +12,11 @@ is 1,837/6,293 `good_pdf` (29.19%), with 3,707 `no_pdf_expected`, 3,939
 `encrypted_or_unreadable_pdf`, 0 timeout, and 0 Taxicab API errors.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
-(`10.1007/bf03544238`) and left 11 missing. Current local work enriches
-missing-after-POST rows with post response status/id/content type/resolved URL.
+(`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
+instrumentation is pushed at `b9d5918`; the rerun shows the 11 remaining
+Springer misses were POST 201 HTML captures, not PDF records. A no-storage
+two-step Zyte probe also returned HTML for a failed sample, so prepare/support
+packet evidence before changing production routing.
 
 ## Agent Operating Rules
 

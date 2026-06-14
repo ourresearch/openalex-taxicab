@@ -11,8 +11,10 @@ Latest PDF metric: denominator-enriched full 10K read-only baseline is
 `encrypted_or_unreadable_pdf`, 0 timeout, and 0 `taxicab_error`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
-(`10.1007/bf03544238`) and left 11 rows missing. Current local work enriches
-missing-after-POST rows with reharvest response evidence.
+(`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
+instrumentation is pushed at commit `b9d5918`; the rerun shows all 11 misses
+received POST status 201 with `post content_type html`, not PDF. Treat Springer
+as a Zyte-support/evidence cluster before production code changes.
 
 ## Repository
 

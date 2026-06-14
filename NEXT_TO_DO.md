@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: commit PDF reharvest POST-context instrumentation, then rerun the Springer seed queue.
+Current gate: publish Springer PDF Zyte-support evidence and choose the next high-volume PDF cluster.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: python3 -m unittest discover -s tests
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && python3 scripts/publish-report.py 461
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -72,6 +72,14 @@ The first seed run `pdf-springer-missing-reharvest-12` recovered 1/12:
 `missing_pdf_harvest`. The current code change preserves POST status/id/content
 type/resolved URL on those missing-after-POST rows so the next rerun is
 diagnosable.
+
+The post-context rerun `pdf-springer-missing-reharvest-12-post-context-b9d5918`
+again recovered 1/12. All 11 misses show Taxicab POST status 201 with
+`post content_type html`, resolving to Springer article/chapter/rwe HTML pages
+instead of storing PDF records. A no-storage call to the existing two-step Zyte
+landing-page helper for `10.1007/978-3-662-67010-1_39` also returned HTML, not a
+PDF. Do not add Springer to the existing landing-page rewrite host list without
+new evidence; prepare a Zyte support packet first.
 
 ## Absolute paths
 
