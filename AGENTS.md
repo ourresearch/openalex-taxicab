@@ -19,6 +19,8 @@ PDF Browserbase evidence mode is pushed at commit `f424129`: it annotates non-go
 without changing baseline categories. The first Springer Browserbase session
 smoke returned `html_not_pdf`, confirming the sample is not browser-recoverable
 as a direct PDF.
+PDF runner row-timeout watchdog is local work after the Elsevier sample exposed
+slow/hung rows. Use `--row-timeout` for PDF reharvest samples before scaling.
 
 ## Repository
 
@@ -103,6 +105,15 @@ python3 scripts/taxicab_pdf_eval.py \
   --browserbase-timeout 60 \
   --out /tmp/taxicab-pdf-browserbase-springer \
   --run-id pdf-browserbase-springer-1
+python3 scripts/taxicab_pdf_eval.py \
+  --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
+  --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-25.csv \
+  --reharvest \
+  --workers 2 \
+  --row-timeout 120 \
+  --resume \
+  --out pdf_eval_runs/ \
+  --run-id pdf-elsevier-missing-reharvest-25-84b2c05
 ```
 
 For explicit low-concurrency reharvest samples, bound each row with

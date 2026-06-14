@@ -2,6 +2,7 @@ import json
 import os
 import tempfile
 import threading
+import time
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -111,6 +112,16 @@ class PdfLookupHandler(BaseHTTPRequestHandler):
 
 class DaemonThreadingHTTPServer(ThreadingHTTPServer):
     daemon_threads = True
+
+
+class HangingPdfLookupHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        time.sleep(5)
+        self.send_response(200)
+        self.end_headers()
+
+    def log_message(self, format, *args):
+        return
 
 
 class PdfEvalHarnessTests(unittest.TestCase):
@@ -484,6 +495,48 @@ class PdfEvalHarnessTests(unittest.TestCase):
                 self.assertFalse(row["browserbase_available"])
                 self.assertEqual(row["browserbase_verdict"], "not_configured")
                 self.assertTrue(Path(row["browserbase_evidence_path"]).exists())
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
+
+    def test_pdf_cli_row_timeout_classifies_timeout(self):
+        server = DaemonThreadingHTTPServer(("127.0.0.1", 0), HangingPdfLookupHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                doi_file = Path(tmp) / "sample.csv"
+                doi_file.write_text(
+                    "DOI,Link,PDF URL,title\n"
+                    "10.5555/hangingpdf,https://doi.org/10.5555/hangingpdf,https://example.org/hanging.pdf,Example Hanging PDF\n",
+                    encoding="utf-8",
+                )
+                code = main(
+                    [
+                        "--base-url",
+                        f"http://127.0.0.1:{server.server_port}",
+                        "--doi-file",
+                        str(doi_file),
+                        "--run-id",
+                        "pdf-row-timeout-test",
+                        "--out",
+                        tmp,
+                        "--workers",
+                        "1",
+                        "--timeout",
+                        "10",
+                        "--row-timeout",
+                        "1",
+                        "--retries",
+                        "0",
+                    ]
+                )
+                self.assertEqual(code, 0)
+                summary = json.loads((Path(tmp) / "pdf-row-timeout-test" / "summary.json").read_text())
+                self.assertEqual(summary["category_counts"]["timeout"], 1)
+                row = json.loads((Path(tmp) / "pdf-row-timeout-test" / "rows.ndjson").read_text().splitlines()[0])
+                self.assertIn("wall-clock timeout", row["error"])
         finally:
             server.shutdown()
             thread.join(timeout=5)

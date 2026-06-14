@@ -14,7 +14,9 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import replace
+from multiprocessing import Process, Queue
 from pathlib import Path
+from queue import Empty
 from typing import Any
 from urllib.parse import quote
 
@@ -36,6 +38,7 @@ from openalex_taxicab.pdf_eval_harness import (  # noqa: E402
     host_from_url,
     latest_pdf_row_by_doi,
     make_pdf_transport_row,
+    pdf_row_from_dict,
     read_pdf_rows_ndjson,
     write_pdf_artifacts,
 )
@@ -456,6 +459,163 @@ def maybe_add_pdf_browserbase(
     )
 
 
+def make_pdf_row_watchdog_timeout(
+    row: dict[str, str],
+    *,
+    run_id: str,
+    reharvest: bool,
+    row_timeout: float,
+) -> Any:
+    doi, input_url = row_doi_and_input_url(row)
+    corpus_pdf_url = row_pdf_url(row)
+    return make_pdf_transport_row(
+        run_id=run_id,
+        doi=doi,
+        work_id=row_work_id(row),
+        category=PDF_CATEGORY_TIMEOUT,
+        publisher=row_publisher(row),
+        input_url=input_url,
+        candidate_url=corpus_pdf_url,
+        candidate_source="corpus_pdf_url" if corpus_pdf_url else "",
+        mode="reharvest" if reharvest else "read_only",
+        error=f"row exceeded {row_timeout:g}s wall-clock timeout",
+    )
+
+
+def classify_live_pdf_row_worker(output_queue: Queue, token: int, row: dict[str, str], **kwargs: Any) -> None:
+    try:
+        client = TaxicabClient(kwargs["base_url"], timeout=kwargs["timeout"], retries=kwargs["retries"])
+        result = classify_live_pdf_row(row, client=client, run_id=kwargs["run_id"], reharvest=kwargs["reharvest"])
+        result = maybe_add_pdf_browserbase(
+            result,
+            with_browserbase=kwargs["with_browserbase"],
+            browserbase_mode=kwargs["browserbase_mode"],
+            browserbase_timeout=kwargs["browserbase_timeout"],
+            evidence_dir=Path(kwargs["evidence_dir"]),
+        )
+    except Exception as exc:
+        doi, input_url = row_doi_and_input_url(row)
+        corpus_pdf_url = row_pdf_url(row)
+        result = make_pdf_transport_row(
+            run_id=kwargs["run_id"],
+            doi=doi,
+            work_id=row_work_id(row),
+            category=PDF_CATEGORY_TAXICAB_ERROR,
+            publisher=row_publisher(row),
+            input_url=input_url,
+            candidate_url=corpus_pdf_url,
+            candidate_source="corpus_pdf_url" if corpus_pdf_url else "",
+            mode="reharvest" if kwargs["reharvest"] else "read_only",
+            error=f"worker exception: {exc}",
+        )
+    output_queue.put((token, result.to_dict()))
+
+
+def append_completed_pdf_row(
+    handle: Any,
+    completed: list[Any],
+    row: Any,
+    *,
+    idx: int,
+    total: int,
+    progress_every: int,
+) -> None:
+    completed.append(row)
+    handle.write(json.dumps(row.to_dict(), ensure_ascii=False, sort_keys=True) + "\n")
+    handle.flush()
+    if idx % max(1, progress_every) == 0:
+        print(f"{idx}/{total} {row.category} {row.doi}")
+
+
+def run_pdf_rows_with_process_watchdog(
+    rows_to_run: list[dict[str, str]],
+    *,
+    args: argparse.Namespace,
+    run_id: str,
+    evidence_dir: Path,
+    workers: int,
+    append_handle: Any,
+    completed: list[Any],
+) -> None:
+    output_queue: Queue = Queue()
+    pending = list(enumerate(rows_to_run))
+    active: dict[int, tuple[Process, dict[str, str], float]] = {}
+    finished_tokens: set[int] = set()
+    written = 0
+    poll_seconds = 0.2
+
+    def start_next() -> None:
+        token, input_row = pending.pop(0)
+        process = Process(
+            target=classify_live_pdf_row_worker,
+            args=(output_queue, token, input_row),
+            kwargs={
+                "base_url": args.base_url,
+                "timeout": args.timeout,
+                "retries": args.retries,
+                "run_id": run_id,
+                "reharvest": args.reharvest,
+                "with_browserbase": args.with_browserbase,
+                "browserbase_mode": args.browserbase_mode,
+                "browserbase_timeout": args.browserbase_timeout,
+                "evidence_dir": str(evidence_dir),
+            },
+        )
+        process.start()
+        active[token] = (process, input_row, time.monotonic())
+
+    while pending or active:
+        while pending and len(active) < workers:
+            start_next()
+
+        while True:
+            try:
+                token, row_data = output_queue.get(timeout=poll_seconds)
+            except Empty:
+                break
+            if token in finished_tokens:
+                continue
+            process_info = active.pop(token, None)
+            if process_info is not None:
+                process_info[0].join(timeout=1)
+            finished_tokens.add(token)
+            written += 1
+            append_completed_pdf_row(
+                append_handle,
+                completed,
+                pdf_row_from_dict(row_data),
+                idx=written,
+                total=len(rows_to_run),
+                progress_every=args.progress_every,
+            )
+
+        now = time.monotonic()
+        for token, (process, input_row, started_at) in list(active.items()):
+            if now - started_at <= args.row_timeout:
+                continue
+            process.terminate()
+            process.join(timeout=5)
+            if process.is_alive():
+                process.kill()
+                process.join(timeout=5)
+            active.pop(token, None)
+            finished_tokens.add(token)
+            written += 1
+            append_completed_pdf_row(
+                append_handle,
+                completed,
+                make_pdf_row_watchdog_timeout(
+                    input_row,
+                    run_id=run_id,
+                    reharvest=args.reharvest,
+                    row_timeout=args.row_timeout,
+                ),
+                idx=written,
+                total=len(rows_to_run),
+                progress_every=args.progress_every,
+            )
+
+
 def collect_pdf_browserbase_evidence(
     row: Any,
     *,
@@ -660,7 +820,17 @@ def run_live(args: argparse.Namespace, run_id: str) -> int:
         )
 
     with open(rows_path, "a", encoding="utf-8") as handle:
-        if workers == 1:
+        if args.row_timeout and args.row_timeout > 0:
+            run_pdf_rows_with_process_watchdog(
+                rows_to_run,
+                args=args,
+                run_id=run_id,
+                evidence_dir=evidence_dir,
+                workers=workers,
+                append_handle=handle,
+                completed=completed,
+            )
+        elif workers == 1:
             for idx, row in enumerate(rows_to_run, start=1):
                 result = classify_live_pdf_row(row, client=get_client(), run_id=run_id, reharvest=args.reharvest)
                 result = maybe_add_pdf_browserbase(
@@ -712,6 +882,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--states")
     parser.add_argument("--workers", type=int, default=8)
     parser.add_argument("--timeout", type=float, default=60)
+    parser.add_argument("--row-timeout", type=float, default=0, help="Optional wall-clock timeout per row; uses killable child processes when set")
     parser.add_argument("--retries", type=int, default=3)
     parser.add_argument("--run-id")
     parser.add_argument("--resume", action="store_true")

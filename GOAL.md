@@ -58,8 +58,9 @@ Gate 8: add gated PDF reharvest mode. [done]
 Gate 9: add reharvest POST-context instrumentation. [done]
 Gate 10: create Springer Zyte support/evidence packet. [done]
 Gate 11: add PDF Browserbase evidence mode. [done]
-Gate 12: choose next cluster and continue PDF improvement loop until >=95%. [in progress]
-Gate 13: push verified PDF production changes to Taxicab main.
+Gate 12: add PDF row-timeout watchdog for slow PDF/CDN rows. [in progress]
+Gate 13: choose next cluster and continue PDF improvement loop until >=95%.
+Gate 14: push verified PDF production changes to Taxicab main.
 ```
 
 ## Latest Accepted Metrics
@@ -100,6 +101,8 @@ PDF:
   browserbase credential source: ignored /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env contains BROWSERBASE_API_KEY; Taxicab .env/.env.aws do not
   browserbase evidence commit: f424129 taxicab: add pdf browserbase evidence mode
   springer browserbase smoke: pdf-browserbase-springer-1-f424129, verdict html_not_pdf for 10.1007/978-1-4419-6247-8_15015; final URL https://link.springer.com/rwe/10.1007/978-1-4419-6247-8_15015; content_type text/html; not PDF
+  elsevier missing queue: 25 true missing_pdf_harvest rows generated from pdf-full10k-denominator-3f7cd47
+  elsevier interrupted sample: 23/25 rows completed before KeyboardInterrupt; 4 good_pdf, 6 corrupt_or_truncated_pdf, 13 missing_pdf_harvest, 0 timeout/taxicab_error among completed rows; add row-timeout before rerun
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
@@ -207,6 +210,10 @@ python3 -m unittest tests.test_pdf_eval_harness: 17 tests passed
 python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke-browserbase-mode --out /tmp/taxicab-pdf-fixture-smoke-browserbase-mode: passed, 15 fixtures, 15 categories
 python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/springer-missing-12.csv --limit 1 --with-browserbase --browserbase-mode session --browserbase-timeout 60 --out pdf_eval_runs/ --run-id pdf-browserbase-springer-1-f424129 --timeout 30 --retries 1 --progress-every 1: passed with ignored Parseland env Browserbase key
 result: Browserbase verdict html_not_pdf; browserbase_available false; final URL was Springer RWE HTML page, not PDF
+
+PDF row-timeout watchdog:
+python3 -m unittest tests.test_pdf_eval_harness: 18 tests passed
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke-row-timeout --out /tmp/taxicab-pdf-fixture-smoke-row-timeout: passed, 15 fixtures, 15 categories
 ```
 
 ## Provider Policy

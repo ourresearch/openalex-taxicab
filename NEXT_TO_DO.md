@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: publish PDF Browserbase evidence to #461, then choose next high-volume PDF cluster.
+Current gate: commit PDF row-timeout watchdog, resume Elsevier missing-PDF sample with bounded rows, publish #461 evidence.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && python3 scripts/publish-report.py 461
+Next exact command: python3 -m unittest discover -s tests
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -89,6 +89,15 @@ Using the ignored Parseland eval env key, the one-row Springer Browserbase
 session smoke `pdf-browserbase-springer-1-f424129` returned `html_not_pdf` for
 `10.1007/978-1-4419-6247-8_15015` and landed on
 `https://link.springer.com/rwe/10.1007/978-1-4419-6247-8_15015`, not PDF bytes.
+
+Elsevier queue:
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-25.csv`
+contains 25 true `missing_pdf_harvest` rows generated from
+`pdf_eval_runs/pdf-full10k-denominator-3f7cd47/rows.ndjson`. The first
+unbounded reharvest attempt completed 23/25 rows before manual interrupt:
+4 `good_pdf`, 6 `corrupt_or_truncated_pdf`, 13 `missing_pdf_harvest`, and 0
+timeout / 0 `taxicab_error` among completed rows. Add and use `--row-timeout`
+before resuming that run.
 
 ## Absolute paths
 
