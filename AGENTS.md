@@ -447,10 +447,15 @@ provider packet. Next tail lane is Nomos eLibrary on
 four rows stayed `missing_pdf_harvest` after status-201 HTML captures resolving
 to `www.inlibra.com/de/document/view/detail/uuid/...`, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `d7d1220d` publishes the Nomos queue, scrubbed
-report, and provider packet. Next tail lane is Journal of Pediatric Surgery on
-`www.jpedsurg.org` from the latest full gate.
+report, and provider packet. Journal of Pediatric Surgery tail run
+`pdf-jpedsurg-missing4-reharvest-66bf4f1` recovered 0/4 `good_pdf`; all four
+rows stayed `missing_pdf_harvest` after status-201 HTML captures resolving to
+`www.jpedsurg.org/article/.../abstract`, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `d6c52a5b` publishes the JPedsurg queue,
+scrubbed report, and provider packet. Next tail lane is JBC on `www.jbc.org`
+from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`b4bbab0`.
+`66bf4f1`.
 
 ## Repository
 

@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: Nomos eLibrary `www.nomos-elibrary.de` tail sample is recorded at oxjobs d7d1220d; Journal of Pediatric Surgery `www.jpedsurg.org` tail sample is next.
+Current gate: Journal of Pediatric Surgery `www.jpedsurg.org` tail sample is recorded at oxjobs d6c52a5b; JBC `www.jbc.org` tail sample is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.jpedsurg\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.jpedsurg.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/jpedsurg-missing-25.csv
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.jbc\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.jbc.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/jbc-missing-25.csv
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -774,6 +774,14 @@ rows stayed `missing_pdf_harvest` after status-201 HTML captures resolving to
 0 `taxicab_error`. Oxjobs commit
 `d7d1220d #461 taxicab-pdf: add nomos elibrary tail packet` publishes the
 queue, scrubbed report, and provider packet.
+Journal of Pediatric Surgery bounded reharvest
+`pdf-jpedsurg-missing4-reharvest-66bf4f1` tested 4 rows from
+`www.jpedsurg.org` and accepted 0 `good_pdf`; all four rows stayed
+`missing_pdf_harvest` after status-201 HTML captures resolving to
+`www.jpedsurg.org/article/.../abstract`, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit
+`d6c52a5b #461 taxicab-pdf: add jpedsurg tail packet` publishes the queue,
+scrubbed report, and provider packet.
 
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
@@ -783,9 +791,9 @@ University of Chicago Journals, ASME, Cairn, Physiology, ASCE, PDCNet, EurekaSel
 before production route code, plus De Gruyter Brill, AIAA, Neurology, Begell
 House, MIT Press Direct, RSNA, Gold Journal, ATS Journals, and Transcript
 Verlag residual/candidate-quality rows, PNAS corrupt PDF rows, Peter Lang
-HTML/no-record rows, and Nomos/Inlibra HTML/no-record rows. If continuing
-independent technical work, choose Journal of Pediatric Surgery
-`www.jpedsurg.org`
+HTML/no-record rows, Nomos/Inlibra HTML/no-record rows, and JPedsurg
+abstract-HTML/no-record rows. If continuing independent technical work, choose
+JBC `www.jbc.org`
 rows from the latest full gate or test
 provider guidance for accumulated
 packets. IOP is accepted as the first repeated
