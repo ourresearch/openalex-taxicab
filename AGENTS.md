@@ -50,6 +50,8 @@ Taxicab commit `69553ae` normalizes provider-probe host filters; the corrected
 ScienceDirect current-missing sample recovered 0/10, with nine
 `html_instead_of_pdf` rows and one `js_redirect_unresolved`. Treat these as
 provider/support evidence, not Taxicab route-code candidates.
+Oxjobs #461 commit `d8e62ef8` refreshes the combined Zyte PDF-byte support
+packet with these current ScienceDirect, Wiley, and Springer follow-up probes.
 Current tooling slice: `scripts/provider_pdf_probe.py` adds a generic
 no-storage Zyte provider strategy probe. It reads rows/CSV queues, strips query
 strings/fragments from artifacts, never calls Taxicab POST, and writes

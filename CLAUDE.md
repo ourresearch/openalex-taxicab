@@ -45,6 +45,8 @@ DOI-mismatch PDF; Springer `link.springer.com/content/pdf/` recovered 0/10;
 ScienceDirect current missing recovered 0/10 after Taxicab commit `69553ae`
 normalized provider-probe host filters. Treat these as provider/support
 evidence, not production route-code candidates.
+Oxjobs #461 commit `d8e62ef8` refreshes the combined Zyte PDF-byte support
+packet with these current ScienceDirect, Wiley, and Springer follow-up probes.
 Current tooling slice: generic no-storage provider probing is implemented in
 `scripts/provider_pdf_probe.py` with tests in `tests/test_provider_pdf_probe.py`.
 It does not call Taxicab POST and does not write R2/DynamoDB. It sanitizes URLs
