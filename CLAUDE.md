@@ -31,7 +31,9 @@ The 100-row Elsevier run exposed an eval bug: a ScienceDirect `first-page-pdf`
 preview was counted as `good_pdf`. Current branch code classifies first-page or
 preview PDF URLs as `supplement_or_preview_pdf`. Corrected Elsevier 100-row
 read-only result: 7/100 `good_pdf`, 92 missing, one preview, 0 timeout, and
-0 Taxicab errors.
+0 Taxicab errors. Oxjobs #461 published this gate at commit `3d8a5fa0`.
+Do not scale blind Elsevier reharvest from this result; split
+ScienceDirect/Lancet/Cell/direct-asset/router rows into route/support clusters.
 
 ## Agent Operating Rules
 

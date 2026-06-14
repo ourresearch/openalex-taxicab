@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: publish corrected Elsevier 100-row PDF result to #461, then choose whether to scale Elsevier or move to the next larger cluster.
+Current gate: Elsevier route/support clustering after the corrected 100-row PDF gate.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && git pull --rebase origin main && python3 scripts/publish-report.py 461
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -125,9 +125,14 @@ one timeout, and 0 `taxicab_error`. Raw rows/hardness contain signed
 ScienceDirect asset URLs; do not publish them unsanitized.
 
 The corrected read-only run
-`pdf-elsevier-missing-readonly-previewfix-41d0378` returned 7/100 `good_pdf`,
+`pdf-elsevier-missing-readonly-previewfix-9b7d84b` returned 7/100 `good_pdf`,
 92 missing, and one `supplement_or_preview_pdf` after the classifier fix for
 `first-page-pdf` URLs. This is the current honest Elsevier sample metric.
+Oxjobs #461 published this result at commit
+`3d8a5fa0 #461 taxicab-pdf: publish elsevier 100 gate`. The next work should
+split Elsevier into ScienceDirect, Lancet, Cell, direct-asset, router,
+corrupt/truncated POST, and Zyte-support clusters. Do not scale blind reharvest
+from the 7/100 readback.
 
 ## Absolute paths
 

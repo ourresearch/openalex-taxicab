@@ -33,6 +33,8 @@ corrupt/truncated POST outcomes, 48 missing, and one timeout. A classifier
 correction now treats `first-page-pdf` URLs as `supplement_or_preview_pdf`; the
 corrected read-only result is 7/100 `good_pdf`, 92 missing, one preview, and
 0 timeout / 0 `taxicab_error`.
+Oxjobs #461 published this 100-row gate at commit `3d8a5fa0`. Next work is
+Elsevier route/support clustering, not more blind reharvest.
 
 ## Repository
 
@@ -119,13 +121,14 @@ python3 scripts/taxicab_pdf_eval.py \
   --run-id pdf-browserbase-springer-1
 python3 scripts/taxicab_pdf_eval.py \
   --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
-  --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-25.csv \
+  --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-100.csv \
   --out pdf_eval_runs/ \
-  --run-id pdf-elsevier-missing-readonly-after-reharvest-be2f5c7 \
+  --run-id pdf-elsevier-missing-readonly-previewfix-9b7d84b \
   --workers 4 \
+  --row-timeout 120 \
   --timeout 60 \
   --retries 1 \
-  --progress-every 1
+  --progress-every 10
 ```
 
 For explicit low-concurrency reharvest samples, bound each row with
