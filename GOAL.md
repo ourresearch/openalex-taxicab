@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999ci complete; AJConline `ajconline.org` recovered 0/3 PDFs, read-only confirmation returned all three rows to `missing_pdf_harvest`, and the provider packet is recorded in oxjobs at b4b2a251. Gate 21.999cj, IATED `library.iated.org` tail sample, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/iated-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-iated-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
+Current phase: Gate 21.999cj complete; IATED `library.iated.org` recovered 0/3 PDFs, read-only confirmation returned all three rows to `missing_pdf_harvest`, and the provider packet is recorded in oxjobs at 2fb1349a. Gate 21.999ck, Brepols `www.brepolsonline.net` tail sample, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/brepolsonline-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-brepolsonline-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
 ```
 
 After Gate 0 is pushed:
@@ -167,7 +167,8 @@ Gate 21.999cf: run Duke University Press `read.dukeupress.edu` tail sample and p
 Gate 21.999cg: run GeoScienceWorld `pubs.geoscienceworld.org` tail sample and provider packet. [done, oxjobs b3ba464e]
 Gate 21.999ch: run Indian Journals `indianjournals.com` tail sample and provider packet. [done, oxjobs f4e4fe37]
 Gate 21.999ci: run AJConline `ajconline.org` tail sample and provider packet. [done, oxjobs b4b2a251]
-Gate 21.999cj: run IATED `library.iated.org` tail sample. [next]
+Gate 21.999cj: run IATED `library.iated.org` tail sample and provider packet. [done, oxjobs 2fb1349a]
+Gate 21.999ck: run Brepols `www.brepolsonline.net` tail sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -500,7 +501,11 @@ PDF:
   AJConline read-only confirmation: pdf-ajconline-missing3-readonly-261a3ca, 0 durable good_pdf, 3 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   AJConline finding: every candidate article PDF route resolved to article abstract HTML with status-201 HTML and no durable PDF record
   oxjobs #461 AJConline packet commit: b4b2a251 #461 taxicab-pdf: add ajconline tail packet
-  next lane: IATED library.iated.org sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/iated-missing-25.csv, or send/test provider packets if Zyte guidance is available
+  IATED bounded reharvest: pdf-iated-missing3-reharvest-4a1e0d9, 3 DOI candidates, 0 accepted good_pdf, 3 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
+  IATED read-only confirmation: pdf-iated-missing3-readonly-4a1e0d9, 0 durable good_pdf, 3 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  IATED finding: every download route returned status-400 invalid PDF content and no durable PDF record
+  oxjobs #461 IATED packet commit: 2fb1349a #461 taxicab-pdf: add iated tail packet
+  next lane: Brepols www.brepolsonline.net sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/brepolsonline-missing-25.csv, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

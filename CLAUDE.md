@@ -527,10 +527,16 @@ three candidate article PDF routes resolved to article abstract HTML, and
 read-only confirmation `pdf-ajconline-missing3-readonly-261a3ca` returned all
 three rows to `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`.
 Oxjobs commit `b4b2a251 #461 taxicab-pdf: add ajconline tail packet` publishes
-the queue, summaries, reports, provider packet, and next IATED queue. Next tail
-lane is IATED on `library.iated.org` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/iated-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `261a3ca`.
+the queue, summaries, reports, provider packet, and next IATED queue. IATED tail
+run `pdf-iated-missing3-reharvest-4a1e0d9` recovered 0/3 `good_pdf`; all three
+download routes returned invalid PDF content, and read-only confirmation
+`pdf-iated-missing3-readonly-4a1e0d9` returned all three rows to
+`missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`2fb1349a #461 taxicab-pdf: add iated tail packet` publishes the queue,
+summaries, reports, provider packet, and next Brepols queue. Next tail lane is
+Brepols on `www.brepolsonline.net` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/brepolsonline-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `4a1e0d9`.
 
 ## Agent Operating Rules
 
