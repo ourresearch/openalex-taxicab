@@ -29,10 +29,12 @@ publishes the scrubbed J-STAGE corrupt summary/report. J-STAGE encrypted probe
 reached application/pdf bytes for all rows but each stayed
 `encrypted_or_unreadable_pdf`; browser HTML returned the same 174-byte shells.
 Oxjobs #461 commit `a1073dd4` publishes the scrubbed encrypted summary/report.
-Use these probes for residual subtype evidence before production PDF route
-changes.
+J-STAGE missing probe `jstage-missing-provider-probe-3-31663bc` recovered 0/3:
+two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
+#461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
+probes for residual subtype evidence before production PDF route changes.
 Next exact command:
-`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category missing_pdf_harvest --host jstage.jst.go.jp --limit 3 --strategies default_body,browser_html --run-id jstage-missing-provider-probe-3-31663bc --out pdf_eval_runs/`.
+`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category missing_pdf_harvest --host www.tandfonline.com --limit 3 --strategies default_body,accept_pdf,google_referer,browser_html --run-id taylor-tandfonline-missing-provider-probe-3-31663bc --out pdf_eval_runs/`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context

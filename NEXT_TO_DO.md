@@ -11,14 +11,15 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: generic no-storage provider probe is implemented at Taxicab commit `31663bc`, and oxjobs #461 is pushed at `a1073dd4` with the scrubbed J-STAGE encrypted-provider probe result.
+Current gate: generic no-storage provider probe is implemented at Taxicab commit `31663bc`, and oxjobs #461 is pushed at `e9a4458a` with the scrubbed J-STAGE missing-provider probe result.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Current tooling slice: generic no-storage provider probing in `scripts/provider_pdf_probe.py`. It reads full-gate rows or CSV queues, sanitizes URLs, tests named Zyte strategies, and writes local probe artifacts without Taxicab POST/R2/DynamoDB writes.
 IOP residual probe `iop-corrupt-provider-probe-3-31663bc` recovered 0/3 PDFs: one PerfDrive/captcha block and two corrupt application/pdf responses with no page objects. Treat residual IOP as Zyte/support or validator triage, not route code.
 J-STAGE corrupt-provider probe `jstage-corrupt-provider-probe-3b-31663bc` recovered 0/3 residual corrupt PDFs: two application/pdf responses still had no page objects and one row timed out empty; browser HTML returned PDF-viewer shells. Treat this as Zyte binary-mode or validator-byte triage before any route-code change.
 J-STAGE encrypted-provider probe `jstage-encrypted-provider-probe-3-31663bc` recovered 0/3 residual encrypted/unreadable PDFs: default body reached application/pdf bytes for all three rows but every response stayed `encrypted_or_unreadable_pdf`; browser HTML returned PDF-viewer shells. Treat this as legacy/encrypted PDF handling or validator-byte triage.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category missing_pdf_harvest --host jstage.jst.go.jp --limit 3 --strategies default_body,browser_html --run-id jstage-missing-provider-probe-3-31663bc --out pdf_eval_runs/
+J-STAGE missing-provider probe `jstage-missing-provider-probe-3-31663bc` recovered 0/3 residual missing PDFs: two rows stayed `js_redirect_unresolved`, and one row timed out empty/browser-shell. J-STAGE residuals now move to provider/support or validator-byte triage.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category missing_pdf_harvest --host www.tandfonline.com --limit 3 --strategies default_body,accept_pdf,google_referer,browser_html --run-id taylor-tandfonline-missing-provider-probe-3-31663bc --out pdf_eval_runs/
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -91,8 +92,12 @@ summary/report. J-STAGE encrypted-provider probe
 encrypted/unreadable PDFs; default body reached PDF bytes but all rows remained
 encrypted/unreadable. Oxjobs #461 commit
 `a1073dd4 #461 taxicab-pdf: record jstage encrypted probe` publishes the
-scrubbed summary/report. Next lane: J-STAGE missing/login subtype triage on
-`jstage.jst.go.jp` using `scripts/provider_pdf_probe.py`.
+scrubbed summary/report. J-STAGE missing-provider probe
+`jstage-missing-provider-probe-3-31663bc` recovered 0/3 residual missing rows:
+two stayed JS redirects and one timed out empty/browser-shell. Oxjobs #461
+commit `e9a4458a #461 taxicab-pdf: record jstage missing probe` publishes the
+scrubbed summary/report. Next lane: Taylor/TandF missing-PDF residual probing
+on `www.tandfonline.com` using `scripts/provider_pdf_probe.py`.
 
 Gated PDF reharvest mode is implemented locally. It POSTs the corpus `PDF URL`
 when present, caps workers at 4, waits for write/read consistency, then re-runs
