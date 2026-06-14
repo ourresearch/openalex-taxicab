@@ -15,6 +15,10 @@ Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 instrumentation is pushed at commit `b9d5918`; the rerun shows all 11 misses
 received POST status 201 with `post content_type html`, not PDF. Treat Springer
 as a Zyte-support/evidence cluster before production code changes.
+PDF Browserbase evidence mode is local work: it annotates non-good PDF rows
+without changing baseline categories. The first Springer Browserbase session
+smoke returned `html_not_pdf`, confirming the sample is not browser-recoverable
+as a direct PDF.
 
 ## Repository
 
@@ -93,10 +97,12 @@ python3 scripts/taxicab_pdf_eval.py \
 python3 scripts/taxicab_pdf_eval.py \
   --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
   --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/springer-missing-12.csv \
-  --reharvest \
-  --workers 2 \
-  --out pdf_eval_runs/ \
-  --run-id pdf-springer-missing-reharvest-12-post-context
+  --limit 1 \
+  --with-browserbase \
+  --browserbase-mode session \
+  --browserbase-timeout 60 \
+  --out /tmp/taxicab-pdf-browserbase-springer \
+  --run-id pdf-browserbase-springer-1
 ```
 
 For explicit low-concurrency reharvest samples, bound each row with

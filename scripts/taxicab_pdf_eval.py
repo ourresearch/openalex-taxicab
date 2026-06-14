@@ -7,6 +7,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import subprocess
 import sys
 import threading
@@ -22,6 +23,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from openalex_taxicab.pdf_eval_harness import (  # noqa: E402
     PDF_CATEGORIES,
+    PDF_CATEGORY_GOOD_PDF,
     PDF_CATEGORY_NO_PDF_EXPECTED,
     PDF_CATEGORY_TAXICAB_ERROR,
     PDF_CATEGORY_TIMEOUT,
@@ -38,7 +40,7 @@ from openalex_taxicab.pdf_eval_harness import (  # noqa: E402
     write_pdf_artifacts,
 )
 from openalex_taxicab.publisher_index import classify_row as classify_publisher  # noqa: E402
-from scripts.taxicab_eval import TaxicabClient  # noqa: E402
+from scripts.taxicab_eval import TaxicabClient, create_browserbase_session, release_browserbase_session  # noqa: E402
 
 
 DEFAULT_CORPUS = Path("/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv")
@@ -429,9 +431,183 @@ def classify_live_pdf_row(
     )
 
 
+def maybe_add_pdf_browserbase(
+    row: Any,
+    *,
+    with_browserbase: bool,
+    browserbase_mode: str,
+    browserbase_timeout: float,
+    evidence_dir: Path,
+) -> Any:
+    if not with_browserbase or row.category == PDF_CATEGORY_GOOD_PDF:
+        return row
+    evidence = collect_pdf_browserbase_evidence(
+        row,
+        evidence_dir=evidence_dir,
+        mode=browserbase_mode,
+        timeout_seconds=browserbase_timeout,
+    )
+    return replace(
+        row,
+        browserbase_available=bool(evidence.get("available")),
+        browserbase_final_url=str(evidence.get("final_url") or ""),
+        browserbase_evidence_path=str(evidence.get("evidence_path") or ""),
+        browserbase_verdict=str(evidence.get("verdict") or ""),
+    )
+
+
+def collect_pdf_browserbase_evidence(
+    row: Any,
+    *,
+    evidence_dir: Path,
+    mode: str = "session",
+    timeout_seconds: float = 60,
+) -> dict[str, Any]:
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+    out_base = evidence_dir / hashlib.sha1(row.doi.lower().encode()).hexdigest()
+    target_url = row.candidate_url or row.resolved_url or row.input_url or f"https://doi.org/{row.doi}"
+    api_key = os.environ.get("BROWSERBASE_API_KEY")
+    if not api_key:
+        payload = {
+            "available": False,
+            "verdict": "not_configured",
+            "doi": row.doi,
+            "target_url": target_url,
+            "mode": mode,
+        }
+        out_base.with_suffix(".json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        payload["evidence_path"] = str(out_base.with_suffix(".json"))
+        return payload
+    if mode != "session":
+        payload = {
+            "available": False,
+            "verdict": "unsupported_mode",
+            "doi": row.doi,
+            "target_url": target_url,
+            "mode": mode,
+            "error": "PDF Browserbase evidence currently supports session mode only",
+        }
+        out_base.with_suffix(".json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        payload["evidence_path"] = str(out_base.with_suffix(".json"))
+        return payload
+    return collect_pdf_browserbase_session_evidence(
+        row,
+        evidence_dir=evidence_dir,
+        out_base=out_base,
+        target_url=target_url,
+        api_key=api_key,
+        timeout_seconds=timeout_seconds,
+    )
+
+
+def collect_pdf_browserbase_session_evidence(
+    row: Any,
+    *,
+    evidence_dir: Path,
+    out_base: Path,
+    target_url: str,
+    api_key: str,
+    timeout_seconds: float,
+) -> dict[str, Any]:
+    session_id = ""
+    try:
+        from playwright.sync_api import sync_playwright
+
+        session = create_browserbase_session(api_key=api_key, doi=row.doi, timeout_seconds=timeout_seconds)
+        session_id = session["id"]
+        connect_url = session["connect_url"]
+
+        final_url = target_url
+        status_code = None
+        content_type = ""
+        body = b""
+        title = ""
+        screenshot_path = Path("")
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.connect_over_cdp(connect_url, timeout=int(timeout_seconds * 1000))
+            context = browser.contexts[0] if browser.contexts else browser.new_context()
+            page = context.pages[0] if context.pages else context.new_page()
+            response = page.goto(target_url, wait_until="domcontentloaded", timeout=int(timeout_seconds * 1000))
+            try:
+                page.wait_for_load_state("networkidle", timeout=min(10000, int(timeout_seconds * 1000)))
+            except Exception:
+                pass
+            page.wait_for_timeout(3000)
+            final_url = page.url
+            try:
+                title = page.title()
+            except Exception:
+                title = ""
+            if response is not None:
+                status_code = response.status
+                content_type = response.headers.get("content-type", "")
+                try:
+                    body = response.body()
+                except Exception:
+                    body = b""
+            if not body:
+                try:
+                    html = page.content()
+                except Exception:
+                    html = ""
+                body = html.encode("utf-8", errors="replace")
+            screenshot_path = out_base.with_suffix(".png")
+            try:
+                page.screenshot(path=str(screenshot_path), full_page=True, timeout=10000)
+            except Exception:
+                screenshot_path = Path("")
+            browser.close()
+
+        is_pdf = body.startswith(b"%PDF-") or "application/pdf" in content_type.lower()
+        if is_pdf:
+            evidence_path = out_base.with_suffix(".pdf")
+            evidence_path.write_bytes(body)
+            verdict = "good_pdf_candidate"
+        else:
+            evidence_path = out_base.with_suffix(".html")
+            evidence_path.write_text(body.decode("utf-8", errors="replace"), encoding="utf-8")
+            verdict = "html_not_pdf"
+        payload = {
+            "available": bool(is_pdf),
+            "verdict": verdict,
+            "doi": row.doi,
+            "target_url": target_url,
+            "final_url": final_url,
+            "mode": "session",
+            "session_id": session_id,
+            "status_code": status_code,
+            "content_type": content_type,
+            "size_bytes": len(body),
+            "is_pdf": bool(is_pdf),
+            "title": title,
+            "evidence_path": str(evidence_path),
+        }
+        if screenshot_path:
+            payload["screenshot_path"] = str(screenshot_path)
+        out_base.with_suffix(".json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        return payload
+    except Exception as exc:
+        payload = {
+            "available": False,
+            "verdict": "error",
+            "error": str(exc),
+            "doi": row.doi,
+            "target_url": target_url,
+            "mode": "session",
+            "session_id": session_id,
+        }
+        out_base.with_suffix(".json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        payload["evidence_path"] = str(out_base.with_suffix(".json"))
+        return payload
+    finally:
+        if session_id:
+            try:
+                release_browserbase_session(api_key=api_key, session_id=session_id)
+            except Exception:
+                pass
+
+
 def run_live(args: argparse.Namespace, run_id: str) -> int:
-    if args.with_browserbase:
-        raise SystemExit("--with-browserbase PDF mode is not implemented yet")
     if args.smoke:
         corpus_rows = PDF_SMOKE_DOIS
         corpus_label = "built-in pdf smoke"
@@ -461,6 +637,9 @@ def run_live(args: argparse.Namespace, run_id: str) -> int:
     if args.reharvest:
         workers = min(workers, 4)
         print("WARNING: --reharvest issues POST /taxicab requests and may spend Zyte credits.", file=sys.stderr)
+    if args.with_browserbase:
+        workers = min(workers, 2)
+    evidence_dir = run_dir / "browserbase"
     thread_local = threading.local()
 
     def get_client() -> TaxicabClient:
@@ -471,12 +650,26 @@ def run_live(args: argparse.Namespace, run_id: str) -> int:
         return client
 
     def classify_with_thread_client(row: dict[str, str]) -> Any:
-        return classify_live_pdf_row(row, client=get_client(), run_id=run_id, reharvest=args.reharvest)
+        result = classify_live_pdf_row(row, client=get_client(), run_id=run_id, reharvest=args.reharvest)
+        return maybe_add_pdf_browserbase(
+            result,
+            with_browserbase=args.with_browserbase,
+            browserbase_mode=args.browserbase_mode,
+            browserbase_timeout=args.browserbase_timeout,
+            evidence_dir=evidence_dir,
+        )
 
     with open(rows_path, "a", encoding="utf-8") as handle:
         if workers == 1:
             for idx, row in enumerate(rows_to_run, start=1):
                 result = classify_live_pdf_row(row, client=get_client(), run_id=run_id, reharvest=args.reharvest)
+                result = maybe_add_pdf_browserbase(
+                    result,
+                    with_browserbase=args.with_browserbase,
+                    browserbase_mode=args.browserbase_mode,
+                    browserbase_timeout=args.browserbase_timeout,
+                    evidence_dir=evidence_dir,
+                )
                 completed.append(result)
                 handle.write(json.dumps(result.to_dict(), ensure_ascii=False, sort_keys=True) + "\n")
                 handle.flush()

@@ -1,9 +1,11 @@
 import json
+import os
 import tempfile
 import threading
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from unittest.mock import patch
 
 from openalex_taxicab.pdf_eval_harness import (
     PDF_CATEGORIES,
@@ -439,6 +441,49 @@ class PdfEvalHarnessTests(unittest.TestCase):
                 self.assertEqual(row["resolved_url"], "https://example.org/fulltext.pdf")
                 self.assertIn("reharvest status 200", row["error"])
                 self.assertIn("post id pdf-good", row["validation_errors"][-1])
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
+
+    def test_pdf_cli_browserbase_not_configured_records_evidence(self):
+        server = DaemonThreadingHTTPServer(("127.0.0.1", 0), PdfLookupHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, {"BROWSERBASE_API_KEY": ""}):
+                doi_file = Path(tmp) / "sample.csv"
+                doi_file.write_text(
+                    "DOI,Link,PDF URL,title\n"
+                    "10.5555/missingpdf,https://doi.org/10.5555/missingpdf,https://example.org/fulltext.pdf,Example Full Text Article\n",
+                    encoding="utf-8",
+                )
+                code = main(
+                    [
+                        "--base-url",
+                        f"http://127.0.0.1:{server.server_port}",
+                        "--doi-file",
+                        str(doi_file),
+                        "--run-id",
+                        "pdf-browserbase-not-configured-test",
+                        "--out",
+                        tmp,
+                        "--workers",
+                        "1",
+                        "--timeout",
+                        "2",
+                        "--retries",
+                        "0",
+                        "--with-browserbase",
+                    ]
+                )
+                self.assertEqual(code, 0)
+                rows = (Path(tmp) / "pdf-browserbase-not-configured-test" / "rows.ndjson").read_text().splitlines()
+                row = json.loads(rows[0])
+                self.assertEqual(row["category"], PDF_CATEGORY_MISSING_PDF_HARVEST)
+                self.assertFalse(row["browserbase_available"])
+                self.assertEqual(row["browserbase_verdict"], "not_configured")
+                self.assertTrue(Path(row["browserbase_evidence_path"]).exists())
         finally:
             server.shutdown()
             thread.join(timeout=5)

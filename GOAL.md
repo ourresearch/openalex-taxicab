@@ -56,8 +56,10 @@ Gate 6: enrich PDF-expected denominator. [done]
 Gate 7: publish denominator-enriched baseline to oxjobs #461. [done]
 Gate 8: add gated PDF reharvest mode. [done]
 Gate 9: add reharvest POST-context instrumentation. [done]
-Gate 10: create Springer Zyte support/evidence packet and choose next cluster. [in progress]
-Gate 11: push verified PDF production changes to Taxicab main.
+Gate 10: create Springer Zyte support/evidence packet. [done]
+Gate 11: add PDF Browserbase evidence mode. [in progress]
+Gate 12: choose next cluster and continue PDF improvement loop until >=95%.
+Gate 13: push verified PDF production changes to Taxicab main.
 ```
 
 ## Latest Accepted Metrics
@@ -95,6 +97,8 @@ PDF:
   springer seed reharvest: pdf-springer-missing-reharvest-12, 1/12 good_pdf; 11 missing_pdf_harvest; 0 timeout; 0 taxicab_error
   springer post-context reharvest: pdf-springer-missing-reharvest-12-post-context-b9d5918, 1/12 good_pdf; 11 missing_pdf_harvest; all 11 missing rows have POST status 201, post content_type html, and resolved Springer article/chapter/rwe HTML URLs
   springer no-storage Zyte two-step probe: failed sample still returned HTML, not PDF; treat as Zyte support candidate before production code changes
+  browserbase credential source: ignored /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env contains BROWSERBASE_API_KEY; Taxicab .env/.env.aws do not
+  springer browserbase smoke: pdf-browserbase-springer-1, verdict html_not_pdf for 10.1007/978-1-4419-6247-8_15015; final URL https://link.springer.com/rwe/10.1007/978-1-4419-6247-8_15015; content_type text/html; not PDF
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
@@ -196,6 +200,12 @@ secret pattern scan: no raw secret pattern findings
 PDF Springer post-context seed rerun:
 python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/springer-missing-12.csv --reharvest --workers 2 --out pdf_eval_runs/ --run-id pdf-springer-missing-reharvest-12-post-context-b9d5918 --timeout 60 --retries 1 --progress-every 1: passed
 result: 1/12 good_pdf; 11 missing_pdf_harvest; 11/11 misses had POST status 201 and post content_type html
+
+PDF Browserbase evidence mode:
+python3 -m unittest tests.test_pdf_eval_harness: 17 tests passed
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke-browserbase-mode --out /tmp/taxicab-pdf-fixture-smoke-browserbase-mode: passed, 15 fixtures, 15 categories
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/springer-missing-12.csv --limit 1 --with-browserbase --browserbase-mode session --browserbase-timeout 60 --out /tmp/taxicab-pdf-browserbase-springer --run-id pdf-browserbase-springer-1 --timeout 30 --retries 1 --progress-every 1: passed with ignored Parseland env Browserbase key
+result: Browserbase verdict html_not_pdf; browserbase_available false; final URL was Springer RWE HTML page, not PDF
 ```
 
 ## Provider Policy
