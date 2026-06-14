@@ -127,9 +127,15 @@ with 11 rows still `missing_pdf_harvest`, 14 `corrupt_or_truncated_pdf`,
 0 timeout, and 0 `taxicab_error`. Oxjobs commit `ca3b11fe` records the Sage
 queue, scrubbed summary/report, provider packet, and combined request update.
 Treat Sage as a Zyte/provider-advised PDF-byte and invalid-PDF lane before
-route code. Next independent sample lane is Brill from the latest full gate,
-unless Zyte/provider guidance is ready to test.
-Current latest pushed Taxicab branch commit before this docs slice is `2705643`.
+route code.
+Brill run `pdf-brill-missing30-reharvest-7520bc1` recovered 0/30 `good_pdf`,
+with all rows still `missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`.
+Oxjobs commit `172b7580` records the Brill queue, scrubbed summary/report,
+provider packet, and combined request update. Treat Brill as a
+Zyte/provider-advised PDF-byte lane before route code. Next independent sample
+lane is AMA/JAMA from the latest full gate, unless Zyte/provider guidance is
+ready to test.
+Current latest pushed Taxicab branch commit before this docs slice is `7520bc1`.
 
 ## Agent Operating Rules
 
