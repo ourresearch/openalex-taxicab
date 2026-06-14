@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999n complete; Karger full 10K gate accepted +3 good_pdf and is recorded in oxjobs at 5ccb3df5. Gate 21.999o, Optica/opg bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://opg\\.optica\\.org|osapublishing\\.org|opticajournals";"i"))][0:21][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "opg.optica.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/optica-missing-21.csv
+Current phase: Gate 21.999o complete; Optica/opg recovered 0/21 and is recorded in oxjobs at 826bd689. Gate 21.999p, JSTOR bounded sample or provider-guidance test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://(www\\.)?jstor\\.org";"i"))][0:60][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.jstor.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/jstor-missing-60.csv
 ```
 
 After Gate 0 is pushed:
@@ -94,7 +94,8 @@ Gate 21.999k: run ACM targeted sample and publish provider packet. [done, oxjobs
 Gate 21.999l: run BMJ targeted sample and publish provider packet. [done, oxjobs 3319e184]
 Gate 21.999m: run Karger targeted sample, read-only confirmation, and provider packet. [done, oxjobs ecae684b]
 Gate 21.999n: run full 10K read-only gate after Karger. [done, oxjobs 5ccb3df5]
-Gate 21.999o: run Optica/opg targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999o: run Optica/opg targeted sample and publish provider packet. [done, oxjobs 826bd689]
+Gate 21.999p: run JSTOR targeted sample, or test provider guidance for accumulated packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -235,7 +236,10 @@ PDF:
   oxjobs #461 Karger provider packet commit: ecae684b #461 taxicab-pdf: add karger recovery packet
   karger full gate: pdf-full10k-after-karger-ca8b132, 1,890/6,293 good_pdf (30.03%), +3 vs prior gate, +53 vs denominator baseline, 0 good-to-non-good regressions, 0 timeout, 0 taxicab_error
   oxjobs #461 Karger full gate commit: 5ccb3df5 #461 taxicab-pdf: publish karger full gate
-  next lane: Optica/opg bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  optica/opg bounded reharvest: pdf-optica-missing21-reharvest-25496ec, 21 DOI candidates, 0 good_pdf, 21 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  optica/opg finding: POST returned status 201 HTML/no durable PDF records for opg.optica.org/viewmedia.cfm routes
+  oxjobs #461 Optica provider packet commit: 826bd689 #461 taxicab-pdf: add optica provider packet
+  next lane: JSTOR bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

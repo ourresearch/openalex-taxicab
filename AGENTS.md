@@ -167,7 +167,11 @@ preserved the same three durable PDFs, with 25 rows still
 packet, and combined request update. Full gate
 `pdf-full10k-after-karger-ca8b132` accepted the +3 at corpus scale with 0
 good-to-non-good regressions, 0 timeout, and 0 `taxicab_error`; oxjobs commit
-`5ccb3df5` publishes that report. Next independent lane is Optica/opg or a
+`5ccb3df5` publishes that report. Optica/opg run
+`pdf-optica-missing21-reharvest-25496ec` recovered 0/21 `good_pdf`; all rows
+stayed missing after status-201 HTML captures at `opg.optica.org/viewmedia.cfm`
+routes, with 0 timeout and 0 `taxicab_error`. Oxjobs commit `826bd689`
+publishes the Optica packet. Next independent lane is JSTOR or a
 provider-guidance test for accumulated packets.
 Current latest pushed Taxicab branch commit before this docs slice is `ca8b132`.
 

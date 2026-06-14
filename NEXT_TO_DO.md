@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: Karger full gate is accepted; Optica/opg bounded sample or provider-guidance test is next.
+Current gate: Optica/opg no-lift provider lane is recorded; JSTOR bounded sample or provider-guidance test is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://opg\\.optica\\.org|osapublishing\\.org|opticajournals";"i"))][0:21][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "opg.optica.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/optica-missing-21.csv
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://(www\\.)?jstor\\.org";"i"))][0:60][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.jstor.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/jstor-missing-60.csv
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -369,11 +369,18 @@ update. Full gate `pdf-full10k-after-karger-ca8b132` accepted +3 good rows;
 oxjobs commit `5ccb3df5 #461 taxicab-pdf: publish karger full gate` publishes
 the accepted report.
 
+Optica/opg run `pdf-optica-missing21-reharvest-25496ec` tested 21
+`missing_pdf_harvest` rows and recovered 0 `good_pdf`: all rows stayed missing
+after status-201 HTML captures at `opg.optica.org/viewmedia.cfm` routes, with
+0 timeout and 0 `taxicab_error`. Oxjobs commit
+`826bd689 #461 taxicab-pdf: add optica provider packet` publishes the Optica
+queue, scrubbed report, provider packet, and combined request update.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
 chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, APS, ACM, BMJ, and Karger PDF-byte or
 click/download fetches before production route code. If continuing independent
-technical work, choose Optica/opg from the latest full gate or test provider
+technical work, choose JSTOR from the latest full gate or test provider
 guidance for accumulated packets. IOP is accepted as the first repeated
 whole-corpus PDF KPI lift; Karger is the latest accepted lift, and the gap to
 95% remains 4,089 rows.
