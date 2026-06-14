@@ -354,10 +354,15 @@ Journal of Pharmaceutical Sciences run `pdf-jpharmsci-missing5-reharvest-3b7bf15
 recovered 0/5 `good_pdf`; all five `/article/.../pdf` routes resolved to
 `/article/.../abstract` HTML and produced no durable PDF record, with
 0 timeout and 0 `taxicab_error`. Oxjobs commit `c1f26ec8` publishes the J Pharm
-Sci queue, scrubbed report, and provider packet. Next independent lane is CHEST
-(`journal.chestnet.org`) from the latest full gate.
+Sci queue, scrubbed report, and provider packet.
+CHEST run `pdf-chestnet-missing5-reharvest-4c6cd17` recovered 1/5 `good_pdf`;
+read-only confirmation `pdf-chestnet-missing5-readonly-4c6cd17` preserved the
+same durable PDF and left four rows missing, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `ee27cd5e` publishes the CHEST queue, scrubbed
+reports, and provider packet. Next independent lane is Green Journal
+(`thegreenjournal.com`) from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`3b7bf15`.
+`4c6cd17`.
 
 ## Repository
 
