@@ -405,8 +405,12 @@ MIT Press Direct tail run `pdf-direct-mit-missing4-reharvest-8643285`
 recovered 0/4 `good_pdf`; all four rows returned invalid PDF content and
 classified as `corrupt_or_truncated_pdf`, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `9fdca746` publishes the MIT Direct queue,
-scrubbed report, and provider packet. Next tail lane is RSNA on
-`pubs.rsna.org` from the latest full gate.
+scrubbed report, and provider packet. RSNA tail run
+`pdf-rsna-missing4-reharvest-987d362` recovered 0/4 `good_pdf`; all four rows
+returned invalid PDF content and classified as `corrupt_or_truncated_pdf`, with
+0 timeout and 0 `taxicab_error`. Oxjobs commit `67a5b554` publishes the RSNA
+queue, scrubbed report, and provider packet. Next tail lane is Gold Journal on
+`www.goldjournal.net` from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
 `42dc6f4`.
 
