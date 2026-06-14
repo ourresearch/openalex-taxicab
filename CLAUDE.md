@@ -380,9 +380,13 @@ ScienceDirect direct asset run
 0/6 `good_pdf`; all rows stayed `missing_pdf_harvest`, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `58ab0e73` publishes the ScienceDirect asset
 queue, scrubbed report, and provider packet. Next high-volume lane is Springer
-on `link.springer.com` from the latest full gate.
+run `pdf-springer-link-missing25-reharvest-d401917`, which recovered
+0/25 `good_pdf`; all rows stayed `missing_pdf_harvest`, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `469a996b` publishes the Springer queue,
+scrubbed report, and provider packet. Next high-volume lane is De Gruyter Brill
+on `www.degruyterbrill.com` from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`16bcb5a`.
+`d401917`.
 
 ## Agent Operating Rules
 
