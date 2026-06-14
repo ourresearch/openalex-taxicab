@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999bb complete; KoreaScience recovered 0/5 PDFs, all by timeout, and is recorded in oxjobs at 53c6d7fe. Gate 21.999bc, Journal of Pharmaceutical Sciences bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://(www\\.)?jpharmsci\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "jpharmsci.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/jpharmsci-missing-25.csv
+Current phase: Gate 21.999bc complete; Journal of Pharmaceutical Sciences recovered 0/5 PDFs and is recorded in oxjobs at c1f26ec8. Gate 21.999bd, CHEST bounded sample or provider-guidance test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://journal\\.chestnet\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "journal.chestnet.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/chestnet-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -134,7 +134,8 @@ Gate 21.999ay: run AJOG targeted sample, read-only confirmation, and provider pa
 Gate 21.999az: run Scholarly Publishing Collective targeted sample and provider packet. [done, oxjobs 362d2b2f]
 Gate 21.999ba: run Royal Society Publishing targeted sample and provider packet. [done, oxjobs cfeb6d34]
 Gate 21.999bb: run KoreaScience targeted sample and provider packet. [done, oxjobs 53c6d7fe]
-Gate 21.999bc: run Journal of Pharmaceutical Sciences targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999bc: run Journal of Pharmaceutical Sciences targeted sample and provider packet. [done, oxjobs c1f26ec8]
+Gate 21.999bd: run CHEST targeted sample, or test provider guidance for accumulated packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -384,7 +385,9 @@ PDF:
   oxjobs #461 Royal Society Publishing provider packet commit: cfeb6d34 #461 taxicab-pdf: add royal society provider packet
   koreascience bounded reharvest: pdf-koreascience-missing5-reharvest-35d3541, 5 DOI candidates, 0 good_pdf, 5 timeout, 0 taxicab_error
   oxjobs #461 KoreaScience provider packet commit: 53c6d7fe #461 taxicab-pdf: add koreascience timeout packet
-  next lane: Journal of Pharmaceutical Sciences bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  journal of pharmaceutical sciences bounded reharvest: pdf-jpharmsci-missing5-reharvest-3b7bf15, 5 DOI candidates, 0 good_pdf, 5 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  oxjobs #461 Journal of Pharmaceutical Sciences provider packet commit: c1f26ec8 #461 taxicab-pdf: add jpharmsci provider packet
+  next lane: CHEST bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

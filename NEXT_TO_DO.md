@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: KoreaScience provider lane is recorded at oxjobs 53c6d7fe; Journal of Pharmaceutical Sciences bounded sample or provider-guidance test is next.
+Current gate: Journal of Pharmaceutical Sciences provider lane is recorded at oxjobs c1f26ec8; CHEST bounded sample or provider-guidance test is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://(www\\.)?jpharmsci\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "jpharmsci.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/jpharmsci-missing-25.csv
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://journal\\.chestnet\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "journal.chestnet.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/chestnet-missing-25.csv
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -643,14 +643,20 @@ KoreaScience run `pdf-koreascience-missing5-reharvest-35d3541` tested 5
 watchdog, with 0 `taxicab_error`. Oxjobs commit
 `53c6d7fe #461 taxicab-pdf: add koreascience timeout packet` publishes the
 KoreaScience queue, scrubbed report, and provider packet.
+Journal of Pharmaceutical Sciences run `pdf-jpharmsci-missing5-reharvest-3b7bf15`
+tested 5 `missing_pdf_harvest` rows from `jpharmsci.org` and recovered
+0 `good_pdf`; all five `/article/.../pdf` routes resolved to
+`/article/.../abstract` HTML, with 0 timeout and 0 `taxicab_error`. Oxjobs
+commit `c1f26ec8 #461 taxicab-pdf: add jpharmsci provider packet` publishes the
+J Pharm Sci queue, scrubbed report, and provider packet.
 
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
 chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, APS, ACM, BMJ,
 Karger, Optica, JSTOR, Inlibra, Scientific.net, Persee, Nature, J-STAGE,
-University of Chicago Journals, ASME, Cairn, Physiology, ASCE, PDCNet, EurekaSelect, ActaHort, V&R eLibrary, IWA Publishing, AMS journals, JPET/ASPET, OnePetro, Mary Ann Liebert, AACR Figshare, AMPP, Healio, Sage Knowledge, IGI Global, UC Press, RUPress, Emerald, JACC, AJO, BioOne, Canadian Science Publishing, Edward Elgar, American Concrete Institute, American Journal of Surgery, AJOG, Scholarly Publishing Collective, Royal Society Publishing, and KoreaScience PDF-byte or click/download fetches
+University of Chicago Journals, ASME, Cairn, Physiology, ASCE, PDCNet, EurekaSelect, ActaHort, V&R eLibrary, IWA Publishing, AMS journals, JPET/ASPET, OnePetro, Mary Ann Liebert, AACR Figshare, AMPP, Healio, Sage Knowledge, IGI Global, UC Press, RUPress, Emerald, JACC, AJO, BioOne, Canadian Science Publishing, Edward Elgar, American Concrete Institute, American Journal of Surgery, AJOG, Scholarly Publishing Collective, Royal Society Publishing, KoreaScience, and Journal of Pharmaceutical Sciences PDF-byte or click/download fetches
 before production route code. If continuing independent technical work, choose
-Journal of Pharmaceutical Sciences from the latest full gate or test provider
+CHEST from the latest full gate or test provider
 guidance for accumulated packets. IOP is accepted as the first repeated
 whole-corpus PDF KPI lift; Karger is the latest accepted lift, and the gap to
 95% remains 4,089 rows.
