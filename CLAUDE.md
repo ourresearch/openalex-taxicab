@@ -409,10 +409,15 @@ scrubbed report, and provider packet. RSNA tail run
 `pdf-rsna-missing4-reharvest-987d362` recovered 0/4 `good_pdf`; all four rows
 returned invalid PDF content and classified as `corrupt_or_truncated_pdf`, with
 0 timeout and 0 `taxicab_error`. Oxjobs commit `67a5b554` publishes the RSNA
-queue, scrubbed report, and provider packet. Next tail lane is Gold Journal on
-`www.goldjournal.net` from the latest full gate.
+queue, scrubbed report, and provider packet. Gold Journal tail run
+`pdf-goldjournal-missing4-reharvest-91c0c88` recovered 0/4 `good_pdf`; two
+rows stayed missing after status-201 HTML abstract captures and two returned
+invalid PDF content, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`8d1c57b4` publishes the Gold Journal queue, scrubbed report, and provider
+packet. Next tail lane is ATS Journals on `www.atsjournals.org` from the latest
+full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`42dc6f4`.
+`91c0c88`.
 
 ## Agent Operating Rules
 
