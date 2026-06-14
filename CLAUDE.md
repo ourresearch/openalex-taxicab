@@ -263,8 +263,13 @@ Healio run `pdf-healio-missing6-reharvest-51c7ad1` recovered 0/6 `good_pdf`;
 all six `journals.healio.com/doi/epdf` rows returned invalid PDF-like content
 and classified as `corrupt_or_truncated_pdf`, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `64517b97` publishes the Healio queue,
-scrubbed report, and provider packet. Next independent lane is Sage Knowledge
-(`sk.sagepub.com`) from the latest full gate.
+scrubbed report, and provider packet.
+Sage Knowledge run `pdf-sage-knowledge-missing10-reharvest-bef0376` recovered
+0/10 `good_pdf`; all ten `sk.sagepub.com` download PDF rows returned invalid
+PDF-like content and classified as `corrupt_or_truncated_pdf`, with 0 timeout
+and 0 `taxicab_error`. Oxjobs commit `79af39d8` publishes the Sage Knowledge
+queue, scrubbed report, and provider packet. Next independent lane is IGI
+Global (`www.igi-global.com`) from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
 `51c7ad1`.
 

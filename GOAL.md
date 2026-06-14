@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999al complete; Healio recovered 0/6 PDFs and is recorded in oxjobs at 64517b97. Gate 21.999am, Sage Knowledge bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://sk\\.sagepub\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "sk.sagepub.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/sage-knowledge-missing-25.csv
+Current phase: Gate 21.999am complete; Sage Knowledge recovered 0/10 PDFs and is recorded in oxjobs at 79af39d8. Gate 21.999an, IGI Global bounded sample or provider-guidance test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.igi-global\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.igi-global.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/igi-global-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -118,7 +118,8 @@ Gate 21.999ai: run Mary Ann Liebert targeted sample and provider packet. [done, 
 Gate 21.999aj: run AACR Figshare targeted sample and provider packet. [done, oxjobs dd7ab56d]
 Gate 21.999ak: run AMPP targeted sample and provider packet. [done, oxjobs ef843caa]
 Gate 21.999al: run Healio targeted sample and provider packet. [done, oxjobs 64517b97]
-Gate 21.999am: run Sage Knowledge targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999am: run Sage Knowledge targeted sample and provider packet. [done, oxjobs 79af39d8]
+Gate 21.999an: run IGI Global targeted sample, or test provider guidance for accumulated packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -331,7 +332,10 @@ PDF:
   healio bounded reharvest: pdf-healio-missing6-reharvest-51c7ad1, 6 DOI candidates, 0 good_pdf, 6 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
   healio finding: journals.healio.com epdf routes returned invalid PDF-like content rather than complete PDF bytes
   oxjobs #461 Healio provider packet commit: 64517b97 #461 taxicab-pdf: add healio provider packet
-  next lane: Sage Knowledge bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  sage knowledge bounded reharvest: pdf-sage-knowledge-missing10-reharvest-bef0376, 10 DOI candidates, 0 good_pdf, 10 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
+  sage knowledge finding: sk.sagepub.com download PDF routes returned invalid PDF-like content rather than complete PDF bytes
+  oxjobs #461 Sage Knowledge provider packet commit: 79af39d8 #461 taxicab-pdf: add sage knowledge provider packet
+  next lane: IGI Global bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
