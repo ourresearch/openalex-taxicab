@@ -1,3 +1,4 @@
+import base64
 import sys
 import types
 import unittest
@@ -14,6 +15,81 @@ from openalex_taxicab.http_cache import (
 
 
 class ScienceDirectUrlTests(unittest.TestCase):
+    def test_http_get_uses_pdf_body_strategy_for_wiley_pdfdirect(self):
+        pdf_url = "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1111/ijsw.12017"
+        captured = []
+
+        class FakeResponse:
+            def json(self):
+                return {
+                    "statusCode": 200,
+                    "url": pdf_url,
+                    "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                    "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+                }
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse()
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url, doi="10.1111/ijsw.12017")
+
+        self.assertEqual(len(captured), 1)
+        self.assertTrue(captured[0]["httpResponseBody"])
+        self.assertTrue(captured[0]["httpResponseHeaders"])
+        self.assertNotIn("browserHtml", captured[0])
+        self.assertEqual(response.url, pdf_url)
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_http_get_falls_back_for_wiley_pdfdirect_strategies(self):
+        pdf_url = "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1111/jols.12117"
+        captured = []
+        responses = [
+            {"status": 520, "detail": "ban-free response unavailable"},
+            {
+                "statusCode": 200,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "httpResponseBody": base64.b64encode(b"<html>not pdf</html>").decode(),
+            },
+            {
+                "statusCode": 200,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+            },
+        ]
+
+        class FakeResponse:
+            def __init__(self, data):
+                self._data = data
+
+            def json(self):
+                return self._data
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse(responses[len(captured) - 1])
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url, doi="10.1111/jols.12117")
+
+        self.assertEqual(len(captured), 3)
+        self.assertNotIn("customHttpRequestHeaders", captured[0])
+        self.assertEqual(
+            captured[1]["customHttpRequestHeaders"],
+            [{"name": "Accept", "value": "application/pdf,*/*"}],
+        )
+        self.assertEqual(
+            captured[2]["customHttpRequestHeaders"],
+            [
+                {"name": "Accept", "value": "application/pdf,*/*"},
+                {"name": "Referer", "value": "https://www.google.com/"},
+            ],
+        )
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
     def test_rewrites_jbc_pdf_url_to_fulltext(self):
         self.assertEqual(
             jbc_fulltext_url_from_url("https://www.jbc.org/article/S0021-9258(17)43626-X/pdf"),

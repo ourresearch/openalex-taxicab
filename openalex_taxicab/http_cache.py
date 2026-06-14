@@ -474,6 +474,9 @@ def http_get(url,
         if doi and not attempt_n and _should_use_landing_page_rewrite(url):
             return _fetch_via_landing_page(url, doi)
 
+        if not attempt_n and _is_wiley_pdfdirect_url(url):
+            return _fetch_wiley_pdfdirect(url)
+
         # Check if it's a DOI or Handle URL that needs resolution
         is_doi_url = 'doi.org/' in url
         is_handle_url = 'hdl.handle.net/' in url
@@ -576,7 +579,7 @@ def http_get(url,
         }
 
         # Check if URL is likely a PDF
-        is_likely_pdf_url = url.lower().endswith('.pdf') or '/pdf/' in url.lower()
+        is_likely_pdf_url = _looks_like_direct_pdf_url(url)
 
         # Special handling for PMC PDFs that need JavaScript to bypass challenges
         is_pmc_pdf = ('ncbi.nlm.nih.gov' in url or 'pmc.ncbi.nlm.nih.gov' in url) and is_likely_pdf_url
@@ -726,6 +729,11 @@ COOKIE_DOMAINS = [
     "wiley.com",
 ]
 
+WILEY_PDFDIRECT_HOSTS = [
+    "onlinelibrary.wiley.com",
+    "agupubs.onlinelibrary.wiley.com",
+]
+
 
 # Hosts that hide direct PDF URLs behind Cloudflare-style fingerprint checks.
 # Direct httpResponseBody calls to the PDF URL get banned (Zyte 520), but
@@ -759,6 +767,19 @@ def _looks_like_direct_pdf_url(url):
         or '/pdf?' in u
         or '/pdfdirect/' in u
     )
+
+
+def _is_wiley_pdfdirect_url(url):
+    try:
+        split_url = urlsplit(url)
+    except ValueError:
+        return False
+    host = split_url.netloc.lower()
+    path = split_url.path.lower()
+    if "/doi/pdfdirect/" not in path:
+        return False
+    return any(host == wiley_host or host.endswith(f".{wiley_host}")
+               for wiley_host in WILEY_PDFDIRECT_HOSTS)
 
 
 def _should_use_landing_page_rewrite(url):
@@ -853,6 +874,62 @@ def _fetch_via_landing_page(direct_pdf_url, doi):
     )
 
 
+def _wiley_pdfdirect_strategy_params(url):
+    base = {
+        "url": url,
+        "httpResponseBody": True,
+        "httpResponseHeaders": True,
+    }
+    return [
+        ("default_body", base),
+        ("accept_pdf", base | {
+            "customHttpRequestHeaders": [
+                {"name": "Accept", "value": "application/pdf,*/*"},
+            ],
+        }),
+        ("google_referer", base | {
+            "customHttpRequestHeaders": [
+                {"name": "Accept", "value": "application/pdf,*/*"},
+                {"name": "Referer", "value": "https://www.google.com/"},
+            ],
+        }),
+    ]
+
+
+def _response_from_zyte_body(data, fallback_url):
+    status_code = data.get("statusCode") or data.get("status") or 500
+    body = b64decode(data.get("httpResponseBody", "")) if data.get("httpResponseBody") else b""
+    return ResponseObject(
+        content=body,
+        headers=data.get("httpResponseHeaders", []),
+        status_code=status_code,
+        url=data.get("url", fallback_url),
+    )
+
+
+def _fetch_wiley_pdfdirect(url):
+    """Fetch Wiley PDF-direct URLs as PDF bytes, not browser HTML.
+
+    The PDF Phase 2 residual probe recovered Wiley rows with plain Zyte
+    httpResponseBody strategies. Browser HTML returns article shells or JS,
+    which must not be treated as a PDF response.
+    """
+    zyte_api_url = "https://api.zyte.com/v1/extract"
+    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    last_response = ResponseObject(content=b"", headers=[], status_code=520, url=url)
+
+    for strategy_name, params in _wiley_pdfdirect_strategy_params(url):
+        logger.info(f"Wiley PDF-direct fetch using {strategy_name}: {url}")
+        response = requests.post(zyte_api_url, auth=(zyte_api_key, ''), json=params, verify=False)
+        data = response.json()
+        current = _response_from_zyte_body(data, url)
+        last_response = current
+        if isinstance(current.content, bytes) and current.content[:5] == b"%PDF-":
+            return current
+
+    return last_response
+
+
 def _needs_cookie_fetch(url):
     """Check if URL needs the two-step cookie approach."""
     # PMC PDFs
@@ -880,7 +957,7 @@ def _fetch_with_cookies(url, zyte_api_url, zyte_api_key, fallback_params):
     cookies = browser_data.get("experimental", {}).get("responseCookies", {})
 
     # If browser response has valid HTML content, use it directly
-    is_pdf_url = url.lower().endswith('.pdf') or '/pdf/' in url.lower()
+    is_pdf_url = _looks_like_direct_pdf_url(url)
     # When Zyte's browser navigates to a PDF, browserHtml captures Chromium's
     # PDF-viewer stub (a ~174-byte shell with a `chrome-extension://...pdf_embed`
     # link) rather than the PDF binary. Force the fall-through so the
