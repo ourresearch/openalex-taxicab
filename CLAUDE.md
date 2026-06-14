@@ -37,10 +37,12 @@ path decision: remote `--reharvest` exercises deployed Taxicab main, not this
 branch; local branch `Harvester` with real env credentials can write production
 R2/DynamoDB, so do not use it as a silent branch-confirmation path. Continue
 with no-storage branch evidence until a full 95% PDF proof is ready for main.
-Latest no-storage probes: Wiley `/doi/pdf/` as-is recovered 0/10; rewriting
-that same sample to `/doi/pdfdirect/` recovered only 2/10, including one
-DOI-mismatch PDF; Springer `link.springer.com/content/pdf/` recovered 0/10.
-Treat these as provider/support evidence, not production route-code candidates.
+Oxjobs #461 commit `31d28693` publishes the branch-confirmation decision and
+follow-up probe artifacts. Latest no-storage probes: Wiley `/doi/pdf/` as-is
+recovered 0/10; rewriting that same sample to `/doi/pdfdirect/` recovered only
+2/10, including one DOI-mismatch PDF; Springer
+`link.springer.com/content/pdf/` recovered 0/10. Treat these as
+provider/support evidence, not production route-code candidates.
 Current tooling slice: generic no-storage provider probing is implemented in
 `scripts/provider_pdf_probe.py` with tests in `tests/test_provider_pdf_probe.py`.
 It does not call Taxicab POST and does not write R2/DynamoDB. It sanitizes URLs
@@ -65,7 +67,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`python3 -m unittest tests.test_provider_pdf_probe tests.test_sciencedirect_pdf_probe && python3 -m unittest tests.test_pdf_eval_harness tests.test_http_cache`.
+`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-structured-parser-a61d34b/rows.ndjson --category missing_pdf_harvest --host www.sciencedirect.com --limit 10 --strategies default_body,accept_pdf,google_referer,browser_html --run-id sciencedirect-current-missing-provider-probe-10-b246c11 --out pdf_eval_runs/`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context

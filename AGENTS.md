@@ -37,7 +37,9 @@ branch; local branch `Harvester` with real env credentials can write production
 R2/DynamoDB, so do not use it as a silent branch-confirmation path.
 No-storage evidence remains the safe branch-gate until a full 95% PDF proof is
 ready for main.
-Latest no-storage probes after that decision: Wiley `/doi/pdf/` as-is recovered
+Oxjobs #461 commit `31d28693` publishes the branch-confirmation decision and
+these follow-up probe artifacts. Latest no-storage probes after that decision:
+Wiley `/doi/pdf/` as-is recovered
 0/10 (`js_redirect_unresolved` 8, `html_instead_of_pdf` 1, `bot_block_403` 1);
 rewriting the same sample to `/doi/pdfdirect/` recovered only 2/10, including
 one DOI-mismatch PDF, so this is not strong enough to broaden production Wiley
@@ -71,7 +73,7 @@ non-good category per DOI instead of defaulting to the first attempted
 strategy. This is measurement/reporting-only and does not change Taxicab
 production scraping behavior.
 Next exact command:
-`python3 -m unittest tests.test_provider_pdf_probe tests.test_sciencedirect_pdf_probe && python3 -m unittest tests.test_pdf_eval_harness tests.test_http_cache`.
+`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-structured-parser-a61d34b/rows.ndjson --category missing_pdf_harvest --host www.sciencedirect.com --limit 10 --strategies default_body,accept_pdf,google_referer,browser_html --run-id sciencedirect-current-missing-provider-probe-10-b246c11 --out pdf_eval_runs/`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context

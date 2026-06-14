@@ -41,9 +41,9 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999db in progress. Structured PDF parser is implemented at Taxicab commit a61d34b and oxjobs #461 commit dcb7bb14 publishes the accepted structured-parser full gate. Oxjobs #461 commit 6ba84787 publishes `wiley-residual-corrupt-provider-probe-19-a61d34b`, which recovered 15/19 current residual Wiley corrupt rows without Taxicab POST or production writes. Taxicab commit 3b2d218 routes Wiley `/doi/pdfdirect/` URLs through PDF-byte Zyte HTTP strategies instead of browser HTML. Local no-storage `http_get` validation over the same 19 rows returned 13/19 `good_pdf`; oxjobs #461 commit d4f99eee publishes the candidate evidence. Confirmation-path decision: remote `--reharvest` tests deployed main, while local branch `Harvester` can write production R2/DynamoDB with real env credentials, so do not use local branch writes as a silent confirmation path. New no-storage probes show Wiley `/doi/pdf/` as-is recovered 0/10, Wiley rewrite-to-`pdfdirect` recovered only 2/10 with one DOI mismatch, and Springer `content/pdf` recovered 0/10; treat these as provider/support evidence, not route-code candidates.
+Current phase: Gate 21.999dc in progress. Structured PDF parser is implemented at Taxicab commit a61d34b and oxjobs #461 commit dcb7bb14 publishes the accepted structured-parser full gate. Oxjobs #461 commit 6ba84787 publishes `wiley-residual-corrupt-provider-probe-19-a61d34b`, which recovered 15/19 current residual Wiley corrupt rows without Taxicab POST or production writes. Taxicab commit 3b2d218 routes Wiley `/doi/pdfdirect/` URLs through PDF-byte Zyte HTTP strategies instead of browser HTML. Local no-storage `http_get` validation over the same 19 rows returned 13/19 `good_pdf`; oxjobs #461 commit d4f99eee publishes the candidate evidence. Confirmation-path decision: remote `--reharvest` tests deployed main, while local branch `Harvester` can write production R2/DynamoDB with real env credentials, so do not use local branch writes as a silent confirmation path. Oxjobs #461 commit 31d28693 publishes the follow-up probes: Wiley `/doi/pdf/` as-is recovered 0/10, Wiley rewrite-to-`pdfdirect` recovered only 2/10 with one DOI mismatch, and Springer `content/pdf` recovered 0/10; treat these as provider/support evidence, not route-code candidates.
 Next exact command:
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 -m unittest tests.test_provider_pdf_probe tests.test_sciencedirect_pdf_probe && python3 -m unittest tests.test_pdf_eval_harness tests.test_http_cache
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-structured-parser-a61d34b/rows.ndjson --category missing_pdf_harvest --host www.sciencedirect.com --limit 10 --strategies default_body,accept_pdf,google_referer,browser_html --run-id sciencedirect-current-missing-provider-probe-10-b246c11 --out pdf_eval_runs/
 ```
 
 After Gate 0 is pushed:
@@ -186,7 +186,8 @@ Gate 21.999cx: run residual Wiley corrupt-PDF 5-row provider probe from current 
 Gate 21.999cy: run residual Wiley corrupt-PDF all-row provider probe from current structured-parser full-gate rows. [done, oxjobs 6ba84787]
 Gate 21.999cz: inspect and implement narrow Wiley PDF-byte strategy candidate. [done, taxicab 3b2d218]
 Gate 21.999da: publish Wiley PDF-direct candidate evidence to oxjobs #461. [done, oxjobs d4f99eee]
-Gate 21.999db: decide bounded confirmation path without Taxicab main push and run Wiley/Springer no-storage follow-up probes. [in progress]
+Gate 21.999db: decide bounded confirmation path without Taxicab main push and run Wiley/Springer no-storage follow-up probes. [done, oxjobs 31d28693]
+Gate 21.999dc: run current ScienceDirect missing-PDF no-storage provider probe. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -217,7 +218,7 @@ PDF:
   latest focused evidence: wiley-residual-corrupt-provider-probe-19-a61d34b recovered 15/19 current residual Wiley corrupt rows, with two empty_response, one bot_block_403, and one supplement_or_preview_pdf residual
   latest implementation candidate: 3b2d218 taxicab: fetch Wiley pdfdirect as PDF bytes
   local candidate validation: 13/19 current residual Wiley rows classified good_pdf through local http_get, with no Taxicab POST/R2/DynamoDB writes
-  latest oxjobs publication: d4f99eee #461 taxicab-pdf: publish Wiley pdfdirect candidate
+  latest oxjobs publication: 31d28693 #461 taxicab-pdf: publish route follow-up probes
   latest follow-up probes: Wiley /doi/pdf as-is 0/10; Wiley rewrite-to-pdfdirect 2/10 with one DOI mismatch; Springer content/pdf 0/10
   current code slice: provider probe summary ranking fix, measurement/reporting-only
   no_pdf_expected: 3,707
