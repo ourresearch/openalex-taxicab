@@ -473,10 +473,16 @@ abstract HTML. Read-only confirmation `pdf-aaahq-missing4-readonly-7f47ce9`
 returned all four rows to `missing_pdf_harvest`, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit
 `63789cfc #461 taxicab-pdf: add aaahq tail packet` publishes the queue,
-summaries, reports, provider packet, and next EJSO queue. Next tail lane is
-EJSO on `www.ejso.com` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/ejso-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `7f47ce9`.
+summaries, reports, provider packet, and next EJSO queue. EJSO tail run
+`pdf-ejso-missing4-reharvest-30ce1b5` recovered 0/4 `good_pdf`; all four
+candidate `/pdf` routes resolved to article `/abstract` HTML and read-only
+confirmation `pdf-ejso-missing4-readonly-30ce1b5` returned all four rows to
+`missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`fc590d0f #461 taxicab-pdf: add ejso tail packet` publishes the queue,
+summaries, reports, provider packet, and next AUA Journals queue. Next tail
+lane is AUA Journals on `www.auajournals.org` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/auajournals-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `30ce1b5`.
 
 ## Agent Operating Rules
 

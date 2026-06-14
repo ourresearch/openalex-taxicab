@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: AAAHQ `publications.aaahq.org` tail sample is recorded at oxjobs 63789cfc; EJSO `www.ejso.com` tail sample is next.
+Current gate: EJSO `www.ejso.com` tail sample is recorded at oxjobs fc590d0f; AUA Journals `www.auajournals.org` tail sample is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/ejso-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-ejso-missing4-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/auajournals-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-auajournals-missing4-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -813,6 +813,14 @@ all four rows to `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`.
 Oxjobs commit `63789cfc #461 taxicab-pdf: add aaahq tail packet` publishes the
 queue, summaries, reports, provider packet, and next EJSO queue. AAAHQ is a
 provider/Zyte corrupt-PDF and HTML-fallback lane, not a production-code win.
+EJSO bounded reharvest `pdf-ejso-missing4-reharvest-30ce1b5` tested 4 rows
+from `www.ejso.com` and accepted 0 `good_pdf`; all four candidate `/pdf`
+routes resolved to article `/abstract` HTML and produced no durable PDF
+records. Read-only confirmation `pdf-ejso-missing4-readonly-30ce1b5` returned
+all four rows to `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`.
+Oxjobs commit `fc590d0f #461 taxicab-pdf: add ejso tail packet` publishes the
+queue, summaries, reports, provider packet, and next AUA Journals queue. EJSO
+is a provider/Zyte PDF-byte lane, not a production-code win.
 
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
@@ -826,9 +834,10 @@ HTML/no-record rows, Nomos/Inlibra HTML/no-record rows, JPedsurg
 abstract-HTML/no-record rows, and JBC fulltext-HTML/no-record rows. ADS is a
 positive bounded recovery lane. NCTM is a partial-positive bounded recovery
 lane with residual XML-HTML/no-record provider debt. AAAHQ is a corrupt/HTML
+provider lane with no durable recovered PDFs. EJSO is an abstract-HTML/no-record
 provider lane with no durable recovered PDFs. If continuing independent
-technical work, choose EJSO `www.ejso.com` rows from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/ejso-missing-25.csv`
+technical work, choose AUA Journals `www.auajournals.org` rows from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/auajournals-missing-25.csv`
 or test
 provider guidance for accumulated
 packets. IOP is accepted as the first repeated
