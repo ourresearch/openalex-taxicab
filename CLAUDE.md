@@ -415,9 +415,15 @@ rows stayed missing after status-201 HTML abstract captures and two returned
 invalid PDF content, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `8d1c57b4` publishes the Gold Journal queue, scrubbed report, and provider
 packet. Next tail lane is ATS Journals on `www.atsjournals.org` from the latest
-full gate.
+full gate. ATS Journals tail run
+`pdf-atsjournals-missing4-reharvest-a618e5a` recovered 0/4 `good_pdf`; all
+four rows stayed missing after status-201 HTML captures resolving to
+`academic.oup.com/atsjournals`, with 0 timeout and 0 `taxicab_error`. Oxjobs
+commit `7e4dcc79` publishes the ATS Journals queue, scrubbed report, and
+provider packet. Next tail lane is Transcript Verlag on
+`www.transcript-verlag.de` from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`91c0c88`.
+`a618e5a`.
 
 ## Agent Operating Rules
 
