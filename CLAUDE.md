@@ -339,10 +339,15 @@ Royal Society Publishing run
 `good_pdf`; three rows redirected to Silverchair watermark PDF URLs and two
 resolved to article abstract HTML/no durable PDF record, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `cfeb6d34` publishes the Royal Society queue,
-scrubbed report, and provider packet. Next independent lane is KoreaScience
-(`koreascience.or.kr`) from the latest full gate.
+scrubbed report, and provider packet.
+KoreaScience run `pdf-koreascience-missing5-reharvest-35d3541` recovered 0/5
+`good_pdf`; all five explicit `koreascience.or.kr:80/article/*.pdf` routes
+timed out under the row watchdog, with 0 `taxicab_error`. Oxjobs commit
+`53c6d7fe` publishes the KoreaScience queue, scrubbed report, and provider
+packet. Next independent lane is Journal of Pharmaceutical Sciences
+(`jpharmsci.org`) from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`1d0fac0`.
+`35d3541`.
 
 ## Agent Operating Rules
 
