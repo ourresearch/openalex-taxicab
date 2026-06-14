@@ -11,7 +11,7 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: AIP no-lift provider lane is recorded; provider-packet send/test or next high-volume sample is next.
+Current gate: ACS no-lift provider lane is recorded; provider-packet send/test or next high-volume sample is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
@@ -274,9 +274,18 @@ pages. Oxjobs commit `574539d2 #461 taxicab-pdf: publish taylor full gate`
 publishes the Taylor queues, scrubbed summaries/reports, provider packet, graph
 update, and latest-summary/hardness artifacts.
 
+ACS run `pdf-acs-missing25-reharvest-2b7996a` tested 25 `missing_pdf_harvest`
+rows from `pubs.acs.org` and recovered 0 `good_pdf`: 19 rows stayed missing,
+six were `corrupt_or_truncated_pdf`, and there were 0 timeout / 0
+`taxicab_error` rows. Oxjobs commit
+`482cc4fd #461 taxicab-pdf: add acs provider packet` publishes the ACS queue,
+scrubbed summary/report, provider packet, and combined request update. Treat ACS
+as a Zyte/provider-advised PDF-byte and corrupt-PDF lane before production route
+code.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
-Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, and
-Taylor API chapter-download PDF-byte or click/download fetches before
+Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
+chapter-download, and ACS PDF-byte or click/download fetches before
 production route code. If continuing independent technical work, choose another
 high-volume cluster from the latest full gate. IOP is accepted as the first
 repeated whole-corpus PDF KPI lift; Taylor is the latest accepted lift, and the

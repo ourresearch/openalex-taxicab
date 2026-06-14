@@ -41,7 +41,7 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999c, Taylor accepted full-gate lift recorded; provider-packet send/test or next high-volume sample is next. In progress.
+Current phase: Gate 21.999d, ACS no-lift provider packet recorded; provider-packet send/test or next high-volume sample is next. In progress.
 Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
 ```
 
@@ -83,7 +83,8 @@ Gate 21.999: run remaining IOP rows and accepted full 10K read-only gate. [done,
 Gate 21.999a: run RSC bounded reharvest and publish provider packet. [done, oxjobs 68025078]
 Gate 21.999b: run AIP targeted sample and publish provider packet. [done, oxjobs 85584ddd]
 Gate 21.999c: run Taylor samples and accepted full 10K gate. [done, oxjobs 574539d2]
-Gate 21.999d: send/test accumulated provider packets or choose next high-volume sample. [next]
+Gate 21.999d: run ACS targeted sample and publish provider packet. [done, oxjobs 482cc4fd]
+Gate 21.999e: send/test accumulated provider packets or choose next high-volume sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -191,6 +192,9 @@ PDF:
   taylor TandF expansion: pdf-taylor-tandfonline29-readonly-e7d1361, 3/29 durable good_pdf, 26 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   taylor full gate: pdf-full10k-after-taylor-e7d1361, 1,887/6,293 good_pdf (29.99%), +5 vs prior gate, 0 regressions, 0 timeout, 0 taxicab_error
   oxjobs #461 Taylor full gate commit: 574539d2 #461 taxicab-pdf: publish taylor full gate
+  acs bounded reharvest: pdf-acs-missing25-reharvest-2b7996a, 25 DOI candidates, 0 good_pdf, 19 missing_pdf_harvest, 6 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
+  acs finding: POST returned status 201 HTML/no durable PDF for most rows; six ACS PDF/EPDF responses failed validation
+  oxjobs #461 ACS provider packet commit: 482cc4fd #461 taxicab-pdf: add acs provider packet
   next lane: send/test provider packets or choose another high-volume sample from the latest full gate
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf

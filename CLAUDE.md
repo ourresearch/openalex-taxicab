@@ -106,8 +106,13 @@ gate `pdf-full10k-after-taylor-e7d1361` is 1,887/6,293 `good_pdf` (29.99%),
 provider guidance. Oxjobs commit `574539d2` records the Taylor queues,
 summaries, reports, graph update, and packet. Next technical lane: send/test
 provider guidance for accumulated packets or choose a fresh high-volume
-cluster. Current latest pushed Taxicab branch commit before this docs slice is
-`e7d1361`.
+cluster.
+ACS run `pdf-acs-missing25-reharvest-2b7996a` recovered 0/25 `good_pdf`, with
+19 rows still `missing_pdf_harvest`, six `corrupt_or_truncated_pdf`, and
+0 timeout / 0 `taxicab_error`. Oxjobs commit `482cc4fd` records the ACS queue,
+scrubbed summary/report, provider packet, and combined request update. Treat ACS
+as a Zyte/provider-advised PDF-byte and corrupt-PDF lane before route code.
+Current latest pushed Taxicab branch commit before this docs slice is `2b7996a`.
 
 ## Agent Operating Rules
 
