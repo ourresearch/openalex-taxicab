@@ -52,6 +52,11 @@ for one Cell candidate. Browserbase did not recover a direct PDF; the raw
 artifacts stay local because the final URL included a Cloudflare challenge
 token. Oxjobs commit `d0344d1d` records only the scrubbed public summary
 `evidence/browserbase/cell-pdf-html-not-pdf-3de630f.json`.
+Wiley run `pdf-wiley-missing-reharvest-25-4267740` recovered 0/25
+`good_pdf`; all rows stayed `missing_pdf_harvest`, and POST accepted HTML
+landing pages at Wiley DOI routes instead of PDF bytes. Oxjobs commit
+`3d7356bc` records the scrubbed Wiley summary/report, Wiley Zyte packet, and
+combined provider request `pdf-byte-fetch-provider-request-4267740.md`.
 
 ## Agent Operating Rules
 

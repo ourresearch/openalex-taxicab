@@ -11,7 +11,7 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: Elsevier route/support clustering after the corrected 100-row PDF gate; Cell Browserbase evidence is recorded.
+Current gate: provider/advised PDF-byte lane after ScienceDirect, Lancet, Cell, and Wiley evidence packets.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
@@ -164,9 +164,18 @@ publishes only `evidence/browserbase/cell-pdf-html-not-pdf-3de630f.json`.
 Do not publish raw Browserbase rows, HTML, screenshots, or final URLs from this
 run because the final URL included a Cloudflare challenge token.
 
-Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, and Cell
-PDF-byte fetches before production route code. Good fallback lanes are the
-Elsevier invalid-PDF POST packet and Wiley missing-PDF triage.
+Wiley run `pdf-wiley-missing-reharvest-25-4267740` tested 25
+`missing_pdf_harvest` rows from `onlinelibrary.wiley.com` and recovered
+0 `good_pdf`: all 25 stayed `missing_pdf_harvest`, with 0 timeout and
+0 `taxicab_error`. POST accepted HTML landing-page captures at Wiley DOI
+routes, not PDF bytes. Oxjobs commit `3d7356bc #461 taxicab-pdf: add wiley
+provider packet` publishes a scrubbed summary/report, the Wiley packet, and the
+combined request `evidence/zyte-support/pdf-byte-fetch-provider-request-4267740.md`.
+
+Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell, and
+Wiley PDF-byte fetches before production route code. If waiting on provider
+input, the next independent cluster is De Gruyter `10.1515` because it has a
+clean 143-row missing cluster plus adjacent corrupt stored PDFs.
 
 ## Absolute paths
 

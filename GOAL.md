@@ -41,7 +41,7 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.5, Cell Browserbase evidence recorded; provider/advised PDF-byte lane next. In progress.
+Current phase: Gate 21.75, Wiley bounded sample recorded; provider/advised PDF-byte lane next. In progress.
 Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
 ```
 
@@ -70,6 +70,7 @@ Gate 19: run ScienceDirect no-storage route probe and create Zyte packet. [done,
 Gate 20: run Lancet no-storage route probe and create Zyte packet. [done, oxjobs 2105c8f1]
 Gate 21: run Cell Press no-storage route probe and create Zyte packet. [done, oxjobs a160ec1a]
 Gate 21.5: run Cell Browserbase evidence sample and publish scrubbed public summary. [done, oxjobs d0344d1d]
+Gate 21.75: run Wiley bounded reharvest and publish scrubbed provider packet. [done, oxjobs 3d7356bc]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -133,6 +134,10 @@ PDF:
   cell Browserbase evidence: pdf-browserbase-cell-1-3de630f, 1 DOI candidate, Browserbase verdict html_not_pdf, browserbase_available false
   oxjobs #461 Cell Browserbase commit: d0344d1d #461 taxicab-pdf: record cell browserbase evidence
   Cell Browserbase publication note: only scrubbed summary is public because the raw final URL contained a Cloudflare challenge token
+  wiley bounded reharvest: pdf-wiley-missing-reharvest-25-4267740, 25 DOI candidates, 0 good_pdf, 25 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  wiley finding: POST returned status 201 but captured HTML landing pages at Wiley DOI routes, not PDF bytes
+  oxjobs #461 Wiley provider packet commit: 3d7356bc #461 taxicab-pdf: add wiley provider packet
+  combined provider request: evidence/zyte-support/pdf-byte-fetch-provider-request-4267740.md covers ScienceDirect, Lancet, Cell, and Wiley
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
@@ -267,6 +272,14 @@ oxjobs python3 scripts/publish-report.py 461: passed
 oxjobs git diff --check -- working/taxicab-pdf: passed
 oxjobs strict secret/token scan including signed-URL and Cloudflare challenge-token patterns: no findings
 result: public scrubbed summary published at oxjobs commit d0344d1d; raw Browserbase evidence remains local
+
+PDF Wiley bounded sample reporting:
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/wiley-missing-25.csv --reharvest --workers 2 --row-timeout 120 --out pdf_eval_runs/ --run-id pdf-wiley-missing-reharvest-25-4267740 --timeout 60 --retries 1 --progress-every 1: passed
+result: 0/25 good_pdf; 25 missing_pdf_harvest; 0 timeout; 0 taxicab_error
+oxjobs python3 scripts/publish-report.py 461: passed
+oxjobs git diff --check -- working/taxicab-pdf: passed
+oxjobs strict secret/token scan including signed-URL, Browserbase session/path, and Cloudflare challenge-token patterns: no findings
+result: public scrubbed summary/report and provider request published at oxjobs commit 3d7356bc
 ```
 
 ## Provider Policy
