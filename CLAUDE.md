@@ -182,8 +182,11 @@ Oxjobs commit `3b84fb4b` publishes the Scientific.net packet. Persee run
 `pdf-persee-missing18-reharvest-af4baf7` recovered 0/18 `good_pdf`; every row
 classified as `corrupt_or_truncated_pdf` after invalid PDF content, with
 0 timeout and 0 `taxicab_error`. Oxjobs commit `1a7d1ddb` publishes the Persee
-packet. Next independent lane is Nature or a provider-guidance test for
-accumulated packets.
+packet. Nature run `pdf-nature-missing17-reharvest-e7616c9` recovered 2/17
+`good_pdf`, and read-only confirmation `pdf-nature-missing17-readonly-e7616c9`
+preserved the same two durable PDFs; 15 rows remain missing. Oxjobs commit
+`33c8c71c` publishes the Nature recovery/residual packet. Next independent lane
+is J-STAGE or a provider-guidance test for accumulated packets.
 Current latest pushed Taxicab branch commit before this docs slice is `4e6130f`.
 
 ## Agent Operating Rules
