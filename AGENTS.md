@@ -553,10 +553,17 @@ durable PDF record. Read-only confirmation
 `pdf-copernicus-meetingorganizer-missing3-readonly-638dd13` returned all three
 rows to `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs
 commit `4bc7763f #461 taxicab-pdf: add copernicus tail packet` publishes the
-scrubbed summaries, reports, provider packet, and next Google Drive queue. Next
-tail lane is Google Drive on `drive.google.com` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/google-drive-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `638dd13`.
+scrubbed summaries, reports, provider packet, and next Google Drive queue.
+Google Drive tail run `pdf-google-drive-missing3-reharvest-47e462f` recovered
+0/3 `good_pdf`; all three viewer routes stored HTML and produced no durable PDF
+record. Read-only confirmation `pdf-google-drive-missing3-readonly-47e462f`
+returned all three rows to `missing_pdf_harvest`, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit
+`3bd2e947 #461 taxicab-pdf: add google drive tail packet` publishes the
+scrubbed summaries, reports, provider packet, and next protocols.io queue. Next
+tail lane is protocols.io on `www.protocols.io` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/protocols-io-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `47e462f`.
 
 ## Repository
 
