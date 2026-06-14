@@ -41,9 +41,9 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999cu complete; generic no-storage provider PDF probing is implemented at Taxicab commit 31663bc and the IOP residual probe `iop-corrupt-provider-probe-3-31663bc` recovered 0/3 PDFs. Oxjobs #461 commit 27d5e414 publishes the scrubbed IOP residual summary/report. Gate 21.999cv is J-STAGE corrupt-PDF subtype triage with no Taxicab POST or production writes.
+Current phase: Gate 21.999cv complete; generic no-storage provider PDF probing is implemented at Taxicab commit 31663bc, the IOP residual probe `iop-corrupt-provider-probe-3-31663bc` recovered 0/3 PDFs, and the J-STAGE corrupt-provider probe `jstage-corrupt-provider-probe-3b-31663bc` recovered 0/3 residual corrupt PDFs. Oxjobs #461 commit 416b6fec publishes the scrubbed J-STAGE residual summary/report. Gate 21.999cw is J-STAGE encrypted/unreadable subtype triage with no Taxicab POST or production writes.
 Next exact command:
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category corrupt_or_truncated_pdf --host www.jstage.jst.go.jp --limit 3 --strategies default_body,browser_html --run-id jstage-corrupt-provider-probe-3-31663bc --out pdf_eval_runs/
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category encrypted_or_unreadable_pdf --host jstage.jst.go.jp --limit 3 --strategies default_body,browser_html --run-id jstage-encrypted-provider-probe-3-31663bc --out pdf_eval_runs/
 ```
 
 After Gate 0 is pushed:

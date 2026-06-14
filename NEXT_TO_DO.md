@@ -11,12 +11,13 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: generic no-storage provider probe is implemented at Taxicab commit `31663bc`, and oxjobs #461 is pushed at `27d5e414` with the scrubbed IOP residual probe result.
+Current gate: generic no-storage provider probe is implemented at Taxicab commit `31663bc`, and oxjobs #461 is pushed at `416b6fec` with the scrubbed J-STAGE corrupt-provider probe result.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Current tooling slice: generic no-storage provider probing in `scripts/provider_pdf_probe.py`. It reads full-gate rows or CSV queues, sanitizes URLs, tests named Zyte strategies, and writes local probe artifacts without Taxicab POST/R2/DynamoDB writes.
 IOP residual probe `iop-corrupt-provider-probe-3-31663bc` recovered 0/3 PDFs: one PerfDrive/captcha block and two corrupt application/pdf responses with no page objects. Treat residual IOP as Zyte/support or validator triage, not route code.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category corrupt_or_truncated_pdf --host www.jstage.jst.go.jp --limit 3 --strategies default_body,browser_html --run-id jstage-corrupt-provider-probe-3-31663bc --out pdf_eval_runs/
+J-STAGE corrupt-provider probe `jstage-corrupt-provider-probe-3b-31663bc` recovered 0/3 residual corrupt PDFs: two application/pdf responses still had no page objects and one row timed out empty; browser HTML returned PDF-viewer shells. Treat this as Zyte binary-mode or validator-byte triage before any route-code change.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category encrypted_or_unreadable_pdf --host jstage.jst.go.jp --limit 3 --strategies default_body,browser_html --run-id jstage-encrypted-provider-probe-3-31663bc --out pdf_eval_runs/
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -79,8 +80,13 @@ The generic no-storage provider probe is pushed at Taxicab commit
 `iop-corrupt-provider-probe-3-31663bc` recovered 0/3 PDFs: one PerfDrive/captcha
 block and two corrupt application/pdf responses with no page objects. Oxjobs
 #461 commit `27d5e414 #461 taxicab-pdf: record iop residual probe` publishes
-the scrubbed summary/report. Next lane: J-STAGE corrupt-PDF subtype triage on
-`www.jstage.jst.go.jp` using `scripts/provider_pdf_probe.py`.
+the scrubbed summary/report. J-STAGE corrupt-provider probe
+`jstage-corrupt-provider-probe-3b-31663bc` recovered 0/3 residual corrupt PDFs:
+two application/pdf responses still had no page objects and one row timed out
+empty; browser HTML returned PDF-viewer shells. Oxjobs #461 commit
+`416b6fec #461 taxicab-pdf: record jstage corrupt probe` publishes the scrubbed
+summary/report. Next lane: J-STAGE encrypted/unreadable subtype triage on
+`jstage.jst.go.jp` using `scripts/provider_pdf_probe.py`.
 
 Gated PDF reharvest mode is implemented locally. It POSTs the corpus `PDF URL`
 when present, caps workers at 4, waits for write/read consistency, then re-runs
