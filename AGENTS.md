@@ -68,6 +68,10 @@ Lippincott run `pdf-lippincott-missing-reharvest-25-0405edf` also recovered
 0/25 `good_pdf`; POST accepted article/abstract HTML pages and direct
 no-storage `downloadpdf.aspx` probes returned secured-browser HTML. Oxjobs
 commit `b88a5a79` records the scrubbed Lippincott summary/report and packet.
+Oxford run `pdf-oxford-missing-reharvest-25-b259f2e` also recovered 0/25
+`good_pdf`; POST accepted article/abstract HTML pages and direct no-storage
+`article-pdf` probes returned Zyte 520 empty responses. Oxjobs commit
+`e1fe9deb` records the scrubbed Oxford summary/report and packet.
 
 ## Repository
 

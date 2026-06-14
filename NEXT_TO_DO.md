@@ -188,10 +188,18 @@ no-storage `downloadpdf.aspx` probes returned secured-browser / enable-scripts
 HTML. Oxjobs commit `b88a5a79 #461 taxicab-pdf: add lippincott provider
 packet` publishes the scrubbed Lippincott summary/report and packet.
 
+Oxford run `pdf-oxford-missing-reharvest-25-b259f2e` tested 25
+`missing_pdf_harvest` rows from `academic.oup.com` and recovered 0 `good_pdf`:
+all 25 stayed `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`.
+POST accepted article/abstract HTML pages, and direct no-storage `article-pdf`
+probes returned Zyte 520 empty responses. Oxjobs commit
+`e1fe9deb #461 taxicab-pdf: add oxford provider packet` publishes the scrubbed
+Oxford summary/report and packet.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
-Wiley, De Gruyter, and Lippincott PDF-byte fetches before production route
-code. If waiting on provider input, the next independent clusters are Oxford
-`10.1093` or CUP `10.1017`.
+Wiley, De Gruyter, Lippincott, and Oxford PDF-byte fetches before production
+route code. If waiting on provider input, the next independent cluster is CUP
+`10.1017`.
 
 ## Absolute paths
 
