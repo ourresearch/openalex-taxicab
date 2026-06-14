@@ -144,6 +144,39 @@ class ProviderPdfProbeTests(unittest.TestCase):
             self.assertTrue((out / "rows.ndjson").exists())
             self.assertIn("Recovered DOI count: 1/1", (out / "report.html").read_text(encoding="utf-8"))
 
+    def test_write_probe_artifacts_uses_best_non_good_category(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "probe"
+            rows = [
+                {
+                    "doi": "10.1/a",
+                    "publisher": "springer",
+                    "host": "link.springer.com",
+                    "strategy_name": "default_body",
+                    "category": "empty_response",
+                    "status_code": 520,
+                    "content_type": "",
+                    "size_bytes": 0,
+                    "candidate_url": "https://link.springer.com/content/pdf/10.1/a.pdf",
+                },
+                {
+                    "doi": "10.1/a",
+                    "publisher": "springer",
+                    "host": "link.springer.com",
+                    "strategy_name": "browser_html",
+                    "category": "js_redirect_unresolved",
+                    "status_code": 200,
+                    "content_type": "text/html",
+                    "size_bytes": 10000,
+                    "candidate_url": "https://link.springer.com/content/pdf/10.1/a.pdf",
+                },
+            ]
+            write_probe_artifacts(rows, out, run_id="unit-probe", source_path=Path("rows.ndjson"))
+
+            summary = json.loads((out / "summary.json").read_text(encoding="utf-8"))
+            self.assertEqual(summary["recovered_doi_count"], 0)
+            self.assertEqual(summary["best_category_counts"], {"js_redirect_unresolved": 1})
+
 
 if __name__ == "__main__":
     unittest.main()

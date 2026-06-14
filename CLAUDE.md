@@ -32,14 +32,23 @@ capture. Tests passed with full `python3 -m unittest discover -s tests` and
 PDF fixture smoke. A local no-storage `http_get` measurement over the 19
 current residual Wiley rows returned 13/19 `good_pdf`; this is not a production
 gate because the branch is not deployed to Taxicab main.
-Oxjobs #461 commit `d4f99eee` publishes this candidate evidence. The next gate
-is deciding a bounded confirmation path that does not push Taxicab main before
-the PDF 95% proof.
+Oxjobs #461 commit `d4f99eee` publishes this candidate evidence. Confirmation
+path decision: remote `--reharvest` exercises deployed Taxicab main, not this
+branch; local branch `Harvester` with real env credentials can write production
+R2/DynamoDB, so do not use it as a silent branch-confirmation path. Continue
+with no-storage branch evidence until a full 95% PDF proof is ready for main.
+Latest no-storage probes: Wiley `/doi/pdf/` as-is recovered 0/10; rewriting
+that same sample to `/doi/pdfdirect/` recovered only 2/10, including one
+DOI-mismatch PDF; Springer `link.springer.com/content/pdf/` recovered 0/10.
+Treat these as provider/support evidence, not production route-code candidates.
 Current tooling slice: generic no-storage provider probing is implemented in
 `scripts/provider_pdf_probe.py` with tests in `tests/test_provider_pdf_probe.py`.
 It does not call Taxicab POST and does not write R2/DynamoDB. It sanitizes URLs
 before artifacts and classifies probe responses through the existing PDF
-harness. IOP residual probe `iop-corrupt-provider-probe-3-31663bc` recovered
+harness. Provider probe summaries now choose the best non-good category per DOI
+instead of defaulting to the first attempted strategy; this is
+measurement/reporting-only, not production scraping behavior. IOP residual
+probe `iop-corrupt-provider-probe-3-31663bc` recovered
 0/3 PDFs: one PerfDrive/captcha block and two corrupt application/pdf responses
 with no page objects. Oxjobs #461 commit `27d5e414` publishes the scrubbed
 summary and report. J-STAGE corrupt-provider probe
@@ -56,7 +65,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`rg -n "class Harvester|def harvest|_store_content|R2|DynamoDB|--reharvest|POST /taxicab" openalex_taxicab app.py scripts tests`.
+`python3 -m unittest tests.test_provider_pdf_probe tests.test_sciencedirect_pdf_probe && python3 -m unittest tests.test_pdf_eval_harness tests.test_http_cache`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context

@@ -34,6 +34,23 @@ from openalex_taxicab.pdf_eval_harness import PdfEvidence, classify_pdf_content,
 
 DEFAULT_ROWS = REPO_ROOT / "pdf_eval_runs" / "pdf-full10k-after-humankinetics-bbd2225" / "rows.ndjson"
 DEFAULT_STRATEGIES = ("default_body", "accept_pdf", "google_referer", "browser_html")
+BEST_CATEGORY_RANK = {
+    "good_pdf": 0,
+    "wrong_content_pdf": 10,
+    "supplement_or_preview_pdf": 20,
+    "corrupt_or_truncated_pdf": 30,
+    "encrypted_or_unreadable_pdf": 40,
+    "html_instead_of_pdf": 50,
+    "js_redirect_unresolved": 60,
+    "interstitial_or_paywall": 70,
+    "bot_block_403": 80,
+    "empty_response": 90,
+    "timeout": 100,
+    "provider_error": 110,
+    "taxicab_error": 120,
+    "missing_pdf_harvest": 130,
+    "no_pdf_expected": 140,
+}
 
 
 @dataclass(frozen=True)
@@ -264,6 +281,17 @@ def strategy_list(raw: str) -> list[str]:
     return strategies
 
 
+def best_probe_row(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    return min(
+        rows,
+        key=lambda row: (
+            BEST_CATEGORY_RANK.get(str(row.get("category") or ""), 999),
+            -(int(row.get("size_bytes") or 0)),
+            str(row.get("strategy_name") or ""),
+        ),
+    )
+
+
 def write_probe_artifacts(rows: list[dict[str, Any]], out_dir: Path, *, run_id: str, source_path: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     rows_path = out_dir / "rows.ndjson"
@@ -277,8 +305,7 @@ def write_probe_artifacts(rows: list[dict[str, Any]], out_dir: Path, *, run_id: 
 
     best_by_doi = {}
     for doi, doi_rows in by_doi.items():
-        good = [row for row in doi_rows if row["category"] == "good_pdf"]
-        best_by_doi[doi] = good[0] if good else doi_rows[0]
+        best_by_doi[doi] = best_probe_row(doi_rows)
 
     recovered = sorted(doi for doi, row in best_by_doi.items() if row["category"] == "good_pdf")
     per_strategy = Counter(f"{row['strategy_name']}:{row['category']}" for row in rows)

@@ -1,9 +1,13 @@
+import json
+import tempfile
 import unittest
+from pathlib import Path
 
 from scripts.sciencedirect_pdf_probe import (
     build_sciencedirect_pdf_variants,
     extract_sciencedirect_pii,
     sanitize_url,
+    write_probe_artifacts,
 )
 
 
@@ -64,6 +68,35 @@ class ScienceDirectPdfProbeTests(unittest.TestCase):
                 },
             ],
         )
+
+    def test_write_probe_artifacts_uses_best_non_good_category(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "probe"
+            rows = [
+                {
+                    "doi": "10.1/a",
+                    "variant_name": "candidate",
+                    "category": "empty_response",
+                    "status_code": 520,
+                    "content_type": "",
+                    "size_bytes": 0,
+                    "variant_url": "https://www.sciencedirect.com/science/article/pii/S123/pdf",
+                },
+                {
+                    "doi": "10.1/a",
+                    "variant_name": "article",
+                    "category": "html_instead_of_pdf",
+                    "status_code": 200,
+                    "content_type": "text/html",
+                    "size_bytes": 10000,
+                    "variant_url": "https://www.sciencedirect.com/science/article/pii/S123",
+                },
+            ]
+            write_probe_artifacts(rows, out, run_id="unit-probe", split_path=Path("split.json"))
+
+            summary = json.loads((out / "summary.json").read_text(encoding="utf-8"))
+            self.assertEqual(summary["recovered_doi_count"], 0)
+            self.assertEqual(summary["best_category_counts"], {"html_instead_of_pdf": 1})
 
 
 if __name__ == "__main__":

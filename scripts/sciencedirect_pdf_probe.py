@@ -33,6 +33,23 @@ from openalex_taxicab.pdf_eval_harness import PdfEvidence, classify_pdf_content 
 DEFAULT_SPLIT = Path(
     "/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-route-split-100-9b7d84b.json"
 )
+BEST_CATEGORY_RANK = {
+    "good_pdf": 0,
+    "wrong_content_pdf": 10,
+    "supplement_or_preview_pdf": 20,
+    "corrupt_or_truncated_pdf": 30,
+    "encrypted_or_unreadable_pdf": 40,
+    "html_instead_of_pdf": 50,
+    "js_redirect_unresolved": 60,
+    "interstitial_or_paywall": 70,
+    "bot_block_403": 80,
+    "empty_response": 90,
+    "timeout": 100,
+    "provider_error": 110,
+    "taxicab_error": 120,
+    "missing_pdf_harvest": 130,
+    "no_pdf_expected": 140,
+}
 
 
 def git_sha() -> str:
@@ -169,8 +186,14 @@ def write_probe_artifacts(rows: list[dict[str, Any]], out_dir: Path, *, run_id: 
     per_variant = Counter(row["variant_name"] + ":" + row["category"] for row in rows)
     best_by_doi = {}
     for doi, doi_rows in by_doi.items():
-        good = [r for r in doi_rows if r["category"] == "good_pdf"]
-        best_by_doi[doi] = good[0] if good else doi_rows[0]
+        best_by_doi[doi] = min(
+            doi_rows,
+            key=lambda row: (
+                BEST_CATEGORY_RANK.get(str(row.get("category") or ""), 999),
+                -(int(row.get("size_bytes") or 0)),
+                str(row.get("variant_name") or ""),
+            ),
+        )
 
     recovered = sorted(doi for doi, row in best_by_doi.items() if row["category"] == "good_pdf")
     summary = {

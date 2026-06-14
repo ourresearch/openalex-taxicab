@@ -31,9 +31,19 @@ capture. Tests passed with full `python3 -m unittest discover -s tests` and
 PDF fixture smoke. A local no-storage `http_get` measurement over the 19
 current residual Wiley rows returned 13/19 `good_pdf`; this is not a production
 gate because the branch is not deployed to Taxicab main.
-Oxjobs #461 commit `d4f99eee` publishes this candidate evidence. The next gate
-is deciding a bounded confirmation path that does not push Taxicab main before
-the PDF 95% proof.
+Oxjobs #461 commit `d4f99eee` publishes this candidate evidence. Confirmation
+path decision: remote `--reharvest` exercises deployed Taxicab main, not this
+branch; local branch `Harvester` with real env credentials can write production
+R2/DynamoDB, so do not use it as a silent branch-confirmation path.
+No-storage evidence remains the safe branch-gate until a full 95% PDF proof is
+ready for main.
+Latest no-storage probes after that decision: Wiley `/doi/pdf/` as-is recovered
+0/10 (`js_redirect_unresolved` 8, `html_instead_of_pdf` 1, `bot_block_403` 1);
+rewriting the same sample to `/doi/pdfdirect/` recovered only 2/10, including
+one DOI-mismatch PDF, so this is not strong enough to broaden production Wiley
+routes. Springer `link.springer.com/content/pdf/` recovered 0/10
+(`interstitial_or_paywall` 5, `js_redirect_unresolved` 3, `bot_block_403` 2).
+Treat both as provider/support evidence, not Taxicab route-code candidates.
 Current tooling slice: `scripts/provider_pdf_probe.py` adds a generic
 no-storage Zyte provider strategy probe. It reads rows/CSV queues, strips query
 strings/fragments from artifacts, never calls Taxicab POST, and writes
@@ -56,8 +66,12 @@ J-STAGE missing probe `jstage-missing-provider-probe-3-31663bc` recovered 0/3:
 two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes for residual subtype evidence before production PDF route changes.
+Current local code slice: provider probe summaries now choose the best
+non-good category per DOI instead of defaulting to the first attempted
+strategy. This is measurement/reporting-only and does not change Taxicab
+production scraping behavior.
 Next exact command:
-`rg -n "class Harvester|def harvest|_store_content|R2|DynamoDB|--reharvest|POST /taxicab" openalex_taxicab app.py scripts tests`.
+`python3 -m unittest tests.test_provider_pdf_probe tests.test_sciencedirect_pdf_probe && python3 -m unittest tests.test_pdf_eval_harness tests.test_http_cache`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
