@@ -322,10 +322,15 @@ American Journal of Surgery run
 `pdf-americanjournalofsurgery-missing5-reharvest-93479bd` recovered 0/5
 `good_pdf`; three article PDF rows returned invalid PDF content and two stayed
 missing, with 0 timeout and 0 `taxicab_error`. Oxjobs commit `1b4912ec`
-publishes the AJS queue, scrubbed report, and provider packet. Next independent
-lane is AJOG (`www.ajog.org`) from the latest full gate.
+publishes the AJS queue, scrubbed report, and provider packet.
+AJOG run `pdf-ajog-missing5-reharvest-831503a` recovered 1/5 `good_pdf`;
+read-only confirmation `pdf-ajog-missing5-readonly-831503a` preserved the same
+durable PDF and left four rows missing, with 0 timeout and 0 `taxicab_error`.
+Oxjobs commit `2e492500` publishes the AJOG queue, scrubbed reports, and
+provider packet. Next independent lane is Scholarly Publishing Collective
+(`scholarlypublishingcollective.org`) from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`93479bd`.
+`831503a`.
 
 ## Agent Operating Rules
 
