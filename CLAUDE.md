@@ -143,10 +143,15 @@ APS run `pdf-aps-missing23-reharvest-65feabe` recovered 0/23 `good_pdf`, with
 all rows still `missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`.
 Oxjobs commit `147a9e65` records the APS queue, scrubbed summary/report,
 provider packet, and combined request update. Treat APS as a
-Zyte/provider-advised PDF-byte lane before route code. Next independent sample
-lane is ACM from the latest full gate, unless Zyte/provider guidance is ready
-to test.
-Current latest pushed Taxicab branch commit before this docs slice is `65feabe`.
+Zyte/provider-advised PDF-byte lane before route code.
+ACM run `pdf-acm-missing22-reharvest-5f81111` recovered 0/22 `good_pdf`, with
+16 rows still `missing_pdf_harvest`, 5 `corrupt_or_truncated_pdf`, one timeout,
+and 0 `taxicab_error`. Oxjobs commit `32d6a637` records the ACM queue,
+scrubbed summary/report, provider packet, and combined request update. Treat
+ACM as a Zyte/provider-advised PDF-byte lane before route code. Next independent
+sample lane is BMJ from the latest full gate, then Karger or Optica, unless
+Zyte/provider guidance is ready to test.
+Current latest pushed Taxicab branch commit before this docs slice is `5f81111`.
 
 ## Agent Operating Rules
 

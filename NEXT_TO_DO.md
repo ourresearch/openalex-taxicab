@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: APS no-lift provider lane is recorded; ACM bounded sample or provider-packet send/test is next.
+Current gate: ACM no-lift provider lane is recorded; BMJ bounded sample or provider-packet send/test is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("dl\\\\.acm\\\\.org"))][0:22][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "dl.acm.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-taylor-e7d1361/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/acm-missing-22.csv
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("bmj";"i"))][0:32][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "bmj", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-taylor-e7d1361/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/bmj-missing-32.csv
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -341,11 +341,20 @@ had no readable durable PDF record. Oxjobs commit
 scrubbed summary/report, provider packet, and combined request update. Treat
 APS as a Zyte/provider-advised PDF-byte lane before production route code.
 
+ACM run `pdf-acm-missing22-reharvest-5f81111` tested 22
+`missing_pdf_harvest` rows from `dl.acm.org` and recovered 0 `good_pdf`:
+16 rows stayed missing, five were `corrupt_or_truncated_pdf`, one timed out,
+and there were 0 `taxicab_error` rows. Oxjobs commit
+`32d6a637 #461 taxicab-pdf: add acm provider packet` publishes the ACM queue,
+scrubbed summary/report, provider packet, and combined request update. Treat
+ACM as a Zyte/provider-advised PDF-byte and invalid-PDF lane before production
+route code.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
-chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, and APS PDF-byte or
+chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, APS, and ACM PDF-byte or
 click/download fetches before production route code. If continuing independent
-technical work, choose ACM next from the latest full gate, then BMJ, Karger, or
+technical work, choose BMJ next from the latest full gate, then Karger or
 Optica. IOP is accepted as the first repeated whole-corpus PDF KPI lift; Taylor
 is the latest accepted lift, and the gap to 95% remains 4,092 rows.
 
