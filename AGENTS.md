@@ -312,10 +312,15 @@ Canadian Science Publishing run `pdf-cdnsciencepub-missing5-reharvest-2a121b2`
 recovered 0/5 `good_pdf`; three `cdnsciencepub.com` explicit PDF rows returned
 invalid PDF content and two stayed missing, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `634173b9` publishes the Canadian Science
-queue, scrubbed report, and provider packet. Next independent lane is Edward
-Elgar (`www.elgaronline.com`) from the latest full gate.
+queue, scrubbed report, and provider packet.
+Edward Elgar run `pdf-elgaronline-missing5-reharvest-8244033` recovered 1/5
+`good_pdf`; read-only confirmation `pdf-elgaronline-missing5-readonly-8244033`
+preserved the same durable PDF and left four rows missing, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `9771940c` publishes the Edward Elgar queue,
+scrubbed reports, and residual provider packet. Next independent lane is
+American Concrete Institute (`www.concrete.org`) from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`2a121b2`.
+`8244033`.
 
 ## Repository
 

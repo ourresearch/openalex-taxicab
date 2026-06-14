@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: Canadian Science Publishing provider lane is recorded at oxjobs 634173b9; Edward Elgar bounded sample or provider-guidance test is next.
+Current gate: Edward Elgar provider lane is recorded at oxjobs 9771940c; American Concrete Institute bounded sample or provider-guidance test is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.elgaronline\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.elgaronline.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elgaronline-missing-25.csv
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.concrete\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.concrete.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/concrete-missing-25.csv
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -595,14 +595,21 @@ tested 5 `missing_pdf_harvest` rows from `cdnsciencepub.com` and recovered
 stayed missing, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `634173b9 #461 taxicab-pdf: add canadian science provider packet` publishes the
 Canadian Science queue, scrubbed report, and provider packet.
+Edward Elgar run `pdf-elgaronline-missing5-reharvest-8244033` tested 5
+`missing_pdf_harvest` rows from `www.elgaronline.com` and recovered
+1 `good_pdf`; read-only confirmation
+`pdf-elgaronline-missing5-readonly-8244033` preserved the same durable PDF and
+left four rows missing, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`9771940c #461 taxicab-pdf: add edward elgar recovery packet` publishes the
+Edward Elgar queue, scrubbed reports, and residual provider packet.
 
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
 chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, APS, ACM, BMJ,
 Karger, Optica, JSTOR, Inlibra, Scientific.net, Persee, Nature, J-STAGE,
-University of Chicago Journals, ASME, Cairn, Physiology, ASCE, PDCNet, EurekaSelect, ActaHort, V&R eLibrary, IWA Publishing, AMS journals, JPET/ASPET, OnePetro, Mary Ann Liebert, AACR Figshare, AMPP, Healio, Sage Knowledge, IGI Global, UC Press, RUPress, Emerald, JACC, AJO, BioOne, and Canadian Science Publishing PDF-byte or click/download fetches
+University of Chicago Journals, ASME, Cairn, Physiology, ASCE, PDCNet, EurekaSelect, ActaHort, V&R eLibrary, IWA Publishing, AMS journals, JPET/ASPET, OnePetro, Mary Ann Liebert, AACR Figshare, AMPP, Healio, Sage Knowledge, IGI Global, UC Press, RUPress, Emerald, JACC, AJO, BioOne, Canadian Science Publishing, and Edward Elgar PDF-byte or click/download fetches
 before production route code. If continuing independent technical work, choose
-Edward Elgar from the latest full gate or test provider
+American Concrete Institute from the latest full gate or test provider
 guidance for accumulated packets. IOP is accepted as the first repeated
 whole-corpus PDF KPI lift; Karger is the latest accepted lift, and the gap to
 95% remains 4,089 rows.

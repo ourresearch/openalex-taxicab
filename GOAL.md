@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999au complete; Canadian Science Publishing recovered 0/5 PDFs and is recorded in oxjobs at 634173b9. Gate 21.999av, Edward Elgar bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.elgaronline\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.elgaronline.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elgaronline-missing-25.csv
+Current phase: Gate 21.999av complete; Edward Elgar recovered 1/5 PDFs and is recorded in oxjobs at 9771940c. Gate 21.999aw, American Concrete Institute bounded sample or provider-guidance test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.concrete\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.concrete.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/concrete-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -127,7 +127,8 @@ Gate 21.999ar: run JACC targeted sample and provider packet. [done, oxjobs eea01
 Gate 21.999as: run AJO targeted sample and provider packet. [done, oxjobs a72d7c09]
 Gate 21.999at: run BioOne targeted sample and provider packet. [done, oxjobs b60d7147]
 Gate 21.999au: run Canadian Science Publishing targeted sample and provider packet. [done, oxjobs 634173b9]
-Gate 21.999av: run Edward Elgar targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999av: run Edward Elgar targeted sample, read-only confirmation, and provider packet. [done, oxjobs 9771940c]
+Gate 21.999aw: run American Concrete Institute targeted sample, or test provider guidance for accumulated packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -361,7 +362,10 @@ PDF:
   oxjobs #461 BioOne provider packet commit: b60d7147 #461 taxicab-pdf: add bioone provider packet
   canadian science publishing bounded reharvest: pdf-cdnsciencepub-missing5-reharvest-2a121b2, 5 DOI candidates, 0 good_pdf, 3 corrupt_or_truncated_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   oxjobs #461 Canadian Science provider packet commit: 634173b9 #461 taxicab-pdf: add canadian science provider packet
-  next lane: Edward Elgar bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  edward elgar bounded reharvest: pdf-elgaronline-missing5-reharvest-8244033, 5 DOI candidates, 1 good_pdf, 4 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  edward elgar read-only confirmation: pdf-elgaronline-missing5-readonly-8244033, 1 durable good_pdf, 4 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  oxjobs #461 Edward Elgar provider packet commit: 9771940c #461 taxicab-pdf: add edward elgar recovery packet
+  next lane: American Concrete Institute bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
