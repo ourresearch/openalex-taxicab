@@ -211,10 +211,13 @@ Physiology provider packet. ASCE run
 `pdf-asce-missing10-reharvest-e708434` recovered 0/10 `good_pdf`; five rows
 returned invalid PDF-like content and five stayed `missing_pdf_harvest`, with
 0 timeout and 0 `taxicab_error`. Oxjobs commit `b57dba2f` publishes the ASCE
-provider packet. Next independent lane is PDCNet (`pdcnet.org`) from the latest
-full gate.
+provider packet. PDCNet run `pdf-pdcnet-missing9-reharvest-9cd3b93` recovered
+0/9 `good_pdf`; all rows stayed `missing_pdf_harvest` after HTML purchase/form
+captures, with 0 timeout and 0 `taxicab_error`. Oxjobs commit `a1663d3f`
+publishes the PDCNet provider packet. Next independent lane is EurekaSelect
+(`eurekaselect.com`) from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`e708434`.
+`9cd3b93`.
 
 ## Agent Operating Rules
 

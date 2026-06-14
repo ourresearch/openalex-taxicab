@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999z complete; ASCE recovered 0/10 PDFs and is recorded in oxjobs at b57dba2f. Gate 21.999aa, PDCNet bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?pdcnet\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "pdcnet.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/pdcnet-missing-25.csv
+Current phase: Gate 21.999aa complete; PDCNet recovered 0/9 PDFs and is recorded in oxjobs at a1663d3f. Gate 21.999ab, EurekaSelect bounded sample or provider-guidance test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?eurekaselect\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "eurekaselect.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/eurekaselect-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -106,7 +106,8 @@ Gate 21.999w: run ASME targeted sample and provider packet. [done, oxjobs 10d80d
 Gate 21.999x: run Cairn targeted sample and provider packet. [done, oxjobs 97b61e38]
 Gate 21.999y: run Physiology targeted sample and provider packet. [done, oxjobs 33d5cb5b]
 Gate 21.999z: run ASCE targeted sample and provider packet. [done, oxjobs b57dba2f]
-Gate 21.999aa: run PDCNet targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999aa: run PDCNet targeted sample and provider packet. [done, oxjobs a1663d3f]
+Gate 21.999ab: run EurekaSelect targeted sample, or test provider guidance for accumulated packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -283,7 +284,10 @@ PDF:
   asce bounded reharvest: pdf-asce-missing10-reharvest-e708434, 10 DOI candidates, 0 good_pdf, 5 corrupt_or_truncated_pdf, 5 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   asce finding: POST returned invalid PDF-like content or HTML/no durable PDF records for ascelibrary.org PDF routes
   oxjobs #461 ASCE provider packet commit: b57dba2f #461 taxicab-pdf: add asce provider packet
-  next lane: PDCNet bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  pdcnet bounded reharvest: pdf-pdcnet-missing9-reharvest-9cd3b93, 9 DOI candidates, 0 good_pdf, 9 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  pdcnet finding: POST returned HTML purchase/form captures and no durable PDF records for pdcnet.org PDF routes
+  oxjobs #461 PDCNet provider packet commit: a1663d3f #461 taxicab-pdf: add pdcnet provider packet
+  next lane: EurekaSelect bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: ASCE provider lane is recorded; PDCNet bounded sample or provider-guidance test is next.
+Current gate: PDCNet provider lane is recorded; EurekaSelect bounded sample or provider-guidance test is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?pdcnet\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "pdcnet.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/pdcnet-missing-25.csv
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?eurekaselect\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "eurekaselect.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/eurekaselect-missing-25.csv
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -456,13 +456,19 @@ with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `b57dba2f #461 taxicab-pdf: add asce provider packet` publishes the ASCE
 queue, scrubbed report, and provider packet.
 
+PDCNet run `pdf-pdcnet-missing9-reharvest-9cd3b93` tested 9
+`missing_pdf_harvest` rows and recovered 0 `good_pdf`: every row stayed missing
+after HTML purchase/form captures, with 0 timeout and 0 `taxicab_error`.
+Oxjobs commit `a1663d3f #461 taxicab-pdf: add pdcnet provider packet`
+publishes the PDCNet queue, scrubbed report, and provider packet.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
 chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, APS, ACM, BMJ,
 Karger, Optica, JSTOR, Inlibra, Scientific.net, Persee, Nature, J-STAGE,
-University of Chicago Journals, ASME, Cairn, Physiology, and ASCE PDF-byte or click/download fetches
+University of Chicago Journals, ASME, Cairn, Physiology, ASCE, and PDCNet PDF-byte or click/download fetches
 before production route code. If continuing independent technical work, choose
-PDCNet from the latest full gate or test provider
+EurekaSelect from the latest full gate or test provider
 guidance for accumulated packets. IOP is accepted as the first repeated
 whole-corpus PDF KPI lift; Karger is the latest accepted lift, and the gap to
 95% remains 4,089 rows.
