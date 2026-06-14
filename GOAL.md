@@ -41,8 +41,22 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999cs complete; Human Kinetics `journals.humankinetics.com` recovered 1/3 PDFs, read-only confirmation preserved one durable PDF, and the scrubbed residual packet plus next full-gate command are recorded in oxjobs at 93b383f6. Gate 21.999ct, full 10K read-only gate after bounded recoveries, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --corpus /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-full10k-after-humankinetics-bbd2225 --out pdf_eval_runs --workers 8 --row-timeout 120 --timeout 60 --retries 1 --progress-every 100
+Current phase: Gate 21.999ct complete; full gate `pdf-full10k-after-humankinetics-bbd2225` accepted 1,910/6,293 `good_pdf` (30.35%), +20 versus Karger and +73 versus denominator baseline, with 0 timeout and 0 `taxicab_error`. Oxjobs #461 report is pushed at 43ca3830. Gate 21.999cu, choose the next high-volume actionable PDF cluster, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 - <<'PY'
+import json, collections, urllib.parse
+path = "pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson"
+counter = collections.Counter()
+with open(path) as f:
+    for line in f:
+        row = json.loads(line)
+        if row.get("category") != "missing_pdf_harvest":
+            continue
+        url = row.get("candidate_url") or row.get("resolved_url") or row.get("input_url") or ""
+        host = urllib.parse.urlparse(url).netloc.lower() or row.get("host") or "unknown"
+        counter[(row.get("publisher") or "unknown", host)] += 1
+for (publisher, host), count in counter.most_common(25):
+    print(f"{count:4d} {publisher:24s} {host}")
+PY
 ```
 
 After Gate 0 is pushed:
@@ -177,7 +191,8 @@ Gate 21.999cp: run IOS Press `content.iospress.com` tail sample and provider pac
 Gate 21.999cq: run AAI Journals `journals.aai.org` tail sample and provider packet. [done, oxjobs ebff6475]
 Gate 21.999cr: run JCVA Online `www.jcvaonline.com` tail sample and provider packet. [done, oxjobs e48d73e8]
 Gate 21.999cs: run Human Kinetics `journals.humankinetics.com` tail sample and residual packet. [done, oxjobs 93b383f6]
-Gate 21.999ct: run full 10K read-only gate after bounded recoveries. [next]
+Gate 21.999ct: run full 10K read-only gate after Human Kinetics and bounded recoveries. [done, oxjobs 43ca3830]
+Gate 21.999cu: choose next high-volume actionable PDF cluster from the accepted full-gate rows. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -202,12 +217,12 @@ Recovered in latest gate:
 PDF:
   full 10K baseline: 2,148/10,000 good_pdf (21.48%)
   denominator-enriched full baseline: 1,837/6,293 good_pdf (29.19%)
-  latest accepted full gate: pdf-full10k-after-karger-ca8b132, 1,890/6,293 good_pdf (30.03%)
-  latest accepted lift: +53 good_pdf vs denominator baseline, +3 vs prior accepted gate
+  latest accepted full gate: pdf-full10k-after-humankinetics-bbd2225, 1,910/6,293 good_pdf (30.35%)
+  latest accepted lift: +73 good_pdf vs denominator baseline, +20 vs prior accepted Karger gate
   no_pdf_expected: 3,707
-  denominator-enriched gap to 95%: 4,089 rows
-  dominant category: 3,863 missing_pdf_harvest
-  other major categories: 395 corrupt_or_truncated_pdf; 102 encrypted_or_unreadable_pdf
+  denominator-enriched gap to 95%: 4,069 rows
+  dominant category: 3,808 missing_pdf_harvest
+  other major categories: 425 corrupt_or_truncated_pdf; 104 encrypted_or_unreadable_pdf
   timeout: 0
   taxicab_error: 0
   run_id: pdf-full10k-readonly-22b78b7
@@ -551,7 +566,9 @@ PDF:
   Human Kinetics read-only confirmation: pdf-humankinetics-missing3-readonly-bbd2225, 1 durable good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   Human Kinetics finding: one `downloadpdf/view` route persisted as a durable PDF; two residual rows resolved to XML article HTML/no durable PDF records
   oxjobs #461 Human Kinetics packet commit: 93b383f6 #461 taxicab-pdf: add humankinetics recovery packet
-  next lane: full 10K read-only gate `pdf-full10k-after-humankinetics-bbd2225` to confirm accepted corpus-level lift from bounded recoveries
+  Human Kinetics full gate: pdf-full10k-after-humankinetics-bbd2225, 1,910/6,293 good_pdf (30.35%), +20 vs Karger, +73 vs denominator baseline, 0 good-to-non-good regressions, 0 timeout, 0 taxicab_error
+  oxjobs #461 Human Kinetics full-gate commit: 43ca3830 #461 taxicab-pdf: publish humankinetics full gate
+  next lane: choose the next high-volume actionable PDF cluster from `pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson`; top missing clusters are Springer link, Wiley, De Gruyter Brill, ScienceDirect, Lippincott, Cambridge, Oxford, and SSRN, most already sampled as Zyte/provider PDF-byte debt
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

@@ -7,11 +7,11 @@ Current goal state: HTML retrieval Phase 1 is complete at 9,583/10,000
 `good_pdf` on the PDF-expected subset of the 10K Goldie corpus. Use
 `GOAL.md` as the current control file and update it before long handoffs.
 Latest PDF measurement gate: accepted full 10K read-only gate
-`pdf-full10k-after-karger-ca8b132` is 1,890/6,293 `good_pdf` (30.03%),
-+53 rows versus the denominator baseline of 1,837/6,293 (29.19%) and +3 rows
-versus the prior accepted gate, with `missing_pdf_harvest` down from 3,939 to
-3,863, 0 good-to-non-good regressions, 0 timeout, and 0 Taxicab API errors.
-The gap to 95% is now 4,089 rows.
+`pdf-full10k-after-humankinetics-bbd2225` is 1,910/6,293 `good_pdf` (30.35%),
++73 rows versus the denominator baseline of 1,837/6,293 (29.19%) and +20 rows
+versus the prior accepted Karger gate, with `missing_pdf_harvest` down from
+3,939 to 3,808, 0 good-to-non-good regressions, 0 timeout, and 0 Taxicab API
+errors. The gap to 95% is now 4,069 rows.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
@@ -87,7 +87,7 @@ IOP run `pdf-iop-missing-reharvest-25-2e2c123` recovered 16/25 `good_pdf`;
 read-only confirmation preserved the same 16 durable records. Oxjobs commit
 `7d376fa0` records the positive sample. Remaining IOP queue
 `pdf-iop-remaining45-readonly-e5bcd30` preserved 21/45 more durable records.
-Oxjobs commit `5cca142e` records the latest accepted full-gate impact:
+Oxjobs commit `5cca142e` records the remaining-IOP full-gate impact:
 +45 `good_pdf` on the 6,293-row PDF denominator. IOP is now the first repeated
 whole-corpus PDF KPI lift, but still far short of the 95% target.
 RSC run `pdf-rsc-missing48-reharvest-008fe7f` recovered 0/48 `good_pdf`, with
@@ -595,9 +595,11 @@ recovered 1/3 `good_pdf`; read-only confirmation
 `pdf-humankinetics-missing3-readonly-bbd2225` preserved one durable PDF and
 left two XML-HTML/no-record rows missing. Oxjobs commit
 `93b383f6 #461 taxicab-pdf: add humankinetics recovery packet` publishes the
-scrubbed summaries, reports, residual provider packet, and next full 10K
-read-only gate. Latest Taxicab code/eval commit before this handoff-doc update
-is `bbd2225`.
+scrubbed summaries, reports, and residual provider packet. Full gate
+`pdf-full10k-after-humankinetics-bbd2225` accepted 1,910/6,293 `good_pdf`
+(30.35%), +20 versus Karger and +73 versus the denominator baseline, with 0
+timeout and 0 `taxicab_error`; oxjobs commit `43ca3830` publishes that report.
+Latest Taxicab code/eval commit before this handoff-doc update is `f623ef7`.
 
 ## Agent Operating Rules
 

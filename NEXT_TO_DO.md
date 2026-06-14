@@ -11,10 +11,24 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: Human Kinetics `journals.humankinetics.com` tail sample is recorded at oxjobs 93b383f6; full 10K read-only confirmation gate is next.
+Current gate: full gate `pdf-full10k-after-humankinetics-bbd2225` is accepted at 1,910/6,293 `good_pdf` (30.35%), +20 versus Karger and +73 versus denominator baseline; oxjobs #461 is pushed at 43ca3830.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --corpus /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-full10k-after-humankinetics-bbd2225 --out pdf_eval_runs --workers 8 --row-timeout 120 --timeout 60 --retries 1 --progress-every 100
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 - <<'PY'
+import json, collections, urllib.parse
+path = "pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson"
+counter = collections.Counter()
+with open(path) as f:
+    for line in f:
+        row = json.loads(line)
+        if row.get("category") != "missing_pdf_harvest":
+            continue
+        url = row.get("candidate_url") or row.get("resolved_url") or row.get("input_url") or ""
+        host = urllib.parse.urlparse(url).netloc.lower() or row.get("host") or "unknown"
+        counter[(row.get("publisher") or "unknown", host)] += 1
+for (publisher, host), count in counter.most_common(25):
+    print(f"{count:4d} {publisher:24s} {host}")
+PY
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -58,15 +72,19 @@ The denominator-enriched full 10K baseline is complete:
 `interstitial_or_paywall`, 2 `bot_block_403`, 0 timeout, and 0
 `taxicab_error`.
 
-The accepted full 10K gate after Karger is complete:
-`pdf-full10k-after-karger-ca8b132`, 1,890/6,293 `good_pdf` (30.03%),
-+53 rows versus the denominator baseline and +3 versus the prior gate, 3,863
-`missing_pdf_harvest`, 395 `corrupt_or_truncated_pdf`, 102 `encrypted_or_unreadable_pdf`, 11
-`html_instead_of_pdf`, 11 `js_redirect_unresolved`, 11
-`supplement_or_preview_pdf`, 8 `interstitial_or_paywall`, 2 `bot_block_403`,
-0 timeout, and 0 `taxicab_error`. There were 0 good-to-non-good regressions;
-14 non-good rows moved from missing to corrupt/truncated. Oxjobs commit
-`5ccb3df5 #461 taxicab-pdf: publish karger full gate` records the accepted report.
+The accepted full 10K gate after Human Kinetics and bounded recoveries is
+complete: `pdf-full10k-after-humankinetics-bbd2225`, 1,910/6,293 `good_pdf`
+(30.35%), +73 rows versus the denominator baseline and +20 versus the prior
+Karger gate, 3,808 `missing_pdf_harvest`, 425 `corrupt_or_truncated_pdf`, 104
+`encrypted_or_unreadable_pdf`, 10 `html_instead_of_pdf`, 11
+`js_redirect_unresolved`, 15 `supplement_or_preview_pdf`, 8
+`interstitial_or_paywall`, 2 `bot_block_403`, 0 timeout, and 0
+`taxicab_error`. There were 0 good-to-non-good regressions; 55 rows moved out
+of `missing_pdf_harvest` versus Karger, but 30 moved into
+`corrupt_or_truncated_pdf` and 4 into `supplement_or_preview_pdf`, so those are
+residual non-good debt rather than hidden wins. Oxjobs commit
+`43ca3830 #461 taxicab-pdf: publish humankinetics full gate` records the
+accepted report.
 
 Gated PDF reharvest mode is implemented locally. It POSTs the corpus `PDF URL`
 when present, caps workers at 4, waits for write/read consistency, then re-runs
@@ -856,10 +874,11 @@ Journals is an HTML/no-record provider lane with no durable recovered PDFs.
 JCVA Online is an abstract-HTML/invalid-PDF provider lane with no durable
 recovered PDFs. Human Kinetics is a partial-positive lane with one durable PDF
 and two residual XML-HTML/no-record rows. If continuing independent technical
-work, run the full 10K read-only gate `pdf-full10k-after-humankinetics-bbd2225`
-or test provider guidance for accumulated packets. IOP is accepted as the first repeated
-whole-corpus PDF KPI lift; Karger is the latest accepted lift, and the gap to
-95% remains 4,089 rows.
+work, use the accepted full rows from `pdf-full10k-after-humankinetics-bbd2225`
+to choose the next high-volume cluster or test provider guidance for
+accumulated packets. IOP is accepted as the first repeated whole-corpus PDF KPI
+lift; Human Kinetics and related bounded recoveries are the latest accepted
+lift at 1,910/6,293 `good_pdf` (30.35%), and the gap to 95% remains 4,069 rows.
 
 ## Absolute paths
 
