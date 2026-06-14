@@ -458,10 +458,19 @@ recovered 4/4 `good_pdf`; read-only confirmation
 at `articles.adsabs.harvard.edu`, with 0 timeout and 0 `taxicab_error`.
 Oxjobs commit `34c32f5f` publishes the ADS queue, summaries, and reports. This
 does not change accepted full-10K KPI history until a full read-only gate
-confirms corpus-level lift. Next tail lane is NCTM on `pubs.nctm.org` from the
-latest full gate.
+confirms corpus-level lift. NCTM tail run
+`pdf-nctm-missing4-reharvest-97bcaa1` recovered 1/4 `good_pdf`; read-only
+confirmation `pdf-nctm-missing4-readonly-97bcaa1` preserved the same 1/4
+durable record, with 3 missing rows, 0 timeout, and 0 `taxicab_error`. The
+three residual NCTM `downloadpdf/journals` routes stored XML article HTML and
+produced no durable PDF record. Oxjobs commit
+`877d1107 #461 taxicab-pdf: add nctm recovery` publishes the queue, summaries,
+reports, provider packet, and next AAAHQ queue. This does not change accepted
+full-10K KPI history until a full read-only gate confirms corpus-level lift.
+Next tail lane is AAAHQ on `publications.aaahq.org` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/aaahq-missing-25.csv`.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`1b03675`.
+`97bcaa1`.
 
 ## Agent Operating Rules
 

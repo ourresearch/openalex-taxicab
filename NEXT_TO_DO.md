@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: ADS `ui.adsabs.harvard.edu` tail sample is recorded at oxjobs 34c32f5f; NCTM `pubs.nctm.org` tail sample is next.
+Current gate: NCTM `pubs.nctm.org` tail sample is recorded at oxjobs 877d1107; AAAHQ `publications.aaahq.org` tail sample is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://pubs\\.nctm\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "pubs.nctm.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/nctm-missing-25.csv
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --corpus /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/aaahq-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-aaahq-missing4-reharvest-97bcaa1 --out pdf_eval_runs --workers 2 --reharvest
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -795,6 +795,16 @@ from `ui.adsabs.harvard.edu` and accepted 4 `good_pdf`; read-only confirmation
 commit `34c32f5f #461 taxicab-pdf: add adsabs recovery` publishes the queue,
 summaries, and reports. This is a positive bounded recovery, not an accepted
 full-10K KPI lift until a full read-only gate confirms the corpus-level impact.
+NCTM bounded reharvest `pdf-nctm-missing4-reharvest-97bcaa1` tested 4 rows
+from `pubs.nctm.org` and accepted 1 `good_pdf`; read-only confirmation
+`pdf-nctm-missing4-readonly-97bcaa1` preserved 1 durable PDF, with 3 missing
+rows, 0 timeout, and 0 `taxicab_error`. The recovered route used
+`downloadpdf/view`; the three residual `downloadpdf/journals` routes stored
+XML article HTML and produced no durable PDF records. Oxjobs commit
+`877d1107 #461 taxicab-pdf: add nctm recovery` publishes the queue, summaries,
+reports, provider packet, and next AAAHQ queue. This is a positive bounded
+recovery, not an accepted full-10K KPI lift until a full read-only gate
+confirms the corpus-level impact.
 
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
@@ -806,9 +816,11 @@ House, MIT Press Direct, RSNA, Gold Journal, ATS Journals, and Transcript
 Verlag residual/candidate-quality rows, PNAS corrupt PDF rows, Peter Lang
 HTML/no-record rows, Nomos/Inlibra HTML/no-record rows, JPedsurg
 abstract-HTML/no-record rows, and JBC fulltext-HTML/no-record rows. ADS is a
-positive bounded recovery lane. If continuing independent technical work,
-choose NCTM `pubs.nctm.org`
-rows from the latest full gate or test
+positive bounded recovery lane. NCTM is a partial-positive bounded recovery
+lane with residual XML-HTML/no-record provider debt. If continuing independent
+technical work, choose AAAHQ `publications.aaahq.org` rows from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/aaahq-missing-25.csv`
+or test
 provider guidance for accumulated
 packets. IOP is accepted as the first repeated
 whole-corpus PDF KPI lift; Karger is the latest accepted lift, and the gap to
