@@ -121,7 +121,12 @@ all rows still `missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`. Oxjobs
 commit `c5792694` records the SPIE queue, scrubbed summary/report, provider
 packet, and combined request update. Treat SPIE as a Zyte/provider-advised
 PDF-byte lane before route code.
-Current latest pushed Taxicab branch commit before this docs slice is `62c6a33`.
+Thieme run `pdf-thieme-missing25-reharvest-d0ea198` recovered 0/25 `good_pdf`,
+with all rows still `missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`.
+Oxjobs commit `8cb377c7` records the Thieme queue, scrubbed summary/report,
+provider packet, and combined request update. Treat Thieme as a
+Zyte/provider-advised PDF-byte lane before route code.
+Current latest pushed Taxicab branch commit before this docs slice is `d0ea198`.
 
 ## Repository
 

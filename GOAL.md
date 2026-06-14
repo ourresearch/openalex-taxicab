@@ -85,7 +85,8 @@ Gate 21.999b: run AIP targeted sample and publish provider packet. [done, oxjobs
 Gate 21.999c: run Taylor samples and accepted full 10K gate. [done, oxjobs 574539d2]
 Gate 21.999d: run ACS targeted sample and publish provider packet. [done, oxjobs 482cc4fd]
 Gate 21.999e: run SPIE targeted sample and publish provider packet. [done, oxjobs c5792694]
-Gate 21.999f: send/test accumulated provider packets or choose next high-volume sample. [next]
+Gate 21.999f: run Thieme targeted sample and publish provider packet. [done, oxjobs 8cb377c7]
+Gate 21.999g: send/test accumulated provider packets or choose next high-volume sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -199,6 +200,9 @@ PDF:
   spie bounded reharvest: pdf-spie-missing25-reharvest-62c6a33, 25 DOI candidates, 0 good_pdf, 25 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   spie finding: POST returned status 201 HTML/no durable PDF for explicit SPIE PDF/download routes
   oxjobs #461 SPIE provider packet commit: c5792694 #461 taxicab-pdf: add spie provider packet
+  thieme bounded reharvest: pdf-thieme-missing25-reharvest-d0ea198, 25 DOI candidates, 0 good_pdf, 25 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  thieme finding: POST resolved PDF routes to abstract, ebook lookinside, or Science of Synthesis start-page HTML
+  oxjobs #461 Thieme provider packet commit: 8cb377c7 #461 taxicab-pdf: add thieme provider packet
   next lane: send/test provider packets or choose another high-volume sample from the latest full gate
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
