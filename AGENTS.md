@@ -64,6 +64,10 @@ De Gruyter run `pdf-degruyter-missing-reharvest-25-95308b7` also recovered
 0/25 `good_pdf`; POST accepted `/html` pages and direct no-storage `/pdf`
 probes returned JS/robot-verification HTML. Oxjobs commit `de7d0f2d` records
 the scrubbed De Gruyter summary/report and Zyte packet.
+Lippincott run `pdf-lippincott-missing-reharvest-25-0405edf` also recovered
+0/25 `good_pdf`; POST accepted article/abstract HTML pages and direct
+no-storage `downloadpdf.aspx` probes returned secured-browser HTML. Oxjobs
+commit `b88a5a79` records the scrubbed Lippincott summary/report and packet.
 
 ## Repository
 

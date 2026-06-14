@@ -180,10 +180,18 @@ De Gruyter run `pdf-degruyter-missing-reharvest-25-95308b7` tested 25
 `de7d0f2d #461 taxicab-pdf: add degruyter provider packet` publishes the
 scrubbed De Gruyter summary/report and packet.
 
+Lippincott run `pdf-lippincott-missing-reharvest-25-0405edf` tested 25
+`missing_pdf_harvest` rows from mostly `journals.lww.com` and recovered
+0 `good_pdf`: all 25 stayed `missing_pdf_harvest`, with 0 timeout and
+0 `taxicab_error`. POST accepted article/abstract HTML pages, and direct
+no-storage `downloadpdf.aspx` probes returned secured-browser / enable-scripts
+HTML. Oxjobs commit `b88a5a79 #461 taxicab-pdf: add lippincott provider
+packet` publishes the scrubbed Lippincott summary/report and packet.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
-Wiley, and De Gruyter PDF-byte fetches before production route code. If waiting
-on provider input, the next independent cluster is Lippincott/Wolters Kluwer
-`10.1097`, but expect access-flow work rather than a simple route patch.
+Wiley, De Gruyter, and Lippincott PDF-byte fetches before production route
+code. If waiting on provider input, the next independent clusters are Oxford
+`10.1093` or CUP `10.1017`.
 
 ## Absolute paths
 

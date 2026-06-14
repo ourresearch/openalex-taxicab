@@ -41,7 +41,7 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.9, De Gruyter bounded sample recorded; provider/advised PDF-byte lane next. In progress.
+Current phase: Gate 21.95, Lippincott bounded sample recorded; provider/advised PDF-byte lane next. In progress.
 Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
 ```
 
@@ -72,6 +72,7 @@ Gate 21: run Cell Press no-storage route probe and create Zyte packet. [done, ox
 Gate 21.5: run Cell Browserbase evidence sample and publish scrubbed public summary. [done, oxjobs d0344d1d]
 Gate 21.75: run Wiley bounded reharvest and publish scrubbed provider packet. [done, oxjobs 3d7356bc]
 Gate 21.9: run De Gruyter bounded reharvest and publish scrubbed provider packet. [done, oxjobs de7d0f2d]
+Gate 21.95: run Lippincott bounded reharvest and publish scrubbed provider packet. [done, oxjobs b88a5a79]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -143,6 +144,10 @@ PDF:
   de gruyter finding: POST accepted HTML /html pages; direct no-storage /pdf probes returned JS robot-verification HTML
   oxjobs #461 De Gruyter provider packet commit: de7d0f2d #461 taxicab-pdf: add degruyter provider packet
   combined provider request now covers ScienceDirect, Lancet, Cell, Wiley, and De Gruyter
+  lippincott bounded reharvest: pdf-lippincott-missing-reharvest-25-0405edf, 25 DOI candidates, 0 good_pdf, 25 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  lippincott finding: POST accepted article/abstract HTML pages; direct no-storage downloadpdf.aspx probes returned secured-browser HTML
+  oxjobs #461 Lippincott provider packet commit: b88a5a79 #461 taxicab-pdf: add lippincott provider packet
+  combined provider request now covers ScienceDirect, Lancet, Cell, Wiley, De Gruyter, and Lippincott
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
@@ -294,6 +299,15 @@ oxjobs python3 scripts/publish-report.py 461: passed
 oxjobs git diff --check -- working/taxicab-pdf: passed
 oxjobs strict secret/token scan including signed-URL, Browserbase session/path, and Cloudflare challenge-token patterns: no findings
 result: public scrubbed summary/report and provider request published at oxjobs commit de7d0f2d
+
+PDF Lippincott bounded sample reporting:
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/lippincott-missing-25.csv --reharvest --workers 2 --row-timeout 120 --out pdf_eval_runs/ --run-id pdf-lippincott-missing-reharvest-25-0405edf --timeout 60 --retries 1 --progress-every 1: passed
+result: 0/25 good_pdf; 25 missing_pdf_harvest; 0 timeout; 0 taxicab_error
+Lippincott no-storage direct PDF probe: 3/3 returned bot_block_403, status 200, text/html, secured-browser evidence
+oxjobs python3 scripts/publish-report.py 461: passed
+oxjobs git diff --check -- working/taxicab-pdf: passed
+oxjobs strict secret/token scan including signed-URL, Browserbase session/path, and Cloudflare challenge-token patterns: no findings
+result: public scrubbed summary/report and provider request published at oxjobs commit b88a5a79
 ```
 
 ## Provider Policy
