@@ -14,6 +14,12 @@ correctness for compressed/object-stream PDFs, not production scraping behavior:
 stricter-reclassified as `supplement_or_preview_pdf`. `missing_pdf_harvest` is
 3,807, `corrupt_or_truncated_pdf` is 66, timeout is 0, and `taxicab_error` is 0.
 The gap to 95% is now 3,786 rows.
+Latest focused evidence: no-storage run
+`wiley-residual-corrupt-provider-probe-5-a61d34b` recovered 3/5 current
+residual Wiley corrupt rows, with one `empty_response` and one
+`supplement_or_preview_pdf`. Oxjobs #461 commit `9569e1f6` publishes this
+evidence. This is strategy evidence only; expand to all 19 residual Wiley rows
+before production route/cache decisions.
 Current tooling slice: `scripts/provider_pdf_probe.py` adds a generic
 no-storage Zyte provider strategy probe. It reads rows/CSV queues, strips query
 strings/fragments from artifacts, never calls Taxicab POST, and writes
@@ -37,7 +43,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes for residual subtype evidence before production PDF route changes.
 Next exact command:
-`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-structured-parser-a61d34b/rows.ndjson --category corrupt_or_truncated_pdf --host onlinelibrary.wiley.com --limit 5 --strategies default_body,accept_pdf,google_referer,browser_html --run-id wiley-residual-corrupt-provider-probe-5-a61d34b --out pdf_eval_runs/`.
+`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-structured-parser-a61d34b/rows.ndjson --category corrupt_or_truncated_pdf --host onlinelibrary.wiley.com --limit 19 --strategies default_body,accept_pdf,google_referer,browser_html --run-id wiley-residual-corrupt-provider-probe-19-a61d34b --out pdf_eval_runs/`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
