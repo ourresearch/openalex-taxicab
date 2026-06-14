@@ -146,6 +146,12 @@ candidates and 12 route variants; result was 0 `good_pdf`, with best category
 `666d0ed6 #461 taxicab-pdf: record sciencedirect probe` publishes the scrubbed
 summary/report and Zyte packet. Next: send the packet or test Zyte-advised
 PDF-byte fetch mode; do not add production ScienceDirect PDF route code yet.
+Lancet run `lancet-route-probe-3-741e9a7` tested 3 candidate PDF URLs and
+recovered 0 `good_pdf`; two rows were Zyte 520 ban-free failures and one was a
+404 HTML page. Oxjobs commit `2105c8f1 #461 taxicab-pdf: record lancet probe`
+publishes the scrubbed artifacts and packet `lancet-pdf-ban-741e9a7.md`.
+Next shared lane: send/test Zyte guidance for ScienceDirect and Lancet PDF-byte
+fetching before production route code.
 
 ## Absolute paths
 

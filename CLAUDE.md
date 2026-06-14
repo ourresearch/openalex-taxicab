@@ -41,6 +41,9 @@ Taxicab commit `741e9a7` adds the no-storage ScienceDirect probe. Run
 `sciencedirect-route-probe-3-741e9a7` recovered 0/3 PDFs across 12 route
 variants. Oxjobs commit `666d0ed6` records the scrubbed probe and Zyte packet;
 next step is Zyte support or a Zyte-advised PDF-byte fetch mode.
+Lancet run `lancet-route-probe-3-741e9a7` recovered 0/3 PDFs, with two 520
+ban-free failures and one 404 HTML page. Oxjobs commit `2105c8f1` records the
+Lancet probe and packet `lancet-pdf-ban-741e9a7.md`.
 
 ## Agent Operating Rules
 

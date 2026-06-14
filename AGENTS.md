@@ -44,6 +44,9 @@ Taxicab commit `741e9a7` adds the no-storage probe. Run
 `sciencedirect-route-probe-3-741e9a7` tested 3 DOI candidates across 12 route
 variants and recovered 0 PDFs. Oxjobs commit `666d0ed6` records the scrubbed
 probe and Zyte packet `sciencedirect-pdf-viewer-html-741e9a7.md`.
+Lancet run `lancet-route-probe-3-741e9a7` recovered 0/3 PDFs, with two 520
+ban-free failures and one 404 HTML page. Oxjobs commit `2105c8f1` records the
+Lancet probe and packet `lancet-pdf-ban-741e9a7.md`.
 
 ## Repository
 
