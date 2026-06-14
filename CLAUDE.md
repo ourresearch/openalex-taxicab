@@ -112,7 +112,12 @@ ACS run `pdf-acs-missing25-reharvest-2b7996a` recovered 0/25 `good_pdf`, with
 0 timeout / 0 `taxicab_error`. Oxjobs commit `482cc4fd` records the ACS queue,
 scrubbed summary/report, provider packet, and combined request update. Treat ACS
 as a Zyte/provider-advised PDF-byte and corrupt-PDF lane before route code.
-Current latest pushed Taxicab branch commit before this docs slice is `2b7996a`.
+SPIE run `pdf-spie-missing25-reharvest-62c6a33` recovered 0/25 `good_pdf`, with
+all rows still `missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`. Oxjobs
+commit `c5792694` records the SPIE queue, scrubbed summary/report, provider
+packet, and combined request update. Treat SPIE as a Zyte/provider-advised
+PDF-byte lane before route code.
+Current latest pushed Taxicab branch commit before this docs slice is `62c6a33`.
 
 ## Agent Operating Rules
 
