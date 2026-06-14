@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999aq complete; Emerald recovered 0/6 PDFs and is recorded in oxjobs at f191f0eb. Gate 21.999ar, JACC bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.jacc\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.jacc.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/jacc-missing-25.csv
+Current phase: Gate 21.999ar complete; JACC recovered 0/6 PDFs and is recorded in oxjobs at eea013bf. Gate 21.999as, AJO bounded sample or provider-guidance test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.ajo\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.ajo.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/ajo-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -123,7 +123,8 @@ Gate 21.999an: run IGI Global targeted sample, read-only confirmation, and provi
 Gate 21.999ao: run UC Press targeted sample and provider packet. [done, oxjobs e435bc5e]
 Gate 21.999ap: run RUPress targeted sample, read-only confirmation, and provider packet. [done, oxjobs fa847b5a]
 Gate 21.999aq: run Emerald targeted sample and provider packet. [done, oxjobs f191f0eb]
-Gate 21.999ar: run JACC targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999ar: run JACC targeted sample and provider packet. [done, oxjobs eea013bf]
+Gate 21.999as: run AJO targeted sample, or test provider guidance for accumulated packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -349,7 +350,9 @@ PDF:
   oxjobs #461 RUPress provider packet commit: fa847b5a #461 taxicab-pdf: add rupress recovery packet
   emerald bounded reharvest: pdf-emerald-missing6-reharvest-e3fdbea, 6 DOI candidates, 0 good_pdf, 6 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
   oxjobs #461 Emerald provider packet commit: f191f0eb #461 taxicab-pdf: add emerald provider packet
-  next lane: JACC bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  jacc bounded reharvest: pdf-jacc-missing6-reharvest-9e16fb8, 6 DOI candidates, 0 good_pdf, 6 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  oxjobs #461 JACC provider packet commit: eea013bf #461 taxicab-pdf: add jacc provider packet
+  next lane: AJO bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
