@@ -491,10 +491,17 @@ and read-only confirmation `pdf-auajournals-missing4-readonly-465c495`
 returned all four rows to `missing_pdf_harvest`, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit
 `16f51e88 #461 taxicab-pdf: add auajournals tail packet` publishes the queue,
-summaries, reports, provider packet, and next Springer Publishing queue. Next
-tail lane is Springer Publishing on `connect.springerpub.com` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/springerpub-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `465c495`.
+summaries, reports, provider packet, and next Springer Publishing queue.
+Springer Publishing tail run `pdf-springerpub-missing3-reharvest-3720861`
+recovered 0/3 `good_pdf`; all three candidate PDF routes resolved to
+article/book/chapter HTML and read-only confirmation
+`pdf-springerpub-missing3-readonly-3720861` returned all three rows to
+`missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`d56b9fac #461 taxicab-pdf: add springerpub tail packet` publishes the queue,
+summaries, reports, provider packet, and next Vestnik/KRSU queue. Next tail
+lane is Vestnik/KRSU on `vestnik.krsu.kg` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/vestnik-krsu-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `3720861`.
 
 ## Repository
 
