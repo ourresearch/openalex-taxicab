@@ -35,6 +35,11 @@ corrected read-only result is 7/100 `good_pdf`, 92 missing, one preview, and
 0 timeout / 0 `taxicab_error`.
 Oxjobs #461 published this 100-row gate at commit `3d8a5fa0`. Next work is
 Elsevier route/support clustering, not more blind reharvest.
+Oxjobs commit `825c2e2d` adds the sanitized Elsevier route split:
+34 ScienceDirect route rows, 11 invalid-PDF POST rows, 8 Lancet rows,
+4 direct-asset rows, 3 Cell rows, 7 durable recoveries, and smaller
+router/cross-publisher clusters. Next technical lane is no-storage
+ScienceDirect route probing plus scrubbed Zyte examples.
 
 ## Repository
 

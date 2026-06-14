@@ -65,7 +65,7 @@ Gate 14: confirm recovered Elsevier PDFs with read-only follow-up. [done]
 Gate 15: generate and run Elsevier 100-row queue. [done]
 Gate 16: correct first-page/preview PDF classifier. [done]
 Gate 17: publish corrected Elsevier 100-row gate to oxjobs #461. [done, oxjobs 3d8a5fa0]
-Gate 18: split Elsevier into ScienceDirect, Lancet, Cell, direct-asset, router, corrupt/truncated, and Zyte-support clusters. [next]
+Gate 18: split Elsevier into ScienceDirect, Lancet, Cell, direct-asset, router, corrupt/truncated, and Zyte-support clusters. [done, oxjobs 825c2e2d]
 Gate 19: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -117,6 +117,8 @@ PDF:
   elsevier 100-row corrected read-only: pdf-elsevier-missing-readonly-previewfix-9b7d84b, 7/100 good_pdf, 92 missing_pdf_harvest, 1 supplement_or_preview_pdf, 0 timeout, 0 taxicab_error
   preview classifier fix: first-page-pdf URLs classify as supplement_or_preview_pdf, not good_pdf
   oxjobs #461 commit: 3d8a5fa0 #461 taxicab-pdf: publish elsevier 100 gate
+  oxjobs #461 route split commit: 825c2e2d #461 taxicab-pdf: add elsevier route split
+  elsevier route split: 34 ScienceDirect route rows, 23 journal-host/long-tail rows, 11 invalid-PDF POST rows, 8 Lancet rows, 7 durable recoveries, 5 cross-publisher candidates, 4 DOI-router candidates, 4 direct-asset rows, 3 Cell Press rows, 1 preview row
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

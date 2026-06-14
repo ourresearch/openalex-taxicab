@@ -133,6 +133,12 @@ Oxjobs #461 published this result at commit
 split Elsevier into ScienceDirect, Lancet, Cell, direct-asset, router,
 corrupt/truncated POST, and Zyte-support clusters. Do not scale blind reharvest
 from the 7/100 readback.
+Oxjobs #461 route split is now published at commit
+`825c2e2d #461 taxicab-pdf: add elsevier route split`: 34 ScienceDirect route
+rows, 23 journal-host/long-tail rows, 11 invalid-PDF POST rows, 8 Lancet rows,
+7 durable recoveries, 5 cross-publisher candidates, 4 DOI-router candidates,
+4 direct-asset rows, 3 Cell Press rows, and 1 preview row. Next technical lane:
+no-storage ScienceDirect route probes plus scrubbed Zyte examples.
 
 ## Absolute paths
 

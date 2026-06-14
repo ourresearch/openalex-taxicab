@@ -34,6 +34,9 @@ read-only result: 7/100 `good_pdf`, 92 missing, one preview, 0 timeout, and
 0 Taxicab errors. Oxjobs #461 published this gate at commit `3d8a5fa0`.
 Do not scale blind Elsevier reharvest from this result; split
 ScienceDirect/Lancet/Cell/direct-asset/router rows into route/support clusters.
+Oxjobs commit `825c2e2d` adds that sanitized split. Next lane: no-storage
+ScienceDirect route probes and scrubbed Zyte examples before any production
+PDF route change.
 
 ## Agent Operating Rules
 
