@@ -11,15 +11,14 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: generic no-storage provider probe is implemented at Taxicab commit `31663bc`, and oxjobs #461 is pushed at `e9a4458a` with the scrubbed J-STAGE missing-provider probe result.
+Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`; oxjobs #461 is pushed at `dcb7bb14` with the accepted structured-parser full gate. Next lane is residual Wiley corrupt-PDF provider probing from current full-gate rows.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Current tooling slice: generic no-storage provider probing in `scripts/provider_pdf_probe.py`. It reads full-gate rows or CSV queues, sanitizes URLs, tests named Zyte strategies, and writes local probe artifacts without Taxicab POST/R2/DynamoDB writes.
 IOP residual probe `iop-corrupt-provider-probe-3-31663bc` recovered 0/3 PDFs: one PerfDrive/captcha block and two corrupt application/pdf responses with no page objects. Treat residual IOP as Zyte/support or validator triage, not route code.
 J-STAGE corrupt-provider probe `jstage-corrupt-provider-probe-3b-31663bc` recovered 0/3 residual corrupt PDFs: two application/pdf responses still had no page objects and one row timed out empty; browser HTML returned PDF-viewer shells. Treat this as Zyte binary-mode or validator-byte triage before any route-code change.
 J-STAGE encrypted-provider probe `jstage-encrypted-provider-probe-3-31663bc` recovered 0/3 residual encrypted/unreadable PDFs: default body reached application/pdf bytes for all three rows but every response stayed `encrypted_or_unreadable_pdf`; browser HTML returned PDF-viewer shells. Treat this as legacy/encrypted PDF handling or validator-byte triage.
-J-STAGE missing-provider probe `jstage-missing-provider-probe-3-31663bc` recovered 0/3 residual missing PDFs: two rows stayed `js_redirect_unresolved`, and one row timed out empty/browser-shell. J-STAGE residuals now move to provider/support or validator-byte triage.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category missing_pdf_harvest --host www.tandfonline.com --limit 3 --strategies default_body,accept_pdf,google_referer,browser_html --run-id taylor-tandfonline-missing-provider-probe-3-31663bc --out pdf_eval_runs/
+J-STAGE missing-provider probe `jstage-missing-provider-probe-3-31663bc` recovered 0/3 residual missing PDFs: two rows stayed `js_redirect_unresolved`, and one row timed out empty/browser-shell. J-STAGE residuals now move to provider/support or validator-byte triage. Structured parser gate `pdf-full10k-after-structured-parser-a61d34b` is now accepted at 2,193/6,293 `good_pdf` (34.85%). Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-structured-parser-a61d34b/rows.ndjson --category corrupt_or_truncated_pdf --host onlinelibrary.wiley.com --limit 5 --strategies default_body,accept_pdf,google_referer,browser_html --run-id wiley-residual-corrupt-provider-probe-5-a61d34b --out pdf_eval_runs/
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -63,19 +62,7 @@ The denominator-enriched full 10K baseline is complete:
 `interstitial_or_paywall`, 2 `bot_block_403`, 0 timeout, and 0
 `taxicab_error`.
 
-The accepted full 10K gate after Human Kinetics and bounded recoveries is
-complete: `pdf-full10k-after-humankinetics-bbd2225`, 1,910/6,293 `good_pdf`
-(30.35%), +73 rows versus the denominator baseline and +20 versus the prior
-Karger gate, 3,808 `missing_pdf_harvest`, 425 `corrupt_or_truncated_pdf`, 104
-`encrypted_or_unreadable_pdf`, 10 `html_instead_of_pdf`, 11
-`js_redirect_unresolved`, 15 `supplement_or_preview_pdf`, 8
-`interstitial_or_paywall`, 2 `bot_block_403`, 0 timeout, and 0
-`taxicab_error`. There were 0 good-to-non-good regressions; 55 rows moved out
-of `missing_pdf_harvest` versus Karger, but 30 moved into
-`corrupt_or_truncated_pdf` and 4 into `supplement_or_preview_pdf`, so those are
-residual non-good debt rather than hidden wins. Oxjobs commit
-`43ca3830 #461 taxicab-pdf: publish humankinetics full gate` records the
-accepted report.
+The accepted full 10K gate after Human Kinetics and bounded recoveries is historical: `pdf-full10k-after-humankinetics-bbd2225`, 1,910/6,293 `good_pdf` (30.35%). The current accepted full gate is `pdf-full10k-after-structured-parser-a61d34b`, 2,193/6,293 `good_pdf` (34.85%), +283 net versus Human Kinetics and +356 versus the denominator baseline. It had 0 timeout and 0 `taxicab_error`; 363 prior non-good rows became `good_pdf`, and 80 prior `good_pdf` rows were stricter-reclassified as `supplement_or_preview_pdf`. Oxjobs commit `dcb7bb14 #461 taxicab-pdf: publish structured parser gate` records the accepted report.
 
 The generic no-storage provider probe is pushed at Taxicab commit
 `31663bc taxicab: add provider pdf strategy probe`. IOP residual probe
@@ -887,11 +874,12 @@ Journals is an HTML/no-record provider lane with no durable recovered PDFs.
 JCVA Online is an abstract-HTML/invalid-PDF provider lane with no durable
 recovered PDFs. Human Kinetics is a partial-positive lane with one durable PDF
 and two residual XML-HTML/no-record rows. If continuing independent technical
-work, use the accepted full rows from `pdf-full10k-after-humankinetics-bbd2225`
-to choose the next high-volume cluster or test provider guidance for
-accumulated packets. IOP is accepted as the first repeated whole-corpus PDF KPI
-lift; Human Kinetics and related bounded recoveries are the latest accepted
-lift at 1,910/6,293 `good_pdf` (30.35%), and the gap to 95% remains 4,069 rows.
+work, use the accepted full rows from
+`pdf_eval_runs/pdf-full10k-after-structured-parser-a61d34b/rows.ndjson` and
+start with the residual Wiley corrupt-PDF provider probe. IOP is accepted as
+the first repeated whole-corpus PDF KPI lift; the structured-parser gate is the
+latest accepted measurement gate at 2,193/6,293 `good_pdf` (34.85%), +356
+versus the denominator baseline, and the gap to 95% remains 3,786 rows.
 
 ## Absolute paths
 

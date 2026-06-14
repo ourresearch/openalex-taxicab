@@ -6,11 +6,14 @@ PDF-expected portion of the 10K Goldie corpus. Read `GOAL.md` and
 `NEXT_TO_DO.md` before changing code.
 
 Latest PDF metric: accepted full 10K read-only gate
-`pdf-full10k-after-humankinetics-bbd2225` is 1,910/6,293 `good_pdf` (30.35%),
-+73 rows versus the denominator baseline of 1,837/6,293 (29.19%) and +20 rows
-versus the prior accepted Karger gate, with `missing_pdf_harvest` down from 3,939 to
-3,808, 0 good-to-non-good regressions, 0 timeout, and 0 `taxicab_error`. The
-gap to 95% is now 4,069 rows.
+`pdf-full10k-after-structured-parser-a61d34b` is 2,193/6,293 `good_pdf`
+(34.85%), +283 net rows versus the Human Kinetics gate and +356 rows versus
+the denominator baseline of 1,837/6,293 (29.19%). This is validator/measurement
+correctness for compressed/object-stream PDFs, not production scraping behavior:
+363 prior non-good rows became `good_pdf`, while 80 prior `good_pdf` rows were
+stricter-reclassified as `supplement_or_preview_pdf`. `missing_pdf_harvest` is
+3,807, `corrupt_or_truncated_pdf` is 66, timeout is 0, and `taxicab_error` is 0.
+The gap to 95% is now 3,786 rows.
 Current tooling slice: `scripts/provider_pdf_probe.py` adds a generic
 no-storage Zyte provider strategy probe. It reads rows/CSV queues, strips query
 strings/fragments from artifacts, never calls Taxicab POST, and writes
@@ -34,7 +37,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes for residual subtype evidence before production PDF route changes.
 Next exact command:
-`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category missing_pdf_harvest --host www.tandfonline.com --limit 3 --strategies default_body,accept_pdf,google_referer,browser_html --run-id taylor-tandfonline-missing-provider-probe-3-31663bc --out pdf_eval_runs/`.
+`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-structured-parser-a61d34b/rows.ndjson --category corrupt_or_truncated_pdf --host onlinelibrary.wiley.com --limit 5 --strategies default_body,accept_pdf,google_referer,browser_html --run-id wiley-residual-corrupt-provider-probe-5-a61d34b --out pdf_eval_runs/`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context

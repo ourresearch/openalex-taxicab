@@ -7,11 +7,14 @@ Current goal state: HTML retrieval Phase 1 is complete at 9,583/10,000
 `good_pdf` on the PDF-expected subset of the 10K Goldie corpus. Use
 `GOAL.md` as the current control file and update it before long handoffs.
 Latest PDF measurement gate: accepted full 10K read-only gate
-`pdf-full10k-after-humankinetics-bbd2225` is 1,910/6,293 `good_pdf` (30.35%),
-+73 rows versus the denominator baseline of 1,837/6,293 (29.19%) and +20 rows
-versus the prior accepted Karger gate, with `missing_pdf_harvest` down from
-3,939 to 3,808, 0 good-to-non-good regressions, 0 timeout, and 0 Taxicab API
-errors. The gap to 95% is now 4,069 rows.
+`pdf-full10k-after-structured-parser-a61d34b` is 2,193/6,293 `good_pdf`
+(34.85%), +283 net rows versus the Human Kinetics gate and +356 rows versus
+the denominator baseline of 1,837/6,293 (29.19%). This is validator/measurement
+correctness for compressed/object-stream PDFs, not production scraping behavior:
+363 prior non-good rows became `good_pdf`, while 80 prior `good_pdf` rows were
+stricter-reclassified as `supplement_or_preview_pdf`. `missing_pdf_harvest` is
+3,807, `corrupt_or_truncated_pdf` is 66, timeout is 0, and `taxicab_error` is 0.
+The gap to 95% is now 3,786 rows.
 Current tooling slice: generic no-storage provider probing is implemented in
 `scripts/provider_pdf_probe.py` with tests in `tests/test_provider_pdf_probe.py`.
 It does not call Taxicab POST and does not write R2/DynamoDB. It sanitizes URLs
@@ -31,10 +34,9 @@ Oxjobs #461 commit `a1073dd4` publishes the scrubbed encrypted summary/report.
 J-STAGE missing probe `jstage-missing-provider-probe-3-31663bc` recovered 0/3:
 two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
-probes to test J-STAGE/Taylor/Research Square/Nature residual subtypes before
-production scraping changes.
+probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category missing_pdf_harvest --host www.tandfonline.com --limit 3 --strategies default_body,accept_pdf,google_referer,browser_html --run-id taylor-tandfonline-missing-provider-probe-3-31663bc --out pdf_eval_runs/`.
+`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-structured-parser-a61d34b/rows.ndjson --category corrupt_or_truncated_pdf --host onlinelibrary.wiley.com --limit 5 --strategies default_body,accept_pdf,google_referer,browser_html --run-id wiley-residual-corrupt-provider-probe-5-a61d34b --out pdf_eval_runs/`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context

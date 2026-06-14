@@ -41,9 +41,9 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999cx complete; generic no-storage provider PDF probing is implemented at Taxicab commit 31663bc, the IOP residual probe recovered 0/3, J-STAGE corrupt recovered 0/3, J-STAGE encrypted recovered 0/3, and J-STAGE missing/login recovered 0/3. Oxjobs #461 commit e9a4458a publishes the scrubbed J-STAGE missing summary/report. Gate 21.999cy is Taylor/TandF missing-PDF residual provider probing with no Taxicab POST or production writes.
+Current phase: Gate 21.999cw complete; structured PDF parser is implemented at Taxicab commit a61d34b and oxjobs #461 commit dcb7bb14 publishes the accepted structured-parser full gate. Gate 21.999cx is residual Wiley corrupt-PDF provider probing from current full-gate rows with no Taxicab POST or production writes.
 Next exact command:
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category missing_pdf_harvest --host www.tandfonline.com --limit 3 --strategies default_body,accept_pdf,google_referer,browser_html --run-id taylor-tandfonline-missing-provider-probe-3-31663bc --out pdf_eval_runs/
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-structured-parser-a61d34b/rows.ndjson --category corrupt_or_truncated_pdf --host onlinelibrary.wiley.com --limit 5 --strategies default_body,accept_pdf,google_referer,browser_html --run-id wiley-residual-corrupt-provider-probe-5-a61d34b --out pdf_eval_runs/
 ```
 
 After Gate 0 is pushed:
@@ -180,7 +180,9 @@ Gate 21.999cr: run JCVA Online `www.jcvaonline.com` tail sample and provider pac
 Gate 21.999cs: run Human Kinetics `journals.humankinetics.com` tail sample and residual packet. [done, oxjobs 93b383f6]
 Gate 21.999ct: run full 10K read-only gate after Human Kinetics and bounded recoveries. [done, oxjobs 43ca3830]
 Gate 21.999cu: add generic no-storage provider probe and publish residual IOP no-storage probe result. [done, taxicab 31663bc, oxjobs 27d5e414]
-Gate 21.999cv: run J-STAGE corrupt-PDF subtype provider probe from accepted full-gate rows. [next]
+Gate 21.999cv: run J-STAGE corrupt-PDF subtype provider probe from accepted full-gate rows. [done, oxjobs 416b6fec]
+Gate 21.999cw: run J-STAGE encrypted and missing/login provider probes, add structured PDF parser, run Wiley corrupt probe, run Wiley 67-row read-only gate, and publish full 10K structured-parser gate. [done, taxicab a61d34b, oxjobs dcb7bb14]
+Gate 21.999cx: run residual Wiley corrupt-PDF provider probe from current structured-parser full-gate rows. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -205,12 +207,13 @@ Recovered in latest gate:
 PDF:
   full 10K baseline: 2,148/10,000 good_pdf (21.48%)
   denominator-enriched full baseline: 1,837/6,293 good_pdf (29.19%)
-  latest accepted full gate: pdf-full10k-after-humankinetics-bbd2225, 1,910/6,293 good_pdf (30.35%)
-  latest accepted lift: +73 good_pdf vs denominator baseline, +20 vs prior accepted Karger gate
+  latest accepted full gate: pdf-full10k-after-structured-parser-a61d34b, 2,193/6,293 good_pdf (34.85%)
+  latest accepted lift: +356 good_pdf vs denominator baseline, +283 net vs prior Human Kinetics gate
+  structured-parser note: 363 prior non-good rows recovered; 80 prior good_pdf rows stricter-reclassified as supplement_or_preview_pdf
   no_pdf_expected: 3,707
-  denominator-enriched gap to 95%: 4,069 rows
-  dominant category: 3,808 missing_pdf_harvest
-  other major categories: 425 corrupt_or_truncated_pdf; 104 encrypted_or_unreadable_pdf
+  denominator-enriched gap to 95%: 3,786 rows
+  dominant category: 3,807 missing_pdf_harvest
+  other major categories: 104 encrypted_or_unreadable_pdf; 92 supplement_or_preview_pdf; 66 corrupt_or_truncated_pdf
   timeout: 0
   taxicab_error: 0
   run_id: pdf-full10k-readonly-22b78b7
@@ -556,7 +559,9 @@ PDF:
   oxjobs #461 Human Kinetics packet commit: 93b383f6 #461 taxicab-pdf: add humankinetics recovery packet
   Human Kinetics full gate: pdf-full10k-after-humankinetics-bbd2225, 1,910/6,293 good_pdf (30.35%), +20 vs Karger, +73 vs denominator baseline, 0 good-to-non-good regressions, 0 timeout, 0 taxicab_error
   oxjobs #461 Human Kinetics full-gate commit: 43ca3830 #461 taxicab-pdf: publish humankinetics full gate
-  next lane: choose the next high-volume actionable PDF cluster from `pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson`; top missing clusters are Springer link, Wiley, De Gruyter Brill, ScienceDirect, Lippincott, Cambridge, Oxford, and SSRN, most already sampled as Zyte/provider PDF-byte debt
+  structured parser full gate: pdf-full10k-after-structured-parser-a61d34b, 2,193/6,293 good_pdf (34.85%), +283 net vs Human Kinetics, +356 vs denominator baseline, 363 recovered, 80 stricter supplement/preview reclassifications, 0 timeout, 0 taxicab_error
+  oxjobs #461 structured parser full-gate commit: dcb7bb14 #461 taxicab-pdf: publish structured parser gate
+  next lane: residual Wiley corrupt-PDF provider probe from `pdf_eval_runs/pdf-full10k-after-structured-parser-a61d34b/rows.ndjson`; 19 current `onlinelibrary.wiley.com` rows remain corrupt_or_truncated_pdf
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
