@@ -327,10 +327,16 @@ AJOG run `pdf-ajog-missing5-reharvest-831503a` recovered 1/5 `good_pdf`;
 read-only confirmation `pdf-ajog-missing5-readonly-831503a` preserved the same
 durable PDF and left four rows missing, with 0 timeout and 0 `taxicab_error`.
 Oxjobs commit `2e492500` publishes the AJOG queue, scrubbed reports, and
-provider packet. Next independent lane is Scholarly Publishing Collective
-(`scholarlypublishingcollective.org`) from the latest full gate.
+provider packet.
+Scholarly Publishing Collective run
+`pdf-scholarlypublishingcollective-missing5-reharvest-a9fdacb` recovered 0/5
+`good_pdf`; four article-PDF routes returned invalid PDF content and one row
+resolved to article abstract HTML/no durable PDF record, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `362d2b2f` publishes the Scholarly queue,
+scrubbed report, and provider packet. Next independent lane is Royal Society
+Publishing (`royalsocietypublishing.org`) from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`831503a`.
+`a9fdacb`.
 
 ## Agent Operating Rules
 
