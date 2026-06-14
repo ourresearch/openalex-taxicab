@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: Elsevier route/support clustering after the corrected 100-row PDF gate.
+Current gate: Elsevier route/support clustering after the corrected 100-row PDF gate; Cell Browserbase evidence is recorded.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -157,6 +157,16 @@ recovered 0 `good_pdf`; all three returned login/JavaScript HTML. Oxjobs commit
 `a160ec1a #461 taxicab-pdf: record cell probe` publishes the scrubbed artifacts
 and packet `cell-pdf-login-js-741e9a7.md`. Add Cell to the same Zyte/advised
 PDF-byte lane before production route code.
+Cell Browserbase evidence run `pdf-browserbase-cell-1-3de630f` tested one Cell
+candidate and also returned `html_not_pdf` with `browserbase_available=false`.
+Oxjobs commit `d0344d1d #461 taxicab-pdf: record cell browserbase evidence`
+publishes only `evidence/browserbase/cell-pdf-html-not-pdf-3de630f.json`.
+Do not publish raw Browserbase rows, HTML, screenshots, or final URLs from this
+run because the final URL included a Cloudflare challenge token.
+
+Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, and Cell
+PDF-byte fetches before production route code. Good fallback lanes are the
+Elsevier invalid-PDF POST packet and Wiley missing-PDF triage.
 
 ## Absolute paths
 

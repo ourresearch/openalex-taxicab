@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 17, Elsevier route/support clustering. In progress.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness
+Current phase: Gate 21.5, Cell Browserbase evidence recorded; provider/advised PDF-byte lane next. In progress.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
 ```
 
 After Gate 0 is pushed:
@@ -69,6 +69,7 @@ Gate 18: split Elsevier into ScienceDirect, Lancet, Cell, direct-asset, router, 
 Gate 19: run ScienceDirect no-storage route probe and create Zyte packet. [done, taxicab 741e9a7, oxjobs 666d0ed6]
 Gate 20: run Lancet no-storage route probe and create Zyte packet. [done, oxjobs 2105c8f1]
 Gate 21: run Cell Press no-storage route probe and create Zyte packet. [done, oxjobs a160ec1a]
+Gate 21.5: run Cell Browserbase evidence sample and publish scrubbed public summary. [done, oxjobs d0344d1d]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -129,6 +130,9 @@ PDF:
   oxjobs #461 lancet probe commit: 2105c8f1 #461 taxicab-pdf: record lancet probe
   cell probe run: cell-route-probe-3-741e9a7, 3 DOI candidates, 3 variants, 0 good_pdf, 3 js_redirect_unresolved
   oxjobs #461 cell probe commit: a160ec1a #461 taxicab-pdf: record cell probe
+  cell Browserbase evidence: pdf-browserbase-cell-1-3de630f, 1 DOI candidate, Browserbase verdict html_not_pdf, browserbase_available false
+  oxjobs #461 Cell Browserbase commit: d0344d1d #461 taxicab-pdf: record cell browserbase evidence
+  Cell Browserbase publication note: only scrubbed summary is public because the raw final URL contained a Cloudflare challenge token
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
@@ -257,6 +261,12 @@ python3 -m unittest tests.test_pdf_eval_harness: 19 tests passed
 python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke-preview-url --out /tmp/taxicab-pdf-fixture-smoke-preview-url: passed, 15 fixtures, 15 categories
 python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-100.csv --out pdf_eval_runs/ --run-id pdf-elsevier-missing-readonly-previewfix-9b7d84b --workers 4 --row-timeout 120 --timeout 60 --retries 1 --progress-every 10: passed
 result: 7/100 good_pdf; 92 missing_pdf_harvest; 1 supplement_or_preview_pdf; 0 timeout; 0 taxicab_error
+
+PDF Cell Browserbase evidence reporting:
+oxjobs python3 scripts/publish-report.py 461: passed
+oxjobs git diff --check -- working/taxicab-pdf: passed
+oxjobs strict secret/token scan including signed-URL and Cloudflare challenge-token patterns: no findings
+result: public scrubbed summary published at oxjobs commit d0344d1d; raw Browserbase evidence remains local
 ```
 
 ## Provider Policy

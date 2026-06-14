@@ -50,6 +50,11 @@ Lancet probe and packet `lancet-pdf-ban-741e9a7.md`.
 Cell Press run `cell-route-probe-3-741e9a7` recovered 0/3 PDFs, with login/JS
 HTML instead of PDF bytes. Oxjobs commit `a160ec1a` records the Cell probe and
 packet `cell-pdf-login-js-741e9a7.md`.
+Browserbase run `pdf-browserbase-cell-1-3de630f` also returned `html_not_pdf`
+for one Cell candidate; Browserbase did not recover a direct PDF. Raw
+Browserbase artifacts stay local because the final URL included a Cloudflare
+challenge token. Oxjobs commit `d0344d1d` records only the scrubbed public
+summary `evidence/browserbase/cell-pdf-html-not-pdf-3de630f.json`.
 
 ## Repository
 
