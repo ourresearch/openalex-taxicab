@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: JCVA Online `www.jcvaonline.com` tail sample is recorded at oxjobs e48d73e8; Human Kinetics `journals.humankinetics.com` tail sample is next.
+Current gate: Human Kinetics `journals.humankinetics.com` tail sample is recorded at oxjobs 93b383f6; full 10K read-only confirmation gate is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/humankinetics-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-humankinetics-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --corpus /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-full10k-after-humankinetics-bbd2225 --out pdf_eval_runs --workers 8 --row-timeout 120 --timeout 60 --retries 1 --progress-every 100
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -854,12 +854,10 @@ HTML-capture/no-record provider lane with no durable recovered PDFs. IOS Press
 is an invalid-PDF/HTML provider lane with no durable recovered PDFs. AAI
 Journals is an HTML/no-record provider lane with no durable recovered PDFs.
 JCVA Online is an abstract-HTML/invalid-PDF provider lane with no durable
-recovered PDFs. If continuing independent technical work, choose Human Kinetics
-`journals.humankinetics.com` rows from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/humankinetics-missing-25.csv`
-or test
-provider guidance for accumulated
-packets. IOP is accepted as the first repeated
+recovered PDFs. Human Kinetics is a partial-positive lane with one durable PDF
+and two residual XML-HTML/no-record rows. If continuing independent technical
+work, run the full 10K read-only gate `pdf-full10k-after-humankinetics-bbd2225`
+or test provider guidance for accumulated packets. IOP is accepted as the first repeated
 whole-corpus PDF KPI lift; Karger is the latest accepted lift, and the gap to
 95% remains 4,089 rows.
 

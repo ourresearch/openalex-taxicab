@@ -590,9 +590,14 @@ records and one candidate returned invalid PDF content. Read-only confirmation
 `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `e48d73e8 #461 taxicab-pdf: add jcvaonline tail packet` publishes the scrubbed
 summaries, reports, provider packet, and next Human Kinetics queue. Next tail
-lane is Human Kinetics on `journals.humankinetics.com` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/humankinetics-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `dc3bba1`.
+lane Human Kinetics run `pdf-humankinetics-missing3-reharvest-bbd2225`
+recovered 1/3 `good_pdf`; read-only confirmation
+`pdf-humankinetics-missing3-readonly-bbd2225` preserved one durable PDF and
+left two XML-HTML/no-record rows missing. Oxjobs commit
+`93b383f6 #461 taxicab-pdf: add humankinetics recovery packet` publishes the
+scrubbed summaries, reports, residual provider packet, and next full 10K
+read-only gate. Latest Taxicab code/eval commit before this handoff-doc update
+is `bbd2225`.
 
 ## Agent Operating Rules
 
