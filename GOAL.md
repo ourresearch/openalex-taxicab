@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999ag complete; JPET/ASPET recovered 0/7 PDFs and is recorded in oxjobs at ae72a1ff. Gate 21.999ah, OnePetro bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?onepetro\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "onepetro.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/onepetro-missing-25.csv
+Current phase: Gate 21.999ah complete; OnePetro recovered 0/7 PDFs and is recorded in oxjobs at 029f9ac9. Gate 21.999ai, Mary Ann Liebert bounded sample or provider-guidance test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?liebertpub\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.liebertpub.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/liebertpub-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -113,7 +113,8 @@ Gate 21.999ad: run V&R eLibrary targeted sample and provider packet. [done, oxjo
 Gate 21.999ae: run IWA Publishing targeted sample and provider packet. [done, oxjobs 98a037c1]
 Gate 21.999af: run AMS journals targeted sample and provider packet. [done, oxjobs 8fe1d510]
 Gate 21.999ag: run JPET/ASPET targeted sample and provider packet. [done, oxjobs ae72a1ff]
-Gate 21.999ah: run OnePetro targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999ah: run OnePetro targeted sample and provider packet. [done, oxjobs 029f9ac9]
+Gate 21.999ai: run Mary Ann Liebert targeted sample, or test provider guidance for accumulated packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -311,7 +312,10 @@ PDF:
   jpet/aspet bounded reharvest: pdf-jpet-missing7-reharvest-0dd85b6, 7 DOI candidates, 0 good_pdf, 6 corrupt_or_truncated_pdf, 1 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   jpet/aspet finding: explicit article PDF routes returned invalid PDF-like content or no durable readable PDF records
   oxjobs #461 JPET/ASPET provider packet commit: ae72a1ff #461 taxicab-pdf: add jpet provider packet
-  next lane: OnePetro bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  onepetro bounded reharvest: pdf-onepetro-missing7-reharvest-92f581e, 7 DOI candidates, 0 good_pdf, 7 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  onepetro finding: explicit article/proceedings PDF routes resolved to HTML/no durable PDF records
+  oxjobs #461 OnePetro provider packet commit: 029f9ac9 #461 taxicab-pdf: add onepetro provider packet
+  next lane: Mary Ann Liebert bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
