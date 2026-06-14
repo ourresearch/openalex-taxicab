@@ -11,7 +11,7 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: publish denominator-enriched full 10K PDF baseline to oxjobs #461.
+Current gate: commit gated PDF reharvest mode and update oxjobs #461.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Next exact command: git status --short
@@ -57,6 +57,12 @@ The denominator-enriched full 10K baseline is complete:
 `js_redirect_unresolved`, 10 `supplement_or_preview_pdf`, 8
 `interstitial_or_paywall`, 2 `bot_block_403`, 0 timeout, and 0
 `taxicab_error`.
+
+Gated PDF reharvest mode is implemented locally. It POSTs the corpus `PDF URL`
+when present, caps workers at 4, waits for write/read consistency, then re-runs
+the PDF read path. First 5-row live smoke completed with 0/5 `good_pdf`,
+3 Taxicab invalid-PDF POST responses mapped to `corrupt_or_truncated_pdf`, 2
+`missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`.
 
 ## Absolute paths
 
@@ -388,18 +394,39 @@ taxicab_error: 0
 
 ### 9. Publish denominator-enriched baseline to oxjobs #461
 
+Complete in oxjobs commit `088b019d`.
+
+### 10. Commit gated PDF reharvest mode
+
+Current verification:
+
+```bash
+python3 -m unittest discover -s tests
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke-reharvest --out /tmp/taxicab-pdf-fixture-smoke-reharvest
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --limit 5 --reharvest --workers 2 --out /tmp/taxicab-pdf-reharvest-smoke --run-id pdf-reharvest-smoke-5 --timeout 45 --retries 1 --progress-every 1
+```
+
+Result:
+
+```text
+0/5 good_pdf
+3 corrupt_or_truncated_pdf
+2 missing_pdf_harvest
+0 timeout
+0 taxicab_error
+```
+
+### 11. Update oxjobs #461 with reharvest mode
+
 Next exact commands:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
 git pull --rebase origin main
-cp /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab/pdf_eval_runs/pdf-full10k-denominator-3f7cd47/summary.json working/taxicab-pdf/evidence/latest-summary.json
-cp /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab/pdf_eval_runs/pdf-full10k-denominator-3f7cd47/summary.json working/taxicab-pdf/evidence/report461-full10k-denominator-summary-3f7cd47.json
-cp /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab/pdf_eval_runs/pdf-full10k-denominator-3f7cd47/hardness.json working/taxicab-pdf/evidence/hardness-set.json
 python3 scripts/publish-report.py 461
 ```
 
-### 10. Continue from the post-95 HTML residual queue only if PDF work is paused
+### 12. Continue from the post-95 HTML residual queue only if PDF work is paused
 
 Use the accepted post-95 queue:
 

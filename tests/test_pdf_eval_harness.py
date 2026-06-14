@@ -24,6 +24,8 @@ FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures" / "pdf"
 
 class PdfLookupHandler(BaseHTTPRequestHandler):
     pdf_body = (FIXTURE_DIR / "valid_fulltext.pdf").read_bytes()
+    post_count = 0
+    last_post_payload = {}
 
     def do_GET(self):
         if self.path.startswith("/taxicab/doi/10.5555%2Fgoodpdf"):
@@ -73,6 +75,29 @@ class PdfLookupHandler(BaseHTTPRequestHandler):
             self.send_response(404)
             self.end_headers()
             self.wfile.write(b"File not found")
+            return
+        self.send_response(404)
+        self.end_headers()
+
+    def do_POST(self):
+        if self.path.startswith("/taxicab"):
+            length = int(self.headers.get("Content-Length") or "0")
+            body = self.rfile.read(length) if length else b"{}"
+            type(self).post_count += 1
+            type(self).last_post_payload = json.loads(body.decode("utf-8"))
+            payload = json.dumps(
+                {
+                    "id": "pdf-good",
+                    "resolved_url": "https://example.org/fulltext.pdf",
+                    "content_type": "application/pdf",
+                    "is_soft_block": False,
+                }
+            ).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
             return
         self.send_response(404)
         self.end_headers()
@@ -322,6 +347,50 @@ class PdfEvalHarnessTests(unittest.TestCase):
                 self.assertEqual(summary["category_counts"][PDF_CATEGORY_GOOD_PDF], 1)
                 self.assertEqual(summary["category_counts"]["missing_pdf_harvest"], 1)
                 self.assertEqual(summary["category_counts"]["download_404"], 1)
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
+
+    def test_pdf_cli_reharvest_posts_corpus_pdf_url(self):
+        PdfLookupHandler.post_count = 0
+        PdfLookupHandler.last_post_payload = {}
+        server = DaemonThreadingHTTPServer(("127.0.0.1", 0), PdfLookupHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                doi_file = Path(tmp) / "sample.csv"
+                doi_file.write_text(
+                    "DOI,Link,PDF URL,title\n"
+                    "10.5555/goodpdf,https://doi.org/10.5555/goodpdf,https://example.org/fulltext.pdf,Example Full Text Article\n",
+                    encoding="utf-8",
+                )
+                code = main(
+                    [
+                        "--base-url",
+                        f"http://127.0.0.1:{server.server_port}",
+                        "--doi-file",
+                        str(doi_file),
+                        "--run-id",
+                        "pdf-reharvest-test",
+                        "--out",
+                        tmp,
+                        "--workers",
+                        "1",
+                        "--timeout",
+                        "2",
+                        "--retries",
+                        "0",
+                        "--reharvest",
+                    ]
+                )
+                self.assertEqual(code, 0)
+                self.assertEqual(PdfLookupHandler.post_count, 1)
+                self.assertEqual(PdfLookupHandler.last_post_payload["url"], "https://example.org/fulltext.pdf")
+                summary = json.loads((Path(tmp) / "pdf-reharvest-test" / "summary.json").read_text())
+                self.assertEqual(summary["mode"], "reharvest")
+                self.assertEqual(summary["category_counts"][PDF_CATEGORY_GOOD_PDF], 1)
         finally:
             server.shutdown()
             thread.join(timeout=5)

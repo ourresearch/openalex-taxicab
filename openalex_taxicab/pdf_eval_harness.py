@@ -564,6 +564,98 @@ def classify_pdf_uuid_download_error(
     )
 
 
+def classify_pdf_reharvest_post(
+    *,
+    run_id: str,
+    doi: str,
+    status_code: int | None,
+    payload: Any = None,
+    publisher: str = "unknown",
+    input_url: str = "",
+    candidate_url: str = "",
+    candidate_source: str = "",
+    resolved_url: str = "",
+    duration_ms: int | None = None,
+    error: str = "",
+) -> PdfEvalRow | None:
+    if status_code is None:
+        return make_pdf_transport_row(
+            run_id=run_id,
+            doi=doi,
+            category=PDF_CATEGORY_TIMEOUT,
+            publisher=publisher,
+            input_url=input_url,
+            candidate_url=candidate_url,
+            candidate_source=candidate_source,
+            resolved_url=resolved_url,
+            duration_ms=duration_ms,
+            mode="reharvest",
+            error=error or "reharvest timed out",
+        )
+    if isinstance(payload, dict) and payload.get("is_soft_block"):
+        return make_pdf_transport_row(
+            run_id=run_id,
+            doi=doi,
+            category=PDF_CATEGORY_BOT_BLOCK_403,
+            publisher=publisher,
+            input_url=input_url,
+            candidate_url=candidate_url,
+            candidate_source=candidate_source,
+            resolved_url=str(payload.get("resolved_url") or resolved_url),
+            status_code=status_code,
+            content_type=str(payload.get("content_type") or ""),
+            duration_ms=duration_ms,
+            mode="reharvest",
+            error="reharvest returned is_soft_block=true",
+        )
+    if status_code in (403, 429):
+        return make_pdf_transport_row(
+            run_id=run_id,
+            doi=doi,
+            category=PDF_CATEGORY_BOT_BLOCK_403,
+            publisher=publisher,
+            input_url=input_url,
+            candidate_url=candidate_url,
+            candidate_source=candidate_source,
+            resolved_url=resolved_url,
+            status_code=status_code,
+            duration_ms=duration_ms,
+            mode="reharvest",
+            error=error or f"reharvest returned status {status_code}",
+        )
+    if status_code == 400:
+        return make_pdf_transport_row(
+            run_id=run_id,
+            doi=doi,
+            category=PDF_CATEGORY_CORRUPT_OR_TRUNCATED_PDF,
+            publisher=publisher,
+            input_url=input_url,
+            candidate_url=candidate_url,
+            candidate_source=candidate_source,
+            resolved_url=resolved_url,
+            status_code=status_code,
+            duration_ms=duration_ms,
+            mode="reharvest",
+            error=error or "reharvest returned invalid PDF content",
+        )
+    if status_code >= 500:
+        return make_pdf_transport_row(
+            run_id=run_id,
+            doi=doi,
+            category=PDF_CATEGORY_TAXICAB_ERROR,
+            publisher=publisher,
+            input_url=input_url,
+            candidate_url=candidate_url,
+            candidate_source=candidate_source,
+            resolved_url=resolved_url,
+            status_code=status_code,
+            duration_ms=duration_ms,
+            mode="reharvest",
+            error=error or f"reharvest returned status {status_code}",
+        )
+    return None
+
+
 def make_pdf_transport_row(
     *,
     run_id: str,
@@ -830,6 +922,7 @@ __all__ = [
     "build_pdf_hardness",
     "classify_pdf_content",
     "classify_pdf_lookup_payload",
+    "classify_pdf_reharvest_post",
     "classify_pdf_uuid_download_error",
     "default_pdf_run_id",
     "latest_pdf_row_by_doi",

@@ -10,6 +10,7 @@ import json
 import subprocess
 import sys
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
@@ -26,6 +27,7 @@ from openalex_taxicab.pdf_eval_harness import (  # noqa: E402
     PdfEvidence,
     classify_pdf_content,
     classify_pdf_lookup_payload,
+    classify_pdf_reharvest_post,
     classify_pdf_uuid_download_error,
     default_pdf_run_id,
     latest_pdf_row_by_doi,
@@ -238,6 +240,7 @@ def classify_live_pdf_row(
     *,
     client: TaxicabClient,
     run_id: str,
+    reharvest: bool = False,
 ) -> Any:
     doi, input_url = row_doi_and_input_url(row)
     publisher = row_publisher(row)
@@ -260,6 +263,26 @@ def classify_live_pdf_row(
             error="pdf not expected for row",
         )
 
+    if reharvest:
+        post_url = corpus_pdf_url or input_url
+        post = client.reharvest(doi, post_url)
+        overlay = classify_pdf_reharvest_post(
+            run_id=run_id,
+            doi=doi,
+            status_code=post.status_code,
+            payload=post.json_data,
+            publisher=publisher,
+            input_url=input_url,
+            candidate_url=post_url,
+            candidate_source="corpus_pdf_url" if corpus_pdf_url else "input_url",
+            resolved_url=(post.json_data or {}).get("resolved_url", "") if isinstance(post.json_data, dict) else "",
+            duration_ms=post.duration_ms,
+            error=post.error,
+        )
+        if overlay is not None:
+            return overlay
+        time.sleep(2)
+
     lookup = client.lookup_doi(doi)
     if lookup.error == "timeout":
         return make_pdf_transport_row(
@@ -267,13 +290,14 @@ def classify_live_pdf_row(
             doi=doi,
             work_id=work_id,
             category=PDF_CATEGORY_TIMEOUT,
-                publisher=publisher,
-                input_url=input_url,
-                candidate_url=corpus_pdf_url,
-                candidate_source="corpus_pdf_url" if corpus_pdf_url else "",
-                duration_ms=lookup.duration_ms,
-                error="doi lookup timed out",
-            )
+            publisher=publisher,
+            input_url=input_url,
+            candidate_url=corpus_pdf_url,
+            candidate_source="corpus_pdf_url" if corpus_pdf_url else "",
+            duration_ms=lookup.duration_ms,
+            mode="reharvest" if reharvest else "read_only",
+            error="doi lookup timed out",
+        )
     if lookup.status_code != 200 or lookup.error:
         return make_pdf_transport_row(
             run_id=run_id,
@@ -286,6 +310,7 @@ def classify_live_pdf_row(
             candidate_source="corpus_pdf_url" if corpus_pdf_url else "",
             status_code=lookup.status_code,
             duration_ms=lookup.duration_ms,
+            mode="reharvest" if reharvest else "read_only",
             error=lookup.error or f"doi lookup returned {lookup.status_code}",
         )
     transport_row, pdf_record = classify_pdf_lookup_payload(
@@ -299,6 +324,7 @@ def classify_live_pdf_row(
         candidate_url=corpus_pdf_url,
         candidate_source="corpus_pdf_url" if corpus_pdf_url else "",
         duration_ms=lookup.duration_ms,
+        mode="reharvest" if reharvest else "read_only",
     )
     if transport_row is not None:
         return transport_row
@@ -324,6 +350,7 @@ def classify_live_pdf_row(
             uuid=uuid,
             pdf_record_count=pdf_count,
             duration_ms=download.duration_ms,
+            mode="reharvest" if reharvest else "read_only",
             error="uuid download timed out",
         )
     if download.status_code != 200:
@@ -340,6 +367,7 @@ def classify_live_pdf_row(
             uuid=uuid,
             pdf_record_count=pdf_count,
             duration_ms=download.duration_ms,
+            mode="reharvest" if reharvest else "read_only",
             error=download.error,
         )
     return classify_pdf_content(
@@ -359,15 +387,13 @@ def classify_live_pdf_row(
             uuid=uuid,
             pdf_record_count=pdf_count,
             duration_ms=download.duration_ms,
-            mode="read_only",
+            mode="reharvest" if reharvest else "read_only",
         ),
         run_id=run_id,
     )
 
 
 def run_live(args: argparse.Namespace, run_id: str) -> int:
-    if args.reharvest:
-        raise SystemExit("--reharvest PDF mode is not implemented yet")
     if args.with_browserbase:
         raise SystemExit("--with-browserbase PDF mode is not implemented yet")
     if args.smoke:
@@ -396,6 +422,9 @@ def run_live(args: argparse.Namespace, run_id: str) -> int:
     completed = list(prior_rows.values())
     rows_path = run_dir / "rows.ndjson"
     workers = max(1, min(args.workers, 16))
+    if args.reharvest:
+        workers = min(workers, 4)
+        print("WARNING: --reharvest issues POST /taxicab requests and may spend Zyte credits.", file=sys.stderr)
     thread_local = threading.local()
 
     def get_client() -> TaxicabClient:
@@ -406,12 +435,12 @@ def run_live(args: argparse.Namespace, run_id: str) -> int:
         return client
 
     def classify_with_thread_client(row: dict[str, str]) -> Any:
-        return classify_live_pdf_row(row, client=get_client(), run_id=run_id)
+        return classify_live_pdf_row(row, client=get_client(), run_id=run_id, reharvest=args.reharvest)
 
     with open(rows_path, "a", encoding="utf-8") as handle:
         if workers == 1:
             for idx, row in enumerate(rows_to_run, start=1):
-                result = classify_live_pdf_row(row, client=get_client(), run_id=run_id)
+                result = classify_live_pdf_row(row, client=get_client(), run_id=run_id, reharvest=args.reharvest)
                 completed.append(result)
                 handle.write(json.dumps(result.to_dict(), ensure_ascii=False, sort_keys=True) + "\n")
                 handle.flush()
@@ -434,7 +463,7 @@ def run_live(args: argparse.Namespace, run_id: str) -> int:
         run_dir,
         run_id=run_id,
         base_url=args.base_url,
-        mode="read_only",
+        mode="reharvest" if args.reharvest else "read_only",
         corpus_path=corpus_label,
         corpus_sha1=corpus_sha,
         git_sha=git_sha(),
