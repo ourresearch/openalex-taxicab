@@ -521,10 +521,16 @@ article pages, and read-only confirmation
 `pdf-indianjournals-missing6-readonly-dcadb4a` returned all six rows to
 `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `f4e4fe37 #461 taxicab-pdf: add indianjournals tail packet` publishes the queue,
-summaries, reports, provider packet, and next AJConline queue. Next tail lane is
-AJConline on `ajconline.org` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/ajconline-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `dcadb4a`.
+summaries, reports, provider packet, and next AJConline queue. AJConline tail
+run `pdf-ajconline-missing3-reharvest-261a3ca` recovered 0/3 `good_pdf`; all
+three candidate article PDF routes resolved to article abstract HTML, and
+read-only confirmation `pdf-ajconline-missing3-readonly-261a3ca` returned all
+three rows to `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`.
+Oxjobs commit `b4b2a251 #461 taxicab-pdf: add ajconline tail packet` publishes
+the queue, summaries, reports, provider packet, and next IATED queue. Next tail
+lane is IATED on `library.iated.org` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/iated-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `261a3ca`.
 
 ## Agent Operating Rules
 

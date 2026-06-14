@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999ch complete; Indian Journals `indianjournals.com` recovered 0/6 PDFs, read-only confirmation returned all six rows to `missing_pdf_harvest`, and the provider packet is recorded in oxjobs at f4e4fe37. Gate 21.999ci, AJConline `ajconline.org` tail sample, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/ajconline-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-ajconline-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
+Current phase: Gate 21.999ci complete; AJConline `ajconline.org` recovered 0/3 PDFs, read-only confirmation returned all three rows to `missing_pdf_harvest`, and the provider packet is recorded in oxjobs at b4b2a251. Gate 21.999cj, IATED `library.iated.org` tail sample, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/iated-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-iated-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
 ```
 
 After Gate 0 is pushed:
@@ -166,7 +166,8 @@ Gate 21.999ce: run Vestnik/KRSU `vestnik.krsu.kg` tail sample and provider packe
 Gate 21.999cf: run Duke University Press `read.dukeupress.edu` tail sample and provider packet. [done, oxjobs 1e18ffdd]
 Gate 21.999cg: run GeoScienceWorld `pubs.geoscienceworld.org` tail sample and provider packet. [done, oxjobs b3ba464e]
 Gate 21.999ch: run Indian Journals `indianjournals.com` tail sample and provider packet. [done, oxjobs f4e4fe37]
-Gate 21.999ci: run AJConline `ajconline.org` tail sample. [next]
+Gate 21.999ci: run AJConline `ajconline.org` tail sample and provider packet. [done, oxjobs b4b2a251]
+Gate 21.999cj: run IATED `library.iated.org` tail sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -495,7 +496,11 @@ PDF:
   Indian Journals read-only confirmation: pdf-indianjournals-missing6-readonly-dcadb4a, 0 durable good_pdf, 6 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   Indian Journals finding: every candidate PDF/API route resolved to HTML article pages with status-201 HTML and no durable PDF record
   oxjobs #461 Indian Journals packet commit: f4e4fe37 #461 taxicab-pdf: add indianjournals tail packet
-  next lane: AJConline ajconline.org sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/ajconline-missing-25.csv, or send/test provider packets if Zyte guidance is available
+  AJConline bounded reharvest: pdf-ajconline-missing3-reharvest-261a3ca, 3 DOI candidates, 0 accepted good_pdf, 3 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  AJConline read-only confirmation: pdf-ajconline-missing3-readonly-261a3ca, 0 durable good_pdf, 3 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  AJConline finding: every candidate article PDF route resolved to article abstract HTML with status-201 HTML and no durable PDF record
+  oxjobs #461 AJConline packet commit: b4b2a251 #461 taxicab-pdf: add ajconline tail packet
+  next lane: IATED library.iated.org sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/iated-missing-25.csv, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
