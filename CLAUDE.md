@@ -178,8 +178,12 @@ Inlibra run `pdf-inlibra-missing32-reharvest-54d17e9` recovered 0/32
 Scientific.net run `pdf-scientificnet-missing20-reharvest-4e6130f` recovered
 0/20 `good_pdf`; all rows stayed missing after status-201 HTML captures at
 `www.scientific.net` article pages, with 0 timeout and 0 `taxicab_error`.
-Oxjobs commit `3b84fb4b` publishes the Scientific.net packet. Next independent
-lane is Persee or a provider-guidance test for accumulated packets.
+Oxjobs commit `3b84fb4b` publishes the Scientific.net packet. Persee run
+`pdf-persee-missing18-reharvest-af4baf7` recovered 0/18 `good_pdf`; every row
+classified as `corrupt_or_truncated_pdf` after invalid PDF content, with
+0 timeout and 0 `taxicab_error`. Oxjobs commit `1a7d1ddb` publishes the Persee
+packet. Next independent lane is Nature or a provider-guidance test for
+accumulated packets.
 Current latest pushed Taxicab branch commit before this docs slice is `4e6130f`.
 
 ## Agent Operating Rules

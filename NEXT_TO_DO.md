@@ -1,6 +1,6 @@
 # Taxicab next work for Codex and Claude
 
-Last updated: 2026-06-13 PDT.
+Last updated: 2026-06-14 PDT.
 
 This file is the handoff contract for Taxicab retrieval-quality work. Read it
 before doing new work. Keep it current before ending a long session. For the
@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: Scientific.net no-lift provider lane is recorded; Persee bounded sample or provider-guidance test is next.
+Current gate: Persee no-lift invalid-PDF provider lane is recorded; Nature bounded sample or provider-guidance test is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?persee\\.fr";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "persee.fr", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/persee-missing-25.csv
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?nature\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "nature.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/nature-missing-25.csv
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -398,13 +398,20 @@ after status-201 HTML captures at `www.scientific.net` article pages, with
 Scientific.net queue, scrubbed report, provider packet, and combined request
 update.
 
+Persee run `pdf-persee-missing18-reharvest-af4baf7` tested 18
+`missing_pdf_harvest` rows and recovered 0 `good_pdf`: every row classified as
+`corrupt_or_truncated_pdf` after invalid PDF content, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit
+`1a7d1ddb #461 taxicab-pdf: add persee provider packet` publishes the Persee
+queue, scrubbed report, and provider packet.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
 chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, APS, ACM, BMJ,
-Karger, Optica, JSTOR, Inlibra, and Scientific.net PDF-byte or click/download
-fetches before production route code. If continuing independent technical work,
-choose Persee from the latest full gate or test provider guidance for
-accumulated packets. IOP is accepted as the first repeated
+Karger, Optica, JSTOR, Inlibra, Scientific.net, and Persee PDF-byte or
+click/download fetches before production route code. If continuing independent
+technical work, choose Nature from the latest full gate or test provider
+guidance for accumulated packets. IOP is accepted as the first repeated
 whole-corpus PDF KPI lift; Karger is the latest accepted lift, and the gap to
 95% remains 4,089 rows.
 
