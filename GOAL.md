@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999ao complete; UC Press recovered 0/6 PDFs and is recorded in oxjobs at e435bc5e. Gate 21.999ap, RUPress bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://rupress\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "rupress.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/rupress-missing-25.csv
+Current phase: Gate 21.999ap complete; RUPress recovered 1/6 PDFs with read-only confirmation and is recorded in oxjobs at fa847b5a. Gate 21.999aq, Emerald bounded sample or provider-guidance test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.emerald\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.emerald.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/emerald-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -121,7 +121,8 @@ Gate 21.999al: run Healio targeted sample and provider packet. [done, oxjobs 645
 Gate 21.999am: run Sage Knowledge targeted sample and provider packet. [done, oxjobs 79af39d8]
 Gate 21.999an: run IGI Global targeted sample, read-only confirmation, and provider packet. [done, oxjobs 471f9ee3]
 Gate 21.999ao: run UC Press targeted sample and provider packet. [done, oxjobs e435bc5e]
-Gate 21.999ap: run RUPress targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999ap: run RUPress targeted sample, read-only confirmation, and provider packet. [done, oxjobs fa847b5a]
+Gate 21.999aq: run Emerald targeted sample, or test provider guidance for accumulated packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -342,7 +343,10 @@ PDF:
   oxjobs #461 IGI Global provider packet commit: 471f9ee3 #461 taxicab-pdf: add igi global recovery packet
   uc press bounded reharvest: pdf-ucpress-missing6-reharvest-dd1a528, 6 DOI candidates, 0 good_pdf, 6 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
   oxjobs #461 UC Press provider packet commit: e435bc5e #461 taxicab-pdf: add ucpress provider packet
-  next lane: RUPress bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  rupress bounded reharvest: pdf-rupress-missing6-reharvest-76fb88d, 6 DOI candidates, 1 good_pdf, 4 missing_pdf_harvest, 1 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
+  rupress read-only confirmation: pdf-rupress-missing6-readonly-76fb88d, 1 durable good_pdf, 4 missing_pdf_harvest, 1 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
+  oxjobs #461 RUPress provider packet commit: fa847b5a #461 taxicab-pdf: add rupress recovery packet
+  next lane: Emerald bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

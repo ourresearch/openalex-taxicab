@@ -283,10 +283,16 @@ UC Press run `pdf-ucpress-missing6-reharvest-dd1a528` recovered 0/6
 `good_pdf`; all six `online.ucpress.edu` article-PDF rows returned invalid
 PDF-like content and classified as `corrupt_or_truncated_pdf`, with 0 timeout
 and 0 `taxicab_error`. Oxjobs commit `e435bc5e` publishes the UC Press queue,
-scrubbed report, and provider packet. Next independent lane is RUPress
-(`rupress.org`) from the latest full gate.
+scrubbed report, and provider packet.
+RUPress run `pdf-rupress-missing6-reharvest-76fb88d` recovered 1/6
+`good_pdf`; read-only confirmation `pdf-rupress-missing6-readonly-76fb88d`
+preserved the same durable PDF and left four rows missing plus one
+`corrupt_or_truncated_pdf`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`fa847b5a` publishes the RUPress queue, scrubbed reports, and residual provider
+packet. Next independent lane is Emerald (`www.emerald.com`) from the latest
+full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`dd1a528`.
+`76fb88d`.
 
 ## Repository
 
