@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999ce complete; Vestnik/KRSU `vestnik.krsu.kg` recovered 0/3 PDFs, read-only confirmation returned all three rows to `missing_pdf_harvest`, and the provider packet is recorded in oxjobs at 5a217501. Gate 21.999cf, Duke University Press `read.dukeupress.edu` tail sample, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/dukeupress-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-dukeupress-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
+Current phase: Gate 21.999cf complete; Duke University Press `read.dukeupress.edu` recovered 0/3 PDFs, read-only confirmation returned all three rows to `missing_pdf_harvest`, and the provider packet is recorded in oxjobs at 1e18ffdd. Gate 21.999cg, GeoScienceWorld `pubs.geoscienceworld.org` tail sample, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/geoscienceworld-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-geoscienceworld-missing3-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
 ```
 
 After Gate 0 is pushed:
@@ -163,7 +163,8 @@ Gate 21.999cb: run EJSO `www.ejso.com` tail sample, read-only confirmation, and 
 Gate 21.999cc: run AUA Journals `www.auajournals.org` tail sample and provider packet. [done, oxjobs 16f51e88]
 Gate 21.999cd: run Springer Publishing `connect.springerpub.com` tail sample and provider packet. [done, oxjobs d56b9fac]
 Gate 21.999ce: run Vestnik/KRSU `vestnik.krsu.kg` tail sample and provider packet. [done, oxjobs 5a217501]
-Gate 21.999cf: run Duke University Press `read.dukeupress.edu` tail sample. [next]
+Gate 21.999cf: run Duke University Press `read.dukeupress.edu` tail sample and provider packet. [done, oxjobs 1e18ffdd]
+Gate 21.999cg: run GeoScienceWorld `pubs.geoscienceworld.org` tail sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -480,7 +481,11 @@ PDF:
   Vestnik/KRSU read-only confirmation: pdf-vestnik-krsu-missing3-readonly-d39e366, 0 durable good_pdf, 3 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   Vestnik/KRSU finding: every candidate article/download route resolved to archive HTML with status-201 HTML and no durable PDF record
   oxjobs #461 Vestnik/KRSU packet commit: 5a217501 #461 taxicab-pdf: add vestnik krsu tail packet
-  next lane: Duke University Press read.dukeupress.edu sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/dukeupress-missing-25.csv, or send/test provider packets if Zyte guidance is available
+  Duke University Press bounded reharvest: pdf-dukeupress-missing3-reharvest-c04d081, 3 DOI candidates, 0 accepted good_pdf, 3 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  Duke University Press read-only confirmation: pdf-dukeupress-missing3-readonly-c04d081, 0 durable good_pdf, 3 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  Duke University Press finding: every candidate article-pdf route resolved to article abstract HTML with redirectedFrom=fulltext and no durable PDF record
+  oxjobs #461 Duke University Press packet commit: 1e18ffdd #461 taxicab-pdf: add dukeupress tail packet
+  next lane: GeoScienceWorld pubs.geoscienceworld.org sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/geoscienceworld-missing-25.csv, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
