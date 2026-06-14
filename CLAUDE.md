@@ -44,6 +44,9 @@ next step is Zyte support or a Zyte-advised PDF-byte fetch mode.
 Lancet run `lancet-route-probe-3-741e9a7` recovered 0/3 PDFs, with two 520
 ban-free failures and one 404 HTML page. Oxjobs commit `2105c8f1` records the
 Lancet probe and packet `lancet-pdf-ban-741e9a7.md`.
+Cell Press run `cell-route-probe-3-741e9a7` recovered 0/3 PDFs, with login/JS
+HTML instead of PDF bytes. Oxjobs commit `a160ec1a` records the Cell probe and
+packet `cell-pdf-login-js-741e9a7.md`.
 
 ## Agent Operating Rules
 

@@ -68,7 +68,8 @@ Gate 17: publish corrected Elsevier 100-row gate to oxjobs #461. [done, oxjobs 3
 Gate 18: split Elsevier into ScienceDirect, Lancet, Cell, direct-asset, router, corrupt/truncated, and Zyte-support clusters. [done, oxjobs 825c2e2d]
 Gate 19: run ScienceDirect no-storage route probe and create Zyte packet. [done, taxicab 741e9a7, oxjobs 666d0ed6]
 Gate 20: run Lancet no-storage route probe and create Zyte packet. [done, oxjobs 2105c8f1]
-Gate 21: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
+Gate 21: run Cell Press no-storage route probe and create Zyte packet. [done, oxjobs a160ec1a]
+Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
 ## Latest Accepted Metrics
@@ -126,6 +127,8 @@ PDF:
   oxjobs #461 sciencedirect probe commit: 666d0ed6 #461 taxicab-pdf: record sciencedirect probe
   lancet probe run: lancet-route-probe-3-741e9a7, 3 DOI candidates, 3 variants, 0 good_pdf, 2 empty_response, 1 download_404
   oxjobs #461 lancet probe commit: 2105c8f1 #461 taxicab-pdf: record lancet probe
+  cell probe run: cell-route-probe-3-741e9a7, 3 DOI candidates, 3 variants, 0 good_pdf, 3 js_redirect_unresolved
+  oxjobs #461 cell probe commit: a160ec1a #461 taxicab-pdf: record cell probe
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

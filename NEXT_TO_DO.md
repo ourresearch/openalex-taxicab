@@ -152,6 +152,11 @@ recovered 0 `good_pdf`; two rows were Zyte 520 ban-free failures and one was a
 publishes the scrubbed artifacts and packet `lancet-pdf-ban-741e9a7.md`.
 Next shared lane: send/test Zyte guidance for ScienceDirect and Lancet PDF-byte
 fetching before production route code.
+Cell Press run `cell-route-probe-3-741e9a7` tested 3 candidate PDF URLs and
+recovered 0 `good_pdf`; all three returned login/JavaScript HTML. Oxjobs commit
+`a160ec1a #461 taxicab-pdf: record cell probe` publishes the scrubbed artifacts
+and packet `cell-pdf-login-js-741e9a7.md`. Add Cell to the same Zyte/advised
+PDF-byte lane before production route code.
 
 ## Absolute paths
 
