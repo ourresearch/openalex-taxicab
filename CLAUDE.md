@@ -467,10 +467,16 @@ produced no durable PDF record. Oxjobs commit
 `877d1107 #461 taxicab-pdf: add nctm recovery` publishes the queue, summaries,
 reports, provider packet, and next AAAHQ queue. This does not change accepted
 full-10K KPI history until a full read-only gate confirms corpus-level lift.
-Next tail lane is AAAHQ on `publications.aaahq.org` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/aaahq-missing-25.csv`.
-Current latest pushed Taxicab branch commit before this handoff-doc update is
-`97bcaa1`.
+AAAHQ tail run `pdf-aaahq-missing4-reharvest-7f47ce9` recovered 0/4
+`good_pdf`; three rows returned invalid PDF content and one stored article
+abstract HTML. Read-only confirmation `pdf-aaahq-missing4-readonly-7f47ce9`
+returned all four rows to `missing_pdf_harvest`, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit
+`63789cfc #461 taxicab-pdf: add aaahq tail packet` publishes the queue,
+summaries, reports, provider packet, and next EJSO queue. Next tail lane is
+EJSO on `www.ejso.com` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/ejso-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `7f47ce9`.
 
 ## Agent Operating Rules
 

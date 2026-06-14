@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999bz complete; NCTM `pubs.nctm.org` recovered 1/4 PDFs and read-only confirmation preserved 1/4 durable records, recorded in oxjobs at 877d1107. Gate 21.999ca, AAAHQ `publications.aaahq.org` tail sample, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --corpus /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/aaahq-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-aaahq-missing4-reharvest-97bcaa1 --out pdf_eval_runs --workers 2 --reharvest
+Current phase: Gate 21.999ca complete; AAAHQ `publications.aaahq.org` recovered 0/4 PDFs, read-only confirmation returned all four rows to `missing_pdf_harvest`, and the provider packet is recorded in oxjobs at 63789cfc. Gate 21.999cb, EJSO `www.ejso.com` tail sample, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/ejso-missing-25.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --run-id pdf-ejso-missing4-reharvest-$(git rev-parse --short HEAD) --out pdf_eval_runs --workers 2 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1 --reharvest
 ```
 
 After Gate 0 is pushed:
@@ -158,7 +158,8 @@ Gate 21.999bw: run Journal of Pediatric Surgery `www.jpedsurg.org` tail sample a
 Gate 21.999bx: run JBC `www.jbc.org` tail sample and provider packet. [done, oxjobs c5a71e38]
 Gate 21.999by: run ADS `ui.adsabs.harvard.edu` tail sample and read-only confirmation. [done, oxjobs 34c32f5f]
 Gate 21.999bz: run NCTM `pubs.nctm.org` tail sample, read-only confirmation, and provider packet. [done, oxjobs 877d1107]
-Gate 21.999ca: run AAAHQ `publications.aaahq.org` tail sample. [next]
+Gate 21.999ca: run AAAHQ `publications.aaahq.org` tail sample, read-only confirmation, and provider packet. [done, oxjobs 63789cfc]
+Gate 21.999cb: run EJSO `www.ejso.com` tail sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -455,7 +456,11 @@ PDF:
   NCTM read-only confirmation: pdf-nctm-missing4-readonly-97bcaa1, 1 durable good_pdf, 3 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   NCTM finding: downloadpdf/view recovered one durable PDF; downloadpdf/journals routes stored XML article HTML with no durable PDF records
   oxjobs #461 NCTM recovery commit: 877d1107 #461 taxicab-pdf: add nctm recovery
-  next lane: AAAHQ publications.aaahq.org sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/aaahq-missing-25.csv, or send/test provider packets if Zyte guidance is available
+  AAAHQ bounded reharvest: pdf-aaahq-missing4-reharvest-7f47ce9, 4 DOI candidates, 0 accepted good_pdf, 3 corrupt_or_truncated_pdf, 1 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  AAAHQ read-only confirmation: pdf-aaahq-missing4-readonly-7f47ce9, 0 durable good_pdf, 4 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  AAAHQ finding: three article-pdf routes returned invalid PDF content; one route stored article abstract HTML with redirectedFrom=PDF; no durable readable PDF records persisted
+  oxjobs #461 AAAHQ packet commit: 63789cfc #461 taxicab-pdf: add aaahq tail packet
+  next lane: EJSO www.ejso.com sample from /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/ejso-missing-25.csv, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
