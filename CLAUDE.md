@@ -185,9 +185,14 @@ classified as `corrupt_or_truncated_pdf` after invalid PDF content, with
 packet. Nature run `pdf-nature-missing17-reharvest-e7616c9` recovered 2/17
 `good_pdf`, and read-only confirmation `pdf-nature-missing17-readonly-e7616c9`
 preserved the same two durable PDFs; 15 rows remain missing. Oxjobs commit
-`33c8c71c` publishes the Nature recovery/residual packet. Next independent lane
-is J-STAGE or a provider-guidance test for accumulated packets.
-Current latest pushed Taxicab branch commit before this docs slice is `4e6130f`.
+`33c8c71c` publishes the Nature recovery/residual packet. J-STAGE run
+`pdf-jstage-missing16-reharvest-43777d8` recovered 2/16 `good_pdf`, and
+read-only confirmation `pdf-jstage-missing16-readonly-43777d8` preserved the
+same two durable PDFs; residual rows are 8 corrupt/truncated, 1 encrypted, and
+5 missing. Oxjobs commit `59789f72` publishes the J-STAGE recovery/residual
+packet. Next independent lane is University of Chicago journals or a
+provider-guidance test for accumulated packets.
+Current latest pushed Taxicab branch commit before this docs slice is `43777d8`.
 
 ## Agent Operating Rules
 

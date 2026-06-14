@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999t complete; Nature recovered and confirmed 2/17 durable PDFs and is recorded in oxjobs at 33c8c71c. Gate 21.999u, J-STAGE bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?jstage\\.jst\\.go\\.jp";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "jstage.jst.go.jp", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/jstage-missing-25.csv
+Current phase: Gate 21.999u complete; J-STAGE recovered and confirmed 2/16 durable PDFs and is recorded in oxjobs at 59789f72. Gate 21.999v, University of Chicago journals bounded sample or provider-guidance test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?journals\\.uchicago\\.edu";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "journals.uchicago.edu", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/uchicago-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -100,7 +100,8 @@ Gate 21.999q: run Inlibra targeted sample and publish provider packet. [done, ox
 Gate 21.999r: run Scientific.net targeted sample and publish provider packet. [done, oxjobs 3b84fb4b]
 Gate 21.999s: run Persee targeted sample and publish provider packet. [done, oxjobs 1a7d1ddb]
 Gate 21.999t: run Nature targeted sample, read-only confirmation, and provider packet. [done, oxjobs 33c8c71c]
-Gate 21.999u: run J-STAGE targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999u: run J-STAGE targeted sample, read-only confirmation, and provider packet. [done, oxjobs 59789f72]
+Gate 21.999v: run University of Chicago journals targeted sample, or test provider guidance for accumulated packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -259,7 +260,10 @@ PDF:
   nature bounded reharvest: pdf-nature-missing17-reharvest-e7616c9, 17 DOI candidates, 2 good_pdf, 15 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   nature read-only confirmation: pdf-nature-missing17-readonly-e7616c9, 2 durable good_pdf, 15 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   oxjobs #461 Nature provider packet commit: 33c8c71c #461 taxicab-pdf: add nature recovery packet
-  next lane: J-STAGE bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  jstage bounded reharvest: pdf-jstage-missing16-reharvest-43777d8, 16 DOI candidates, 2 good_pdf, 8 corrupt_or_truncated_pdf, 1 encrypted_or_unreadable_pdf, 4 missing_pdf_harvest, 1 timeout, 0 taxicab_error
+  jstage read-only confirmation: pdf-jstage-missing16-readonly-43777d8, 2 durable good_pdf, 8 corrupt_or_truncated_pdf, 1 encrypted_or_unreadable_pdf, 5 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  oxjobs #461 J-STAGE provider packet commit: 59789f72 #461 taxicab-pdf: add jstage recovery packet
+  next lane: University of Chicago journals bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
