@@ -402,7 +402,11 @@ Neurology tail run `pdf-neurology-missing4-reharvest-42dc6f4` recovered 0/4
 `good_pdf`; three rows stayed `missing_pdf_harvest` and one returned
 `corrupt_or_truncated_pdf`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `d9ede76b` publishes the Neurology queue, scrubbed report, and provider packet.
-Next tail lane is Begell House on `www.dl.begellhouse.com` from the latest full
+Begell House tail run `pdf-begellhouse-missing4-reharvest-db7d5fc` recovered
+0/4 `good_pdf`; all four rows stayed `missing_pdf_harvest` after status-201
+HTML/no-record captures, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`36ba508f` publishes the Begell queue, scrubbed report, and provider packet.
+Next tail lane is MIT Press Direct on `direct.mit.edu` from the latest full
 gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
 `42dc6f4`.
