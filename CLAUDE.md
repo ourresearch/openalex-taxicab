@@ -232,10 +232,14 @@ IWA Publishing run `pdf-iwaponline-missing7-reharvest-bfa43c4` recovered 0/7
 `good_pdf`; explicit article-PDF routes resolved to article-abstract HTML with
 `redirectedFrom=PDF`, leaving no durable PDF records, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `98a037c1` publishes the IWA provider packet.
-Next independent lane is AMS journals (`journals.ametsoc.org`) from the latest
+AMS journals run `pdf-ametsoc-missing7-reharvest-29cf658` recovered 0/7
+`good_pdf`; explicit `journals.ametsoc.org/downloadpdf/view` routes returned
+status 200 but no durable readable PDF records were created, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `8fe1d510` publishes the AMS provider packet.
+Next independent lane is JPET/ASPET (`jpet.aspetjournals.org`) from the latest
 full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`bfa43c4`.
+`29cf658`.
 
 ## Agent Operating Rules
 
