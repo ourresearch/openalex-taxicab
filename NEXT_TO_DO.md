@@ -219,12 +219,23 @@ delivery probes returned SSRN HTML or removed-paper HTML, not PDF bytes.
 Oxjobs commit `ade1b60f #461 taxicab-pdf: add ssrn provider packet` publishes
 the scrubbed SSRN summary/report and packet.
 
+IOP run `pdf-iop-missing-reharvest-25-2e2c123` tested 25
+`missing_pdf_harvest` rows from `iopscience.iop.org` and recovered 16
+`good_pdf`, with 6 missing, 2 corrupt/truncated, 1 timeout, and 0
+`taxicab_error`. Read-only confirmation
+`pdf-iop-missing-readonly-after-reharvest-2e2c123` preserved the same 16
+durable `good_pdf` records, with 7 missing, 2 corrupt/truncated, 0 timeout,
+and 0 `taxicab_error`. Oxjobs commit
+`7d376fa0 #461 taxicab-pdf: publish iop positive sample` publishes the scrubbed
+IOP summary/report. This is localized sample lift only until the next full 10K
+read-only gate quantifies the all-corpus effect.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, and SSRN PDF-byte or
-click/download fetches before production route code. If waiting on provider
-input, the next independent cluster is unknown-publisher host clustering or a
-smaller RSC/IOP/AIP targeted sample, not another blind full-publisher
-reharvest.
+click/download fetches before production route code. If continuing independent
+technical work, analyze IOP route/host patterns and run a full read-only gate
+after any broader IOP reharvest; otherwise move to RSC/AIP targeted samples.
+Do not call IOP a full-10K KPI lift until a full gate.
 
 ## Absolute paths
 

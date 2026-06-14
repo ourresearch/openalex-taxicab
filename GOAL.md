@@ -77,6 +77,7 @@ Gate 21.98: run Oxford bounded reharvest and publish scrubbed provider packet. [
 Gate 21.99: run CUP/Cambridge bounded reharvest and publish scrubbed provider packet. [done, oxjobs df7784c9]
 Gate 21.995: test documented CUP/Cambridge Zyte strategy variants. [done, oxjobs 77e793a8]
 Gate 21.996: run SSRN bounded reharvest and publish scrubbed provider packet. [done, oxjobs ade1b60f]
+Gate 21.997: run IOP bounded reharvest and read-only confirmation. [done, oxjobs 7d376fa0]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -165,6 +166,9 @@ PDF:
   ssrn bounded reharvest: pdf-ssrn-missing-reharvest-25-64b787f, 25 DOI candidates, 0 good_pdf, 25 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   ssrn finding: POST mostly accepted SSRN HTML delivery/landing pages; direct delivery probes returned SSRN HTML or removed-paper HTML
   oxjobs #461 SSRN provider packet commit: ade1b60f #461 taxicab-pdf: add ssrn provider packet
+  iop bounded reharvest: pdf-iop-missing-reharvest-25-2e2c123, 25 DOI candidates, 16 good_pdf, 6 missing_pdf_harvest, 2 corrupt_or_truncated_pdf, 1 timeout, 0 taxicab_error
+  iop read-only confirmation: pdf-iop-missing-readonly-after-reharvest-2e2c123, 16 durable good_pdf, 7 missing_pdf_harvest, 2 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
+  oxjobs #461 IOP positive sample commit: 7d376fa0 #461 taxicab-pdf: publish iop positive sample
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

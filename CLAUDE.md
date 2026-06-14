@@ -81,6 +81,10 @@ SSRN run `pdf-ssrn-missing-reharvest-25-64b787f` recovered 0/25 `good_pdf`;
 POST mostly accepted SSRN delivery/landing HTML, and direct delivery probes
 returned SSRN HTML or removed-paper HTML. Oxjobs commit `ade1b60f` records the
 scrubbed SSRN summary/report and packet.
+IOP run `pdf-iop-missing-reharvest-25-2e2c123` recovered 16/25 `good_pdf`;
+read-only confirmation preserved the same 16 durable records. Oxjobs commit
+`7d376fa0` records the positive sample. Treat it as localized sample lift until
+a full read-only gate quantifies all-corpus impact.
 
 ## Agent Operating Rules
 
