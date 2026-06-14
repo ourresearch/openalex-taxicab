@@ -223,10 +223,15 @@ publishes the PDCNet provider packet. EurekaSelect run
 `pdf-eurekaselect-missing8-reharvest-d224066` recovered 0/8 `good_pdf`; six
 rows returned invalid PDF-like content and two stayed `missing_pdf_harvest`,
 with 0 timeout and 0 `taxicab_error`. Oxjobs commit `357c4ee1` publishes the
-EurekaSelect provider packet. Next independent lane is ActaHort
-(`actahort.org`) from the latest full gate.
+EurekaSelect provider packet. ActaHort run
+`pdf-actahort-missing8-reharvest-8ce7ac3` recovered 0/8 `good_pdf`; all rows
+stayed `missing_pdf_harvest` after status-201 HTML/no durable PDF captures from
+`www.actahort.org/members/showpdf` routes, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `be526662` publishes the ActaHort provider
+packet. Next independent lane is V&R eLibrary (`vr-elibrary.de`) from the
+latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`d224066`.
+`8ce7ac3`.
 
 ## Repository
 

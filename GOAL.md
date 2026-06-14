@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999ab complete; EurekaSelect recovered 0/8 PDFs and is recorded in oxjobs at 357c4ee1. Gate 21.999ac, ActaHort bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?actahort\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "actahort.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/actahort-missing-25.csv
+Current phase: Gate 21.999ac complete; ActaHort recovered 0/8 PDFs and is recorded in oxjobs at be526662. Gate 21.999ad, V&R eLibrary bounded sample or provider-guidance test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?vr-elibrary\\.de";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "vr-elibrary.de", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/vr-elibrary-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -108,7 +108,8 @@ Gate 21.999y: run Physiology targeted sample and provider packet. [done, oxjobs 
 Gate 21.999z: run ASCE targeted sample and provider packet. [done, oxjobs b57dba2f]
 Gate 21.999aa: run PDCNet targeted sample and provider packet. [done, oxjobs a1663d3f]
 Gate 21.999ab: run EurekaSelect targeted sample and provider packet. [done, oxjobs 357c4ee1]
-Gate 21.999ac: run ActaHort targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999ac: run ActaHort targeted sample and provider packet. [done, oxjobs be526662]
+Gate 21.999ad: run V&R eLibrary targeted sample, or test provider guidance for accumulated packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -291,7 +292,10 @@ PDF:
   eurekaselect bounded reharvest: pdf-eurekaselect-missing8-reharvest-d224066, 8 DOI candidates, 0 good_pdf, 6 corrupt_or_truncated_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   eurekaselect finding: POST returned invalid PDF-like content or HTML/no durable PDF records for eurekaselect.com article routes
   oxjobs #461 EurekaSelect provider packet commit: 357c4ee1 #461 taxicab-pdf: add eurekaselect provider packet
-  next lane: ActaHort bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  actahort bounded reharvest: pdf-actahort-missing8-reharvest-8ce7ac3, 8 DOI candidates, 0 good_pdf, 8 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  actahort finding: POST returned status-201 HTML/no durable PDF records for www.actahort.org/members/showpdf routes
+  oxjobs #461 ActaHort provider packet commit: be526662 #461 taxicab-pdf: add actahort provider packet
+  next lane: V&R eLibrary bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
