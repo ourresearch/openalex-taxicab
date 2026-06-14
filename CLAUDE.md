@@ -37,6 +37,10 @@ ScienceDirect/Lancet/Cell/direct-asset/router rows into route/support clusters.
 Oxjobs commit `825c2e2d` adds that sanitized split. Next lane: no-storage
 ScienceDirect route probes and scrubbed Zyte examples before any production
 PDF route change.
+Taxicab commit `741e9a7` adds the no-storage ScienceDirect probe. Run
+`sciencedirect-route-probe-3-741e9a7` recovered 0/3 PDFs across 12 route
+variants. Oxjobs commit `666d0ed6` records the scrubbed probe and Zyte packet;
+next step is Zyte support or a Zyte-advised PDF-byte fetch mode.
 
 ## Agent Operating Rules
 

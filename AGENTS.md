@@ -40,6 +40,10 @@ Oxjobs commit `825c2e2d` adds the sanitized Elsevier route split:
 4 direct-asset rows, 3 Cell rows, 7 durable recoveries, and smaller
 router/cross-publisher clusters. Next technical lane is no-storage
 ScienceDirect route probing plus scrubbed Zyte examples.
+Taxicab commit `741e9a7` adds the no-storage probe. Run
+`sciencedirect-route-probe-3-741e9a7` tested 3 DOI candidates across 12 route
+variants and recovered 0 PDFs. Oxjobs commit `666d0ed6` records the scrubbed
+probe and Zyte packet `sciencedirect-pdf-viewer-html-741e9a7.md`.
 
 ## Repository
 

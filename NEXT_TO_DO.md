@@ -139,6 +139,13 @@ rows, 23 journal-host/long-tail rows, 11 invalid-PDF POST rows, 8 Lancet rows,
 7 durable recoveries, 5 cross-publisher candidates, 4 DOI-router candidates,
 4 direct-asset rows, 3 Cell Press rows, and 1 preview row. Next technical lane:
 no-storage ScienceDirect route probes plus scrubbed Zyte examples.
+Taxicab commit `741e9a7 taxicab: add sciencedirect pdf probe` adds the
+no-storage probe runner. Run `sciencedirect-route-probe-3-741e9a7` tested 3 DOI
+candidates and 12 route variants; result was 0 `good_pdf`, with best category
+`html_instead_of_pdf` for 3/3. Oxjobs commit
+`666d0ed6 #461 taxicab-pdf: record sciencedirect probe` publishes the scrubbed
+summary/report and Zyte packet. Next: send the packet or test Zyte-advised
+PDF-byte fetch mode; do not add production ScienceDirect PDF route code yet.
 
 ## Absolute paths
 
