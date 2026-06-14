@@ -14,6 +14,7 @@ from openalex_taxicab.pdf_eval_harness import (
     PDF_CATEGORY_HTML_INSTEAD_OF_PDF,
     PDF_CATEGORY_MISSING_PDF_HARVEST,
     PDF_CATEGORY_NO_PDF_EXPECTED,
+    PDF_CATEGORY_SUPPLEMENT_OR_PREVIEW_PDF,
     PdfEvidence,
     classify_pdf_content,
     make_pdf_transport_row,
@@ -179,6 +180,20 @@ class PdfEvalHarnessTests(unittest.TestCase):
         )
         self.assertEqual(row.category, PDF_CATEGORY_GOOD_PDF)
         self.assertNotIn("missing eof marker", row.validation_errors)
+
+    def test_first_page_pdf_url_is_preview_not_good_pdf(self):
+        row = classify_pdf_content(
+            PdfEvidence(
+                doi="10.5555/goodpdf",
+                title="Example Full Text Article",
+                body=(FIXTURE_DIR / "valid_fulltext.pdf").read_bytes(),
+                content_type="application/pdf",
+                resolved_url="https://www.sciencedirect.com/sdfe/pdf/download/eid/1-s2.0-003306209390027B/first-page-pdf",
+            ),
+            run_id="test",
+        )
+        self.assertEqual(row.category, PDF_CATEGORY_SUPPLEMENT_OR_PREVIEW_PDF)
+        self.assertIn("matched preview url pattern", row.error)
 
     def test_no_pdf_expected_short_circuits_content(self):
         row = classify_pdf_content(

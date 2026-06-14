@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 14, Elsevier read-only confirmation. Complete.
-Next exact command: inspect the 21 still-missing Elsevier rows from pdf-elsevier-missing-readonly-after-reharvest-be2f5c7 and choose either a narrow Elsevier candidate-route fix or the next larger cluster.
+Current phase: Gate 16, PDF preview URL classifier correction. Complete.
+Next exact command: publish corrected Elsevier 100-row result to oxjobs #461, then decide whether to scale Elsevier beyond the 100-row queue.
 ```
 
 After Gate 0 is pushed:
@@ -62,7 +62,9 @@ Gate 11: add PDF Browserbase evidence mode. [done]
 Gate 12: add PDF row-timeout watchdog for slow PDF/CDN rows. [done]
 Gate 13: Elsevier missing-PDF bounded sample. [done]
 Gate 14: confirm recovered Elsevier PDFs with read-only follow-up. [done]
-Gate 15: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
+Gate 15: generate and run Elsevier 100-row queue. [done]
+Gate 16: correct first-page/preview PDF classifier. [done]
+Gate 17: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
 ## Latest Accepted Metrics
@@ -109,6 +111,9 @@ PDF:
   elsevier bounded sample: pdf-elsevier-missing-reharvest-25-84b2c05 resumed with --row-timeout 120; 4/25 good_pdf, 15 missing_pdf_harvest, 6 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
   elsevier read-only confirmation: pdf-elsevier-missing-readonly-after-reharvest-be2f5c7, 4/25 good_pdf, 21 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   elsevier note: the four recovered rows are durable sample records; this is not a full-10K KPI lift until a full gate
+  elsevier 100-row reharvest: pdf-elsevier-missing-reharvest-100-41d0378, 6/100 good_pdf, 48 missing_pdf_harvest, 45 corrupt_or_truncated_pdf, 1 timeout, 0 taxicab_error
+  elsevier 100-row corrected read-only: pdf-elsevier-missing-readonly-previewfix-41d0378, 7/100 good_pdf, 92 missing_pdf_harvest, 1 supplement_or_preview_pdf, 0 timeout, 0 taxicab_error
+  preview classifier fix: first-page-pdf URLs classify as supplement_or_preview_pdf, not good_pdf
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
@@ -231,6 +236,12 @@ result: 4/25 good_pdf; 15 missing_pdf_harvest; 6 corrupt_or_truncated_pdf; 0 tim
 PDF Elsevier read-only confirmation:
 python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-25.csv --out pdf_eval_runs/ --run-id pdf-elsevier-missing-readonly-after-reharvest-be2f5c7 --workers 4 --row-timeout 120 --timeout 60 --retries 1 --progress-every 1: passed
 result: 4/25 good_pdf; 21 missing_pdf_harvest; 0 timeout; 0 taxicab_error
+
+PDF preview URL classifier:
+python3 -m unittest tests.test_pdf_eval_harness: 19 tests passed
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke-preview-url --out /tmp/taxicab-pdf-fixture-smoke-preview-url: passed, 15 fixtures, 15 categories
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-100.csv --out pdf_eval_runs/ --run-id pdf-elsevier-missing-readonly-previewfix-41d0378 --workers 4 --row-timeout 120 --timeout 60 --retries 1 --progress-every 5: passed
+result: 7/100 good_pdf; 92 missing_pdf_harvest; 1 supplement_or_preview_pdf; 0 timeout; 0 taxicab_error
 ```
 
 ## Provider Policy

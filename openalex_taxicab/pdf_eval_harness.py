@@ -118,6 +118,14 @@ SUPPLEMENT_PATTERNS = tuple(
     )
 )
 
+PREVIEW_URL_PATTERNS = tuple(
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"(?:^|[/?&_-])first[-_]?page[-_]?pdf(?:$|[/?&=_-])",
+        r"(?:^|[/?&_-])preview(?:$|[/?&=_-])",
+    )
+)
+
 HTML_MARKERS = ("<html", "<!doctype html", "<body", "<head", "<script")
 
 
@@ -267,6 +275,16 @@ def first_pattern(text: str, patterns: Iterable[re.Pattern]) -> str:
     return ""
 
 
+def first_url_pattern(urls: Iterable[str], patterns: Iterable[re.Pattern]) -> str:
+    for url in urls:
+        if not url:
+            continue
+        for pattern in patterns:
+            if pattern.search(url):
+                return pattern.pattern
+    return ""
+
+
 def visible_html_text(text: str) -> str:
     cleaned = re.sub(r"(?is)<script.*?</script>", " ", text)
     cleaned = re.sub(r"(?is)<style.*?</style>", " ", cleaned)
@@ -360,8 +378,15 @@ def classify_pdf_content(evidence: PdfEvidence, *, run_id: str = "") -> PdfEvalR
             category = PDF_CATEGORY_CORRUPT_OR_TRUNCATED_PDF
             validation_errors.append("no page objects found")
         else:
+            preview_url_pattern = first_url_pattern(
+                (evidence.resolved_url, evidence.candidate_url, evidence.input_url),
+                PREVIEW_URL_PATTERNS,
+            )
             supplement_pattern = first_pattern(text_smoke, SUPPLEMENT_PATTERNS)
-            if supplement_pattern:
+            if preview_url_pattern:
+                category = PDF_CATEGORY_SUPPLEMENT_OR_PREVIEW_PDF
+                validation_errors.append(f"matched preview url pattern: {preview_url_pattern}")
+            elif supplement_pattern:
                 category = PDF_CATEGORY_SUPPLEMENT_OR_PREVIEW_PDF
                 validation_errors.append(f"matched supplement/preview pattern: {supplement_pattern}")
             elif (evidence.doi or evidence.title) and text_smoke:

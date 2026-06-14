@@ -11,7 +11,7 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: publish Elsevier read-only confirmation to #461, then choose the next high-volume cluster or narrow Elsevier follow-up.
+Current gate: publish corrected Elsevier 100-row PDF result to #461, then choose whether to scale Elsevier or move to the next larger cluster.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && git pull --rebase origin main && python3 scripts/publish-report.py 461
@@ -115,6 +115,19 @@ The read-only confirmation
 records. The six corrupt/truncated POST outcomes did not persist as corrupt
 records; they read back as missing and need separate triage if this cluster is
 continued.
+
+The larger Elsevier queue
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-100.csv`
+contains 100 of the 384 Elsevier `missing_pdf_harvest` rows from the
+denominator baseline. Reharvest `pdf-elsevier-missing-reharvest-100-41d0378`
+returned 6/100 `good_pdf`, 48 missing, 45 corrupt/truncated POST outcomes,
+one timeout, and 0 `taxicab_error`. Raw rows/hardness contain signed
+ScienceDirect asset URLs; do not publish them unsanitized.
+
+The corrected read-only run
+`pdf-elsevier-missing-readonly-previewfix-41d0378` returned 7/100 `good_pdf`,
+92 missing, and one `supplement_or_preview_pdf` after the classifier fix for
+`first-page-pdf` URLs. This is the current honest Elsevier sample metric.
 
 ## Absolute paths
 

@@ -28,6 +28,11 @@ full-10K KPI lift.
 Read-only confirmation `pdf-elsevier-missing-readonly-after-reharvest-be2f5c7`
 shows the same 4/25 `good_pdf` and 21 `missing_pdf_harvest`, with 0 timeout and
 0 `taxicab_error`; the four recovered PDFs persisted as Taxicab records.
+The 100-row Elsevier queue reharvest returned 6/100 `good_pdf`, 45
+corrupt/truncated POST outcomes, 48 missing, and one timeout. A classifier
+correction now treats `first-page-pdf` URLs as `supplement_or_preview_pdf`; the
+corrected read-only result is 7/100 `good_pdf`, 92 missing, one preview, and
+0 timeout / 0 `taxicab_error`.
 
 ## Repository
 

@@ -27,6 +27,11 @@ with 4/25 `good_pdf`, 15 `missing_pdf_harvest`, 6 `corrupt_or_truncated_pdf`,
 full 10K gate proof. Read-only confirmation
 `pdf-elsevier-missing-readonly-after-reharvest-be2f5c7` preserved the same four
 `good_pdf` rows and left 21 rows missing, with 0 timeout and 0 Taxicab errors.
+The 100-row Elsevier run exposed an eval bug: a ScienceDirect `first-page-pdf`
+preview was counted as `good_pdf`. Current branch code classifies first-page or
+preview PDF URLs as `supplement_or_preview_pdf`. Corrected Elsevier 100-row
+read-only result: 7/100 `good_pdf`, 92 missing, one preview, 0 timeout, and
+0 Taxicab errors.
 
 ## Agent Operating Rules
 
