@@ -298,14 +298,19 @@ provider packet.
 AJO run `pdf-ajo-missing6-reharvest-a30f12a` recovered 0/6 `good_pdf`; five
 `www.ajo.com/article/.../pdf` rows returned invalid PDF content and one stayed
 missing, with 0 timeout and 0 `taxicab_error`. Oxjobs commit `a72d7c09`
-publishes the AJO queue, scrubbed report, and provider packet. Next independent
+publishes the AJO queue, scrubbed report, and provider packet.
 BioOne run `pdf-bioone-missing5-reharvest-1d9e18f` recovered 0/5 `good_pdf`;
 all five `bioone.org` PDF rows stayed missing, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `b60d7147` publishes the BioOne queue,
-scrubbed report, and provider packet. Next independent lane is Canadian Science
-Publishing (`cdnsciencepub.com`) from the latest full gate.
+scrubbed report, and provider packet.
+Canadian Science Publishing run `pdf-cdnsciencepub-missing5-reharvest-2a121b2`
+recovered 0/5 `good_pdf`; three `cdnsciencepub.com` explicit PDF rows returned
+invalid PDF content and two stayed missing, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `634173b9` publishes the Canadian Science
+queue, scrubbed report, and provider packet. Next independent lane is Edward
+Elgar (`www.elgaronline.com`) from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`1d9e18f`.
+`2a121b2`.
 
 ## Agent Operating Rules
 
