@@ -190,9 +190,14 @@ preserved the same two durable PDFs; 15 rows remain missing. Oxjobs commit
 read-only confirmation `pdf-jstage-missing16-readonly-43777d8` preserved the
 same two durable PDFs; residual rows are 8 corrupt/truncated, 1 encrypted, and
 5 missing. Oxjobs commit `59789f72` publishes the J-STAGE recovery/residual
-packet. Next independent lane is University of Chicago journals or a
-provider-guidance test for accumulated packets.
-Current latest pushed Taxicab branch commit before this docs slice is `43777d8`.
+packet. University of Chicago Journals run
+`pdf-uchicago-missing16-reharvest-6b41e44` recovered 0/16 `good_pdf`; all rows
+stayed `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. POST
+accepted HTML/no durable PDF records for `journals.uchicago.edu/doi/pdf` and
+`/doi/epdf` routes, commonly resolving to `/doi/abs/...` article pages. Oxjobs
+commit `95bde36b` publishes the UChicago provider packet. Next independent lane
+is ASME from the latest full gate, unless Zyte provider guidance arrives first.
+Current latest pushed Taxicab branch commit before this docs slice is `6b41e44`.
 
 ## Agent Operating Rules
 

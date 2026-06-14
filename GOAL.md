@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999u complete; J-STAGE recovered and confirmed 2/16 durable PDFs and is recorded in oxjobs at 59789f72. Gate 21.999v, University of Chicago journals bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?journals\\.uchicago\\.edu";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "journals.uchicago.edu", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/uchicago-missing-25.csv
+Current phase: Gate 21.999v complete; University of Chicago Journals recovered 0/16 PDFs and is recorded in oxjobs at 95bde36b. Gate 21.999w, ASME bounded sample or provider-guidance test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?asmedigitalcollection\\.asme\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "asmedigitalcollection.asme.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/asme-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -101,7 +101,8 @@ Gate 21.999r: run Scientific.net targeted sample and publish provider packet. [d
 Gate 21.999s: run Persee targeted sample and publish provider packet. [done, oxjobs 1a7d1ddb]
 Gate 21.999t: run Nature targeted sample, read-only confirmation, and provider packet. [done, oxjobs 33c8c71c]
 Gate 21.999u: run J-STAGE targeted sample, read-only confirmation, and provider packet. [done, oxjobs 59789f72]
-Gate 21.999v: run University of Chicago journals targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999v: run University of Chicago journals targeted sample and provider packet. [done, oxjobs 95bde36b]
+Gate 21.999w: run ASME targeted sample, or test provider guidance for accumulated packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -263,7 +264,10 @@ PDF:
   jstage bounded reharvest: pdf-jstage-missing16-reharvest-43777d8, 16 DOI candidates, 2 good_pdf, 8 corrupt_or_truncated_pdf, 1 encrypted_or_unreadable_pdf, 4 missing_pdf_harvest, 1 timeout, 0 taxicab_error
   jstage read-only confirmation: pdf-jstage-missing16-readonly-43777d8, 2 durable good_pdf, 8 corrupt_or_truncated_pdf, 1 encrypted_or_unreadable_pdf, 5 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   oxjobs #461 J-STAGE provider packet commit: 59789f72 #461 taxicab-pdf: add jstage recovery packet
-  next lane: University of Chicago journals bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  uchicago bounded reharvest: pdf-uchicago-missing16-reharvest-6b41e44, 16 DOI candidates, 0 good_pdf, 16 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  uchicago finding: POST accepted HTML/no durable PDF records for journals.uchicago.edu doi/pdf and doi/epdf routes, commonly resolving to doi/abs article pages
+  oxjobs #461 UChicago provider packet commit: 95bde36b #461 taxicab-pdf: add uchicago provider packet
+  next lane: ASME bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
