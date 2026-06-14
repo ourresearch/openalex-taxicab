@@ -195,6 +195,20 @@ class PdfEvalHarnessTests(unittest.TestCase):
         self.assertEqual(row.category, PDF_CATEGORY_SUPPLEMENT_OR_PREVIEW_PDF)
         self.assertIn("matched preview url pattern", row.error)
 
+    def test_transcript_prev_pdf_url_is_preview_not_good_pdf(self):
+        row = classify_pdf_content(
+            PdfEvidence(
+                doi="10.14361/9783839411407-003",
+                title="Example Full Text Article",
+                body=(FIXTURE_DIR / "valid_fulltext.pdf").read_bytes(),
+                content_type="application/pdf",
+                resolved_url="https://www.transcript-verlag.de/chunks/media/chunk_prev/prev_9783839411407-003.pdf",
+            ),
+            run_id="test",
+        )
+        self.assertEqual(row.category, PDF_CATEGORY_SUPPLEMENT_OR_PREVIEW_PDF)
+        self.assertIn("matched preview url pattern", row.error)
+
     def test_no_pdf_expected_short_circuits_content(self):
         row = classify_pdf_content(
             PdfEvidence(

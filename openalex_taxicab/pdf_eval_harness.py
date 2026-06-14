@@ -123,6 +123,8 @@ PREVIEW_URL_PATTERNS = tuple(
     for pattern in (
         r"(?:^|[/?&_-])first[-_]?page[-_]?pdf(?:$|[/?&=_-])",
         r"(?:^|[/?&_-])preview(?:$|[/?&=_-])",
+        r"(?:^|[/?&_-])chunk[-_]?prev(?:$|[/?&=_-])",
+        r"(?:^|[/?&_-])prev_[^/?#]+\.pdf(?:$|[?#])?",
     )
 )
 
