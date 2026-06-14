@@ -41,7 +41,7 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.998, after-IOP accepted full 10K gate recorded; next cluster decision pending. In progress.
+Current phase: Gate 21.999, remaining IOP accepted full 10K gate recorded; next cluster decision pending. In progress.
 Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
 ```
 
@@ -79,7 +79,8 @@ Gate 21.995: test documented CUP/Cambridge Zyte strategy variants. [done, oxjobs
 Gate 21.996: run SSRN bounded reharvest and publish scrubbed provider packet. [done, oxjobs ade1b60f]
 Gate 21.997: run IOP bounded reharvest and read-only confirmation. [done, oxjobs 7d376fa0]
 Gate 21.998: run accepted full 10K read-only gate after IOP. [done, oxjobs fbba7e56]
-Gate 21.999: choose next PDF cluster: remaining IOP rows, RSC, or AIP. [next]
+Gate 21.999: run remaining IOP rows and accepted full 10K read-only gate. [done, oxjobs 5cca142e]
+Gate 21.999a: choose next PDF cluster: IOP residual support packet, RSC, or AIP. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -104,12 +105,12 @@ Recovered in latest gate:
 PDF:
   full 10K baseline: 2,148/10,000 good_pdf (21.48%)
   denominator-enriched full baseline: 1,837/6,293 good_pdf (29.19%)
-  latest accepted full gate: pdf-full10k-after-iop-d6fb6bb, 1,861/6,293 good_pdf (29.57%)
-  latest accepted lift: +24 good_pdf vs denominator baseline
+  latest accepted full gate: pdf-full10k-after-iop-remaining-e5bcd30, 1,882/6,293 good_pdf (29.91%)
+  latest accepted lift: +45 good_pdf vs denominator baseline, +21 vs prior accepted gate
   no_pdf_expected: 3,707
-  denominator-enriched gap to 95%: 4,118 rows
-  dominant category: 3,912 missing_pdf_harvest
-  other major categories: 375 corrupt_or_truncated_pdf; 102 encrypted_or_unreadable_pdf
+  denominator-enriched gap to 95%: 4,097 rows
+  dominant category: 3,885 missing_pdf_harvest
+  other major categories: 381 corrupt_or_truncated_pdf; 102 encrypted_or_unreadable_pdf
   timeout: 0
   taxicab_error: 0
   run_id: pdf-full10k-readonly-22b78b7
@@ -174,6 +175,9 @@ PDF:
   oxjobs #461 IOP positive sample commit: 7d376fa0 #461 taxicab-pdf: publish iop positive sample
   after-IOP full gate: pdf-full10k-after-iop-d6fb6bb, 1,861/6,293 good_pdf (29.57%), +24 good_pdf, 3,912 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   oxjobs #461 after-IOP full gate commit: fbba7e56 #461 taxicab-pdf: publish iop full gate
+  remaining IOP read-only confirmation: pdf-iop-remaining45-readonly-e5bcd30, 21 durable good_pdf, 18 missing_pdf_harvest, 6 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
+  after-remaining-IOP full gate: pdf-full10k-after-iop-remaining-e5bcd30, 1,882/6,293 good_pdf (29.91%), +45 good_pdf, 3,885 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  oxjobs #461 remaining IOP full gate commit: 5cca142e #461 taxicab-pdf: publish remaining iop gate
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

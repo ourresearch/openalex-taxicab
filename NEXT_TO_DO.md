@@ -58,14 +58,14 @@ The denominator-enriched full 10K baseline is complete:
 `interstitial_or_paywall`, 2 `bot_block_403`, 0 timeout, and 0
 `taxicab_error`.
 
-The accepted full 10K gate after IOP is complete:
-`pdf-full10k-after-iop-d6fb6bb`, 1,861/6,293 `good_pdf` (29.57%), +24 rows
-versus the denominator baseline, 3,912 `missing_pdf_harvest`, 375
-`corrupt_or_truncated_pdf`, 102 `encrypted_or_unreadable_pdf`, 11
+The accepted full 10K gate after remaining IOP is complete:
+`pdf-full10k-after-iop-remaining-e5bcd30`, 1,882/6,293 `good_pdf` (29.91%),
++45 rows versus the denominator baseline and +21 versus the prior gate, 3,885
+`missing_pdf_harvest`, 381 `corrupt_or_truncated_pdf`, 102 `encrypted_or_unreadable_pdf`, 11
 `html_instead_of_pdf`, 11 `js_redirect_unresolved`, 11
 `supplement_or_preview_pdf`, 8 `interstitial_or_paywall`, 2 `bot_block_403`,
 0 timeout, and 0 `taxicab_error`. Oxjobs commit
-`fbba7e56 #461 taxicab-pdf: publish iop full gate` records the accepted report.
+`5cca142e #461 taxicab-pdf: publish remaining iop gate` records the accepted report.
 
 Gated PDF reharvest mode is implemented locally. It POSTs the corpus `PDF URL`
 when present, caps workers at 4, waits for write/read consistency, then re-runs
@@ -240,12 +240,21 @@ IOP summary/report. The follow-up accepted full gate
 `pdf-full10k-after-iop-d6fb6bb` now quantifies all-corpus impact at +24
 `good_pdf` on the PDF denominator.
 
+Remaining IOP queue `pdf-iop-remaining45-reharvest-e5bcd30` tested 45
+remaining `missing_pdf_harvest` rows from `iopscience.iop.org` and recovered
+21 `good_pdf`, with 18 missing, 6 corrupt/truncated, 0 timeout, and
+0 `taxicab_error`. Read-only confirmation
+`pdf-iop-remaining45-readonly-e5bcd30` preserved the same 21 durable
+`good_pdf` records. The follow-up accepted full gate
+`pdf-full10k-after-iop-remaining-e5bcd30` quantifies cumulative IOP impact at
++45 `good_pdf` versus the denominator baseline.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, and SSRN PDF-byte or
 click/download fetches before production route code. If continuing independent
-technical work, finish the remaining IOP rows with another full read-only gate,
-or move to RSC/AIP targeted samples. IOP is now accepted as the first
-whole-corpus PDF KPI lift, but the gap to 95% remains 4,118 rows.
+technical work, triage the 18 remaining IOP misses and 6 corrupt rows into a
+support packet, or move to RSC/AIP targeted samples. IOP is now accepted as the
+first repeated whole-corpus PDF KPI lift, but the gap to 95% remains 4,097 rows.
 
 ## Absolute paths
 
