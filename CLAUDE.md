@@ -447,10 +447,15 @@ report, and provider packet. Journal of Pediatric Surgery tail run
 rows stayed `missing_pdf_harvest` after status-201 HTML captures resolving to
 `www.jpedsurg.org/article/.../abstract`, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `d6c52a5b` publishes the JPedsurg queue,
-scrubbed report, and provider packet. Next tail lane is JBC on `www.jbc.org`
-from the latest full gate.
+scrubbed report, and provider packet. JBC tail run
+`pdf-jbc-missing4-reharvest-83f5456` recovered 0/4 `good_pdf`; all four rows
+stayed `missing_pdf_harvest` after status-201 HTML captures resolving to
+`www.jbc.org/article/.../fulltext`, with 0 timeout and 0 `taxicab_error`.
+Oxjobs commit `c5a71e38` publishes the JBC queue, scrubbed report, and
+provider packet. Next tail lane is ADS on `ui.adsabs.harvard.edu` from the
+latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`66bf4f1`.
+`83f5456`.
 
 ## Agent Operating Rules
 

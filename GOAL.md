@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999bw complete; Journal of Pediatric Surgery `www.jpedsurg.org` recovered 0/4 PDFs and is recorded in oxjobs at d6c52a5b. Gate 21.999bx, JBC `www.jbc.org` tail sample, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.jbc\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.jbc.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/jbc-missing-25.csv
+Current phase: Gate 21.999bx complete; JBC `www.jbc.org` recovered 0/4 PDFs and is recorded in oxjobs at c5a71e38. Gate 21.999by, ADS `ui.adsabs.harvard.edu` tail sample, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://ui\\.adsabs\\.harvard\\.edu";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "ui.adsabs.harvard.edu", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/adsabs-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -155,7 +155,8 @@ Gate 21.999bt: run PNAS `www.pnas.org` tail sample and provider packet. [done, o
 Gate 21.999bu: run Peter Lang `www.peterlang.com` tail sample and provider packet. [done, oxjobs a12417e1]
 Gate 21.999bv: run Nomos eLibrary `www.nomos-elibrary.de` tail sample and provider packet. [done, oxjobs d7d1220d]
 Gate 21.999bw: run Journal of Pediatric Surgery `www.jpedsurg.org` tail sample and provider packet. [done, oxjobs d6c52a5b]
-Gate 21.999bx: run JBC `www.jbc.org` tail sample. [next]
+Gate 21.999bx: run JBC `www.jbc.org` tail sample and provider packet. [done, oxjobs c5a71e38]
+Gate 21.999by: run ADS `ui.adsabs.harvard.edu` tail sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -443,7 +444,9 @@ PDF:
   oxjobs #461 Nomos packet commit: d7d1220d #461 taxicab-pdf: add nomos elibrary tail packet
   JPedsurg bounded reharvest: pdf-jpedsurg-missing4-reharvest-66bf4f1, 4 DOI candidates, 0 accepted good_pdf, 4 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   oxjobs #461 JPedsurg packet commit: d6c52a5b #461 taxicab-pdf: add jpedsurg tail packet
-  next lane: JBC www.jbc.org sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  JBC bounded reharvest: pdf-jbc-missing4-reharvest-83f5456, 4 DOI candidates, 0 accepted good_pdf, 4 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  oxjobs #461 JBC packet commit: c5a71e38 #461 taxicab-pdf: add jbc tail packet
+  next lane: ADS ui.adsabs.harvard.edu sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
