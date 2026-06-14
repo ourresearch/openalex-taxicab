@@ -223,10 +223,14 @@ EurekaSelect provider packet. ActaHort run
 stayed `missing_pdf_harvest` after status-201 HTML/no durable PDF captures from
 `www.actahort.org/members/showpdf` routes, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `be526662` publishes the ActaHort provider
-packet. Next independent lane is V&R eLibrary (`vr-elibrary.de`) from the
-latest full gate.
+packet. V&R eLibrary run `pdf-vr-elibrary-missing7-reharvest-fdfa16c`
+recovered 0/7 `good_pdf`; six rows stayed `missing_pdf_harvest` after reader
+routes resolved to abstract HTML/no durable PDF records, and one explicit PDF
+route returned invalid PDF-like content, with 0 timeout and 0 `taxicab_error`.
+Oxjobs commit `c3d3b00b` publishes the V&R eLibrary provider packet. Next
+independent lane is IWA Publishing (`iwaponline.com`) from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`8ce7ac3`.
+`fdfa16c`.
 
 ## Agent Operating Rules
 
