@@ -493,10 +493,17 @@ article/book/chapter HTML and read-only confirmation
 `pdf-springerpub-missing3-readonly-3720861` returned all three rows to
 `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `d56b9fac #461 taxicab-pdf: add springerpub tail packet` publishes the queue,
-summaries, reports, provider packet, and next Vestnik/KRSU queue. Next tail
-lane is Vestnik/KRSU on `vestnik.krsu.kg` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/vestnik-krsu-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `3720861`.
+summaries, reports, provider packet, and next Vestnik/KRSU queue. Vestnik/KRSU
+tail run `pdf-vestnik-krsu-missing3-reharvest-d39e366` recovered 0/3
+`good_pdf`; all three candidate `article/download` routes resolved to archive
+HTML and read-only confirmation `pdf-vestnik-krsu-missing3-readonly-d39e366`
+returned all three rows to `missing_pdf_harvest`, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit
+`5a217501 #461 taxicab-pdf: add vestnik krsu tail packet` publishes the queue,
+summaries, reports, provider packet, and next Duke University Press queue. Next
+tail lane is Duke University Press on `read.dukeupress.edu` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/dukeupress-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `d39e366`.
 
 ## Agent Operating Rules
 
