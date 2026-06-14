@@ -31,6 +31,9 @@ capture. Tests passed with full `python3 -m unittest discover -s tests` and
 PDF fixture smoke. A local no-storage `http_get` measurement over the 19
 current residual Wiley rows returned 13/19 `good_pdf`; this is not a production
 gate because the branch is not deployed to Taxicab main.
+Oxjobs #461 commit `d4f99eee` publishes this candidate evidence. The next gate
+is deciding a bounded confirmation path that does not push Taxicab main before
+the PDF 95% proof.
 Current tooling slice: `scripts/provider_pdf_probe.py` adds a generic
 no-storage Zyte provider strategy probe. It reads rows/CSV queues, strips query
 strings/fragments from artifacts, never calls Taxicab POST, and writes
@@ -54,7 +57,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes for residual subtype evidence before production PDF route changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && python3 scripts/publish-report.py 461`.
+`rg -n "class Harvester|def harvest|_store_content|R2|DynamoDB|--reharvest|POST /taxicab" openalex_taxicab app.py scripts tests`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
