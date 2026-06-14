@@ -249,7 +249,12 @@ Mary Ann Liebert run `pdf-liebertpub-missing7-reharvest-b5e1678` recovered
 0/7 `good_pdf`; five rows stayed missing after Sage-hosted HTML/no-record
 captures and two rows returned invalid PDF-like content, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `c9eafb75` publishes the Liebert provider
-packet. Next independent lane is AACR Figshare (`aacr.figshare.com`) from the
+packet.
+AACR Figshare run `pdf-aacr-figshare-missing6-reharvest-8f674aa` recovered
+0/6 `good_pdf`; all rows stayed missing after status-201 HTML/no durable PDF
+captures from Figshare downloader/PDF routes, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `dd7ab56d` publishes the AACR Figshare
+provider packet. Next independent lane is AMPP (`content.ampp.org`) from the
 latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
 `b5e1678`.

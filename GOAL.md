@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999ai complete; Mary Ann Liebert recovered 0/7 PDFs and is recorded in oxjobs at c9eafb75. Gate 21.999aj, AACR Figshare bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://aacr\\.figshare\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "aacr.figshare.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/aacr-figshare-missing-25.csv
+Current phase: Gate 21.999aj complete; AACR Figshare recovered 0/6 PDFs and is recorded in oxjobs at dd7ab56d. Gate 21.999ak, AMPP bounded sample or provider-guidance test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://content\\.ampp\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "content.ampp.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/ampp-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -115,7 +115,8 @@ Gate 21.999af: run AMS journals targeted sample and provider packet. [done, oxjo
 Gate 21.999ag: run JPET/ASPET targeted sample and provider packet. [done, oxjobs ae72a1ff]
 Gate 21.999ah: run OnePetro targeted sample and provider packet. [done, oxjobs 029f9ac9]
 Gate 21.999ai: run Mary Ann Liebert targeted sample and provider packet. [done, oxjobs c9eafb75]
-Gate 21.999aj: run AACR Figshare targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999aj: run AACR Figshare targeted sample and provider packet. [done, oxjobs dd7ab56d]
+Gate 21.999ak: run AMPP targeted sample, or test provider guidance for accumulated packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -319,7 +320,10 @@ PDF:
   liebertpub bounded reharvest: pdf-liebertpub-missing7-reharvest-b5e1678, 7 DOI candidates, 0 good_pdf, 5 missing_pdf_harvest, 2 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
   liebertpub finding: explicit Liebert PDF/reader routes resolved to Sage-hosted HTML/no durable PDF records or invalid PDF content
   oxjobs #461 Mary Ann Liebert provider packet commit: c9eafb75 #461 taxicab-pdf: add liebertpub provider packet
-  next lane: AACR Figshare bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  aacr figshare bounded reharvest: pdf-aacr-figshare-missing6-reharvest-8f674aa, 6 DOI candidates, 0 good_pdf, 6 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  aacr figshare finding: Figshare downloader/PDF routes produced status-201 HTML/no durable PDF records
+  oxjobs #461 AACR Figshare provider packet commit: dd7ab56d #461 taxicab-pdf: add aacr figshare provider packet
+  next lane: AMPP bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
