@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999ad complete; V&R eLibrary recovered 0/7 PDFs and is recorded in oxjobs at c3d3b00b. Gate 21.999ae, IWA Publishing bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?iwaponline\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "iwaponline.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/iwaponline-missing-25.csv
+Current phase: Gate 21.999ae complete; IWA Publishing recovered 0/7 PDFs and is recorded in oxjobs at 98a037c1. Gate 21.999af, AMS journals bounded sample or provider-guidance test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://([^/]+\\.)?journals\\.ametsoc\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "journals.ametsoc.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/ametsoc-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -110,7 +110,8 @@ Gate 21.999aa: run PDCNet targeted sample and provider packet. [done, oxjobs a16
 Gate 21.999ab: run EurekaSelect targeted sample and provider packet. [done, oxjobs 357c4ee1]
 Gate 21.999ac: run ActaHort targeted sample and provider packet. [done, oxjobs be526662]
 Gate 21.999ad: run V&R eLibrary targeted sample and provider packet. [done, oxjobs c3d3b00b]
-Gate 21.999ae: run IWA Publishing targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999ae: run IWA Publishing targeted sample and provider packet. [done, oxjobs 98a037c1]
+Gate 21.999af: run AMS journals targeted sample, or test provider guidance for accumulated packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -299,7 +300,10 @@ PDF:
   vr-elibrary bounded reharvest: pdf-vr-elibrary-missing7-reharvest-fdfa16c, 7 DOI candidates, 0 good_pdf, 6 missing_pdf_harvest, 1 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
   vr-elibrary finding: reader routes resolved to abstract HTML/no durable PDF records and one explicit PDF route returned invalid PDF-like content
   oxjobs #461 V&R eLibrary provider packet commit: c3d3b00b #461 taxicab-pdf: add vr-elibrary provider packet
-  next lane: IWA Publishing bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  iwaponline bounded reharvest: pdf-iwaponline-missing7-reharvest-bfa43c4, 7 DOI candidates, 0 good_pdf, 7 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  iwaponline finding: explicit article-pdf routes resolved to article-abstract HTML with redirectedFrom=PDF and no durable PDF records
+  oxjobs #461 IWA Publishing provider packet commit: 98a037c1 #461 taxicab-pdf: add iwaponline provider packet
+  next lane: AMS journals bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

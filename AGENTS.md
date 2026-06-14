@@ -233,9 +233,14 @@ recovered 0/7 `good_pdf`; six rows stayed `missing_pdf_harvest` after reader
 routes resolved to abstract HTML/no durable PDF records, and one explicit PDF
 route returned invalid PDF-like content, with 0 timeout and 0 `taxicab_error`.
 Oxjobs commit `c3d3b00b` publishes the V&R eLibrary provider packet. Next
-independent lane is IWA Publishing (`iwaponline.com`) from the latest full gate.
+IWA Publishing run `pdf-iwaponline-missing7-reharvest-bfa43c4` recovered 0/7
+`good_pdf`; explicit article-PDF routes resolved to article-abstract HTML with
+`redirectedFrom=PDF`, leaving no durable PDF records, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `98a037c1` publishes the IWA provider packet.
+Next independent lane is AMS journals (`journals.ametsoc.org`) from the latest
+full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`fdfa16c`.
+`bfa43c4`.
 
 ## Repository
 
