@@ -17,9 +17,13 @@ strings/fragments from artifacts, never calls Taxicab POST, and writes
 sanitized `rows.ndjson`, `summary.json`, and `report.html` under
 `pdf_eval_runs/<run_id>/`. Focused tests passed with
 `python3 -m unittest tests.test_provider_pdf_probe tests.test_sciencedirect_pdf_probe tests.test_pdf_eval_harness`.
-Use this for residual subtype evidence before production PDF route changes.
-Next exact command after this slice is pushed:
-`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category corrupt_or_truncated_pdf --host iopscience.iop.org --limit 3 --strategies default_body,browser_html --run-id iop-corrupt-provider-probe-3-<sha> --out pdf_eval_runs/`.
+IOP residual probe `iop-corrupt-provider-probe-3-31663bc` recovered 0/3 PDFs:
+one PerfDrive/captcha block and two corrupt application/pdf responses with no
+page objects. Oxjobs #461 commit `27d5e414` publishes the scrubbed summary and
+report. Use this probe for residual subtype evidence before production PDF
+route changes.
+Next exact command:
+`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category corrupt_or_truncated_pdf --host www.jstage.jst.go.jp --limit 3 --strategies default_body,browser_html --run-id jstage-corrupt-provider-probe-3-31663bc --out pdf_eval_runs/`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
