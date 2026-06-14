@@ -179,9 +179,12 @@ Inlibra run `pdf-inlibra-missing32-reharvest-54d17e9` recovered 0/32
 `good_pdf`; all rows stayed missing after status-201 HTML captures at
 `www.inlibra.com/document/download/pdf/uuid` routes, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `0df48262` publishes the Inlibra packet. Next
-independent lane is Scientific.net or a provider-guidance test for accumulated
-packets.
-Current latest pushed Taxicab branch commit before this docs slice is `54d17e9`.
+Scientific.net run `pdf-scientificnet-missing20-reharvest-4e6130f` recovered
+0/20 `good_pdf`; all rows stayed missing after status-201 HTML captures at
+`www.scientific.net` article pages, with 0 timeout and 0 `taxicab_error`.
+Oxjobs commit `3b84fb4b` publishes the Scientific.net packet. Next independent
+lane is Persee or a provider-guidance test for accumulated packets.
+Current latest pushed Taxicab branch commit before this docs slice is `4e6130f`.
 
 ## Repository
 
