@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999bn complete; Begell House `www.dl.begellhouse.com` tail sample recovered 0/4 PDFs and is recorded in oxjobs at 36ba508f. Gate 21.999bo, MIT Press Direct `direct.mit.edu` tail sample, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://direct\\.mit\\.edu";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "direct.mit.edu", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/direct-mit-missing-25.csv
+Current phase: Gate 21.999bo complete; MIT Press Direct `direct.mit.edu` tail sample recovered 0/4 PDFs and is recorded in oxjobs at 9fdca746. Gate 21.999bp, RSNA `pubs.rsna.org` tail sample, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://pubs\\.rsna\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "pubs.rsna.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/rsna-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -146,7 +146,8 @@ Gate 21.999bk: run De Gruyter Brill `www.degruyterbrill.com` residual sample and
 Gate 21.999bl: run AIAA `arc.aiaa.org` tail sample and provider packet. [done, oxjobs 83c0b0fe]
 Gate 21.999bm: run Neurology `www.neurology.org` tail sample and provider packet. [done, oxjobs d9ede76b]
 Gate 21.999bn: run Begell House `www.dl.begellhouse.com` tail sample and provider packet. [done, oxjobs 36ba508f]
-Gate 21.999bo: run MIT Press Direct `direct.mit.edu` tail sample. [next]
+Gate 21.999bo: run MIT Press Direct `direct.mit.edu` tail sample and provider packet. [done, oxjobs 9fdca746]
+Gate 21.999bp: run RSNA `pubs.rsna.org` tail sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -419,8 +420,8 @@ PDF:
   aiaa bounded reharvest: pdf-aiaa-missing4-reharvest-2faaaa2, 4 DOI candidates, 0 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
   oxjobs #461 AIAA tail packet commit: 83c0b0fe #461 taxicab-pdf: add aiaa tail packet
   neurology bounded reharvest: pdf-neurology-missing4-reharvest-42dc6f4, 4 DOI candidates, 0 good_pdf, 3 missing_pdf_harvest, 1 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
-  oxjobs #461 Begell House tail packet commit: 36ba508f #461 taxicab-pdf: add begellhouse tail packet
-  next lane: MIT Press Direct direct.mit.edu sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  oxjobs #461 MIT Press Direct tail packet commit: 9fdca746 #461 taxicab-pdf: add direct mit tail packet
+  next lane: RSNA pubs.rsna.org sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

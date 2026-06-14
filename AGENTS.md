@@ -406,8 +406,12 @@ Begell House tail run `pdf-begellhouse-missing4-reharvest-db7d5fc` recovered
 0/4 `good_pdf`; all four rows stayed `missing_pdf_harvest` after status-201
 HTML/no-record captures, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `36ba508f` publishes the Begell queue, scrubbed report, and provider packet.
-Next tail lane is MIT Press Direct on `direct.mit.edu` from the latest full
-gate.
+MIT Press Direct tail run `pdf-direct-mit-missing4-reharvest-8643285`
+recovered 0/4 `good_pdf`; all four rows returned invalid PDF content and
+classified as `corrupt_or_truncated_pdf`, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `9fdca746` publishes the MIT Direct queue,
+scrubbed report, and provider packet. Next tail lane is RSNA on
+`pubs.rsna.org` from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
 `42dc6f4`.
 
