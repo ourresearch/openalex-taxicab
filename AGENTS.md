@@ -581,9 +581,16 @@ confirmation `pdf-iospress-missing3-readonly-c08a1e4` returned all three rows
 to `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `930c773c #461 taxicab-pdf: add iospress tail packet` publishes the scrubbed
 summaries, reports, provider packet, and next AAI Journals queue. Next tail
-lane is AAI Journals on `journals.aai.org` from
-`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/aai-journals-missing-25.csv`.
-Latest Taxicab code/eval commit before this handoff-doc update is `c08a1e4`.
+lane AAI Journals run `pdf-aai-journals-missing3-reharvest-24795ac` recovered
+0/3 `good_pdf`; every explicit `journals.aai.org/article-pdf/...` route stored
+HTML/no durable PDF records. Read-only confirmation
+`pdf-aai-journals-missing3-readonly-24795ac` returned all three rows to
+`missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`ebff6475 #461 taxicab-pdf: add aai journals tail packet` publishes the
+scrubbed summaries, reports, provider packet, and next JCVA Online queue. Next
+tail lane is JCVA Online on `www.jcvaonline.com` from
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/jcvaonline-missing-25.csv`.
+Latest Taxicab code/eval commit before this handoff-doc update is `24795ac`.
 
 ## Repository
 
