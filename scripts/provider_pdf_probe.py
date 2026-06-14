@@ -170,7 +170,7 @@ def filter_records(
         return []
     filtered = []
     publisher_lc = publisher.lower()
-    host_lc = host.lower()
+    host_lc = host_from_url(f"https://{host}") if host and "://" not in host else host_from_url(host)
     for record in records:
         if category and record.baseline_category != category:
             continue

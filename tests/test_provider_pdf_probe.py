@@ -108,6 +108,34 @@ class ProviderPdfProbeTests(unittest.TestCase):
                 [],
             )
 
+    def test_host_filter_normalizes_www_prefix(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "rows.ndjson"
+            path.write_text(
+                json.dumps(
+                    {
+                        "doi": "10.1/a",
+                        "category": "missing_pdf_harvest",
+                        "publisher": "elsevier",
+                        "candidate_url": "https://www.sciencedirect.com/science/article/pii/S123/pdfft",
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            records = read_input_records(path)
+            filtered = filter_records(
+                records,
+                category="missing_pdf_harvest",
+                publisher="",
+                host="www.sciencedirect.com",
+                limit=10,
+            )
+
+            self.assertEqual(len(filtered), 1)
+            self.assertEqual(filtered[0].host, "sciencedirect.com")
+
     def test_write_probe_artifacts_counts_best_good_per_doi(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "probe"
