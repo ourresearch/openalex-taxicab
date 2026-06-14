@@ -212,10 +212,14 @@ Cairn provider packet. Physiology run
 `pdf-physiology-missing11-reharvest-6db1728` recovered 0/11 `good_pdf`; five
 rows returned invalid PDF-like content and six stayed `missing_pdf_harvest`,
 with 0 timeout and 0 `taxicab_error`. Oxjobs commit `33d5cb5b` publishes the
-Physiology provider packet. Next independent lane is ASCE (`ascelibrary.org`)
-from the latest full gate.
+Physiology provider packet. ASCE run
+`pdf-asce-missing10-reharvest-e708434` recovered 0/10 `good_pdf`; five rows
+returned invalid PDF-like content and five stayed `missing_pdf_harvest`, with
+0 timeout and 0 `taxicab_error`. Oxjobs commit `b57dba2f` publishes the ASCE
+provider packet. Next independent lane is PDCNet (`pdcnet.org`) from the latest
+full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`6db1728`.
+`e708434`.
 
 ## Repository
 
