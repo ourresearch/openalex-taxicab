@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: AIAA `arc.aiaa.org` tail lane is recorded at oxjobs 83c0b0fe; Neurology `www.neurology.org` tail sample is next.
+Current gate: Neurology `www.neurology.org` tail lane is recorded at oxjobs d9ede76b; Begell House `www.dl.begellhouse.com` tail sample is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.neurology\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.neurology.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/neurology-missing-25.csv
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://www\\.dl\\.begellhouse\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "www.dl.begellhouse.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/begellhouse-missing-25.csv
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -709,15 +709,22 @@ two rows stayed missing after status-201 HTML/no-record captures and two
 returned `corrupt_or_truncated_pdf`, with 0 timeout and 0 `taxicab_error`.
 Oxjobs commit `83c0b0fe #461 taxicab-pdf: add aiaa tail packet` publishes the
 queue, scrubbed report, and provider packet.
+Neurology tail run `pdf-neurology-missing4-reharvest-42dc6f4` tested 4 current
+full-gate `missing_pdf_harvest` rows from `www.neurology.org` and recovered
+0 `good_pdf`; three rows stayed missing after status-201 HTML/no-record
+captures and one returned `corrupt_or_truncated_pdf`, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit
+`d9ede76b #461 taxicab-pdf: add neurology tail packet` publishes the queue,
+scrubbed report, and provider packet.
 
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
 chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, APS, ACM, BMJ,
 Karger, Optica, JSTOR, Inlibra, Scientific.net, Persee, Nature, J-STAGE,
 University of Chicago Journals, ASME, Cairn, Physiology, ASCE, PDCNet, EurekaSelect, ActaHort, V&R eLibrary, IWA Publishing, AMS journals, JPET/ASPET, OnePetro, Mary Ann Liebert, AACR Figshare, AMPP, Healio, Sage Knowledge, IGI Global, UC Press, RUPress, Emerald, JACC, AJO, BioOne, Canadian Science Publishing, Edward Elgar, American Concrete Institute, American Journal of Surgery, AJOG, Scholarly Publishing Collective, Royal Society Publishing, KoreaScience, Journal of Pharmaceutical Sciences, CHEST, Green Journal, SciELO, AIP `pubs.aip.org`, DOI-router, ScienceDirect direct asset, and Springer `link.springer.com` rows
-before production route code, plus De Gruyter Brill and AIAA residual rows. If
-continuing independent technical work, choose Neurology `www.neurology.org`
-rows from the latest full gate or test provider guidance for accumulated
+before production route code, plus De Gruyter Brill, AIAA, and Neurology
+residual rows. If continuing independent technical work, choose Begell House
+`www.dl.begellhouse.com` rows from the latest full gate or test provider guidance for accumulated
 packets. IOP is accepted as the first repeated
 whole-corpus PDF KPI lift; Karger is the latest accepted lift, and the gap to
 95% remains 4,089 rows.

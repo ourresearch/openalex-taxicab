@@ -393,9 +393,14 @@ AIAA tail run `pdf-aiaa-missing4-reharvest-2faaaa2` recovered 0/4 `good_pdf`;
 two rows stayed `missing_pdf_harvest` and two returned
 `corrupt_or_truncated_pdf`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `83c0b0fe` publishes the AIAA queue, scrubbed report, and provider packet.
-Next tail lane is Neurology on `www.neurology.org` from the latest full gate.
+Neurology tail run `pdf-neurology-missing4-reharvest-42dc6f4` recovered 0/4
+`good_pdf`; three rows stayed `missing_pdf_harvest` and one returned
+`corrupt_or_truncated_pdf`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`d9ede76b` publishes the Neurology queue, scrubbed report, and provider packet.
+Next tail lane is Begell House on `www.dl.begellhouse.com` from the latest full
+gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`2faaaa2`.
+`42dc6f4`.
 
 ## Agent Operating Rules
 
