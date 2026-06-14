@@ -299,10 +299,14 @@ JACC run `pdf-jacc-missing6-reharvest-9e16fb8` recovered 0/6 `good_pdf`; all
 six `www.jacc.org/doi/epdf` routes stored HTML with no durable PDF records and
 classified as `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`.
 Oxjobs commit `eea013bf` publishes the JACC queue, scrubbed report, and
-provider packet. Next independent lane is AJO (`www.ajo.com`) from the latest
-full gate.
+provider packet.
+AJO run `pdf-ajo-missing6-reharvest-a30f12a` recovered 0/6 `good_pdf`; five
+`www.ajo.com/article/.../pdf` rows returned invalid PDF content and one stayed
+missing, with 0 timeout and 0 `taxicab_error`. Oxjobs commit `a72d7c09`
+publishes the AJO queue, scrubbed report, and provider packet. Next independent
+lane is BioOne (`bioone.org`) from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`9e16fb8`.
+`a30f12a`.
 
 ## Repository
 
