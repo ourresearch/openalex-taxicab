@@ -5,10 +5,11 @@ Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
 PDF-expected portion of the 10K Goldie corpus. Read `GOAL.md` and
 `NEXT_TO_DO.md` before changing code.
 
-Latest PDF metric: denominator-enriched full 10K read-only baseline is
-1,837/6,293 `good_pdf` (29.19%), with 3,707 `no_pdf_expected`, 3,939
-`missing_pdf_harvest`, 373 `corrupt_or_truncated_pdf`, 102
-`encrypted_or_unreadable_pdf`, 0 timeout, and 0 `taxicab_error`.
+Latest PDF metric: accepted full 10K read-only gate
+`pdf-full10k-after-iop-d6fb6bb` is 1,861/6,293 `good_pdf` (29.57%),
++24 rows versus the denominator baseline of 1,837/6,293 (29.19%), with
+`missing_pdf_harvest` down from 3,939 to 3,912, 0 timeout, and
+0 `taxicab_error`. The gap to 95% is now 4,118 rows.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
@@ -87,8 +88,10 @@ returned SSRN HTML or removed-paper HTML. Oxjobs commit `ade1b60f` records the
 scrubbed SSRN summary/report and packet.
 IOP run `pdf-iop-missing-reharvest-25-2e2c123` recovered 16/25 `good_pdf`;
 read-only confirmation preserved the same 16 durable records. Oxjobs commit
-`7d376fa0` records the positive sample. Treat it as localized sample lift until
-a full read-only gate quantifies all-corpus impact.
+`7d376fa0` records the positive sample. Oxjobs commit `fbba7e56` records the
+accepted full-gate impact: +24 `good_pdf` on the 6,293-row PDF denominator.
+IOP is now the first proven whole-corpus PDF KPI lift, but still far short of
+the 95% target.
 
 ## Repository
 

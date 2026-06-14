@@ -41,7 +41,7 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.99, CUP/Cambridge bounded sample recorded; provider/advised PDF-byte lane next. In progress.
+Current phase: Gate 21.998, after-IOP accepted full 10K gate recorded; next cluster decision pending. In progress.
 Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
 ```
 
@@ -78,6 +78,8 @@ Gate 21.99: run CUP/Cambridge bounded reharvest and publish scrubbed provider pa
 Gate 21.995: test documented CUP/Cambridge Zyte strategy variants. [done, oxjobs 77e793a8]
 Gate 21.996: run SSRN bounded reharvest and publish scrubbed provider packet. [done, oxjobs ade1b60f]
 Gate 21.997: run IOP bounded reharvest and read-only confirmation. [done, oxjobs 7d376fa0]
+Gate 21.998: run accepted full 10K read-only gate after IOP. [done, oxjobs fbba7e56]
+Gate 21.999: choose next PDF cluster: remaining IOP rows, RSC, or AIP. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -102,11 +104,12 @@ Recovered in latest gate:
 PDF:
   full 10K baseline: 2,148/10,000 good_pdf (21.48%)
   denominator-enriched full baseline: 1,837/6,293 good_pdf (29.19%)
+  latest accepted full gate: pdf-full10k-after-iop-d6fb6bb, 1,861/6,293 good_pdf (29.57%)
+  latest accepted lift: +24 good_pdf vs denominator baseline
   no_pdf_expected: 3,707
-  denominator-enriched gap to 95%: 4,142 rows
-  gap to 95%: 7,352 rows
-  dominant category: 7,230 missing_pdf_harvest
-  other major categories: 453 corrupt_or_truncated_pdf; 121 encrypted_or_unreadable_pdf
+  denominator-enriched gap to 95%: 4,118 rows
+  dominant category: 3,912 missing_pdf_harvest
+  other major categories: 375 corrupt_or_truncated_pdf; 102 encrypted_or_unreadable_pdf
   timeout: 0
   taxicab_error: 0
   run_id: pdf-full10k-readonly-22b78b7
@@ -124,7 +127,7 @@ PDF:
   elsevier interrupted sample: 23/25 rows completed before KeyboardInterrupt; 4 good_pdf, 6 corrupt_or_truncated_pdf, 13 missing_pdf_harvest, 0 timeout/taxicab_error among completed rows
   elsevier bounded sample: pdf-elsevier-missing-reharvest-25-84b2c05 resumed with --row-timeout 120; 4/25 good_pdf, 15 missing_pdf_harvest, 6 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
   elsevier read-only confirmation: pdf-elsevier-missing-readonly-after-reharvest-be2f5c7, 4/25 good_pdf, 21 missing_pdf_harvest, 0 timeout, 0 taxicab_error
-  elsevier note: the four recovered rows are durable sample records; this is not a full-10K KPI lift until a full gate
+  elsevier note: the four recovered rows are durable sample records; Elsevier still needs route-specific/provider work before any broad production claim
   elsevier 100-row reharvest: pdf-elsevier-missing-reharvest-100-41d0378, 6/100 good_pdf, 48 missing_pdf_harvest, 45 corrupt_or_truncated_pdf, 1 timeout, 0 taxicab_error
   elsevier 100-row corrected read-only: pdf-elsevier-missing-readonly-previewfix-9b7d84b, 7/100 good_pdf, 92 missing_pdf_harvest, 1 supplement_or_preview_pdf, 0 timeout, 0 taxicab_error
   preview classifier fix: first-page-pdf URLs classify as supplement_or_preview_pdf, not good_pdf
@@ -169,6 +172,8 @@ PDF:
   iop bounded reharvest: pdf-iop-missing-reharvest-25-2e2c123, 25 DOI candidates, 16 good_pdf, 6 missing_pdf_harvest, 2 corrupt_or_truncated_pdf, 1 timeout, 0 taxicab_error
   iop read-only confirmation: pdf-iop-missing-readonly-after-reharvest-2e2c123, 16 durable good_pdf, 7 missing_pdf_harvest, 2 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
   oxjobs #461 IOP positive sample commit: 7d376fa0 #461 taxicab-pdf: publish iop positive sample
+  after-IOP full gate: pdf-full10k-after-iop-d6fb6bb, 1,861/6,293 good_pdf (29.57%), +24 good_pdf, 3,912 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  oxjobs #461 after-IOP full gate commit: fbba7e56 #461 taxicab-pdf: publish iop full gate
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
