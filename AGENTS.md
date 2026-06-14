@@ -322,10 +322,15 @@ American Concrete Institute run `pdf-concrete-missing5-reharvest-d38b219`
 recovered 0/5 `good_pdf`; all `www.concrete.org` getarticle rows resolved to
 portal detail or secured sign-in HTML and stayed missing, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `9fbae749` publishes the ACI queue, scrubbed
-report, and provider packet. Next independent lane is American Journal of
-Surgery (`www.americanjournalofsurgery.com`) from the latest full gate.
+report, and provider packet.
+American Journal of Surgery run
+`pdf-americanjournalofsurgery-missing5-reharvest-93479bd` recovered 0/5
+`good_pdf`; three article PDF rows returned invalid PDF content and two stayed
+missing, with 0 timeout and 0 `taxicab_error`. Oxjobs commit `1b4912ec`
+publishes the AJS queue, scrubbed report, and provider packet. Next independent
+lane is AJOG (`www.ajog.org`) from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`d38b219`.
+`93479bd`.
 
 ## Repository
 
