@@ -452,10 +452,16 @@ scrubbed report, and provider packet. JBC tail run
 stayed `missing_pdf_harvest` after status-201 HTML captures resolving to
 `www.jbc.org/article/.../fulltext`, with 0 timeout and 0 `taxicab_error`.
 Oxjobs commit `c5a71e38` publishes the JBC queue, scrubbed report, and
-provider packet. Next tail lane is ADS on `ui.adsabs.harvard.edu` from the
+provider packet. ADS tail run `pdf-adsabs-missing4-reharvest-1b03675`
+recovered 4/4 `good_pdf`; read-only confirmation
+`pdf-adsabs-missing4-readonly-1b03675` preserved the same 4/4 durable records
+at `articles.adsabs.harvard.edu`, with 0 timeout and 0 `taxicab_error`.
+Oxjobs commit `34c32f5f` publishes the ADS queue, summaries, and reports. This
+does not change accepted full-10K KPI history until a full read-only gate
+confirms corpus-level lift. Next tail lane is NCTM on `pubs.nctm.org` from the
 latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`83f5456`.
+`1b03675`.
 
 ## Agent Operating Rules
 
