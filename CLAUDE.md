@@ -199,10 +199,13 @@ commit `95bde36b` publishes the UChicago provider packet. ASME run
 `pdf-asme-missing15-reharvest-c1c2b86` recovered 0/15 `good_pdf`; eight rows
 returned invalid PDF-like content and seven stayed `missing_pdf_harvest` after
 status-201 HTML/no durable PDF captures, with 0 timeout and 0 `taxicab_error`.
-Oxjobs commit `10d80d80` publishes the ASME provider packet. Next independent
-lane is Cairn (`shs.cairn.info` plus `www.cairn.info`) from the latest full
-gate.
-Current latest pushed Taxicab branch commit before this docs slice is `c1c2b86`.
+Oxjobs commit `10d80d80` publishes the ASME provider packet. Cairn run
+`pdf-cairn-missing20-reharvest-8742847` recovered 0/20 `good_pdf`; nineteen
+rows returned invalid PDF-like content and one stayed `missing_pdf_harvest`,
+with 0 timeout and 0 `taxicab_error`. Oxjobs commit `97b61e38` publishes the
+Cairn provider packet. Next independent lane is Physiology
+(`journals.physiology.org`) from the latest full gate.
+Current latest pushed Taxicab branch commit before this docs slice is `8742847`.
 
 ## Agent Operating Rules
 
