@@ -25,6 +25,13 @@ Oxjobs #461 commit `6ba84787` publishes this evidence. This is strategy
 evidence only; next implement a narrow Wiley PDF-byte strategy candidate and
 prove it with bounded reharvest/read-only confirmation before any full-gate
 claim.
+Implementation candidate: Taxicab commit `3b2d218` routes Wiley
+`/doi/pdfdirect/` URLs through Zyte HTTP body strategies (`default_body`,
+`accept_pdf`, then `google_referer`) instead of browser HTML/cookie-shell
+capture. Tests passed with full `python3 -m unittest discover -s tests` and
+PDF fixture smoke. A local no-storage `http_get` measurement over the 19
+current residual Wiley rows returned 13/19 `good_pdf`; this is not a production
+gate because the branch is not deployed to Taxicab main.
 Current tooling slice: generic no-storage provider probing is implemented in
 `scripts/provider_pdf_probe.py` with tests in `tests/test_provider_pdf_probe.py`.
 It does not call Taxicab POST and does not write R2/DynamoDB. It sanitizes URLs
@@ -46,7 +53,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`rg -n "wiley|pdfdirect|provider_pdf_probe|Zyte" openalex_taxicab scripts tests`.
+`cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && python3 scripts/publish-report.py 461`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context

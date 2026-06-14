@@ -11,14 +11,14 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`; oxjobs #461 is pushed at `dcb7bb14` with the accepted structured-parser full gate, at `9569e1f6` with the Wiley residual 5-row probe, and at `6ba84787` with the Wiley residual all-row probe. Next lane is a narrow Wiley PDF-byte strategy candidate based on the 15/19 no-storage recovery evidence.
+Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`; oxjobs #461 is pushed at `dcb7bb14` with the accepted structured-parser full gate, at `9569e1f6` with the Wiley residual 5-row probe, and at `6ba84787` with the Wiley residual all-row probe. Taxicab commit `3b2d218` implements the narrow Wiley PDF-byte strategy candidate. Next lane is publishing the candidate evidence to oxjobs #461, then proving it with deployment/reharvest/read-only gates before any full-gate claim.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
 Current tooling slice: generic no-storage provider probing in `scripts/provider_pdf_probe.py`. It reads full-gate rows or CSV queues, sanitizes URLs, tests named Zyte strategies, and writes local probe artifacts without Taxicab POST/R2/DynamoDB writes.
 IOP residual probe `iop-corrupt-provider-probe-3-31663bc` recovered 0/3 PDFs: one PerfDrive/captcha block and two corrupt application/pdf responses with no page objects. Treat residual IOP as Zyte/support or validator triage, not route code.
 J-STAGE corrupt-provider probe `jstage-corrupt-provider-probe-3b-31663bc` recovered 0/3 residual corrupt PDFs: two application/pdf responses still had no page objects and one row timed out empty; browser HTML returned PDF-viewer shells. Treat this as Zyte binary-mode or validator-byte triage before any route-code change.
 J-STAGE encrypted-provider probe `jstage-encrypted-provider-probe-3-31663bc` recovered 0/3 residual encrypted/unreadable PDFs: default body reached application/pdf bytes for all three rows but every response stayed `encrypted_or_unreadable_pdf`; browser HTML returned PDF-viewer shells. Treat this as legacy/encrypted PDF handling or validator-byte triage.
-J-STAGE missing-provider probe `jstage-missing-provider-probe-3-31663bc` recovered 0/3 residual missing PDFs: two rows stayed `js_redirect_unresolved`, and one row timed out empty/browser-shell. J-STAGE residuals now move to provider/support or validator-byte triage. Structured parser gate `pdf-full10k-after-structured-parser-a61d34b` is now accepted at 2,193/6,293 `good_pdf` (34.85%). Wiley residual all-row provider probe `wiley-residual-corrupt-provider-probe-19-a61d34b` recovered 15/19 current residual Wiley corrupt rows as `good_pdf`, with two `empty_response`, one `bot_block_403`, and one `supplement_or_preview_pdf` residual. Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "wiley|pdfdirect|provider_pdf_probe|Zyte" openalex_taxicab scripts tests
+J-STAGE missing-provider probe `jstage-missing-provider-probe-3-31663bc` recovered 0/3 residual missing PDFs: two rows stayed `js_redirect_unresolved`, and one row timed out empty/browser-shell. J-STAGE residuals now move to provider/support or validator-byte triage. Structured parser gate `pdf-full10k-after-structured-parser-a61d34b` is now accepted at 2,193/6,293 `good_pdf` (34.85%). Wiley residual all-row provider probe `wiley-residual-corrupt-provider-probe-19-a61d34b` recovered 15/19 current residual Wiley corrupt rows as `good_pdf`, with two `empty_response`, one `bot_block_403`, and one `supplement_or_preview_pdf` residual. Taxicab commit `3b2d218` implements Wiley PDF-byte fetching for `/doi/pdfdirect/` URLs and local no-storage `http_get` validation returned 13/19 `good_pdf`. Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && python3 scripts/publish-report.py 461
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -876,10 +876,11 @@ recovered PDFs. Human Kinetics is a partial-positive lane with one durable PDF
 and two residual XML-HTML/no-record rows. If continuing independent technical
 work, use the accepted full rows from
 `pdf_eval_runs/pdf-full10k-after-structured-parser-a61d34b/rows.ndjson` and
-start with the narrow Wiley PDF-byte strategy candidate. The all-row residual
-Wiley probe `wiley-residual-corrupt-provider-probe-19-a61d34b` recovered 15/19
-as `good_pdf`, with two `empty_response`, one `bot_block_403`, and one
-`supplement_or_preview_pdf` residual. IOP
+start by publishing the Wiley PDF-direct candidate evidence to oxjobs #461. The
+all-row residual Wiley probe `wiley-residual-corrupt-provider-probe-19-a61d34b`
+recovered 15/19 as `good_pdf`, and Taxicab commit `3b2d218` local `http_get`
+validation recovered 13/19 without Taxicab writes. The remaining residuals were
+empty/bot/JS/preview cases. IOP
 is accepted as the first repeated whole-corpus PDF KPI lift; the
 structured-parser gate is the latest accepted measurement gate at 2,193/6,293
 `good_pdf` (34.85%), +356 versus the denominator baseline, and the gap to 95%
@@ -1252,7 +1253,8 @@ Next exact commands:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 git switch codex/taxicab-pdf-phase2
-rg -n "wiley|pdfdirect|provider_pdf_probe|Zyte" openalex_taxicab scripts tests
+cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
+python3 scripts/publish-report.py 461
 ```
 
 ### 12. Continue from the post-95 HTML residual queue only if PDF work is paused

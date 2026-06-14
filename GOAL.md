@@ -41,9 +41,9 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999cy complete for the all-row residual Wiley provider probe; structured PDF parser is implemented at Taxicab commit a61d34b and oxjobs #461 commit dcb7bb14 publishes the accepted structured-parser full gate. Oxjobs #461 commit 6ba84787 publishes `wiley-residual-corrupt-provider-probe-19-a61d34b`, which recovered 15/19 current residual Wiley corrupt rows without Taxicab POST or production writes. Gate 21.999cz is the narrow Wiley PDF-byte strategy candidate.
+Current phase: Gate 21.999cz has a pushed Taxicab branch candidate at commit 3b2d218. Structured PDF parser is implemented at Taxicab commit a61d34b and oxjobs #461 commit dcb7bb14 publishes the accepted structured-parser full gate. Oxjobs #461 commit 6ba84787 publishes `wiley-residual-corrupt-provider-probe-19-a61d34b`, which recovered 15/19 current residual Wiley corrupt rows without Taxicab POST or production writes. Taxicab commit 3b2d218 routes Wiley `/doi/pdfdirect/` URLs through PDF-byte Zyte HTTP strategies instead of browser HTML. Local no-storage `http_get` validation over the same 19 rows returned 13/19 `good_pdf`; this is not a production gate until deployed and reharvest/read-only confirmed.
 Next exact command:
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "wiley|pdfdirect|provider_pdf_probe|Zyte" openalex_taxicab scripts tests
+cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && python3 scripts/publish-report.py 461
 ```
 
 After Gate 0 is pushed:
@@ -184,7 +184,8 @@ Gate 21.999cv: run J-STAGE corrupt-PDF subtype provider probe from accepted full
 Gate 21.999cw: run J-STAGE encrypted and missing/login provider probes, add structured PDF parser, run Wiley corrupt probe, run Wiley 67-row read-only gate, and publish full 10K structured-parser gate. [done, taxicab a61d34b, oxjobs dcb7bb14]
 Gate 21.999cx: run residual Wiley corrupt-PDF 5-row provider probe from current structured-parser full-gate rows. [done, oxjobs 9569e1f6]
 Gate 21.999cy: run residual Wiley corrupt-PDF all-row provider probe from current structured-parser full-gate rows. [done, oxjobs 6ba84787]
-Gate 21.999cz: inspect and implement narrow Wiley PDF-byte strategy candidate. [next]
+Gate 21.999cz: inspect and implement narrow Wiley PDF-byte strategy candidate. [done, taxicab 3b2d218]
+Gate 21.999da: publish Wiley PDF-direct candidate evidence to oxjobs #461. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -213,6 +214,8 @@ PDF:
   latest accepted lift: +356 good_pdf vs denominator baseline, +283 net vs prior Human Kinetics gate
   structured-parser note: 363 prior non-good rows recovered; 80 prior good_pdf rows stricter-reclassified as supplement_or_preview_pdf
   latest focused evidence: wiley-residual-corrupt-provider-probe-19-a61d34b recovered 15/19 current residual Wiley corrupt rows, with two empty_response, one bot_block_403, and one supplement_or_preview_pdf residual
+  latest implementation candidate: 3b2d218 taxicab: fetch Wiley pdfdirect as PDF bytes
+  local candidate validation: 13/19 current residual Wiley rows classified good_pdf through local http_get, with no Taxicab POST/R2/DynamoDB writes
   no_pdf_expected: 3,707
   denominator-enriched gap to 95%: 3,786 rows
   dominant category: 3,807 missing_pdf_harvest
@@ -566,7 +569,8 @@ PDF:
   oxjobs #461 structured parser full-gate commit: dcb7bb14 #461 taxicab-pdf: publish structured parser gate
   Wiley residual 5-row provider probe: wiley-residual-corrupt-provider-probe-5-a61d34b, 3/5 good_pdf, one empty_response, one supplement_or_preview_pdf, no Taxicab POST/R2/DynamoDB writes; oxjobs #461 commit 9569e1f6
   Wiley residual all-row provider probe: wiley-residual-corrupt-provider-probe-19-a61d34b, 15/19 good_pdf, with two empty_response, one bot_block_403, and one supplement_or_preview_pdf residual; no Taxicab POST/R2/DynamoDB writes; oxjobs #461 commit 6ba84787
-  next lane: inspect and implement a narrow Wiley PDF-byte strategy candidate, then prove it with bounded reharvest/read-only confirmation before any full-gate claim
+  Wiley PDF-direct implementation candidate: Taxicab commit 3b2d218, local no-storage http_get validation 13/19 good_pdf on the same residual rows, no production deploy yet
+  next lane: publish the candidate evidence to oxjobs #461, then decide deployment/reharvest proof path before any full-gate claim
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
