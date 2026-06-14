@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: commit PDF Browserbase evidence mode, rerun one-row Browserbase smoke after commit, and publish #461 evidence.
+Current gate: publish PDF Browserbase evidence to #461, then choose next high-volume PDF cluster.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: python3 -m unittest discover -s tests
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && python3 scripts/publish-report.py 461
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -81,11 +81,12 @@ landing-page helper for `10.1007/978-3-662-67010-1_39` also returned HTML, not a
 PDF. Do not add Springer to the existing landing-page rewrite host list without
 new evidence; prepare a Zyte support packet first.
 
-PDF Browserbase evidence mode is implemented locally in `scripts/taxicab_pdf_eval.py`.
+PDF Browserbase evidence mode is implemented and pushed at
+`f424129 taxicab: add pdf browserbase evidence mode`.
 It annotates non-good PDF rows only; it does not change Taxicab baseline
 categories. The local no-credential smoke writes `not_configured` evidence.
 Using the ignored Parseland eval env key, the one-row Springer Browserbase
-session smoke returned `html_not_pdf` for
+session smoke `pdf-browserbase-springer-1-f424129` returned `html_not_pdf` for
 `10.1007/978-1-4419-6247-8_15015` and landed on
 `https://link.springer.com/rwe/10.1007/978-1-4419-6247-8_15015`, not PDF bytes.
 

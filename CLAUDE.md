@@ -17,7 +17,7 @@ instrumentation is pushed at `b9d5918`; the rerun shows the 11 remaining
 Springer misses were POST 201 HTML captures, not PDF records. A no-storage
 two-step Zyte probe also returned HTML for a failed sample, so prepare/support
 packet evidence before changing production routing.
-PDF Browserbase evidence mode is local work: it annotates non-good PDF rows
+PDF Browserbase evidence mode is pushed at `f424129`: it annotates non-good PDF rows
 separately from the Taxicab verdict. The first Springer Browserbase session
 smoke returned `html_not_pdf`, not a recoverable PDF.
 

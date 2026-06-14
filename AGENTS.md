@@ -15,7 +15,7 @@ Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 instrumentation is pushed at commit `b9d5918`; the rerun shows all 11 misses
 received POST status 201 with `post content_type html`, not PDF. Treat Springer
 as a Zyte-support/evidence cluster before production code changes.
-PDF Browserbase evidence mode is local work: it annotates non-good PDF rows
+PDF Browserbase evidence mode is pushed at commit `f424129`: it annotates non-good PDF rows
 without changing baseline categories. The first Springer Browserbase session
 smoke returned `html_not_pdf`, confirming the sample is not browser-recoverable
 as a direct PDF.
