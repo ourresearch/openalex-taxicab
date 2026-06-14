@@ -338,10 +338,16 @@ Scholarly Publishing Collective run
 `good_pdf`; four article-PDF routes returned invalid PDF content and one row
 resolved to article abstract HTML/no durable PDF record, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `362d2b2f` publishes the Scholarly queue,
-scrubbed report, and provider packet. Next independent lane is Royal Society
-Publishing (`royalsocietypublishing.org`) from the latest full gate.
+scrubbed report, and provider packet.
+Royal Society Publishing run
+`pdf-royalsocietypublishing-missing5-reharvest-1d0fac0` recovered 0/5
+`good_pdf`; three rows redirected to Silverchair watermark PDF URLs and two
+resolved to article abstract HTML/no durable PDF record, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `cfeb6d34` publishes the Royal Society queue,
+scrubbed report, and provider packet. Next independent lane is KoreaScience
+(`koreascience.or.kr`) from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`a9fdacb`.
+`1d0fac0`.
 
 ## Repository
 
