@@ -41,7 +41,7 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999i, Brill no-lift provider packet recorded; AMA/JAMA bounded sample or provider-packet send/test is next. In progress.
+Current phase: Gate 21.999j, AMA/JAMA no-lift provider packet recorded; APS bounded sample or provider-packet send/test is next. In progress.
 Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
 ```
 
@@ -88,7 +88,8 @@ Gate 21.999e: run SPIE targeted sample and publish provider packet. [done, oxjob
 Gate 21.999f: run Thieme targeted sample and publish provider packet. [done, oxjobs 8cb377c7]
 Gate 21.999g: run Sage targeted sample and publish provider packet. [done, oxjobs ca3b11fe]
 Gate 21.999h: run Brill targeted sample and publish provider packet. [done, oxjobs 172b7580]
-Gate 21.999i: run AMA/JAMA targeted sample or send/test accumulated provider packets. [next]
+Gate 21.999i: run AMA/JAMA targeted sample and publish provider packet. [done, oxjobs d82e9ba6]
+Gate 21.999j: run APS targeted sample or send/test accumulated provider packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -211,7 +212,10 @@ PDF:
   brill bounded reharvest: pdf-brill-missing30-reharvest-7520bc1, 30 DOI candidates, 0 good_pdf, 30 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   brill finding: POST returned status 200 on Brill downloadpdf URLs but no durable PDF records were readable afterward
   oxjobs #461 Brill provider packet commit: 172b7580 #461 taxicab-pdf: add brill provider packet
-  next lane: AMA/JAMA bounded sample from the latest full gate, or send/test provider packets if Zyte guidance is available
+  ama/jama bounded reharvest: pdf-ama-jama-missing25-reharvest-005b032, 25 DOI candidates, 0 good_pdf, 18 missing_pdf_harvest, 7 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
+  ama/jama finding: POST returned article HTML/no durable PDF records or invalid PDF-like responses
+  oxjobs #461 AMA/JAMA provider packet commit: d82e9ba6 #461 taxicab-pdf: add ama jama provider packet
+  next lane: APS bounded sample from the latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
