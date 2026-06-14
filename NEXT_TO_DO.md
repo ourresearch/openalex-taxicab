@@ -204,6 +204,12 @@ no-storage explicit PDF probes returned status 200 `text/html` Cambridge Core
 article/book pages, not PDF bytes. Oxjobs commit
 `df7784c9 #461 taxicab-pdf: add cup provider packet` publishes the scrubbed
 CUP/Cambridge summary/report and packet.
+Follow-up strategy probe `cup-zyte-strategy-probe-1-26d3d5c` tested default
+HTTP `httpResponseBody`, a PDF `Accept` header, residential variants, and
+browser network capture over one explicit Cambridge PDF URL. Result: 0 PDF
+bodies; the non-rejected strategies returned Cambridge Core HTML. Oxjobs
+commit `77e793a8 #461 taxicab-pdf: record cup strategy probe` publishes the
+scrubbed public summary/report.
 
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, and CUP/Cambridge PDF-byte fetches

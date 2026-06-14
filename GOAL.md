@@ -75,6 +75,7 @@ Gate 21.9: run De Gruyter bounded reharvest and publish scrubbed provider packet
 Gate 21.95: run Lippincott bounded reharvest and publish scrubbed provider packet. [done, oxjobs b88a5a79]
 Gate 21.98: run Oxford bounded reharvest and publish scrubbed provider packet. [done, oxjobs e1fe9deb]
 Gate 21.99: run CUP/Cambridge bounded reharvest and publish scrubbed provider packet. [done, oxjobs df7784c9]
+Gate 21.995: test documented CUP/Cambridge Zyte strategy variants. [done, oxjobs 77e793a8]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -158,6 +159,8 @@ PDF:
   cup/cambridge finding: POST accepted Cambridge Core HTML pages; direct no-storage explicit PDF probes returned status 200 text/html Cambridge Core pages, not PDF bytes
   oxjobs #461 CUP/Cambridge provider packet commit: df7784c9 #461 taxicab-pdf: add cup provider packet
   combined provider request now covers ScienceDirect, Lancet, Cell, Wiley, De Gruyter, Lippincott, Oxford, and CUP/Cambridge
+  cup/cambridge strategy probe: cup-zyte-strategy-probe-1-26d3d5c, 0 PDF bodies across default HTTP, PDF Accept header, residential variants, and browser network capture
+  oxjobs #461 CUP/Cambridge strategy probe commit: 77e793a8 #461 taxicab-pdf: record cup strategy probe
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

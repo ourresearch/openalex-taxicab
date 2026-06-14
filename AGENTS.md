@@ -78,6 +78,9 @@ explicit PDF probes returned status 200 `text/html` Cambridge Core pages.
 Oxjobs commit `df7784c9` records the scrubbed CUP/Cambridge summary/report and
 packet. The combined provider request now covers ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, and CUP/Cambridge.
+CUP/Cambridge strategy probe `cup-zyte-strategy-probe-1-26d3d5c` tested
+default HTTP, PDF `Accept`, residential variants, and browser network capture;
+none returned PDF bytes. Oxjobs commit `77e793a8` records the scrubbed summary.
 
 ## Repository
 
