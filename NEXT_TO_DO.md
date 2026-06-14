@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: SciELO provider lane is recorded at oxjobs 41a903e6; AIP `pubs.aip.org` bounded sample or provider-guidance test is next.
+Current gate: AIP `pubs.aip.org` provider lane is recorded at oxjobs b7940463; DOI-router PDF URL bounded sample or provider-guidance test is next.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://pubs\\.aip\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "pubs.aip.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/pubs-aip-missing-25.csv
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://(dx\\.)?doi\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "doi.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/doi-org-missing-25.csv
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -669,14 +669,21 @@ same two durable PDFs and left two rows missing, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit
 `41a903e6 #461 taxicab-pdf: add scielo recovery packet` publishes the SciELO
 queue, scrubbed reports, and provider packet.
+AIP `pubs.aip.org` run `pdf-pubs-aip-missing25-reharvest-751ad63` tested 25
+`missing_pdf_harvest` rows and recovered 0 `good_pdf`; all rows stayed missing
+after status-201 HTML/no-record captures, split between 20 article-abstract
+fallbacks and 5 signed Silverchair PDF redirects, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit
+`b7940463 #461 taxicab-pdf: add pubs aip provider packet` publishes the AIP
+platform queue, scrubbed report, and provider packet.
 
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
 Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, SSRN, RSC, AIP, Taylor API
 chapter-download, ACS, SPIE, Thieme, Sage, Brill, AMA/JAMA, APS, ACM, BMJ,
 Karger, Optica, JSTOR, Inlibra, Scientific.net, Persee, Nature, J-STAGE,
-University of Chicago Journals, ASME, Cairn, Physiology, ASCE, PDCNet, EurekaSelect, ActaHort, V&R eLibrary, IWA Publishing, AMS journals, JPET/ASPET, OnePetro, Mary Ann Liebert, AACR Figshare, AMPP, Healio, Sage Knowledge, IGI Global, UC Press, RUPress, Emerald, JACC, AJO, BioOne, Canadian Science Publishing, Edward Elgar, American Concrete Institute, American Journal of Surgery, AJOG, Scholarly Publishing Collective, Royal Society Publishing, KoreaScience, Journal of Pharmaceutical Sciences, CHEST, Green Journal, and SciELO PDF-byte or click/download fetches
+University of Chicago Journals, ASME, Cairn, Physiology, ASCE, PDCNet, EurekaSelect, ActaHort, V&R eLibrary, IWA Publishing, AMS journals, JPET/ASPET, OnePetro, Mary Ann Liebert, AACR Figshare, AMPP, Healio, Sage Knowledge, IGI Global, UC Press, RUPress, Emerald, JACC, AJO, BioOne, Canadian Science Publishing, Edward Elgar, American Concrete Institute, American Journal of Surgery, AJOG, Scholarly Publishing Collective, Royal Society Publishing, KoreaScience, Journal of Pharmaceutical Sciences, CHEST, Green Journal, SciELO, and AIP `pubs.aip.org` PDF-byte or click/download fetches
 before production route code. If continuing independent technical work, choose
-AIP `pubs.aip.org` from the latest full gate or test provider
+DOI-router PDF URL rows from the latest full gate or test provider
 guidance for accumulated packets. IOP is accepted as the first repeated
 whole-corpus PDF KPI lift; Karger is the latest accepted lift, and the gap to
 95% remains 4,089 rows.

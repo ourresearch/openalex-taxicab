@@ -370,10 +370,15 @@ SciELO run `pdf-scielo-missing4-reharvest-7d2c782` recovered 2/4 `good_pdf`;
 read-only confirmation `pdf-scielo-missing4-readonly-7d2c782` preserved the
 same two durable PDFs and left two rows missing, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `41a903e6` publishes the SciELO queue,
-scrubbed reports, and provider packet. Next independent lane is AIP on
-`pubs.aip.org` from the latest full gate.
+scrubbed reports, and provider packet.
+AIP `pubs.aip.org` run `pdf-pubs-aip-missing25-reharvest-751ad63` recovered
+0/25 `good_pdf`; all rows stayed `missing_pdf_harvest` after status-201
+HTML/no-record captures, split between 20 article-abstract fallbacks and 5
+signed Silverchair PDF redirects. Oxjobs commit `b7940463` publishes the AIP
+platform queue, scrubbed report, and provider packet. Next independent lane is
+DOI-router PDF URL rows on `doi.org` from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`7d2c782`.
+`751ad63`.
 
 ## Repository
 
