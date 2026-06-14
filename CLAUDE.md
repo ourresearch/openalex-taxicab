@@ -312,10 +312,15 @@ Edward Elgar run `pdf-elgaronline-missing5-reharvest-8244033` recovered 1/5
 `good_pdf`; read-only confirmation `pdf-elgaronline-missing5-readonly-8244033`
 preserved the same durable PDF and left four rows missing, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `9771940c` publishes the Edward Elgar queue,
-scrubbed reports, and residual provider packet. Next independent lane is
-American Concrete Institute (`www.concrete.org`) from the latest full gate.
+scrubbed reports, and residual provider packet.
+American Concrete Institute run `pdf-concrete-missing5-reharvest-d38b219`
+recovered 0/5 `good_pdf`; all `www.concrete.org` getarticle rows resolved to
+portal detail or secured sign-in HTML and stayed missing, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `9fbae749` publishes the ACI queue, scrubbed
+report, and provider packet. Next independent lane is American Journal of
+Surgery (`www.americanjournalofsurgery.com`) from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`8244033`.
+`d38b219`.
 
 ## Agent Operating Rules
 
