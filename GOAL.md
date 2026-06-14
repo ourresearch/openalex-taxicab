@@ -41,7 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Next exact command: python3 -m unittest discover -s tests
+Current phase: Gate 14, Elsevier read-only confirmation.
+Next exact command: python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-25.csv --out pdf_eval_runs/ --run-id pdf-elsevier-missing-readonly-after-reharvest-be2f5c7 --workers 4 --timeout 60 --retries 1 --progress-every 1
 ```
 
 After Gate 0 is pushed:
@@ -58,9 +59,10 @@ Gate 8: add gated PDF reharvest mode. [done]
 Gate 9: add reharvest POST-context instrumentation. [done]
 Gate 10: create Springer Zyte support/evidence packet. [done]
 Gate 11: add PDF Browserbase evidence mode. [done]
-Gate 12: add PDF row-timeout watchdog for slow PDF/CDN rows. [in progress]
-Gate 13: choose next cluster and continue PDF improvement loop until >=95%.
-Gate 14: push verified PDF production changes to Taxicab main.
+Gate 12: add PDF row-timeout watchdog for slow PDF/CDN rows. [done]
+Gate 13: Elsevier missing-PDF bounded sample. [done]
+Gate 14: confirm recovered Elsevier PDFs with read-only follow-up, then choose the next cluster.
+Gate 15: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
 ## Latest Accepted Metrics
@@ -101,8 +103,11 @@ PDF:
   browserbase credential source: ignored /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env contains BROWSERBASE_API_KEY; Taxicab .env/.env.aws do not
   browserbase evidence commit: f424129 taxicab: add pdf browserbase evidence mode
   springer browserbase smoke: pdf-browserbase-springer-1-f424129, verdict html_not_pdf for 10.1007/978-1-4419-6247-8_15015; final URL https://link.springer.com/rwe/10.1007/978-1-4419-6247-8_15015; content_type text/html; not PDF
+  row-timeout watchdog commit: be2f5c7 taxicab: add pdf row timeout watchdog
   elsevier missing queue: 25 true missing_pdf_harvest rows generated from pdf-full10k-denominator-3f7cd47
-  elsevier interrupted sample: 23/25 rows completed before KeyboardInterrupt; 4 good_pdf, 6 corrupt_or_truncated_pdf, 13 missing_pdf_harvest, 0 timeout/taxicab_error among completed rows; add row-timeout before rerun
+  elsevier interrupted sample: 23/25 rows completed before KeyboardInterrupt; 4 good_pdf, 6 corrupt_or_truncated_pdf, 13 missing_pdf_harvest, 0 timeout/taxicab_error among completed rows
+  elsevier bounded sample: pdf-elsevier-missing-reharvest-25-84b2c05 resumed with --row-timeout 120; 4/25 good_pdf, 15 missing_pdf_harvest, 6 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
+  elsevier note: localized sample recovery is +4 rows in a 25-row true-missing queue; it is not a full-10K KPI lift until read-only confirmation and a full gate
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
@@ -214,6 +219,13 @@ result: Browserbase verdict html_not_pdf; browserbase_available false; final URL
 PDF row-timeout watchdog:
 python3 -m unittest tests.test_pdf_eval_harness: 18 tests passed
 python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke-row-timeout --out /tmp/taxicab-pdf-fixture-smoke-row-timeout: passed, 15 fixtures, 15 categories
+python3 -m unittest discover -s tests: 72 tests passed
+git diff --check: passed
+secret pattern scan: no raw secret pattern findings
+
+PDF Elsevier bounded missing sample:
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/elsevier-missing-25.csv --reharvest --workers 2 --row-timeout 120 --resume --out pdf_eval_runs/ --run-id pdf-elsevier-missing-reharvest-25-84b2c05 --timeout 60 --retries 1 --progress-every 1: passed
+result: 4/25 good_pdf; 15 missing_pdf_harvest; 6 corrupt_or_truncated_pdf; 0 timeout; 0 taxicab_error
 ```
 
 ## Provider Policy

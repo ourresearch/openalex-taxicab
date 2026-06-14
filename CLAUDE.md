@@ -20,8 +20,11 @@ packet evidence before changing production routing.
 PDF Browserbase evidence mode is pushed at `f424129`: it annotates non-good PDF rows
 separately from the Taxicab verdict. The first Springer Browserbase session
 smoke returned `html_not_pdf`, not a recoverable PDF.
-PDF row-timeout watchdog is local work after the Elsevier missing-PDF sample
-left two rows hanging. Use `--row-timeout` before scaling reharvest samples.
+PDF row-timeout watchdog is pushed at `be2f5c7`. Use `--row-timeout` before
+scaling reharvest samples. The resumed Elsevier true-missing sample finished
+with 4/25 `good_pdf`, 15 `missing_pdf_harvest`, 6 `corrupt_or_truncated_pdf`,
+0 timeout, and 0 Taxicab errors. Treat this as localized sample evidence until
+read-only confirmation and a full 10K gate prove KPI movement.
 
 ## Agent Operating Rules
 
