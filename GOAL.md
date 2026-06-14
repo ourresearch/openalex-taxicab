@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999bg complete; AIP `pubs.aip.org` recovered 0/25 PDFs and is recorded in oxjobs at b7940463. Gate 21.999bh, DOI-router PDF URL bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://(dx\\.)?doi\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "doi.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/doi-org-missing-25.csv
+Current phase: Gate 21.999bh complete; DOI-router PDF URL sample recovered 0/19 PDFs and is recorded in oxjobs at 4c711418. Gate 21.999bi, ScienceDirect direct PDF asset URLs, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://pdf\\.sciencedirectassets\\.com";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "pdf.sciencedirectassets.com", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/sciencedirectassets-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -139,7 +139,8 @@ Gate 21.999bd: run CHEST targeted sample, read-only confirmation, and provider p
 Gate 21.999be: run Green Journal targeted sample and provider packet. [done, oxjobs 0e0bb05f]
 Gate 21.999bf: run SciELO targeted sample, read-only confirmation, and provider packet. [done, oxjobs 41a903e6]
 Gate 21.999bg: run AIP `pubs.aip.org` targeted sample and provider packet. [done, oxjobs b7940463]
-Gate 21.999bh: run DOI-router PDF URL targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999bh: run DOI-router PDF URL targeted sample and provider packet. [done, oxjobs 4c711418]
+Gate 21.999bi: run ScienceDirect direct PDF asset URL sample from latest full gate. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -401,7 +402,9 @@ PDF:
   oxjobs #461 SciELO provider packet commit: 41a903e6 #461 taxicab-pdf: add scielo recovery packet
   aip pubs.aip.org bounded reharvest: pdf-pubs-aip-missing25-reharvest-751ad63, 25 DOI candidates, 0 good_pdf, 25 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   oxjobs #461 AIP pubs.aip.org provider packet commit: b7940463 #461 taxicab-pdf: add pubs aip provider packet
-  next lane: DOI-router PDF URL bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  doi-router bounded reharvest: pdf-doi-org-missing19-reharvest-659e13e, 19 DOI candidates, 0 good_pdf, 17 missing_pdf_harvest, 2 timeout, 0 taxicab_error
+  oxjobs #461 DOI-router provider packet commit: 4c711418 #461 taxicab-pdf: add doi router provider packet
+  next lane: ScienceDirect direct PDF asset URLs on pdf.sciencedirectassets.com from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

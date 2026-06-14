@@ -370,10 +370,15 @@ AIP `pubs.aip.org` run `pdf-pubs-aip-missing25-reharvest-751ad63` recovered
 0/25 `good_pdf`; all rows stayed `missing_pdf_harvest` after status-201
 HTML/no-record captures, split between 20 article-abstract fallbacks and 5
 signed Silverchair PDF redirects. Oxjobs commit `b7940463` publishes the AIP
-platform queue, scrubbed report, and provider packet. Next independent lane is
-DOI-router PDF URL rows on `doi.org` from the latest full gate.
+platform queue, scrubbed report, and provider packet.
+DOI-router run `pdf-doi-org-missing19-reharvest-659e13e` recovered
+0/19 `good_pdf`; 17 rows stayed `missing_pdf_harvest`, 2 timed out, and 0
+rows hit `taxicab_error`. Oxjobs commit `4c711418` publishes the DOI-router
+queue, scrubbed report, and provider packet. Next independent lane is
+ScienceDirect direct PDF asset URL rows on `pdf.sciencedirectassets.com` from
+the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`751ad63`.
+`659e13e`.
 
 ## Agent Operating Rules
 
