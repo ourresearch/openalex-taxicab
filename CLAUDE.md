@@ -53,7 +53,8 @@ candidate PDF URLs when an explicit publisher is absent. On the accepted
 structured-parser full-gate rows this reduces `missing_pdf_harvest`
 `publisher=unknown` from 966 to 642 rows, moving 324 rows into interpretable
 publisher/platform buckets. This is measurement/triage lift only; it does not
-change production scraping behavior or the accepted `good_pdf` KPI.
+change production scraping behavior or the accepted `good_pdf` KPI. Oxjobs #461
+commit `8b1d1b2f` publishes the report slice and evidence JSON.
 Current tooling slice: generic no-storage provider probing is implemented in
 `scripts/provider_pdf_probe.py` with tests in `tests/test_provider_pdf_probe.py`.
 It does not call Taxicab POST and does not write R2/DynamoDB. It sanitizes URLs
@@ -78,7 +79,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && update working/taxicab-pdf with the Taxicab publisher-attribution slice, then python3 scripts/publish-report.py 461`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --run-id pdf-full10k-publisher-attribution-e584811 --workers 8 --out pdf_eval_runs/`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context

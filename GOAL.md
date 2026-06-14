@@ -41,9 +41,9 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999df in progress. Structured PDF parser is implemented at Taxicab commit a61d34b and oxjobs #461 commit dcb7bb14 publishes the accepted structured-parser full gate. Oxjobs #461 commit 6ba84787 publishes `wiley-residual-corrupt-provider-probe-19-a61d34b`, which recovered 15/19 current residual Wiley corrupt rows without Taxicab POST or production writes. Taxicab commit 3b2d218 routes Wiley `/doi/pdfdirect/` URLs through PDF-byte Zyte HTTP strategies instead of browser HTML. Local no-storage `http_get` validation over the same 19 rows returned 13/19 `good_pdf`; oxjobs #461 commit d4f99eee publishes the candidate evidence. Confirmation-path decision: remote `--reharvest` tests deployed main, while local branch `Harvester` can write production R2/DynamoDB with real env credentials, so do not use local branch writes as a silent confirmation path. Oxjobs #461 commit c15cd194 publishes the follow-up probes and corrected ScienceDirect current-missing probe: Wiley `/doi/pdf/` as-is recovered 0/10, Wiley rewrite-to-`pdfdirect` recovered only 2/10 with one DOI mismatch, Springer `content/pdf` recovered 0/10, and ScienceDirect current missing recovered 0/10 after Taxicab commit 69553ae fixed host-filter normalization. Oxjobs #461 commit d8e62ef8 refreshes the combined Zyte PDF-byte support packet with that evidence. Current Taxicab attribution slice classifies publishers from source `PDF URL`/candidate PDF URL fields, reducing accepted full-gate `missing_pdf_harvest` unknown-publisher rows from 966 to 642; this is measurement/triage lift, not production route-code lift.
+Current phase: Gate 21.999dg in progress. Structured PDF parser is implemented at Taxicab commit a61d34b and oxjobs #461 commit dcb7bb14 publishes the accepted structured-parser full gate. Oxjobs #461 commit 6ba84787 publishes `wiley-residual-corrupt-provider-probe-19-a61d34b`, which recovered 15/19 current residual Wiley corrupt rows without Taxicab POST or production writes. Taxicab commit 3b2d218 routes Wiley `/doi/pdfdirect/` URLs through PDF-byte Zyte HTTP strategies instead of browser HTML. Local no-storage `http_get` validation over the same 19 rows returned 13/19 `good_pdf`; oxjobs #461 commit d4f99eee publishes the candidate evidence. Confirmation-path decision: remote `--reharvest` tests deployed main, while local branch `Harvester` can write production R2/DynamoDB with real env credentials, so do not use local branch writes as a silent confirmation path. Oxjobs #461 commit c15cd194 publishes the follow-up probes and corrected ScienceDirect current-missing probe: Wiley `/doi/pdf/` as-is recovered 0/10, Wiley rewrite-to-`pdfdirect` recovered only 2/10 with one DOI mismatch, Springer `content/pdf` recovered 0/10, and ScienceDirect current missing recovered 0/10 after Taxicab commit 69553ae fixed host-filter normalization. Oxjobs #461 commit d8e62ef8 refreshes the combined Zyte PDF-byte support packet with that evidence. Taxicab commit e584811 classifies publishers from source `PDF URL`/candidate PDF URL fields, reducing accepted full-gate `missing_pdf_harvest` unknown-publisher rows from 966 to 642; oxjobs #461 commit 8b1d1b2f publishes the report slice. Next is a read-only full-10K measurement refresh with improved publisher attribution.
 Next exact command:
-cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && update working/taxicab-pdf with the Taxicab publisher-attribution slice, then python3 scripts/publish-report.py 461
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --run-id pdf-full10k-publisher-attribution-e584811 --workers 8 --out pdf_eval_runs/
 ```
 
 After Gate 0 is pushed:
@@ -190,7 +190,8 @@ Gate 21.999db: decide bounded confirmation path without Taxicab main push and ru
 Gate 21.999dc: run current ScienceDirect missing-PDF no-storage provider probe. [done, taxicab 69553ae, oxjobs c15cd194]
 Gate 21.999dd: refresh combined Zyte PDF-byte support packet with current follow-up evidence. [done, oxjobs d8e62ef8]
 Gate 21.999de: wait for or test Zyte-advised PDF-byte recipe through no-storage probes. [blocked on/provider-guidance lane]
-Gate 21.999df: classify missing-PDF rows from source PDF URL publisher domains and publish triage impact. [next]
+Gate 21.999df: classify missing-PDF rows from source PDF URL publisher domains and publish triage impact. [done, taxicab e584811, oxjobs 8b1d1b2f]
+Gate 21.999dg: run read-only full-10K measurement refresh with improved publisher attribution. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -221,7 +222,7 @@ PDF:
   latest focused evidence: wiley-residual-corrupt-provider-probe-19-a61d34b recovered 15/19 current residual Wiley corrupt rows, with two empty_response, one bot_block_403, and one supplement_or_preview_pdf residual
   latest implementation candidate: 3b2d218 taxicab: fetch Wiley pdfdirect as PDF bytes
   local candidate validation: 13/19 current residual Wiley rows classified good_pdf through local http_get, with no Taxicab POST/R2/DynamoDB writes
-  latest oxjobs publication: d8e62ef8 #461 taxicab-pdf: refresh Zyte support packet
+  latest oxjobs publication: 8b1d1b2f #461 taxicab-pdf: publish publisher attribution slice
   latest follow-up probes: Wiley /doi/pdf as-is 0/10; Wiley rewrite-to-pdfdirect 2/10 with one DOI mismatch; Springer content/pdf 0/10; ScienceDirect current missing 0/10 after host-filter normalization; combined Zyte packet refreshed
   current code slice: publisher classification uses source PDF URL/candidate PDF URL host fallback; accepted full-gate missing_pdf_harvest unknown-publisher rows drop from 966 to 642, measurement/reporting-only
   no_pdf_expected: 3,707
