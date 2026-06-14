@@ -41,22 +41,9 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999ct complete; full gate `pdf-full10k-after-humankinetics-bbd2225` accepted 1,910/6,293 `good_pdf` (30.35%), +20 versus Karger and +73 versus denominator baseline, with 0 timeout and 0 `taxicab_error`. Oxjobs #461 report is pushed at 43ca3830. Gate 21.999cu, choose the next high-volume actionable PDF cluster, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 - <<'PY'
-import json, collections, urllib.parse
-path = "pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson"
-counter = collections.Counter()
-with open(path) as f:
-    for line in f:
-        row = json.loads(line)
-        if row.get("category") != "missing_pdf_harvest":
-            continue
-        url = row.get("candidate_url") or row.get("resolved_url") or row.get("input_url") or ""
-        host = urllib.parse.urlparse(url).netloc.lower() or row.get("host") or "unknown"
-        counter[(row.get("publisher") or "unknown", host)] += 1
-for (publisher, host), count in counter.most_common(25):
-    print(f"{count:4d} {publisher:24s} {host}")
-PY
+Current phase: Gate 21.999ct complete; full gate `pdf-full10k-after-humankinetics-bbd2225` accepted 1,910/6,293 `good_pdf` (30.35%), +20 versus Karger and +73 versus denominator baseline, with 0 timeout and 0 `taxicab_error`. Oxjobs #461 report is pushed at 43ca3830. Gate 21.999cu adds generic no-storage provider PDF probing so residual corrupt/missing subtypes can be tested without Taxicab POST or production writes.
+Next exact command after the provider-probe slice is pushed:
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category corrupt_or_truncated_pdf --host iopscience.iop.org --limit 3 --strategies default_body,browser_html --run-id iop-corrupt-provider-probe-3-<sha> --out pdf_eval_runs/
 ```
 
 After Gate 0 is pushed:
@@ -192,7 +179,8 @@ Gate 21.999cq: run AAI Journals `journals.aai.org` tail sample and provider pack
 Gate 21.999cr: run JCVA Online `www.jcvaonline.com` tail sample and provider packet. [done, oxjobs e48d73e8]
 Gate 21.999cs: run Human Kinetics `journals.humankinetics.com` tail sample and residual packet. [done, oxjobs 93b383f6]
 Gate 21.999ct: run full 10K read-only gate after Human Kinetics and bounded recoveries. [done, oxjobs 43ca3830]
-Gate 21.999cu: choose next high-volume actionable PDF cluster from the accepted full-gate rows. [next]
+Gate 21.999cu: add generic no-storage provider probe and choose residual IOP/J-STAGE/Taylor/Research Square/Nature subtype lanes from accepted full-gate rows. [in progress]
+Gate 21.999cv: run IOP residual corrupt-vs-missing strategy probe and publish scrubbed #461 evidence if useful. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 

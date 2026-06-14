@@ -12,6 +12,14 @@ Latest PDF measurement gate: accepted full 10K read-only gate
 versus the prior accepted Karger gate, with `missing_pdf_harvest` down from
 3,939 to 3,808, 0 good-to-non-good regressions, 0 timeout, and 0 Taxicab API
 errors. The gap to 95% is now 4,069 rows.
+Current tooling slice: generic no-storage provider probing is implemented in
+`scripts/provider_pdf_probe.py` with tests in `tests/test_provider_pdf_probe.py`.
+It does not call Taxicab POST and does not write R2/DynamoDB. It sanitizes URLs
+before artifacts and classifies probe responses through the existing PDF
+harness. Use it to test residual IOP/J-STAGE/Taylor/Research Square/Nature
+subtypes before production scraping changes.
+Next exact command after this slice is pushed:
+`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category corrupt_or_truncated_pdf --host iopscience.iop.org --limit 3 --strategies default_body,browser_html --run-id iop-corrupt-provider-probe-3-<sha> --out pdf_eval_runs/`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context

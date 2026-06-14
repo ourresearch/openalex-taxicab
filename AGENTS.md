@@ -11,6 +11,15 @@ Latest PDF metric: accepted full 10K read-only gate
 versus the prior accepted Karger gate, with `missing_pdf_harvest` down from 3,939 to
 3,808, 0 good-to-non-good regressions, 0 timeout, and 0 `taxicab_error`. The
 gap to 95% is now 4,069 rows.
+Current tooling slice: `scripts/provider_pdf_probe.py` adds a generic
+no-storage Zyte provider strategy probe. It reads rows/CSV queues, strips query
+strings/fragments from artifacts, never calls Taxicab POST, and writes
+sanitized `rows.ndjson`, `summary.json`, and `report.html` under
+`pdf_eval_runs/<run_id>/`. Focused tests passed with
+`python3 -m unittest tests.test_provider_pdf_probe tests.test_sciencedirect_pdf_probe tests.test_pdf_eval_harness`.
+Use this for residual subtype evidence before production PDF route changes.
+Next exact command after this slice is pushed:
+`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category corrupt_or_truncated_pdf --host iopscience.iop.org --limit 3 --strategies default_body,browser_html --run-id iop-corrupt-provider-probe-3-<sha> --out pdf_eval_runs/`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context

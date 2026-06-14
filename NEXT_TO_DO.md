@@ -14,21 +14,8 @@ HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
 Current gate: full gate `pdf-full10k-after-humankinetics-bbd2225` is accepted at 1,910/6,293 `good_pdf` (30.35%), +20 versus Karger and +73 versus denominator baseline; oxjobs #461 is pushed at 43ca3830.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 - <<'PY'
-import json, collections, urllib.parse
-path = "pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson"
-counter = collections.Counter()
-with open(path) as f:
-    for line in f:
-        row = json.loads(line)
-        if row.get("category") != "missing_pdf_harvest":
-            continue
-        url = row.get("candidate_url") or row.get("resolved_url") or row.get("input_url") or ""
-        host = urllib.parse.urlparse(url).netloc.lower() or row.get("host") or "unknown"
-        counter[(row.get("publisher") or "unknown", host)] += 1
-for (publisher, host), count in counter.most_common(25):
-    print(f"{count:4d} {publisher:24s} {host}")
-PY
+Current tooling slice: generic no-storage provider probing in `scripts/provider_pdf_probe.py`. It reads full-gate rows or CSV queues, sanitizes URLs, tests named Zyte strategies, and writes local probe artifacts without Taxicab POST/R2/DynamoDB writes.
+Next exact command after this slice is pushed: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-humankinetics-bbd2225/rows.ndjson --category corrupt_or_truncated_pdf --host iopscience.iop.org --limit 3 --strategies default_body,browser_html --run-id iop-corrupt-provider-probe-3-<sha> --out pdf_eval_runs/
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
