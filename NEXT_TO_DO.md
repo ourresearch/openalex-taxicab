@@ -211,11 +211,20 @@ bodies; the non-rejected strategies returned Cambridge Core HTML. Oxjobs
 commit `77e793a8 #461 taxicab-pdf: record cup strategy probe` publishes the
 scrubbed public summary/report.
 
+SSRN run `pdf-ssrn-missing-reharvest-25-64b787f` tested 25
+`missing_pdf_harvest` rows from `papers.ssrn.com` and recovered 0 `good_pdf`:
+all 25 stayed `missing_pdf_harvest`, with 0 timeout and 0 `taxicab_error`.
+POST mostly accepted SSRN HTML delivery/landing pages. Direct no-storage
+delivery probes returned SSRN HTML or removed-paper HTML, not PDF bytes.
+Oxjobs commit `ade1b60f #461 taxicab-pdf: add ssrn provider packet` publishes
+the scrubbed SSRN summary/report and packet.
+
 Current next lane: send/test Zyte guidance for ScienceDirect, Lancet, Cell,
-Wiley, De Gruyter, Lippincott, Oxford, and CUP/Cambridge PDF-byte fetches
-before production route code. If waiting on provider input, the next
-independent cluster is unknown-publisher host clustering or a smaller ASME/IEEE
-targeted sample, not another blind full-publisher reharvest.
+Wiley, De Gruyter, Lippincott, Oxford, CUP/Cambridge, and SSRN PDF-byte or
+click/download fetches before production route code. If waiting on provider
+input, the next independent cluster is unknown-publisher host clustering or a
+smaller RSC/IOP/AIP targeted sample, not another blind full-publisher
+reharvest.
 
 ## Absolute paths
 

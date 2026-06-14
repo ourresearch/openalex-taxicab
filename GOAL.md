@@ -76,6 +76,7 @@ Gate 21.95: run Lippincott bounded reharvest and publish scrubbed provider packe
 Gate 21.98: run Oxford bounded reharvest and publish scrubbed provider packet. [done, oxjobs e1fe9deb]
 Gate 21.99: run CUP/Cambridge bounded reharvest and publish scrubbed provider packet. [done, oxjobs df7784c9]
 Gate 21.995: test documented CUP/Cambridge Zyte strategy variants. [done, oxjobs 77e793a8]
+Gate 21.996: run SSRN bounded reharvest and publish scrubbed provider packet. [done, oxjobs ade1b60f]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -161,6 +162,9 @@ PDF:
   combined provider request now covers ScienceDirect, Lancet, Cell, Wiley, De Gruyter, Lippincott, Oxford, and CUP/Cambridge
   cup/cambridge strategy probe: cup-zyte-strategy-probe-1-26d3d5c, 0 PDF bodies across default HTTP, PDF Accept header, residential variants, and browser network capture
   oxjobs #461 CUP/Cambridge strategy probe commit: 77e793a8 #461 taxicab-pdf: record cup strategy probe
+  ssrn bounded reharvest: pdf-ssrn-missing-reharvest-25-64b787f, 25 DOI candidates, 0 good_pdf, 25 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  ssrn finding: POST mostly accepted SSRN HTML delivery/landing pages; direct delivery probes returned SSRN HTML or removed-paper HTML
+  oxjobs #461 SSRN provider packet commit: ade1b60f #461 taxicab-pdf: add ssrn provider packet
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
