@@ -181,6 +181,35 @@ class PdfEvalHarnessTests(unittest.TestCase):
         self.assertEqual(row.category, PDF_CATEGORY_GOOD_PDF)
         self.assertNotIn("missing eof marker", row.validation_errors)
 
+    def test_object_stream_pdf_uses_structured_page_count(self):
+        try:
+            import fitz  # type: ignore
+        except Exception:
+            self.skipTest("PyMuPDF/fitz is not available")
+
+        with tempfile.NamedTemporaryFile(suffix=".pdf") as tmp:
+            doc = fitz.open()
+            page = doc.new_page()
+            page.insert_text((72, 72), "Example Full Text Article 10.5555/goodpdf object stream")
+            doc.save(tmp.name, garbage=4, deflate=True, use_objstms=1)
+            doc.close()
+            body = Path(tmp.name).read_bytes()
+
+        decoded = body.decode("latin-1", errors="replace")
+        self.assertEqual(0, decoded.count("/Type /Page"))
+        row = classify_pdf_content(
+            PdfEvidence(
+                doi="10.5555/goodpdf",
+                title="Example Full Text Article",
+                body=body,
+                content_type="application/pdf",
+            ),
+            run_id="test",
+        )
+        self.assertEqual(row.category, PDF_CATEGORY_GOOD_PDF)
+        self.assertGreater(row.page_count, 0)
+        self.assertGreater(row.title_overlap, 0)
+
     def test_first_page_pdf_url_is_preview_not_good_pdf(self):
         row = classify_pdf_content(
             PdfEvidence(

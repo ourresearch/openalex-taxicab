@@ -304,6 +304,39 @@ def pdf_text_smoke(decoded_pdf: str) -> str:
     return re.sub(r"\s+", " ", joined).strip()
 
 
+def structured_pdf_smoke(body: bytes) -> tuple[int, str, bool, str]:
+    """Return page/text/encryption signal from PyMuPDF when it is available.
+
+    Some publisher PDFs store page dictionaries in compressed object streams,
+    so literal `/Type /Page` regex validation can mark valid PDFs as corrupt.
+    PyMuPDF is optional here: the classifier remains usable without it and falls
+    back to the cheap byte/text checks below.
+    """
+    try:
+        import fitz  # type: ignore
+    except Exception:
+        return 0, "", False, ""
+
+    try:
+        doc = fitz.open(stream=body, filetype="pdf")
+    except Exception as exc:
+        return 0, "", False, f"structured parser error: {type(exc).__name__}"
+
+    try:
+        encrypted = bool(getattr(doc, "is_encrypted", False) or getattr(doc, "needs_pass", False))
+        page_count = int(getattr(doc, "page_count", 0) or 0)
+        text_parts: list[str] = []
+        for page_index in range(min(page_count, 3)):
+            try:
+                text_parts.append(doc[page_index].get_text("text"))
+            except Exception:
+                continue
+        text = re.sub(r"\s+", " ", " ".join(text_parts)).strip()
+        return page_count, text, encrypted, ""
+    finally:
+        doc.close()
+
+
 def has_pdf_eof_marker(body: bytes) -> bool:
     # Text scanning intentionally decodes only the head of large PDFs. EOF
     # validation must use the complete byte payload or valid large PDFs are
@@ -366,11 +399,16 @@ def classify_pdf_content(evidence: PdfEvidence, *, run_id: str = "") -> PdfEvalR
         validation_errors.append("missing %PDF- magic bytes")
     else:
         page_count = count_pdf_pages(decoded)
-        text_smoke = pdf_text_smoke(decoded)
+        structured_page_count, structured_text, structured_encrypted, structured_error = structured_pdf_smoke(body)
+        if structured_page_count > page_count:
+            page_count = structured_page_count
+        text_smoke = structured_text or pdf_text_smoke(decoded)
         overlap = title_overlap(evidence.title, text_smoke)
         normalized_doi = normalize_for_match(evidence.doi)
         doi_match = bool(normalized_doi and normalized_doi in normalize_for_match(text_smoke))
-        if "/Encrypt" in decoded:
+        if structured_error and page_count <= 0:
+            validation_errors.append(structured_error)
+        if structured_encrypted or "/Encrypt" in decoded:
             category = PDF_CATEGORY_ENCRYPTED_OR_UNREADABLE_PDF
             validation_errors.append("pdf appears encrypted")
         elif not has_pdf_eof_marker(body):
