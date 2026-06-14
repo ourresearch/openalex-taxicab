@@ -239,15 +239,20 @@ status 200 but no durable readable PDF records were created, with 0 timeout and
 JPET/ASPET run `pdf-jpet-missing7-reharvest-0dd85b6` recovered 0/7 `good_pdf`;
 six rows returned invalid PDF-like content and one stayed `missing_pdf_harvest`
 after an HTML/no-record capture, with 0 timeout and 0 `taxicab_error`. Oxjobs
-commit `ae72a1ff` publishes the JPET/ASPET provider packet. Next independent
+commit `ae72a1ff` publishes the JPET/ASPET provider packet.
 OnePetro run `pdf-onepetro-missing7-reharvest-92f581e` recovered 0/7
 `good_pdf`; all rows stayed `missing_pdf_harvest` after HTML
 abstract/proceedings or no-record captures, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `029f9ac9` publishes the OnePetro provider
-packet. Next independent lane is Mary Ann Liebert (`www.liebertpub.com`) from
-the latest full gate.
+packet.
+Mary Ann Liebert run `pdf-liebertpub-missing7-reharvest-b5e1678` recovered
+0/7 `good_pdf`; five rows stayed missing after Sage-hosted HTML/no-record
+captures and two rows returned invalid PDF-like content, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `c9eafb75` publishes the Liebert provider
+packet. Next independent lane is AACR Figshare (`aacr.figshare.com`) from the
+latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`92f581e`.
+`b5e1678`.
 
 ## Agent Operating Rules
 
