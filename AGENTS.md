@@ -37,15 +37,19 @@ branch; local branch `Harvester` with real env credentials can write production
 R2/DynamoDB, so do not use it as a silent branch-confirmation path.
 No-storage evidence remains the safe branch-gate until a full 95% PDF proof is
 ready for main.
-Oxjobs #461 commit `31d28693` publishes the branch-confirmation decision and
-these follow-up probe artifacts. Latest no-storage probes after that decision:
+Oxjobs #461 commit `c15cd194` publishes the branch-confirmation decision, the
+follow-up route probes, and the corrected ScienceDirect current-missing probe.
+Latest no-storage probes after that decision:
 Wiley `/doi/pdf/` as-is recovered
 0/10 (`js_redirect_unresolved` 8, `html_instead_of_pdf` 1, `bot_block_403` 1);
 rewriting the same sample to `/doi/pdfdirect/` recovered only 2/10, including
 one DOI-mismatch PDF, so this is not strong enough to broaden production Wiley
 routes. Springer `link.springer.com/content/pdf/` recovered 0/10
 (`interstitial_or_paywall` 5, `js_redirect_unresolved` 3, `bot_block_403` 2).
-Treat both as provider/support evidence, not Taxicab route-code candidates.
+Taxicab commit `69553ae` normalizes provider-probe host filters; the corrected
+ScienceDirect current-missing sample recovered 0/10, with nine
+`html_instead_of_pdf` rows and one `js_redirect_unresolved`. Treat these as
+provider/support evidence, not Taxicab route-code candidates.
 Current tooling slice: `scripts/provider_pdf_probe.py` adds a generic
 no-storage Zyte provider strategy probe. It reads rows/CSV queues, strips query
 strings/fragments from artifacts, never calls Taxicab POST, and writes
@@ -68,12 +72,12 @@ J-STAGE missing probe `jstage-missing-provider-probe-3-31663bc` recovered 0/3:
 two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes for residual subtype evidence before production PDF route changes.
-Current local code slice: provider probe summaries now choose the best
-non-good category per DOI instead of defaulting to the first attempted
-strategy. This is measurement/reporting-only and does not change Taxicab
-production scraping behavior.
+Current local code slice: provider probe summaries choose the best non-good
+category per DOI, and provider-probe host filters normalize `www.` prefixes.
+This is measurement/reporting-only and does not change Taxicab production
+scraping behavior.
 Next exact command:
-`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-structured-parser-a61d34b/rows.ndjson --category missing_pdf_harvest --host www.sciencedirect.com --limit 10 --strategies default_body,accept_pdf,google_referer,browser_html --run-id sciencedirect-current-missing-provider-probe-10-b246c11 --out pdf_eval_runs/`.
+`cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && sed -n '1,240p' working/taxicab-pdf/evidence/zyte-support/pdf-byte-fetch-provider-request-4267740.md`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
