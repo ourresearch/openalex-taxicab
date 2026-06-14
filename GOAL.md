@@ -41,7 +41,7 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999a, RSC no-lift provider lane recorded; AIP targeted sample or provider-packet send/test is next. In progress.
+Current phase: Gate 21.999b, AIP no-lift provider lane recorded; provider-packet send/test or next high-volume sample is next. In progress.
 Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && git switch codex/taxicab-pdf-phase2 && python3 -m unittest tests.test_pdf_eval_harness tests.test_sciencedirect_pdf_probe
 ```
 
@@ -81,7 +81,8 @@ Gate 21.997: run IOP bounded reharvest and read-only confirmation. [done, oxjobs
 Gate 21.998: run accepted full 10K read-only gate after IOP. [done, oxjobs fbba7e56]
 Gate 21.999: run remaining IOP rows and accepted full 10K read-only gate. [done, oxjobs 5cca142e]
 Gate 21.999a: run RSC bounded reharvest and publish provider packet. [done, oxjobs 68025078]
-Gate 21.999b: run AIP targeted sample or send/test the combined provider packets. [next]
+Gate 21.999b: run AIP targeted sample and publish provider packet. [done, oxjobs 85584ddd]
+Gate 21.999c: send/test accumulated provider packets or choose next high-volume sample. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -182,7 +183,10 @@ PDF:
   rsc bounded reharvest: pdf-rsc-missing48-reharvest-008fe7f, 48 DOI candidates, 0 good_pdf, 47 missing_pdf_harvest, 1 timeout, 0 taxicab_error
   rsc finding: POST accepted RSC /articlelanding/.../unauth HTML pages instead of articlepdf bytes
   oxjobs #461 RSC provider packet commit: 68025078 #461 taxicab-pdf: add rsc provider packet
-  next candidate high-volume sample: AIP / pubs.aip.org / aip.scitation.org
+  aip bounded reharvest: pdf-aip-missing45-reharvest-8ce7e7e, 45 DOI candidates, 0 good_pdf, 44 missing_pdf_harvest, 1 corrupt_or_truncated_pdf, 0 timeout, 0 taxicab_error
+  aip finding: POST returned status 201 HTML/no durable PDF for missing rows; one candidate returned invalid PDF content
+  oxjobs #461 AIP provider packet commit: 85584ddd #461 taxicab-pdf: add aip provider packet
+  next lane: send/test provider packets or choose another high-volume sample from the latest full gate
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

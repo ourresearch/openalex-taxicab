@@ -94,9 +94,14 @@ RSC run `pdf-rsc-missing48-reharvest-008fe7f` recovered 0/48 `good_pdf`, with
 accepted `/articlelanding/.../unauth` HTML pages instead of `articlepdf` bytes,
 so RSC is now a Zyte/provider-advised PDF-byte lane, not a route-code change.
 Oxjobs commit `68025078` records the RSC queue, summary, report, and packet.
-Next technical lane: AIP targeted sampling or sending/testing the combined
-provider packets. Current latest pushed Taxicab branch commit before this docs
-slice is `008fe7f`.
+AIP run `pdf-aip-missing45-reharvest-8ce7e7e` recovered 0/45 `good_pdf`, with
+44 still `missing_pdf_harvest`, one corrupt/truncated response, and 0 timeout /
+0 `taxicab_error`. POST returned status 201 HTML/no durable PDF for missing
+rows, so AIP/Scitation is also a Zyte/provider-advised PDF-byte lane. Oxjobs
+commit `85584ddd` records the AIP queue, summary, report, and packet. Next
+technical lane: send/test provider guidance for accumulated packets or choose a
+fresh high-volume cluster. Current latest pushed Taxicab branch commit before
+this docs slice is `8ce7e7e`.
 
 ## Agent Operating Rules
 
