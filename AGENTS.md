@@ -9,6 +9,10 @@ Latest PDF metric: denominator-enriched full 10K read-only baseline is
 1,837/6,293 `good_pdf` (29.19%), with 3,707 `no_pdf_expected`, 3,939
 `missing_pdf_harvest`, 373 `corrupt_or_truncated_pdf`, 102
 `encrypted_or_unreadable_pdf`, 0 timeout, and 0 `taxicab_error`.
+Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
+5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
+(`10.1007/bf03544238`) and left 11 rows missing. Current local work enriches
+missing-after-POST rows with reharvest response evidence.
 
 ## Repository
 
@@ -84,6 +88,13 @@ python3 scripts/taxicab_pdf_eval.py \
   --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
   --out pdf_eval_runs/ \
   --workers 8
+python3 scripts/taxicab_pdf_eval.py \
+  --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
+  --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/springer-missing-12.csv \
+  --reharvest \
+  --workers 2 \
+  --out pdf_eval_runs/ \
+  --run-id pdf-springer-missing-reharvest-12-post-context
 ```
 
 For explicit low-concurrency reharvest samples, bound each row with

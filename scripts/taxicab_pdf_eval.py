@@ -12,6 +12,7 @@ import sys
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote
@@ -30,6 +31,7 @@ from openalex_taxicab.pdf_eval_harness import (  # noqa: E402
     classify_pdf_reharvest_post,
     classify_pdf_uuid_download_error,
     default_pdf_run_id,
+    host_from_url,
     latest_pdf_row_by_doi,
     make_pdf_transport_row,
     read_pdf_rows_ndjson,
@@ -248,6 +250,10 @@ def classify_live_pdf_row(
     expected = row_pdf_expected(row)
     title = row_title(row)
     corpus_pdf_url = row_pdf_url(row)
+    reharvest_post_context = ""
+    reharvest_post_status_code = None
+    reharvest_post_content_type = ""
+    reharvest_post_resolved_url = ""
 
     if not expected:
         return make_pdf_transport_row(
@@ -281,6 +287,21 @@ def classify_live_pdf_row(
         )
         if overlay is not None:
             return overlay
+        if isinstance(post.json_data, dict):
+            reharvest_post_resolved_url = str(post.json_data.get("resolved_url") or "")
+            reharvest_post_content_type = str(post.json_data.get("content_type") or "")
+            post_id = str(post.json_data.get("id") or "")
+        else:
+            post_id = ""
+        reharvest_post_status_code = post.status_code
+        pieces = [f"reharvest status {post.status_code}"]
+        if post_id:
+            pieces.append(f"post id {post_id}")
+        if reharvest_post_content_type:
+            pieces.append(f"post content_type {reharvest_post_content_type}")
+        if reharvest_post_resolved_url:
+            pieces.append(f"post resolved_url {reharvest_post_resolved_url}")
+        reharvest_post_context = "; ".join(pieces)
         time.sleep(2)
 
     lookup = client.lookup_doi(doi)
@@ -327,6 +348,21 @@ def classify_live_pdf_row(
         mode="reharvest" if reharvest else "read_only",
     )
     if transport_row is not None:
+        if reharvest and reharvest_post_context:
+            validation_errors = list(transport_row.validation_errors)
+            validation_errors.append(reharvest_post_context)
+            error = "; ".join(part for part in (transport_row.error, reharvest_post_context) if part)
+            evidence = "; ".join(part for part in (transport_row.evidence_snippet, reharvest_post_context) if part)
+            return replace(
+                transport_row,
+                host=transport_row.host or host_from_url(reharvest_post_resolved_url or corpus_pdf_url),
+                resolved_url=transport_row.resolved_url or reharvest_post_resolved_url,
+                status_code=transport_row.status_code if transport_row.status_code is not None else reharvest_post_status_code,
+                content_type=transport_row.content_type or reharvest_post_content_type,
+                validation_errors=validation_errors,
+                evidence_snippet=evidence[:320],
+                error=error,
+            )
         return transport_row
     assert pdf_record is not None
     uuid = str(pdf_record.get("id") or "")

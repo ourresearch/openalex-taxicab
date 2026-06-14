@@ -54,9 +54,10 @@ Gate 4: run PDF limit-100 and full 10K baseline on the Goldie corpus. [done]
 Gate 5: publish full baseline to oxjobs #461. [done]
 Gate 6: enrich PDF-expected denominator. [done]
 Gate 7: publish denominator-enriched baseline to oxjobs #461. [done]
-Gate 8: add gated PDF reharvest mode. [in progress]
-Gate 9: run PDF improvement loop until >=95% good_pdf.
-Gate 10: push verified PDF production changes to Taxicab main.
+Gate 8: add gated PDF reharvest mode. [done]
+Gate 9: add reharvest POST-context instrumentation. [in progress]
+Gate 10: run PDF improvement loop until >=95% good_pdf.
+Gate 11: push verified PDF production changes to Taxicab main.
 ```
 
 ## Latest Accepted Metrics
@@ -88,7 +89,10 @@ PDF:
   timeout: 0
   taxicab_error: 0
   run_id: pdf-full10k-readonly-22b78b7
+  denominator run_id: pdf-full10k-denominator-3f7cd47
   denominator-enriched limit-100: 13/65 good_pdf (20.00%); 35 no_pdf_expected
+  reharvest smoke: pdf-reharvest-smoke-8193c47, 0/5 good_pdf; 3 corrupt_or_truncated_pdf; 2 missing_pdf_harvest; 0 timeout; 0 taxicab_error
+  springer seed reharvest: pdf-springer-missing-reharvest-12, 1/12 good_pdf; 11 missing_pdf_harvest; 0 timeout; 0 taxicab_error
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
@@ -174,6 +178,14 @@ python3 -m unittest discover -s tests: 69 tests passed
 python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke-reharvest --out /tmp/taxicab-pdf-fixture-smoke-reharvest: passed, 15 fixtures, 15 categories
 python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --limit 5 --reharvest --workers 2 --out /tmp/taxicab-pdf-reharvest-smoke --run-id pdf-reharvest-smoke-5 --timeout 45 --retries 1 --progress-every 1: passed
 result: 0/5 good_pdf; 3 corrupt_or_truncated_pdf from Taxicab invalid-PDF POST responses; 2 missing_pdf_harvest after read-back; 0 timeout; 0 taxicab_error
+
+PDF Springer seed queue:
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/springer-missing-12.csv --reharvest --workers 2 --out pdf_eval_runs/ --run-id pdf-springer-missing-reharvest-12 --timeout 60 --retries 1 --progress-every 1: passed
+result: 1/12 good_pdf; 11 missing_pdf_harvest; recovered DOI 10.1007/bf03544238; 0 timeout; 0 taxicab_error
+
+PDF reharvest POST-context instrumentation:
+python3 -m unittest tests.test_pdf_eval_harness: 16 tests passed
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --run-id pdf-fixture-smoke-post-context --out /tmp/taxicab-pdf-fixture-smoke-post-context: passed, 15 fixtures, 15 categories
 ```
 
 ## Provider Policy

@@ -9,6 +9,7 @@ from openalex_taxicab.pdf_eval_harness import (
     PDF_CATEGORIES,
     PDF_CATEGORY_GOOD_PDF,
     PDF_CATEGORY_HTML_INSTEAD_OF_PDF,
+    PDF_CATEGORY_MISSING_PDF_HARVEST,
     PDF_CATEGORY_NO_PDF_EXPECTED,
     PdfEvidence,
     classify_pdf_content,
@@ -391,6 +392,53 @@ class PdfEvalHarnessTests(unittest.TestCase):
                 summary = json.loads((Path(tmp) / "pdf-reharvest-test" / "summary.json").read_text())
                 self.assertEqual(summary["mode"], "reharvest")
                 self.assertEqual(summary["category_counts"][PDF_CATEGORY_GOOD_PDF], 1)
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
+
+    def test_pdf_cli_reharvest_missing_keeps_post_context(self):
+        PdfLookupHandler.post_count = 0
+        PdfLookupHandler.last_post_payload = {}
+        server = DaemonThreadingHTTPServer(("127.0.0.1", 0), PdfLookupHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                doi_file = Path(tmp) / "sample.csv"
+                doi_file.write_text(
+                    "DOI,Link,PDF URL,title\n"
+                    "10.5555/missingpdf,https://doi.org/10.5555/missingpdf,https://example.org/fulltext.pdf,Example Full Text Article\n",
+                    encoding="utf-8",
+                )
+                code = main(
+                    [
+                        "--base-url",
+                        f"http://127.0.0.1:{server.server_port}",
+                        "--doi-file",
+                        str(doi_file),
+                        "--run-id",
+                        "pdf-reharvest-missing-test",
+                        "--out",
+                        tmp,
+                        "--workers",
+                        "1",
+                        "--timeout",
+                        "2",
+                        "--retries",
+                        "0",
+                        "--reharvest",
+                    ]
+                )
+                self.assertEqual(code, 0)
+                rows = (Path(tmp) / "pdf-reharvest-missing-test" / "rows.ndjson").read_text().splitlines()
+                row = json.loads(rows[0])
+                self.assertEqual(row["category"], PDF_CATEGORY_MISSING_PDF_HARVEST)
+                self.assertEqual(row["status_code"], 200)
+                self.assertEqual(row["content_type"], "application/pdf")
+                self.assertEqual(row["resolved_url"], "https://example.org/fulltext.pdf")
+                self.assertIn("reharvest status 200", row["error"])
+                self.assertIn("post id pdf-good", row["validation_errors"][-1])
         finally:
             server.shutdown()
             thread.join(timeout=5)

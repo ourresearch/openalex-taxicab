@@ -11,10 +11,10 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current gate: commit gated PDF reharvest mode and update oxjobs #461.
+Current gate: commit PDF reharvest POST-context instrumentation, then rerun the Springer seed queue.
 PDF Phase 2: active on codex/taxicab-pdf-phase2, target >=95% good_pdf.
 PDF denominator: pdf_expected_total from the 10K Goldie/OpenAlex corpus, with all-10K context reported separately.
-Next exact command: git status --short
+Next exact command: python3 -m unittest discover -s tests
 ```
 
 HTML main-sync commit `07c974e taxicab: sync phase 1 eval context` is pushed
@@ -63,6 +63,15 @@ when present, caps workers at 4, waits for write/read consistency, then re-runs
 the PDF read path. First 5-row live smoke completed with 0/5 `good_pdf`,
 3 Taxicab invalid-PDF POST responses mapped to `corrupt_or_truncated_pdf`, 2
 `missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`.
+
+Oxjobs #461 is pushed through `4ee9d6f4 #461 taxicab-pdf: record reharvest
+smoke gate`. The Springer seed queue is now
+`/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/springer-missing-12.csv`.
+The first seed run `pdf-springer-missing-reharvest-12` recovered 1/12:
+`10.1007/bf03544238` became a 7-page `good_pdf`; the other 11 rows stayed
+`missing_pdf_harvest`. The current code change preserves POST status/id/content
+type/resolved URL on those missing-after-POST rows so the next rerun is
+diagnosable.
 
 ## Absolute paths
 
