@@ -259,10 +259,15 @@ AACR Figshare run `pdf-aacr-figshare-missing6-reharvest-8f674aa` recovered
 0/6 `good_pdf`; all rows stayed missing after status-201 HTML/no durable PDF
 captures from Figshare downloader/PDF routes, with 0 timeout and
 0 `taxicab_error`. Oxjobs commit `dd7ab56d` publishes the AACR Figshare
-provider packet. Next independent lane is AMPP (`content.ampp.org`) from the
-latest full gate.
+provider packet.
+AMPP run `pdf-ampp-missing6-reharvest-851bd3f` recovered 0/6 `good_pdf`; all
+six `content.ampp.org` rows returned invalid PDF-like content and classified as
+`corrupt_or_truncated_pdf`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
+`ef843caa` publishes the AMPP queue, scrubbed report, and provider packet.
+Next independent lane is Healio (`journals.healio.com`) from the latest full
+gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`b5e1678`.
+`851bd3f`.
 
 ## Repository
 
