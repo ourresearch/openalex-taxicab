@@ -284,10 +284,15 @@ RUPress run `pdf-rupress-missing6-reharvest-76fb88d` recovered 1/6
 preserved the same durable PDF and left four rows missing plus one
 `corrupt_or_truncated_pdf`, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `fa847b5a` publishes the RUPress queue, scrubbed reports, and residual provider
-packet. Next independent lane is Emerald (`www.emerald.com`) from the latest
-full gate.
+packet.
+Emerald run `pdf-emerald-missing6-reharvest-e3fdbea` recovered 0/6 `good_pdf`;
+all six `www.emerald.com` article-PDF rows returned invalid PDF-like content
+and classified as `corrupt_or_truncated_pdf`, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `f191f0eb` publishes the Emerald queue,
+scrubbed report, and provider packet. Next independent lane is JACC
+(`www.jacc.org`) from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`76fb88d`.
+`e3fdbea`.
 
 ## Agent Operating Rules
 
