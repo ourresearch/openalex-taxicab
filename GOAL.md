@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current phase: Gate 21.999be complete; Green Journal recovered 0/4 PDFs and is recorded in oxjobs at 0e0bb05f. Gate 21.999bf, SciELO bounded sample or provider-guidance test, is next.
-Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://(www\\.)?scielo\\.br";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "scielo.br", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/scielo-missing-25.csv
+Current phase: Gate 21.999bf complete; SciELO recovered 2/4 durable PDFs and is recorded in oxjobs at 41a903e6. Gate 21.999bg, AIP `pubs.aip.org` bounded sample or provider-guidance test, is next.
+Next exact command: cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq -r -s '(["DOI","Link","PDF URL","publisher","host","baseline_category","baseline_run_id"]), ([.[] | select(.category=="missing_pdf_harvest") | select((.candidate_url//"")|test("https?://pubs\\.aip\\.org";"i"))][0:25][] | [.doi, ("https://doi.org/" + .doi), .candidate_url, (.publisher//"unknown"), "pubs.aip.org", .category, .run_id]) | @csv' pdf_eval_runs/pdf-full10k-after-karger-ca8b132/rows.ndjson > /Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf/evidence/pubs-aip-missing-25.csv
 ```
 
 After Gate 0 is pushed:
@@ -137,7 +137,8 @@ Gate 21.999bb: run KoreaScience targeted sample and provider packet. [done, oxjo
 Gate 21.999bc: run Journal of Pharmaceutical Sciences targeted sample and provider packet. [done, oxjobs c1f26ec8]
 Gate 21.999bd: run CHEST targeted sample, read-only confirmation, and provider packet. [done, oxjobs ee27cd5e]
 Gate 21.999be: run Green Journal targeted sample and provider packet. [done, oxjobs 0e0bb05f]
-Gate 21.999bf: run SciELO targeted sample, or test provider guidance for accumulated packets. [next]
+Gate 21.999bf: run SciELO targeted sample, read-only confirmation, and provider packet. [done, oxjobs 41a903e6]
+Gate 21.999bg: run AIP `pubs.aip.org` targeted sample, or test provider guidance for accumulated packets. [next]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -394,7 +395,10 @@ PDF:
   oxjobs #461 CHEST provider packet commit: ee27cd5e #461 taxicab-pdf: add chestnet recovery packet
   green journal bounded reharvest: pdf-thegreenjournal-missing4-reharvest-a211471, 4 DOI candidates, 0 good_pdf, 4 missing_pdf_harvest, 0 timeout, 0 taxicab_error
   oxjobs #461 Green Journal provider packet commit: 0e0bb05f #461 taxicab-pdf: add green journal provider packet
-  next lane: SciELO bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
+  scielo bounded reharvest: pdf-scielo-missing4-reharvest-7d2c782, 4 DOI candidates, 2 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  scielo read-only confirmation: pdf-scielo-missing4-readonly-7d2c782, 2 durable good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error
+  oxjobs #461 SciELO provider packet commit: 41a903e6 #461 taxicab-pdf: add scielo recovery packet
+  next lane: AIP `pubs.aip.org` bounded sample from latest full gate, or send/test provider packets if Zyte guidance is available
   offline fixture smoke: 15 categories represented
   live smoke: 1/5 good_pdf, 2 missing_pdf_harvest, 2 corrupt_or_truncated_pdf
   live smoke after EOF/concurrent runner: 3/5 good_pdf, 2 missing_pdf_harvest, 0 timeout, 0 taxicab_error

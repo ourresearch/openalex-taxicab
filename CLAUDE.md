@@ -360,10 +360,15 @@ Green Journal run `pdf-thegreenjournal-missing4-reharvest-a211471` recovered
 `thegreenjournal.com` PDF/action routes resolved to article abstract HTML or no
 durable PDF record, with 0 timeout and 0 `taxicab_error`. Oxjobs commit
 `0e0bb05f` publishes the Green Journal queue, scrubbed report, and provider
-packet. Next independent lane is SciELO (`scielo.br`) from the latest full
-gate.
+packet.
+SciELO run `pdf-scielo-missing4-reharvest-7d2c782` recovered 2/4 `good_pdf`;
+read-only confirmation `pdf-scielo-missing4-readonly-7d2c782` preserved the
+same two durable PDFs and left two rows missing, with 0 timeout and
+0 `taxicab_error`. Oxjobs commit `41a903e6` publishes the SciELO queue,
+scrubbed reports, and provider packet. Next independent lane is AIP on
+`pubs.aip.org` from the latest full gate.
 Current latest pushed Taxicab branch commit before this handoff-doc update is
-`a211471`.
+`7d2c782`.
 
 ## Agent Operating Rules
 
