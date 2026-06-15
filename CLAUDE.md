@@ -183,11 +183,12 @@ Current APS no-storage provider probe
 `aps-current-missing-provider-probe10-cf3d845` at Taxicab commit `cf3d845`
 recovered 1/10 current APS missing rows through `google_referer`
 (`10.1103/4gbr-6kbs`); the other nine best categories were
-`js_redirect_unresolved`. PDF-accept returned empty responses for five rows,
-browser HTML stayed HTML/JS-unresolved, and the working row is useful
-provider-strategy evidence but not yet a route-code candidate without larger
-confirmation. Oxjobs #461 commit `5da73adb` publishes the scrubbed
-summary/report and combined Zyte packet update.
+`js_redirect_unresolved`. Larger confirmation
+`aps-current-missing-provider-probe25-576c058` at Taxicab commit `576c058`
+found 24 current APS rows and recovered 0/24; best categories were 22
+`js_redirect_unresolved` and two `html_instead_of_pdf`. Oxjobs #461 commit
+`5435e2c7` publishes the larger confirmation. Keep APS in the Zyte/provider
+support lane before route code unless a Zyte-advised recipe changes the result.
 Current ACM no-storage provider probe
 `acm-current-missing-provider-probe10-dba7e2f` at Taxicab commit `dba7e2f`
 recovered 1/10 current ACM missing rows (`10.1145/772970.772976`) through
@@ -310,7 +311,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && RUN_SHA=$(git rev-parse --short HEAD) && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-publisher-attribution-e584811/rows.ndjson --category missing_pdf_harvest --publisher aps --limit 25 --strategies all --out pdf_eval_runs/ --run-id aps-current-missing-provider-probe25-$RUN_SHA --timeout 60 --sleep 1`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && RUN_SHA=$(git rev-parse --short HEAD) && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-publisher-attribution-e584811/rows.ndjson --category missing_pdf_harvest --publisher acm --limit 25 --strategies all --out pdf_eval_runs/ --run-id acm-current-missing-provider-probe25-$RUN_SHA --timeout 60 --sleep 1`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
