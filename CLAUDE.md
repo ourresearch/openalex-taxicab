@@ -155,6 +155,15 @@ and four `js_redirect_unresolved`, and every strategy stayed blocked, empty,
 or unresolved. Oxjobs #461 commit `d059488d` publishes the scrubbed
 summary/report and combined Zyte packet update. Keep Sage in the provider/Zyte
 bot-block and JS/access-flow support lane before route code.
+Current AMA/JAMA no-storage provider probe
+`ama-current-missing-provider-probe10-2198bc2` at Taxicab commit `2198bc2`
+recovered 0/10 current AMA/JAMA-attributed missing rows; best categories were
+five `interstitial_or_paywall`, four `js_redirect_unresolved`, and one
+`bot_block_403`. PDF-byte strategies mostly returned empty bodies while
+browser HTML returned article/paywall pages. Oxjobs #461 commit `eddf9c5a`
+publishes the scrubbed summary/report and combined Zyte packet update. Keep
+AMA/JAMA in the provider/Zyte PDF-byte, access-flow, and bot-block support lane
+before route code.
 Latest focused evidence: no-storage run
 `wiley-residual-corrupt-provider-probe-19-a61d34b` recovered 15/19 current
 residual Wiley corrupt rows as `good_pdf`. The four residuals are two
@@ -208,7 +217,7 @@ commit `2c171c7e` publishes the current SSRN provider probe; oxjobs #461
 commit `463bb712` publishes the current JSTOR provider probe; oxjobs #461
 commit `14f254ac` publishes the current AIP Publishing provider probe; oxjobs
 #461 commit `e3621c28` publishes the current RSC provider probe; oxjobs #461
-commit `21a7697c` publishes the current ACS provider probe; oxjobs #461 commit `e2bac29b` publishes the current Brill provider probe; oxjobs #461 commit `4838bd1c` publishes the current Thieme provider probe; oxjobs #461 commit `fe048cca` publishes the current SPIE provider probe; oxjobs #461 commit `6de28ec3` publishes the current BMJ provider probe; oxjobs #461 commit `d059488d` publishes the current Sage provider probe.
+commit `21a7697c` publishes the current ACS provider probe; oxjobs #461 commit `e2bac29b` publishes the current Brill provider probe; oxjobs #461 commit `4838bd1c` publishes the current Thieme provider probe; oxjobs #461 commit `fe048cca` publishes the current SPIE provider probe; oxjobs #461 commit `6de28ec3` publishes the current BMJ provider probe; oxjobs #461 commit `d059488d` publishes the current Sage provider probe; oxjobs #461 commit `eddf9c5a` publishes the current AMA/JAMA provider probe.
 Current tooling slice: generic no-storage provider probing is implemented in
 `scripts/provider_pdf_probe.py` with tests in `tests/test_provider_pdf_probe.py`.
 It does not call Taxicab POST and does not write R2/DynamoDB. It sanitizes URLs
@@ -233,7 +242,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && RUN_SHA=$(git rev-parse --short HEAD) && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-publisher-attribution-e584811/rows.ndjson --category missing_pdf_harvest --publisher ama --limit 10 --strategies all --out pdf_eval_runs/ --run-id ama-current-missing-provider-probe10-$RUN_SHA --timeout 60 --sleep 1`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && RUN_SHA=$(git rev-parse --short HEAD) && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-publisher-attribution-e584811/rows.ndjson --category missing_pdf_harvest --publisher karger --limit 10 --strategies all --out pdf_eval_runs/ --run-id karger-current-missing-provider-probe10-$RUN_SHA --timeout 60 --sleep 1`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
