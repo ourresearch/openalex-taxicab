@@ -46,7 +46,9 @@ recovered 0/5 and is published at oxjobs `ffb66370`; split remaining unknown
 rows by host. Unknown `revistas.uach.cl` singleton probe
 `unknown-revistasuach-current-corrupt-provider-probe1-48f425c` recovered 0/1,
 all strategies `download_404`, and is published at oxjobs `37926446`; next
-unknown singleton is `journal.uniga.ac.id`. Treat Wiley as
+unknown singleton `journal.uniga.ac.id` recovered 1/1 through PDF-byte
+strategies and is published at oxjobs `aec51cf8`; next unknown singleton is
+`sciresol.s3.us-east-2.amazonaws.com`. Treat Wiley as
 partial/provider-support plus route validation, and Sage as provider/Zyte
 support evidence. These probes do not move the
 accepted 10K metric until a read-only/full gate confirms them.
@@ -358,7 +360,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-readable-encrypted-f2da963/rows.ndjson --category corrupt_or_truncated_pdf --publisher unknown --host journal.uniga.ac.id --limit 1 --strategies default_body,accept_pdf,google_referer,browser_html --out pdf_eval_runs/ --run-id unknown-journaluniga-current-corrupt-provider-probe1-f52b57e --timeout 90 --sleep 0.5`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-readable-encrypted-f2da963/rows.ndjson --category corrupt_or_truncated_pdf --publisher unknown --host sciresol.s3.us-east-2.amazonaws.com --limit 1 --strategies default_body,accept_pdf,google_referer,browser_html --out pdf_eval_runs/ --run-id unknown-sciresol-current-corrupt-provider-probe1-7a00e39 --timeout 90 --sleep 0.5`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
