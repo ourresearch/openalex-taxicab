@@ -216,6 +216,14 @@ with some `accept_pdf` wins. Oxjobs #461 commit `51b4665a` publishes the
 scrubbed summary/report and combined Zyte packet update. This confirms a narrow
 branch-only IOP article-PDF route candidate; do not broaden to IOP book/chapter
 PDF paths because those hit interstitial/paywall rows.
+Implementation candidate: Taxicab commit `07c8f95` routes only
+`iopscience.iop.org/article/.../pdf` URLs through Zyte PDF-byte strategies
+(`default_body`, `accept_pdf`, then `google_referer`) with explicit request
+timeouts. It does not route IOP book/chapter PDF paths. Verification passed:
+`python3 -m unittest discover -s tests` ran 97 tests, PDF fixture smoke passed,
+and local no-storage branch `http_get` validation
+`iop-http-get-local-route-precommit` returned 11/16 `good_pdf` and five
+`bot_block_403` residuals, with no Taxicab POST/R2/DynamoDB writes.
 Latest focused evidence: no-storage run
 `wiley-residual-corrupt-provider-probe-19-a61d34b` recovered 15/19 current
 residual Wiley corrupt rows as `good_pdf`. The four residuals are two
@@ -305,7 +313,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "iopscience|pdfdirect|DIRECT_FETCH_URLS|BROWSER_HTML_URLS|Wiley PDF-direct" openalex_taxicab/http_cache.py tests`.
+`cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && python3 scripts/publish-report.py 461`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
