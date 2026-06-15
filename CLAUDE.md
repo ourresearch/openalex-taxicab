@@ -94,10 +94,12 @@ candidate-URL discovery lessons, not a new accepted full-10K KPI.
 `even3-current-missing-provider-probe2-828c377` then recovered 2/2 direct PDF
 bytes; direct-PDF-URL reharvest and read-only confirmation preserved 2/2.
 Current bounded durable fresh-tail lift is 5 rows, pending full-gate
-confirmation. Oxjobs `3f09cbf8` publishes the aggregate-only Even3 evidence.
+confirmation. `asha-current-missing-provider-probe2-85443df` recovered 0/2
+with one `bot_block_403` and one `html_instead_of_pdf`; no reharvest was run.
+Oxjobs `fcb43925` publishes the aggregate-only ASHA evidence.
 Next lane is another small fresh path-family probe from the prioritized queue,
-likely `pubs.asha.org`, `pm-research.com`, `maps.mla.org`, `journalijar.com`,
-or `jmcc-online.com` unless a newer full gate supersedes it. Do not
+likely `pm-research.com`, `maps.mla.org`, `journalijar.com`, or
+`jmcc-online.com` unless a newer full gate supersedes it. Do not
 push Taxicab main before the full PDF 95% proof; gate note: no Taxicab main
 push.
 Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
