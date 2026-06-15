@@ -180,6 +180,110 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertIsInstance(response.content, str)
         self.assertIn("Paywall", response.content)
 
+    def test_http_get_uses_pdf_body_strategy_for_acm_pdf(self):
+        pdf_url = "https://dl.acm.org/doi/pdf/10.1145/2462197.2462198"
+        captured = []
+
+        class FakeResponse:
+            def json(self):
+                return {
+                    "statusCode": 200,
+                    "url": pdf_url,
+                    "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                    "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+                }
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse()
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url, doi="10.1145/2462197.2462198")
+
+        self.assertEqual(len(captured), 1)
+        self.assertTrue(captured[0]["httpResponseBody"])
+        self.assertTrue(captured[0]["httpResponseHeaders"])
+        self.assertNotIn("browserHtml", captured[0])
+        self.assertEqual(response.url, pdf_url)
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_http_get_falls_back_for_acm_pdf_strategies(self):
+        pdf_url = "https://dl.acm.org/doi/pdf/10.1145/3373477.3373494"
+        captured = []
+        responses = [
+            {
+                "statusCode": 200,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                "httpResponseBody": base64.b64encode(b"<html>not pdf</html>").decode(),
+            },
+            {"status": 520, "detail": "ban-free response unavailable"},
+            {
+                "statusCode": 200,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+            },
+        ]
+
+        class FakeResponse:
+            def __init__(self, data):
+                self._data = data
+
+            def json(self):
+                return self._data
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse(responses[len(captured) - 1])
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url, doi="10.1145/3373477.3373494")
+
+        self.assertEqual(len(captured), 3)
+        self.assertNotIn("customHttpRequestHeaders", captured[0])
+        self.assertEqual(
+            captured[1]["customHttpRequestHeaders"],
+            [{"name": "Accept", "value": "application/pdf,*/*"}],
+        )
+        self.assertEqual(
+            captured[2]["customHttpRequestHeaders"],
+            [
+                {"name": "Accept", "value": "application/pdf,*/*"},
+                {"name": "Referer", "value": "https://www.google.com/"},
+            ],
+        )
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_http_get_does_not_acm_route_epdf_or_showfmpdf(self):
+        urls = [
+            "https://dl.acm.org/doi/epdf/10.1145/2462197.2462198",
+            "https://dl.acm.org/action/showFmPdf?doi=10.1145%2F2462197.2462198",
+        ]
+
+        for acm_url in urls:
+            with self.subTest(url=acm_url):
+                captured = {}
+
+                def fake_call_with_zyte_api(url, params=None):
+                    captured["url"] = url
+                    captured["params"] = params
+                    return {
+                        "statusCode": 200,
+                        "url": acm_url,
+                        "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                        "httpResponseBody": base64.b64encode(b"<html>ACM shell</html>").decode(),
+                    }
+
+                with patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=fake_call_with_zyte_api):
+                    response = http_get(acm_url, doi="10.1145/2462197.2462198")
+
+                self.assertEqual(captured["url"], acm_url)
+                self.assertEqual(captured["params"]["url"], acm_url)
+                self.assertNotIn("customHttpRequestHeaders", captured["params"])
+                self.assertIsInstance(response.content, str)
+                self.assertIn("ACM shell", response.content)
+
     def test_rewrites_jbc_pdf_url_to_fulltext(self):
         self.assertEqual(
             jbc_fulltext_url_from_url("https://www.jbc.org/article/S0021-9258(17)43626-X/pdf"),

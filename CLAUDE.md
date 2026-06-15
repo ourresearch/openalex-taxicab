@@ -200,6 +200,7 @@ three `google_referer` good PDFs. Residual best categories were 12
 `empty_response`. Oxjobs #461 commit `88b3d53f` publishes the larger
 confirmation. ACM is now a narrow PDF-byte route-strategy candidate; residual
 536-byte PDF-labeled HTML shells remain provider/Zyte support evidence.
+Implementation candidate: current branch routes only `dl.acm.org/doi/pdf/...` URLs through Zyte PDF-byte strategies (`default_body`, `accept_pdf`, then `google_referer`) with explicit request timeouts. It does not route ACM `/doi/epdf/` or `/action/showFmPdf` paths. Local no-storage branch `http_get` validation `acm-http-get-local-route-precommit-1950532` returned 5/22 classifier `good_pdf`; 4/22 were clean candidate-URL DOI matches and one was a candidate DOI mismatch (`10.1145/507678.507679` row pointed to `10.1145/507670.507679`). Residual categories were nine `html_instead_of_pdf`, six `empty_response`, and two `js_redirect_unresolved`. No Taxicab POST/R2/DynamoDB writes. Publish this validation to oxjobs #461 after tests and branch push.
 Current Optica no-storage provider probe
 `optica-current-missing-provider-probe10-1b0823d` at Taxicab commit `1b0823d`
 recovered 0/10 current Optica missing rows. Best categories were eight
@@ -313,7 +314,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n '_fetch_wiley_pdfdirect|_fetch_iop_article_pdf|dl\.acm|doi/pdf' openalex_taxicab/http_cache.py tests/test_http_cache.py`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 -m unittest tests.test_http_cache && python3 -m unittest discover -s tests && python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-acm-route --run-id pdf-fixture-smoke-acm-route && python3 scripts/secret_scan.py`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
@@ -954,7 +955,7 @@ Known current Browserbase state: REST session create/release works with the igno
 Before push, run a secret scan:
 
 ```bash
-rg -n "ZYTE_API_KEY|BROWSERBASE_API_KEY|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|R2_SECRET|CRAWLERA_KEY" .
+python3 scripts/secret_scan.py
 ```
 
 Inspect matches before committing; variable names are OK, secret values and signed provider URLs are not.
