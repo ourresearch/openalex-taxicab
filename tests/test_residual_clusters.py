@@ -4,10 +4,12 @@ import unittest
 from pathlib import Path
 
 from openalex_taxicab.eval_harness import EvalRow
+from openalex_taxicab.pdf_eval_harness import PdfEvalRow
 from openalex_taxicab.residual_clusters import (
     browserbase_candidates,
     cluster_rows,
     redact_url,
+    residual_host,
     write_cluster_artifacts,
     zyte_support_candidates,
 )
@@ -31,6 +33,46 @@ def row(doi, category, publisher, host, support_candidate=True):
         uuid=f"uuid-{doi}",
         html_record_count=1,
         created_date="2026-06-11T00:00:00",
+        duration_ms=1,
+        mode="test",
+        error="",
+    )
+
+
+def pdf_row(
+    doi,
+    category,
+    publisher,
+    host="unknown",
+    candidate_url="",
+    candidate_source="corpus_pdf_url",
+    support_candidate=True,
+):
+    return PdfEvalRow(
+        run_id="test",
+        work_id=f"W{doi}",
+        doi=doi,
+        category=category,
+        publisher=publisher,
+        host=host,
+        input_url=f"https://doi.org/{doi}",
+        candidate_url=candidate_url,
+        candidate_source=candidate_source,
+        resolved_url="",
+        status_code=None,
+        content_type="",
+        size_bytes=0,
+        sha256="",
+        pdf_magic=False,
+        page_count=0,
+        text_chars=0,
+        title_overlap=0.0,
+        doi_match=False,
+        validation_errors=[],
+        evidence_snippet="no pdf records",
+        support_candidate=support_candidate,
+        uuid="",
+        pdf_record_count=0,
         duration_ms=1,
         mode="test",
         error="",
@@ -70,6 +112,47 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(clusters[0].category, "missing_pdf_harvest")
         self.assertEqual(clusters[0].publisher, "wiley")
 
+    def test_missing_pdf_harvest_uses_candidate_url_host(self):
+        rows = [
+            pdf_row(
+                "10.1/a",
+                "missing_pdf_harvest",
+                "springer",
+                candidate_url="https://link.springer.com/content/pdf/10.1/a.pdf?download=true",
+            ),
+            pdf_row(
+                "10.1/b",
+                "missing_pdf_harvest",
+                "springer",
+                candidate_url="https://link.springer.com/content/pdf/10.1/b.pdf",
+            ),
+            pdf_row(
+                "10.1/c",
+                "missing_pdf_harvest",
+                "springer",
+                candidate_url="https://media.springernature.com/full/springer-static/image/chp%3A10.1/c.pdf",
+            ),
+        ]
+
+        clusters = cluster_rows(rows, sample_size=2)
+
+        by_host = {cluster.host: cluster for cluster in clusters}
+        self.assertEqual(by_host["link.springer.com"].count, 2)
+        self.assertEqual(by_host["media.springernature.com"].count, 1)
+        self.assertEqual(by_host["link.springer.com"].sample_rows[0]["host"], "link.springer.com")
+        self.assertIn("candidate_url", by_host["link.springer.com"].sample_rows[0])
+
+    def test_residual_host_prefers_existing_non_unknown_host(self):
+        item = pdf_row(
+            "10.1/a",
+            "missing_pdf_harvest",
+            "springer",
+            host="stored.example.org",
+            candidate_url="https://link.springer.com/content/pdf/10.1/a.pdf",
+        )
+
+        self.assertEqual(residual_host(item), "stored.example.org")
+
     def test_candidate_outputs_separate_lens_and_envoy_queues(self):
         clusters = cluster_rows(
             [
@@ -95,6 +178,12 @@ class ResidualClusterTests(unittest.TestCase):
             rows = [
                 row("10.1/a", "router_only", "mdpi", "mdpi.com").to_dict(),
                 row("10.1/b", "empty_response", "elsevier", "jbc.org").to_dict(),
+                pdf_row(
+                    "10.1/c",
+                    "missing_pdf_harvest",
+                    "springer",
+                    candidate_url="https://link.springer.com/content/pdf/10.1/c.pdf",
+                ).to_dict(),
             ]
             rows_path.write_text("\n".join(json.dumps(item) for item in rows) + "\n")
 
@@ -102,7 +191,8 @@ class ResidualClusterTests(unittest.TestCase):
 
             payload = json.loads(paths["clusters_json"].read_text())
             self.assertEqual(payload["run_id"], "cluster-test")
-            self.assertEqual(payload["non_good_rows"], 2)
+            self.assertEqual(payload["non_good_rows"], 3)
+            self.assertIn("link.springer.com", paths["clusters_csv"].read_text())
             self.assertTrue(paths["clusters_csv"].exists())
             self.assertTrue(paths["browserbase_candidates"].exists())
             self.assertTrue(paths["zyte_support_candidates"].exists())

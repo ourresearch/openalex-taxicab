@@ -11,7 +11,8 @@ from pathlib import Path
 from typing import Iterable
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-from openalex_taxicab.eval_harness import CATEGORY_GOOD_HTML, EvalRow, read_rows_ndjson
+from openalex_taxicab.eval_harness import CATEGORY_GOOD_HTML, EvalRow, row_from_dict
+from openalex_taxicab.pdf_eval_harness import PdfEvalRow, host_from_url, pdf_row_from_dict
 
 
 NON_RESIDUAL_CATEGORIES = {
@@ -101,12 +102,15 @@ class ResidualCluster:
         }
 
 
-def cluster_rows(rows: Iterable[EvalRow], *, sample_size: int = 5) -> list[ResidualCluster]:
-    grouped: dict[tuple[str, str, str], list[EvalRow]] = defaultdict(list)
+ResidualRow = EvalRow | PdfEvalRow
+
+
+def cluster_rows(rows: Iterable[ResidualRow], *, sample_size: int = 5) -> list[ResidualCluster]:
+    grouped: dict[tuple[str, str, str], list[ResidualRow]] = defaultdict(list)
     for row in rows:
         if row.category in NON_RESIDUAL_CATEGORIES:
             continue
-        key = (row.category, row.publisher or "unknown", row.host or "unknown")
+        key = (row.category, row.publisher or "unknown", residual_host(row))
         grouped[key].append(row)
 
     clusters = [
@@ -130,7 +134,7 @@ def _build_cluster(
     category: str,
     publisher: str,
     host: str,
-    rows: list[EvalRow],
+    rows: list[ResidualRow],
     *,
     sample_size: int,
 ) -> ResidualCluster:
@@ -148,6 +152,22 @@ def _build_cluster(
         evidence_strength=evidence_strength(category, publisher, host),
         sample_rows=tuple(sample_row(row) for row in rows[:sample_size]),
     )
+
+
+def residual_host(row: ResidualRow) -> str:
+    host = (getattr(row, "host", "") or "").strip()
+    if host and host != "unknown":
+        return host
+    if row.category == "missing_pdf_harvest":
+        for url in (
+            getattr(row, "candidate_url", "") or "",
+            getattr(row, "resolved_url", "") or "",
+            getattr(row, "input_url", "") or "",
+        ):
+            candidate_host = host_from_url(url)
+            if candidate_host:
+                return candidate_host
+    return host or "unknown"
 
 
 def recommended_agent(category: str, publisher: str, host: str) -> str:
@@ -218,13 +238,15 @@ def evidence_strength(category: str, publisher: str, host: str) -> str:
     return "low: needs row-level inspection"
 
 
-def sample_row(row: EvalRow) -> dict[str, str]:
+def sample_row(row: ResidualRow) -> dict[str, str]:
     return {
         "doi": row.doi,
         "publisher": row.publisher,
-        "host": row.host,
+        "host": residual_host(row),
+        "candidate_url": redact_url(getattr(row, "candidate_url", "") or ""),
+        "candidate_source": getattr(row, "candidate_source", "") or "",
         "resolved_url": redact_url(row.resolved_url),
-        "title": row.title,
+        "title": getattr(row, "title", ""),
         "evidence_snippet": redact_text(row.evidence_snippet[:240]),
         "uuid": row.uuid,
     }
@@ -305,7 +327,7 @@ def write_cluster_artifacts(
     sample_size: int = 5,
     top_n: int = 50,
 ) -> dict[str, Path]:
-    rows = read_rows_ndjson(rows_path)
+    rows = read_residual_rows_ndjson(rows_path)
     clusters = cluster_rows(rows, sample_size=sample_size)
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -375,6 +397,22 @@ def _write_candidate_csv(path: Path, rows: list[dict[str, str]]) -> None:
         writer.writerows(rows)
 
 
+def read_residual_rows_ndjson(path: Path) -> list[ResidualRow]:
+    rows: list[ResidualRow] = []
+    if not path.exists():
+        return rows
+    with path.open(encoding="utf-8") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            data = json.loads(line)
+            if "candidate_url" in data or "pdf_record_count" in data or "pdf_magic" in data:
+                rows.append(pdf_row_from_dict(data))
+            else:
+                rows.append(row_from_dict(data))
+    return rows
+
+
 __all__ = [
     "ResidualCluster",
     "browserbase_candidates",
@@ -383,6 +421,8 @@ __all__ = [
     "recommended_agent",
     "redact_text",
     "redact_url",
+    "residual_host",
+    "read_residual_rows_ndjson",
     "write_cluster_artifacts",
     "zyte_support_candidates",
 ]
