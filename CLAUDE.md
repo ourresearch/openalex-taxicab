@@ -7,113 +7,48 @@ Current goal state: HTML retrieval Phase 1 is complete at 9,583/10,000
 `good_pdf` on the PDF-expected subset of the 10K Goldie corpus. Use
 `GOAL.md` as the current control file and update it before long handoffs.
 Latest PDF measurement gate: accepted full 10K read-only gate
-`pdf-full10k-after-readable-encrypted-f2da963` is 2,304/6,293 `good_pdf`
-(36.61%), +99 rows versus the unknown-refresh gate and +467 rows versus the
-denominator baseline of 1,837/6,293 (29.19%). This is validator/measurement
-correctness for readable encrypted PDFs, not production scraping behavior:
-PDFs with EOF, nonzero page count, and >=500 extracted text chars now count as
-`good_pdf`, while tiny/unextractable encrypted PDFs still fail.
-`missing_pdf_harvest` is 3,796, `corrupt_or_truncated_pdf` is 65,
-`encrypted_or_unreadable_pdf` is 4, timeout is 0, and `taxicab_error` is 0.
-The gap to 95% is now 3,675 rows. Oxjobs #461 commit `2092c008` publishes this
-accepted full-gate report.
-Latest residual clustering from that full gate found 3,989 non-good rows across
-174 clusters. The largest remaining lane is still missing PDF harvest by source
-PDF URL host: Springer 813, Wiley 544, De Gruyter 199, Elsevier/ScienceDirect
-143, Lippincott 133, Oxford 132, CUP 122, SSRN 73, JSTOR 60, Taylor 52, RSC 47,
-and ACS 47. The actionable non-missing lane is smaller but cleaner:
-Wiley corrupt/truncated recovered 9/18 with PDF-byte strategies, ACS
-corrupt/truncated recovered 6/6 with PDF-byte strategies, Sage
-corrupt/truncated recovered 0/6, Hindawi corrupt/truncated recovered 0/2,
-Springer corrupt/truncated recovered 0/5, and Elsevier-attributed
-corrupt/truncated recovered 0/3. Mixed unknown-attribution corrupt rows
-recovered 0/5 and should be split by host before route code.
-Current branch now implements a narrow ACS
-`pubs.acs.org/doi/pdf/...` PDF-byte route candidate only; it does not route ACS
-`/doi/epdf/` paths. Local no-storage branch `http_get` validation
-`acs-http-get-local-route-precommit-8912673` returned 6/6 `good_pdf`, with no
-Taxicab POST/R2/DynamoDB writes. Oxjobs #461 commit `82e4812f` publishes the
-ACS route evidence. Hindawi no-storage probe
-`hindawi-current-corrupt-provider-probe2-6d11e24` recovered 0/2 and is
-published at oxjobs `66cc6c44`; Springer probe
-`springer-current-corrupt-provider-probe5-6d11e24` recovered 0/5 and is
-published at oxjobs `79f0b3d2`; Elsevier-attributed probe
-`elsevier-current-corrupt-provider-probe3-d1f3edb` recovered 0/3 and is
-published at oxjobs `f57d9036`. Treat Hindawi, Springer, and Elsevier-attributed
-corrupt residuals as Zyte/support or cluster-splitting evidence, not route code.
-Unknown-attribution probe `unknown-current-corrupt-provider-probe5-9b795af`
-recovered 0/5 and is published at oxjobs `ffb66370`; split remaining unknown
-rows by host. Unknown `revistas.uach.cl` singleton probe
-`unknown-revistasuach-current-corrupt-provider-probe1-48f425c` recovered 0/1,
-all strategies `download_404`, and is published at oxjobs `37926446`; next
-unknown singleton `journal.uniga.ac.id` recovered 1/1 through PDF-byte
-strategies and is published at oxjobs `aec51cf8`; next unknown singleton is
-`sciresol.s3.us-east-2.amazonaws.com` recovered 0/1 and is published at
-oxjobs `ca6e5e05`; unknown `oejournal.org` recovered 0/1 and is published at
-oxjobs `42da202d`; unknown `authorea.com` recovered 0/1 and is published at
-oxjobs `b405108f`; unknown `mjle.journals.ekb.eg` recovered 0/1 and is
-published at oxjobs `b6a214a5`; the current unknown singleton tail is
-exhausted. Candidate-host residual clustering is implemented at Taxicab commit
-`a230505` and published at oxjobs `65411a6c`. It keeps the same 3,989 non-good
-rows from the accepted full gate but splits host-unknown `missing_pdf_harvest`
-rows by candidate URL host. The largest remaining concrete hosts are
-`link.springer.com` 813, `onlinelibrary.wiley.com` 544,
-`degruyterbrill.com` 199, `sciencedirect.com` 143, `journals.lww.com` 133,
-`academic.oup.com` 132, `cambridge.org` 122, `papers.ssrn.com` 73,
-`jstor.org` 60, and `api.taylorfrancis.com` 52. Taylor host-specific probing is
-published through oxjobs `cca3d122`: API probe
-`taylor-api-current-missing-provider-probe10-a230505` recovered `0/10 good_pdf`
-with all 40 attempts `download_404`; direct TandF probe
-`taylor-tandfonline-current-missing-provider-probe10-ae2655d` recovered `0/10`
-with best categories 9 `interstitial_or_paywall` and 1
-`js_redirect_unresolved`. Neither wrote Taxicab POST/R2/DynamoDB state. Keep
-both Taylor lanes in provider/Zyte support until a provider-advised PDF-byte
-recipe or Browserbase gold comparison exists. Route-shape residual
-subclustering is implemented at Taxicab commit `1b303a5` and published at
-oxjobs `106a93f8`. Run `residual-subclusters-after-taylor-1b303a5` keeps the
-accepted KPI unchanged at 2,304/6,293 `good_pdf` (36.61%) and splits residuals
-into 1,481 normalized path-pattern subclusters. Top lanes are Springer
-`/content/pdf/:doi/:id.pdf` 758, Wiley `/doi/pdf/:doi/:id` 394, De Gruyter
-document PDF 195, Cambridge Core AOP 122, ScienceDirect `pdfft` 99, SSRN
-delivery 72, and Taylor API chapter-download 51. This is planning/measurement
-evidence only; it made no Taxicab API, Zyte, Browserbase, R2, or DynamoDB
-writes. Taxicab commit `30121a7` then normalized prior-evidence host variants
-and kept priority bands; oxjobs `c28d77b7` publishes
-`residual-subclusters-prioritized-30121a7`. In the top 160 path families, 113
-are provider-lane/do-not-duplicate, 30 need Browserbase/Zyte gold comparison
-first, 8 are fresh bounded-probe candidates, four are existing branch route
-candidates, four are validator/provider lanes, and one needs manual inspection.
-Summary: 113 provider lanes; 8 fresh probes.
-Fresh-tail updates: `unifsa-current-missing-provider-probe2-f6e9c80` recovered
-2/2 direct PDF bytes; DOI-only reharvest recovered 0/2; direct-PDF-URL
-reharvest and read-only confirmation recovered 2/2. Then
-`turkishstudies-current-missing-provider-probe2-8edb8ac` recovered 1/2 direct
-PDF bytes; direct-PDF-URL reharvest and read-only confirmation preserved 1/2,
-while the other row stayed `download_404`. These are bounded cache lifts and
-candidate-URL discovery lessons, not a new accepted full-10K KPI.
-`even3-current-missing-provider-probe2-828c377` then recovered 2/2 direct PDF
-bytes; direct-PDF-URL reharvest and read-only confirmation preserved 2/2.
-Current bounded durable fresh-tail lift is 5 rows, pending full-gate
-confirmation. `asha-current-missing-provider-probe2-85443df` recovered 0/2
-with one `bot_block_403` and one `html_instead_of_pdf`; no reharvest was run.
-`pmresearch-current-missing-provider-probe2-fed64e3` recovered 0/2 with one
-`empty_response` and one `js_redirect_unresolved`; no reharvest was run. Oxjobs
-`3a2e3903` publishes the aggregate-only PM Research evidence.
-`mapsmla-current-missing-provider-probe2-3f70f96` recovered 0/2 with every
-tested strategy returning `empty_response`; no reharvest was run. Oxjobs
-`9d011684` publishes the aggregate-only Maps MLA evidence.
-`journalijar-current-missing-provider-probe2-54052bb` recovered 0/2 with every
-tested strategy returning `download_404`; no reharvest was run. Oxjobs
-`02bc9a19` publishes the aggregate-only Journal IJAR evidence.
-`jmcconline-current-missing-provider-probe2-1d2e57d` recovered 0/2 with both
-rows best classified as `js_redirect_unresolved`; PDF-byte strategies split
-between `empty_response` and unresolved JS. No reharvest was run. Oxjobs
-`e416381d` publishes the aggregate-only JMCC evidence. The small fresh-tail
-queue from `residual-subclusters-prioritized-30121a7` is now exhausted. Next
-action is either a full read-only gate to confirm the current 5-row durable
-cache lift, or a pivot to Browserbase/Zyte gold-first lanes before route code.
-Do not push Taxicab main before the full PDF 95% proof; gate note: no Taxicab
-main push.
+`pdf-full10k-after-freshtail-f4f4a28` is 2,309/6,293 `good_pdf` (36.69%),
++5 rows versus the readable-encrypted gate and +472 rows versus the denominator
+baseline of 1,837/6,293 (29.19%). The run has 3,791 `missing_pdf_harvest`,
+65 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 93
+`supplement_or_preview_pdf`, 0 timeout, and 0 `taxicab_error`. The gap to 95%
+is 3,670 rows. Oxjobs #461 commit `c9375d9d` publishes this aggregate-only
+full-gate report and summary.
+
+Fresh-tail status: Unifsa, Turkish Studies, and Even3 produced the bounded
+durable +5 cache lift now confirmed by the full gate. ASHA, PM Research, Maps
+MLA, Journal IJAR, and JMCC recovered 0 rows in small probes and move to
+provider/upstream evidence. The small fresh-tail queue from
+`residual-subclusters-prioritized-30121a7` is exhausted.
+
+Next action: do not run another duplicate fresh-tail loop. Pivot to
+Browserbase/Zyte gold-first lanes or a larger provider-advised route candidate
+before route code. Keep Zyte as the production core and Browserbase as evidence
+/ gold-sample collection. Do not push Taxicab main before the full PDF 95%
+proof; gate note: no Taxicab main push.
+
+Next exact command:
+
+```bash
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
+python3 - <<'PY'
+import json
+from collections import Counter
+from pathlib import Path
+rows = Path('pdf_eval_runs/pdf-full10k-after-freshtail-f4f4a28/rows.ndjson')
+counts = Counter()
+for line in rows.open():
+    row = json.loads(line)
+    if row.get('category') not in {'good_pdf', 'no_pdf_expected'}:
+        cluster = row.get('publisher') or row.get('source_pdf_host') or row.get('host') or 'unknown'
+        counts[(row.get('category'), cluster)] += 1
+for (category, cluster), count in counts.most_common(25):
+    print(f'{count:4d} {category:28s} {cluster}')
+PY
+```
+
+Historical detail below is chronological and may use "current" relative to the
+older gate being discussed. The top block above is the authoritative handoff.
 Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
 Taxicab commit `8a35869` is 2,196/6,293 `good_pdf` (34.90%), with
 3,805 `missing_pdf_harvest`, 65 `corrupt_or_truncated_pdf`, 0 timeout,

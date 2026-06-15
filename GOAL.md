@@ -41,20 +41,37 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `2092c008` publishes the accepted full 10K gate `pdf-full10k-after-readable-encrypted-f2da963` from Taxicab commit `f2da963`: 2,304/6,293 `good_pdf` (36.61%), +99 versus the prior full gate and +467 versus denominator baseline, with 3,796 `missing_pdf_harvest`, 65 corrupt/truncated, 4 encrypted/unreadable, 93 supplement/preview, 0 timeout, and 0 `taxicab_error`.
-Current phase: readable-encrypted validator lift is accepted and published. Residual clustering is complete for this full gate: 3,989 non-good rows across 174 clusters, dominated by missing PDF harvest, with a smaller actionable corrupt/truncated lane. Current corrupt no-storage probes found Wiley 9/18 recovered, ACS 6/6 recovered, Sage 0/6 recovered, Hindawi 0/2 recovered, Springer 0/5 recovered, Elsevier-attributed 0/3 recovered, mixed unknown-attribution 0/5 recovered, unknown `revistas.uach.cl` singleton 0/1 recovered, unknown `journal.uniga.ac.id` singleton 1/1 recovered, unknown `sciresol.s3.us-east-2.amazonaws.com` singleton 0/1 recovered, unknown `oejournal.org` singleton 0/1 recovered, unknown `authorea.com` singleton 0/1 recovered, and unknown `mjle.journals.ekb.eg` singleton 0/1 recovered. Current branch now implements a narrow ACS `pubs.acs.org/doi/pdf/...` PDF-byte route candidate only; it does not route ACS `/doi/epdf/` paths. Local no-storage branch `http_get` validation `acs-http-get-local-route-precommit-8912673` returned 6/6 `good_pdf`, with no Taxicab POST/R2/DynamoDB writes; oxjobs `82e4812f` publishes that evidence. The current unknown singleton tail is exhausted, residual cluster refresh `residual-clusters-after-unknown-tail-add6ef1` is published at oxjobs `cea24883`, candidate-host clustering is published at oxjobs `65411a6c`, Taylor host-specific no-storage probes are published at oxjobs `48ffd7d9` and `cca3d122` with `0/10 good_pdf` in both API and direct TandF lanes, route-shape subclusters are published at oxjobs `106a93f8`, normalized prioritized route-shape queue `residual-subclusters-prioritized-30121a7` is published at oxjobs `c28d77b7`, Unifsa is published at oxjobs `7b551e72`, Turkish Studies is published at oxjobs `2d9bed14`, Even3 is published at oxjobs `3f09cbf8`, ASHA is published at oxjobs `fcb43925`, PM Research is published at oxjobs `3a2e3903`, Maps MLA is published at oxjobs `9d011684`, Journal IJAR is published at oxjobs `02bc9a19`, and JMCC is published at oxjobs `e416381d`. The prioritized queue keeps the accepted 10K KPI unchanged at 2,304/6,293 `good_pdf` (36.61%) and splits the top 160 path families into 113 provider-lane/do-not-duplicate, 30 Browserbase/Zyte-gold-first, 8 fresh probes, four existing branch route candidates, four validator/provider lanes, and one inspect-first. Fresh-tail loops have recovered a bounded durable 5 rows so far: Unifsa 2/2, Turkish Studies 1/2 with one upstream `download_404`, and Even3 2/2; ASHA recovered 0/2, PM Research recovered 0/2, Maps MLA recovered 0/2, Journal IJAR recovered 0/2 with all strategies `download_404`, and JMCC recovered 0/2 with both rows best classified as `js_redirect_unresolved`. These negative probes move to provider/upstream evidence. These are support/cluster, provider-strategy, planning, or bounded cache-lift evidence only. They do not move the accepted 10K metric until a read-only/full gate confirms them. Do not push Taxicab main before the full PDF 95% proof.
-Current handoff override: Taxicab commit `30121a7` normalizes prioritized
-route-shape subclusters, and oxjobs commit `e416381d` publishes aggregate-only
-priority evidence plus the Unifsa, Turkish Studies, Even3, ASHA, PM Research,
-Maps MLA, Journal IJAR, and JMCC fresh-tail evidence.
-Run
-`residual-subclusters-prioritized-30121a7` found 1,481 normalized path-pattern
-subclusters and top-160 priority bands without Taxicab API, Zyte, Browserbase,
-R2, or DynamoDB writes. The small fresh-tail queue is now exhausted; next action
-is a full read-only gate to confirm the current 5-row durable cache lift, or a
-pivot to Browserbase/Zyte gold-first lanes before route code.
+Current publish status: oxjobs #461 commit `c9375d9d` publishes the accepted
+full 10K gate `pdf-full10k-after-freshtail-f4f4a28` from Taxicab commit
+`f4f4a28`: 2,309/6,293 `good_pdf` (36.69%), +5 versus the
+readable-encrypted gate and +472 versus denominator baseline, with 3,791
+`missing_pdf_harvest`, 65 corrupt/truncated, 4 encrypted/unreadable,
+93 supplement/preview, 0 timeout, and 0 `taxicab_error`.
+Current phase: fresh-tail durable cache lift is accepted by the full gate.
+Unifsa, Turkish Studies, and Even3 account for the +5 rows; ASHA, PM Research,
+Maps MLA, Journal IJAR, and JMCC recovered 0 rows and move to provider/upstream
+evidence. The small fresh-tail queue is exhausted. Do not run another duplicate
+fresh-tail loop. Pivot to Browserbase/Zyte gold-first lanes or a larger
+provider-advised route candidate before route code. Do not push Taxicab main
+before the full PDF 95% proof.
+Current handoff override: the top-level accepted metric is
+`pdf-full10k-after-freshtail-f4f4a28`, 2,309/6,293 `good_pdf` (36.69%), with a
+3,670-row gap to 95%. Historical sections below may use "current" relative to
+older gates; this block is authoritative.
 Next exact command:
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --corpus /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --out pdf_eval_runs/ --run-id pdf-full10k-after-freshtail-<current-sha> --timeout 45 --retries 1 --workers 8 --progress-every 100
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 - <<'PY'
+import json
+from collections import Counter
+from pathlib import Path
+rows = Path('pdf_eval_runs/pdf-full10k-after-freshtail-f4f4a28/rows.ndjson')
+counts = Counter()
+for line in rows.open():
+    row = json.loads(line)
+    if row.get('category') != 'good_pdf' and row.get('category') != 'no_pdf_expected':
+        counts[(row.get('category'), row.get('publisher') or row.get('source_pdf_host') or row.get('host') or 'unknown')] += 1
+for (category, cluster), count in counts.most_common(25):
+    print(f'{count:4d} {category:28s} {cluster}')
+PY
 ```
 
 After Gate 0 is pushed:

@@ -11,49 +11,46 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current handoff override: Taxicab commit `30121a7` normalizes prior-evidence
-host variants in prioritized route-shape residual subclusters, and oxjobs commit
-`e416381d` publishes aggregate-only priority evidence plus the first three
-fresh-tail bounded lifts and ASHA/PM Research/Maps MLA/Journal IJAR/JMCC
-negative evidence. Run
-`residual-subclusters-prioritized-30121a7` keeps the accepted PDF KPI at
-2,304/6,293 `good_pdf` (36.61%) and splits the top 160 path families into 113
-provider-lane/do-not-duplicate, 30 Browserbase/Zyte-gold-first, 8 fresh probes,
-four existing branch route candidates, four validator/provider lanes, and one
-inspect-first. This was planning evidence only and made no Taxicab API, Zyte,
-Browserbase, R2, or DynamoDB writes. The small fresh-tail queue is now
-exhausted. Next exact action is a full read-only gate to confirm the current
-5-row durable cache lift, or a pivot to Browserbase/Zyte gold-first lanes before
-route code. Summary: 113 provider lanes; 8 fresh probes. Gate note: no Taxicab
-main push.
-Fresh-tail updates: `unifsa-current-missing-provider-probe2-f6e9c80` recovered
-2/2 direct PDF bytes. DOI-only reharvest recovered 0/2 because it followed
-article-view HTML; direct-PDF-URL reharvest recovered 2/2 and read-only
-confirmation recovered 2/2. `turkishstudies-current-missing-provider-probe2-8edb8ac`
-then recovered 1/2 direct PDF bytes; direct-PDF-URL reharvest and read-only
-confirmation preserved 1/2, while the other row stayed `download_404`.
-`even3-current-missing-provider-probe2-828c377` then recovered 2/2 direct PDF
-bytes; direct-PDF-URL reharvest and read-only confirmation preserved 2/2.
-Current bounded durable fresh-tail lift is 5 rows, pending full-gate
-confirmation. These are bounded cache lifts and candidate-URL discovery
-lessons, not a new accepted full-10K KPI.
-ASHA update: `asha-current-missing-provider-probe2-85443df` recovered 0/2; best
-categories were one `bot_block_403` and one `html_instead_of_pdf`. No reharvest
-was run.
-PM Research update: `pmresearch-current-missing-provider-probe2-fed64e3`
-recovered 0/2; best categories were one `empty_response` and one
-`js_redirect_unresolved`. No reharvest was run. Oxjobs `3a2e3903` publishes the
-aggregate-only PM Research evidence.
-Maps MLA update: `mapsmla-current-missing-provider-probe2-3f70f96` recovered
-0/2; every tested strategy returned `empty_response`. No reharvest was run.
-Oxjobs `9d011684` publishes the aggregate-only Maps MLA evidence.
-Journal IJAR update: `journalijar-current-missing-provider-probe2-54052bb`
-recovered 0/2; every tested strategy returned `download_404`. No reharvest was
-run. Oxjobs `02bc9a19` publishes the aggregate-only Journal IJAR evidence.
-JMCC update: `jmcconline-current-missing-provider-probe2-1d2e57d` recovered
-0/2; both rows best classified as `js_redirect_unresolved`, with PDF-byte
-strategies split between `empty_response` and unresolved JS. No reharvest was
-run. Oxjobs `e416381d` publishes the aggregate-only JMCC evidence.
+Current handoff override: accepted full 10K PDF gate
+`pdf-full10k-after-freshtail-f4f4a28` at Taxicab commit `f4f4a28` is
+2,309/6,293 `good_pdf` (36.69%), +5 versus the readable-encrypted gate and
++472 versus denominator baseline. It has 3,791 `missing_pdf_harvest`,
+65 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`,
+93 `supplement_or_preview_pdf`, 0 timeout, and 0 `taxicab_error`. The gap to
+95% is 3,670 rows. Oxjobs #461 commit `c9375d9d` publishes the aggregate-only
+report/summary. Gate note: no Taxicab main push.
+
+Fresh-tail status: Unifsa, Turkish Studies, and Even3 produced the bounded
+durable +5 cache lift now confirmed by the full gate. ASHA, PM Research, Maps
+MLA, Journal IJAR, and JMCC recovered 0 rows in small probes and move to
+provider/upstream evidence. The small fresh-tail queue from
+`residual-subclusters-prioritized-30121a7` is exhausted.
+
+Next exact action: inspect the latest full-gate residual clusters, then pivot to
+Browserbase/Zyte gold-first lanes or a larger provider-advised route candidate
+before route code. Do not run another duplicate fresh-tail loop. Historical
+sections below may use "current" relative to older gates; this top block is the
+authoritative current state.
+
+Next command:
+
+```bash
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
+python3 - <<'PY'
+import json
+from collections import Counter
+from pathlib import Path
+rows = Path('pdf_eval_runs/pdf-full10k-after-freshtail-f4f4a28/rows.ndjson')
+counts = Counter()
+for line in rows.open():
+    row = json.loads(line)
+    if row.get('category') not in {'good_pdf', 'no_pdf_expected'}:
+        cluster = row.get('publisher') or row.get('source_pdf_host') or row.get('host') or 'unknown'
+        counts[(row.get('category'), cluster)] += 1
+for (category, cluster), count in counts.most_common(25):
+    print(f'{count:4d} {category:28s} {cluster}')
+PY
+```
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
 oxjobs #461 commit `dcb7bb14` publishes the accepted structured-parser full
 gate. Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
