@@ -90,6 +90,96 @@ class ScienceDirectUrlTests(unittest.TestCase):
         )
         self.assertTrue(response.content.startswith(b"%PDF-"))
 
+    def test_http_get_uses_pdf_body_strategy_for_iop_article_pdf(self):
+        pdf_url = "https://iopscience.iop.org/article/10.1088/0951-7715/7/1/008/pdf"
+        captured = []
+
+        class FakeResponse:
+            def json(self):
+                return {
+                    "statusCode": 200,
+                    "url": pdf_url,
+                    "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                    "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+                }
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse()
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url, doi="10.1088/0951-7715/7/1/008")
+
+        self.assertEqual(len(captured), 1)
+        self.assertTrue(captured[0]["httpResponseBody"])
+        self.assertTrue(captured[0]["httpResponseHeaders"])
+        self.assertNotIn("browserHtml", captured[0])
+        self.assertEqual(response.url, pdf_url)
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_http_get_falls_back_for_iop_article_pdf_strategies(self):
+        pdf_url = "https://iopscience.iop.org/article/10.1088/0953-4075/42/12/125102/pdf"
+        captured = []
+        responses = [
+            {
+                "statusCode": 200,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "httpResponseBody": base64.b64encode(b"<html>not pdf</html>").decode(),
+            },
+            {
+                "statusCode": 200,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+            },
+        ]
+
+        class FakeResponse:
+            def __init__(self, data):
+                self._data = data
+
+            def json(self):
+                return self._data
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse(responses[len(captured) - 1])
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url, doi="10.1088/0953-4075/42/12/125102")
+
+        self.assertEqual(len(captured), 2)
+        self.assertNotIn("customHttpRequestHeaders", captured[0])
+        self.assertEqual(
+            captured[1]["customHttpRequestHeaders"],
+            [{"name": "Accept", "value": "application/pdf,*/*"}],
+        )
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_http_get_does_not_iop_route_book_chapter_pdf(self):
+        pdf_url = "https://iopscience.iop.org/book/978-1-6817-4465-0/chapter/bk978-1-6817-4465-0ch14/pdf"
+        captured = {}
+
+        def fake_call_with_zyte_api(url, params=None):
+            captured["url"] = url
+            captured["params"] = params
+            return {
+                "statusCode": 200,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "httpResponseBody": base64.b64encode(b"<html>Paywall</html>").decode(),
+            }
+
+        with patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=fake_call_with_zyte_api):
+            response = http_get(pdf_url, doi="10.1088/978-1-6817-4465-0ch14")
+
+        self.assertEqual(captured["url"], pdf_url)
+        self.assertEqual(captured["params"]["url"], pdf_url)
+        self.assertNotIn("customHttpRequestHeaders", captured["params"])
+        self.assertIsInstance(response.content, str)
+        self.assertIn("Paywall", response.content)
+
     def test_rewrites_jbc_pdf_url_to_fulltext(self):
         self.assertEqual(
             jbc_fulltext_url_from_url("https://www.jbc.org/article/S0021-9258(17)43626-X/pdf"),

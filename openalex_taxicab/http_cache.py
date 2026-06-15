@@ -477,6 +477,9 @@ def http_get(url,
         if not attempt_n and _is_wiley_pdfdirect_url(url):
             return _fetch_wiley_pdfdirect(url)
 
+        if not attempt_n and _is_iop_article_pdf_url(url):
+            return _fetch_iop_article_pdf(url, connect_timeout, read_timeout)
+
         # Check if it's a DOI or Handle URL that needs resolution
         is_doi_url = 'doi.org/' in url
         is_handle_url = 'hdl.handle.net/' in url
@@ -734,6 +737,10 @@ WILEY_PDFDIRECT_HOSTS = [
     "agupubs.onlinelibrary.wiley.com",
 ]
 
+IOP_ARTICLE_PDF_HOSTS = [
+    "iopscience.iop.org",
+]
+
 
 # Hosts that hide direct PDF URLs behind Cloudflare-style fingerprint checks.
 # Direct httpResponseBody calls to the PDF URL get banned (Zyte 520), but
@@ -780,6 +787,19 @@ def _is_wiley_pdfdirect_url(url):
         return False
     return any(host == wiley_host or host.endswith(f".{wiley_host}")
                for wiley_host in WILEY_PDFDIRECT_HOSTS)
+
+
+def _is_iop_article_pdf_url(url):
+    try:
+        split_url = urlsplit(url)
+    except ValueError:
+        return False
+    host = split_url.netloc.lower()
+    path = split_url.path.lower()
+    if not path.startswith("/article/") or not path.endswith("/pdf"):
+        return False
+    return any(host == iop_host or host.endswith(f".{iop_host}")
+               for iop_host in IOP_ARTICLE_PDF_HOSTS)
 
 
 def _should_use_landing_page_rewrite(url):
@@ -921,6 +941,34 @@ def _fetch_wiley_pdfdirect(url):
     for strategy_name, params in _wiley_pdfdirect_strategy_params(url):
         logger.info(f"Wiley PDF-direct fetch using {strategy_name}: {url}")
         response = requests.post(zyte_api_url, auth=(zyte_api_key, ''), json=params, verify=False)
+        data = response.json()
+        current = _response_from_zyte_body(data, url)
+        last_response = current
+        if isinstance(current.content, bytes) and current.content[:5] == b"%PDF-":
+            return current
+
+    return last_response
+
+
+def _fetch_iop_article_pdf(url, connect_timeout=5, read_timeout=60):
+    """Fetch IOP article PDF URLs as PDF bytes with narrow fallback headers."""
+    zyte_api_url = "https://api.zyte.com/v1/extract"
+    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    last_response = ResponseObject(content=b"", headers=[], status_code=520, url=url)
+
+    for strategy_name, params in _wiley_pdfdirect_strategy_params(url):
+        logger.info(f"IOP article-PDF fetch using {strategy_name}: {url}")
+        try:
+            response = requests.post(
+                zyte_api_url,
+                auth=(zyte_api_key, ''),
+                json=params,
+                verify=False,
+                timeout=(connect_timeout, read_timeout),
+            )
+        except requests.exceptions.RequestException as exc:
+            logger.warning(f"IOP article-PDF fetch failed using {strategy_name}: {exc}")
+            continue
         data = response.json()
         current = _response_from_zyte_body(data, url)
         last_response = current
