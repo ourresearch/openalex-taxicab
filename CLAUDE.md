@@ -84,15 +84,19 @@ are provider-lane/do-not-duplicate, 30 need Browserbase/Zyte gold comparison
 first, 8 are fresh bounded-probe candidates, four are existing branch route
 candidates, four are validator/provider lanes, and one needs manual inspection.
 Summary: 113 provider lanes; 8 fresh probes.
-Fresh-tail update: `unifsa-current-missing-provider-probe2-f6e9c80` recovered
-2/2 direct PDF bytes. DOI-only reharvest recovered 0/2 because it followed
-article-view HTML; direct-PDF-URL reharvest recovered 2/2 and read-only
-confirmation recovered 2/2. This is a bounded cache lift and candidate-URL
-discovery lesson, not a new accepted full-10K KPI. Oxjobs `7b551e72` publishes
-the aggregate-only evidence.
-Next lane is one small fresh path-family probe or Browserbase/Zyte
-gold evidence for gold-first lanes. Do not push Taxicab main before the full PDF
-95% proof; gate note: no Taxicab main push.
+Fresh-tail updates: `unifsa-current-missing-provider-probe2-f6e9c80` recovered
+2/2 direct PDF bytes; DOI-only reharvest recovered 0/2; direct-PDF-URL
+reharvest and read-only confirmation recovered 2/2. Then
+`turkishstudies-current-missing-provider-probe2-8edb8ac` recovered 1/2 direct
+PDF bytes; direct-PDF-URL reharvest and read-only confirmation preserved 1/2,
+while the other row stayed `download_404`. These are bounded cache lifts and
+candidate-URL discovery lessons, not a new accepted full-10K KPI. Current
+bounded durable fresh-tail lift is 3 rows, pending full-gate confirmation.
+Oxjobs `2d9bed14` publishes the aggregate-only Turkish Studies evidence.
+Next lane is the next small fresh path-family probe from the prioritized queue,
+starting with `static.even3.com` unless a newer full gate supersedes it. Do not
+push Taxicab main before the full PDF 95% proof; gate note: no Taxicab main
+push.
 Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
 Taxicab commit `8a35869` is 2,196/6,293 `good_pdf` (34.90%), with
 3,805 `missing_pdf_harvest`, 65 `corrupt_or_truncated_pdf`, 0 timeout,

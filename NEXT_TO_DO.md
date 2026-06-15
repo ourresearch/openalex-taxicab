@@ -13,22 +13,26 @@ expanded operational context.
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
 Current handoff override: Taxicab commit `30121a7` normalizes prior-evidence
 host variants in prioritized route-shape residual subclusters, and oxjobs commit
-`7b551e72` publishes aggregate-only priority evidence plus the first fresh-tail
-bounded lift. Run
+`2d9bed14` publishes aggregate-only priority evidence plus the first two
+fresh-tail bounded lifts. Run
 `residual-subclusters-prioritized-30121a7` keeps the accepted PDF KPI at
 2,304/6,293 `good_pdf` (36.61%) and splits the top 160 path families into 113
 provider-lane/do-not-duplicate, 30 Browserbase/Zyte-gold-first, 8 fresh probes,
 four existing branch route candidates, four validator/provider lanes, and one
 inspect-first. This was planning evidence only and made no Taxicab API, Zyte,
-Browserbase, R2, or DynamoDB writes. Next exact action is one small fresh
-bounded no-storage path-family probe or Browserbase/Zyte gold evidence for
-gold-first lanes. Summary: 113 provider lanes; 8 fresh probes. Gate note:
-no Taxicab main push.
-Fresh-tail update: `unifsa-current-missing-provider-probe2-f6e9c80` recovered
+Browserbase, R2, or DynamoDB writes. Next exact action is the next small fresh
+bounded no-storage path-family probe, starting with `static.even3.com` unless a
+newer full gate supersedes the queue. Summary: 113 provider lanes; 8 fresh
+probes. Gate note: no Taxicab main push.
+Fresh-tail updates: `unifsa-current-missing-provider-probe2-f6e9c80` recovered
 2/2 direct PDF bytes. DOI-only reharvest recovered 0/2 because it followed
 article-view HTML; direct-PDF-URL reharvest recovered 2/2 and read-only
-confirmation recovered 2/2. This is a bounded cache lift and candidate-URL
-discovery lesson, not a new accepted full-10K KPI.
+confirmation recovered 2/2. `turkishstudies-current-missing-provider-probe2-8edb8ac`
+then recovered 1/2 direct PDF bytes; direct-PDF-URL reharvest and read-only
+confirmation preserved 1/2, while the other row stayed `download_404`. Current
+bounded durable fresh-tail lift is 3 rows, pending full-gate confirmation.
+These are bounded cache lifts and candidate-URL discovery lessons, not a new
+accepted full-10K KPI.
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
 oxjobs #461 commit `dcb7bb14` publishes the accepted structured-parser full
 gate. Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
