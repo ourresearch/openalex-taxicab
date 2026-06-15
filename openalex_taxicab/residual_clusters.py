@@ -9,7 +9,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, unquote, urlencode, urlsplit, urlunsplit
 
 from openalex_taxicab.eval_harness import CATEGORY_GOOD_HTML, EvalRow, row_from_dict
 from openalex_taxicab.pdf_eval_harness import PdfEvalRow, host_from_url, pdf_row_from_dict
@@ -72,6 +72,7 @@ ZYTE_SUPPORT_CATEGORIES = {
 
 SENSITIVE_QUERY_PREFIXES = ("X-Amz-",)
 SENSITIVE_QUERY_KEYS = {"bm-verify"}
+PATH_DYNAMIC_EXTENSIONS = {".pdf", ".html", ".htm", ".xml", ".aspx", ".ashx"}
 
 
 @dataclass(frozen=True)
@@ -102,6 +103,36 @@ class ResidualCluster:
         }
 
 
+@dataclass(frozen=True)
+class ResidualSubcluster:
+    category: str
+    publisher: str
+    host: str
+    candidate_source: str
+    path_pattern: str
+    count: int
+    support_candidates: int
+    estimated_recoverable_rows: float
+    recommended_agent: str
+    recommended_action: str
+    evidence_strength: str
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "category": self.category,
+            "publisher": self.publisher,
+            "host": self.host,
+            "candidate_source": self.candidate_source,
+            "path_pattern": self.path_pattern,
+            "count": self.count,
+            "support_candidates": self.support_candidates,
+            "estimated_recoverable_rows": round(self.estimated_recoverable_rows, 2),
+            "recommended_agent": self.recommended_agent,
+            "recommended_action": self.recommended_action,
+            "evidence_strength": self.evidence_strength,
+        }
+
+
 ResidualRow = EvalRow | PdfEvalRow
 
 
@@ -128,6 +159,134 @@ def cluster_rows(rows: Iterable[ResidualRow], *, sample_size: int = 5) -> list[R
         ),
         reverse=True,
     )
+
+
+def subcluster_rows_by_path(rows: Iterable[ResidualRow]) -> list[ResidualSubcluster]:
+    grouped: dict[tuple[str, str, str, str, str], list[ResidualRow]] = defaultdict(list)
+    for row in rows:
+        if row.category in NON_RESIDUAL_CATEGORIES:
+            continue
+        url = residual_pattern_url(row)
+        host = residual_host(row)
+        source = (getattr(row, "candidate_source", "") or "unknown").strip() or "unknown"
+        key = (
+            row.category,
+            row.publisher or "unknown",
+            host,
+            source,
+            path_pattern(url, fallback_host=host),
+        )
+        grouped[key].append(row)
+
+    subclusters = [
+        _build_subcluster(category, publisher, host, source, pattern, items)
+        for (category, publisher, host, source, pattern), items in grouped.items()
+    ]
+    return sorted(
+        subclusters,
+        key=lambda subcluster: (
+            subcluster.estimated_recoverable_rows,
+            subcluster.count,
+            subcluster.category,
+            subcluster.publisher,
+            subcluster.host,
+            subcluster.path_pattern,
+        ),
+        reverse=True,
+    )
+
+
+def _build_subcluster(
+    category: str,
+    publisher: str,
+    host: str,
+    candidate_source: str,
+    pattern: str,
+    rows: list[ResidualRow],
+) -> ResidualSubcluster:
+    weight = HOST_OVERRIDES.get((category, host), RECOVERABILITY_WEIGHTS.get(category, 0.10))
+    support_candidates = sum(1 for row in rows if row.support_candidate)
+    return ResidualSubcluster(
+        category=category,
+        publisher=publisher,
+        host=host,
+        candidate_source=candidate_source,
+        path_pattern=pattern,
+        count=len(rows),
+        support_candidates=support_candidates,
+        estimated_recoverable_rows=len(rows) * weight,
+        recommended_agent=recommended_agent(category, publisher, host),
+        recommended_action=subcluster_recommended_action(category, publisher, host, pattern),
+        evidence_strength=evidence_strength(category, publisher, host),
+    )
+
+
+def residual_pattern_url(row: ResidualRow) -> str:
+    for url in (
+        getattr(row, "candidate_url", "") or "",
+        getattr(row, "resolved_url", "") or "",
+        getattr(row, "input_url", "") or "",
+    ):
+        if url:
+            return url
+    return ""
+
+
+def path_pattern(url: str, *, fallback_host: str = "unknown", max_segments: int = 6) -> str:
+    if not url:
+        return f"{fallback_host or 'unknown'}:/unknown"
+    parts = urlsplit(url)
+    host = parts.netloc.lower() or (fallback_host or "unknown")
+    raw_segments = [segment for segment in parts.path.split("/") if segment]
+    if not raw_segments:
+        return f"{host}:/"
+    segments = [_normalize_path_segment(segment) for segment in raw_segments[:max_segments]]
+    if len(raw_segments) > max_segments:
+        segments.append("...")
+    return f"{host}:/" + "/".join(segments)
+
+
+def subcluster_recommended_action(category: str, publisher: str, host: str, pattern: str) -> str:
+    base = recommended_action(category, publisher, host)
+    if category == "missing_pdf_harvest":
+        return f"{base}; prioritize a no-storage probe or bounded queue for path pattern `{pattern}`"
+    if category in {"corrupt_or_truncated_pdf", "encrypted_or_unreadable_pdf"}:
+        return f"{base}; compare PDF-byte strategies for path pattern `{pattern}` before route code"
+    return f"{base}; sample path pattern `{pattern}` before broad host-level changes"
+
+
+def _normalize_path_segment(segment: str) -> str:
+    decoded = unquote(segment).lower()
+    if not decoded:
+        return ":empty"
+    extension = _dynamic_extension(decoded)
+    if decoded.startswith("10.") or re.search(r"(^|[^0-9])10\.\d{4,9}($|[^0-9])", decoded):
+        return _with_extension(":doi", decoded)
+    if re.fullmatch(r"\d+", decoded):
+        return ":n" if len(decoded) < 4 else ":num"
+    if re.fullmatch(r"[0-9a-f]{8,}", decoded):
+        return _with_extension(":hex", decoded)
+    if re.fullmatch(r"[a-z0-9_-]{18,}", decoded) and any(char.isdigit() for char in decoded):
+        return _with_extension(":id", decoded)
+    if re.search(r"\d{4,}", decoded) and len(decoded) >= 12:
+        return _with_extension(":id", decoded)
+    if extension == ".pdf":
+        return ":file.pdf"
+    return re.sub(r"\s+", "-", decoded)
+
+
+def _with_extension(token: str, segment: str) -> str:
+    extension = _dynamic_extension(segment)
+    if extension:
+        return f"{token}{extension}"
+    return token
+
+
+def _dynamic_extension(segment: str) -> str:
+    match = re.search(r"(\.[a-z0-9]{1,6})$", segment)
+    if match and match.group(1) in PATH_DYNAMIC_EXTENSIONS:
+        return match.group(1)
+    return ""
 
 
 def _build_cluster(
@@ -335,6 +494,8 @@ def write_cluster_artifacts(
     cluster_csv_path = out_dir / "residual-clusters.csv"
     browserbase_path = out_dir / "browserbase-candidates.csv"
     zyte_path = out_dir / "zyte-support-candidates.csv"
+    subcluster_path = out_dir / "residual-subclusters.json"
+    subcluster_csv_path = out_dir / "residual-subclusters.csv"
 
     payload = {
         "run_id": run_id,
@@ -380,13 +541,69 @@ def write_cluster_artifacts(
 
     _write_candidate_csv(browserbase_path, browserbase_candidates(clusters))
     _write_candidate_csv(zyte_path, zyte_support_candidates(clusters))
+    subclusters = subcluster_rows_by_path(rows)
+    _write_subcluster_artifacts(subcluster_path, subcluster_csv_path, subclusters, run_id=run_id, top_n=top_n)
 
     return {
         "clusters_json": cluster_path,
         "clusters_csv": cluster_csv_path,
+        "subclusters_json": subcluster_path,
+        "subclusters_csv": subcluster_csv_path,
         "browserbase_candidates": browserbase_path,
         "zyte_support_candidates": zyte_path,
     }
+
+
+def _write_subcluster_artifacts(
+    json_path: Path,
+    csv_path: Path,
+    subclusters: list[ResidualSubcluster],
+    *,
+    run_id: str,
+    top_n: int,
+) -> None:
+    payload = {
+        "run_id": run_id,
+        "subcluster_count": len(subclusters),
+        "top_subclusters": [subcluster.to_dict() for subcluster in subclusters[:top_n]],
+    }
+    json_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True) + "\n")
+
+    with csv_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(
+            [
+                "rank",
+                "category",
+                "publisher",
+                "host",
+                "candidate_source",
+                "path_pattern",
+                "count",
+                "estimated_recoverable_rows",
+                "support_candidates",
+                "recommended_agent",
+                "recommended_action",
+                "evidence_strength",
+            ]
+        )
+        for rank, subcluster in enumerate(subclusters[:top_n], start=1):
+            writer.writerow(
+                [
+                    rank,
+                    subcluster.category,
+                    subcluster.publisher,
+                    subcluster.host,
+                    subcluster.candidate_source,
+                    subcluster.path_pattern,
+                    subcluster.count,
+                    f"{subcluster.estimated_recoverable_rows:.2f}",
+                    subcluster.support_candidates,
+                    subcluster.recommended_agent,
+                    subcluster.recommended_action,
+                    subcluster.evidence_strength,
+                ]
+            )
 
 
 def _write_candidate_csv(path: Path, rows: list[dict[str, str]]) -> None:
@@ -415,14 +632,18 @@ def read_residual_rows_ndjson(path: Path) -> list[ResidualRow]:
 
 __all__ = [
     "ResidualCluster",
+    "ResidualSubcluster",
     "browserbase_candidates",
     "cluster_rows",
+    "path_pattern",
     "recommended_action",
     "recommended_agent",
     "redact_text",
     "redact_url",
     "residual_host",
+    "residual_pattern_url",
     "read_residual_rows_ndjson",
+    "subcluster_rows_by_path",
     "write_cluster_artifacts",
     "zyte_support_candidates",
 ]

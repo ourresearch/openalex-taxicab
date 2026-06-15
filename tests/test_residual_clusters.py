@@ -8,8 +8,10 @@ from openalex_taxicab.pdf_eval_harness import PdfEvalRow
 from openalex_taxicab.residual_clusters import (
     browserbase_candidates,
     cluster_rows,
+    path_pattern,
     redact_url,
     residual_host,
+    subcluster_rows_by_path,
     write_cluster_artifacts,
     zyte_support_candidates,
 )
@@ -142,6 +144,52 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(by_host["link.springer.com"].sample_rows[0]["host"], "link.springer.com")
         self.assertIn("candidate_url", by_host["link.springer.com"].sample_rows[0])
 
+    def test_path_pattern_redacts_doi_and_ids_but_keeps_route_shape(self):
+        self.assertEqual(
+            path_pattern("https://link.springer.com/content/pdf/10.1007/s00125-026-12345-9.pdf?download=true"),
+            "link.springer.com:/content/pdf/:doi/:id.pdf",
+        )
+        self.assertEqual(
+            path_pattern("https://pubs.acs.org/doi/pdf/10.1021/acs.jpcc.6b12345"),
+            "pubs.acs.org:/doi/pdf/:doi/:id",
+        )
+        self.assertEqual(
+            path_pattern("https://example.org/download/12345678901234567890/full"),
+            "example.org:/download/:num/full",
+        )
+
+    def test_subclusters_split_host_by_source_and_path_pattern(self):
+        rows = [
+            pdf_row(
+                "10.1/a",
+                "missing_pdf_harvest",
+                "springer",
+                candidate_url="https://link.springer.com/content/pdf/10.1007/a.pdf",
+                candidate_source="corpus_pdf_url",
+            ),
+            pdf_row(
+                "10.1/b",
+                "missing_pdf_harvest",
+                "springer",
+                candidate_url="https://link.springer.com/content/pdf/10.1007/b.pdf",
+                candidate_source="corpus_pdf_url",
+            ),
+            pdf_row(
+                "10.1/c",
+                "missing_pdf_harvest",
+                "springer",
+                candidate_url="https://link.springer.com/article/10.1007/s00125-026-12345-9",
+                candidate_source="candidate_discovery",
+            ),
+        ]
+
+        subclusters = subcluster_rows_by_path(rows)
+        by_key = {(item.candidate_source, item.path_pattern): item for item in subclusters}
+
+        self.assertEqual(by_key[("corpus_pdf_url", "link.springer.com:/content/pdf/:doi/:file.pdf")].count, 2)
+        self.assertEqual(by_key[("candidate_discovery", "link.springer.com:/article/:doi/:id")].count, 1)
+        self.assertNotIn("10.1007", by_key[("corpus_pdf_url", "link.springer.com:/content/pdf/:doi/:file.pdf")].path_pattern)
+
     def test_residual_host_prefers_existing_non_unknown_host(self):
         item = pdf_row(
             "10.1/a",
@@ -190,10 +238,15 @@ class ResidualClusterTests(unittest.TestCase):
             paths = write_cluster_artifacts(rows_path, out_dir, run_id="cluster-test", sample_size=1, top_n=10)
 
             payload = json.loads(paths["clusters_json"].read_text())
+            subcluster_payload = json.loads(paths["subclusters_json"].read_text())
             self.assertEqual(payload["run_id"], "cluster-test")
             self.assertEqual(payload["non_good_rows"], 3)
+            self.assertEqual(subcluster_payload["run_id"], "cluster-test")
+            self.assertGreaterEqual(subcluster_payload["subcluster_count"], 1)
             self.assertIn("link.springer.com", paths["clusters_csv"].read_text())
+            self.assertIn("path_pattern", paths["subclusters_csv"].read_text())
             self.assertTrue(paths["clusters_csv"].exists())
+            self.assertTrue(paths["subclusters_csv"].exists())
             self.assertTrue(paths["browserbase_candidates"].exists())
             self.assertTrue(paths["zyte_support_candidates"].exists())
 
