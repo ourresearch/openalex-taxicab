@@ -214,6 +214,37 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(status, "prior_negative_or_support_evidence")
         self.assertEqual(band, "provider_lane_do_not_duplicate")
 
+    def test_subcluster_priority_matches_www_and_subdomain_prior_hosts(self):
+        concrete_status, concrete_band, _ = subcluster_priority(
+            "missing_pdf_harvest",
+            "unknown",
+            "concrete.org",
+            "www.concrete.org:/publications/getarticle.aspx",
+        )
+        wiley_status, wiley_band, _ = subcluster_priority(
+            "missing_pdf_harvest",
+            "wiley",
+            "agupubs.onlinelibrary.wiley.com",
+            "agupubs.onlinelibrary.wiley.com:/doi/pdf/:doi/:id",
+        )
+
+        self.assertEqual(concrete_status, "prior_negative_or_support_evidence")
+        self.assertEqual(concrete_band, "provider_lane_do_not_duplicate")
+        self.assertEqual(wiley_status, "prior_negative_or_support_evidence")
+        self.assertEqual(wiley_band, "provider_lane_do_not_duplicate")
+
+    def test_subcluster_priority_marks_manual_gold_hosts(self):
+        status, band, decision = subcluster_priority(
+            "missing_pdf_harvest",
+            "unknown",
+            "drive.google.com",
+            "drive.google.com:/file/d/:id/view",
+        )
+
+        self.assertEqual(status, "prior_gold_or_manual_evidence")
+        self.assertEqual(band, "browserbase_or_zyte_gold_first")
+        self.assertIn("gold/manual evidence", decision)
+
     def test_subcluster_priority_marks_existing_branch_candidates(self):
         status, band, decision = subcluster_priority(
             "missing_pdf_harvest",

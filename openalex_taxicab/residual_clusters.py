@@ -100,6 +100,7 @@ PRIOR_PROVIDER_HOSTS = {
     "cambridge.org",
     "cell.com",
     "cghjournal.org",
+    "chestnet.org",
     "content.iospress.com",
     "dl.begellhouse.com",
     "ejso.com",
@@ -108,6 +109,7 @@ PRIOR_PROVIDER_HOSTS = {
     "goldjournal.net",
     "hpbonline.org",
     "igi-global.com",
+    "indianjournals.com",
     "inlibra.com",
     "jacc.org",
     "jacionline.org",
@@ -145,7 +147,9 @@ PRIOR_PROVIDER_HOSTS = {
     "pubs.aip.org",
     "pubs.rsc.org",
     "publications.aaahq.org",
+    "pubs.nctm.org",
     "sciencedirect.com",
+    "scholarlypublishingcollective.org",
     "scientific.net",
     "shs.cairn.info",
     "tandfonline.com",
@@ -166,11 +170,13 @@ PRIOR_PROVIDER_HOSTS = {
     "www.ejso.com",
     "www.eurekaselect.com",
     "www.goldjournal.net",
+    "www.indianjournals.com",
     "www.inlibra.com",
     "www.jbc.org",
     "www.jcvaonline.com",
     "www.jstor.org",
     "www.karger.com",
+    "www.kci.go.kr",
     "www.journals.uchicago.edu",
     "www.nature.com",
     "www.neurology.org",
@@ -183,6 +189,10 @@ PRIOR_PROVIDER_HOSTS = {
     "www.thelancet.com",
     "www.thieme-connect.de",
     "www.vr-elibrary.de",
+}
+
+PRIOR_GOLD_HOSTS = {
+    "drive.google.com",
 }
 
 
@@ -359,7 +369,14 @@ def subcluster_priority(category: str, publisher: str, host: str, pattern: str) 
             "Resolve the DOI route with Browserbase/Zyte evidence before treating it as a provider-specific PDF route.",
         )
 
-    if category == "missing_pdf_harvest" and normalized_host in PRIOR_PROVIDER_HOSTS:
+    if category == "missing_pdf_harvest" and _host_has_prior_gold_evidence(normalized_host):
+        return (
+            "prior_gold_or_manual_evidence",
+            "browserbase_or_zyte_gold_first",
+            "Use existing gold/manual evidence before starting another no-storage provider probe.",
+        )
+
+    if category == "missing_pdf_harvest" and _host_has_prior_provider_evidence(normalized_host):
         return (
             "prior_negative_or_support_evidence",
             "provider_lane_do_not_duplicate",
@@ -392,6 +409,27 @@ def subcluster_priority(category: str, publisher: str, host: str, pattern: str) 
         "inspect_first",
         "Inspect representative rows before assigning route, provider, or validator ownership.",
     )
+
+
+def _host_has_prior_provider_evidence(host: str) -> bool:
+    return _host_matches_known_set(host, PRIOR_PROVIDER_HOSTS)
+
+
+def _host_has_prior_gold_evidence(host: str) -> bool:
+    return _host_matches_known_set(host, PRIOR_GOLD_HOSTS)
+
+
+def _host_matches_known_set(host: str, known_hosts: set[str]) -> bool:
+    normalized = _strip_www(host.lower())
+    for known_host in known_hosts:
+        known = _strip_www(known_host.lower())
+        if normalized == known or normalized.endswith(f".{known}"):
+            return True
+    return False
+
+
+def _strip_www(host: str) -> str:
+    return host[4:] if host.startswith("www.") else host
 
 
 def residual_pattern_url(row: ResidualRow) -> str:
