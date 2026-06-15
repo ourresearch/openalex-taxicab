@@ -41,37 +41,25 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `c9375d9d` publishes the accepted
+Current publish status: oxjobs #461 commit `6cb01c7f` publishes the accepted
 full 10K gate `pdf-full10k-after-freshtail-f4f4a28` from Taxicab commit
 `f4f4a28`: 2,309/6,293 `good_pdf` (36.69%), +5 versus the
 readable-encrypted gate and +472 versus denominator baseline, with 3,791
 `missing_pdf_harvest`, 65 corrupt/truncated, 4 encrypted/unreadable,
-93 supplement/preview, 0 timeout, and 0 `taxicab_error`.
-Current phase: fresh-tail durable cache lift is accepted by the full gate.
-Unifsa, Turkish Studies, and Even3 account for the +5 rows; ASHA, PM Research,
-Maps MLA, Journal IJAR, and JMCC recovered 0 rows and move to provider/upstream
-evidence. The small fresh-tail queue is exhausted. Do not run another duplicate
-fresh-tail loop. Pivot to Browserbase/Zyte gold-first lanes or a larger
-provider-advised route candidate before route code. Do not push Taxicab main
-before the full PDF 95% proof.
+93 supplement/preview, 0 timeout, and 0 `taxicab_error`. The same oxjobs
+commit also publishes the aggregate-only ACM/ACS branch-candidate recheck from
+Taxicab commit `d8038eb`: ACM recovered 15/22 current missing rows with
+no-storage PDF-byte strategies, while ACS recovered 0/46 current missing rows,
+preserved 8/8 already-good rows, and recovered 5/6 corrupt/truncated rows.
+Current phase: ACM is the next branch-validation lane. Do not run another
+duplicate fresh-tail loop. ACS missing rows stay in the Zyte/support debt lane.
+Do not push Taxicab main before the full PDF 95% proof.
 Current handoff override: the top-level accepted metric is
 `pdf-full10k-after-freshtail-f4f4a28`, 2,309/6,293 `good_pdf` (36.69%), with a
 3,670-row gap to 95%. Historical sections below may use "current" relative to
 older gates; this block is authoritative.
 Next exact command:
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 - <<'PY'
-import json
-from collections import Counter
-from pathlib import Path
-rows = Path('pdf_eval_runs/pdf-full10k-after-freshtail-f4f4a28/rows.ndjson')
-counts = Counter()
-for line in rows.open():
-    row = json.loads(line)
-    if row.get('category') != 'good_pdf' and row.get('category') != 'no_pdf_expected':
-        counts[(row.get('category'), row.get('publisher') or row.get('source_pdf_host') or row.get('host') or 'unknown')] += 1
-for (category, cluster), count in counts.most_common(25):
-    print(f'{count:4d} {category:28s} {cluster}')
-PY
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "acm.*http_get|http_get.*acm|route-local|provider_pdf_probe" scripts tests openalex_taxicab
 ```
 
 After Gate 0 is pushed:

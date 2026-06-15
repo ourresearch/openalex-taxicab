@@ -12,39 +12,27 @@ Latest PDF measurement gate: accepted full 10K read-only gate
 baseline of 1,837/6,293 (29.19%). The run has 3,791 `missing_pdf_harvest`,
 65 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 93
 `supplement_or_preview_pdf`, 0 timeout, and 0 `taxicab_error`. The gap to 95%
-is 3,670 rows. Oxjobs #461 commit `c9375d9d` publishes this aggregate-only
-full-gate report and summary.
+is 3,670 rows.
 
-Fresh-tail status: Unifsa, Turkish Studies, and Even3 produced the bounded
-durable +5 cache lift now confirmed by the full gate. ASHA, PM Research, Maps
-MLA, Journal IJAR, and JMCC recovered 0 rows in small probes and move to
-provider/upstream evidence. The small fresh-tail queue from
-`residual-subclusters-prioritized-30121a7` is exhausted.
+Latest #461 report publish: oxjobs commit `6cb01c7f` records the
+aggregate-only ACM/ACS branch-candidate recheck at Taxicab commit `d8038eb`.
+ACM recovered 15/22 current `missing_pdf_harvest` rows with no-storage
+PDF-byte strategies. ACS recovered 0/46 current missing rows, preserved 8/8
+already-good rows, and recovered 5/6 corrupt/truncated rows. This is route
+evidence only; it is not an accepted full-corpus KPI lift.
 
-Next action: do not run another duplicate fresh-tail loop. Pivot to
-Browserbase/Zyte gold-first lanes or a larger provider-advised route candidate
-before route code. Keep Zyte as the production core and Browserbase as evidence
-/ gold-sample collection. Do not push Taxicab main before the full PDF 95%
-proof; gate note: no Taxicab main push.
+Next action: add or run a current ACM local `http_get` branch-validation
+harness against `pdf-full10k-after-freshtail-f4f4a28` rows before any Taxicab
+main push. ACS missing rows stay in the Zyte/support debt lane. Keep Zyte as
+the production core and Browserbase as evidence / gold-sample collection. Do
+not push Taxicab main before the full PDF 95% proof; gate note: no Taxicab main
+push.
 
 Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 - <<'PY'
-import json
-from collections import Counter
-from pathlib import Path
-rows = Path('pdf_eval_runs/pdf-full10k-after-freshtail-f4f4a28/rows.ndjson')
-counts = Counter()
-for line in rows.open():
-    row = json.loads(line)
-    if row.get('category') not in {'good_pdf', 'no_pdf_expected'}:
-        cluster = row.get('publisher') or row.get('source_pdf_host') or row.get('host') or 'unknown'
-        counts[(row.get('category'), cluster)] += 1
-for (category, cluster), count in counts.most_common(25):
-    print(f'{count:4d} {category:28s} {cluster}')
-PY
+rg -n "acm.*http_get|http_get.*acm|route-local|provider_pdf_probe" scripts tests openalex_taxicab
 ```
 
 Historical detail below is chronological and may use "current" relative to the

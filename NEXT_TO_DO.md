@@ -17,39 +17,28 @@ Current handoff override: accepted full 10K PDF gate
 +472 versus denominator baseline. It has 3,791 `missing_pdf_harvest`,
 65 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`,
 93 `supplement_or_preview_pdf`, 0 timeout, and 0 `taxicab_error`. The gap to
-95% is 3,670 rows. Oxjobs #461 commit `c9375d9d` publishes the aggregate-only
-report/summary. Gate note: no Taxicab main push.
+95% is 3,670 rows. Oxjobs #461 commit `6cb01c7f` publishes the aggregate-only
+full-gate report/summary plus the latest branch-candidate recheck. Gate note:
+no Taxicab main push.
 
-Fresh-tail status: Unifsa, Turkish Studies, and Even3 produced the bounded
-durable +5 cache lift now confirmed by the full gate. ASHA, PM Research, Maps
-MLA, Journal IJAR, and JMCC recovered 0 rows in small probes and move to
-provider/upstream evidence. The small fresh-tail queue from
-`residual-subclusters-prioritized-30121a7` is exhausted.
+Latest report publish: oxjobs #461 commit `6cb01c7f` publishes the
+aggregate-only ACM/ACS branch-candidate recheck from Taxicab commit `d8038eb`.
+ACM recovered 15/22 current `missing_pdf_harvest` rows with no-storage
+PDF-byte strategies. ACS recovered 0/46 current missing rows, preserved 8/8
+already-good rows, and recovered 5/6 corrupt/truncated rows. This is route
+evidence only, not an accepted full-corpus KPI lift.
 
-Next exact action: inspect the latest full-gate residual clusters, then pivot to
-Browserbase/Zyte gold-first lanes or a larger provider-advised route candidate
-before route code. Do not run another duplicate fresh-tail loop. Historical
-sections below may use "current" relative to older gates; this top block is the
-authoritative current state.
+Next exact action: add or run a current ACM local `http_get` branch-validation
+harness against `pdf-full10k-after-freshtail-f4f4a28` rows before any Taxicab
+main push. ACS missing rows stay in the Zyte/support debt lane. Do not run
+another duplicate fresh-tail loop. Historical sections below may use "current"
+relative to older gates; this top block is the authoritative current state.
 
 Next command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 - <<'PY'
-import json
-from collections import Counter
-from pathlib import Path
-rows = Path('pdf_eval_runs/pdf-full10k-after-freshtail-f4f4a28/rows.ndjson')
-counts = Counter()
-for line in rows.open():
-    row = json.loads(line)
-    if row.get('category') not in {'good_pdf', 'no_pdf_expected'}:
-        cluster = row.get('publisher') or row.get('source_pdf_host') or row.get('host') or 'unknown'
-        counts[(row.get('category'), cluster)] += 1
-for (category, cluster), count in counts.most_common(25):
-    print(f'{count:4d} {category:28s} {cluster}')
-PY
+rg -n "acm.*http_get|http_get.*acm|route-local|provider_pdf_probe" scripts tests openalex_taxicab
 ```
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
 oxjobs #461 commit `dcb7bb14` publishes the accepted structured-parser full
