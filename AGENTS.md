@@ -48,7 +48,8 @@ all strategies `download_404`, and is published at oxjobs `37926446`; next
 unknown singleton `journal.uniga.ac.id` recovered 1/1 through PDF-byte
 strategies and is published at oxjobs `aec51cf8`; next unknown singleton is
 `sciresol.s3.us-east-2.amazonaws.com` recovered 0/1 and is published at
-oxjobs `ca6e5e05`; next unknown singleton is `oejournal.org`. Treat Wiley as
+oxjobs `ca6e5e05`; unknown `oejournal.org` recovered 0/1 and is published at
+oxjobs `42da202d`; next unknown singleton is `authorea.com`. Treat Wiley as
 partial/provider-support plus route validation, and Sage as provider/Zyte
 support evidence. These probes do not move the
 accepted 10K metric until a read-only/full gate confirms them.
@@ -371,7 +372,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-readable-encrypted-f2da963/rows.ndjson --category corrupt_or_truncated_pdf --publisher unknown --host oejournal.org --limit 1 --strategies default_body,accept_pdf,google_referer,browser_html --out pdf_eval_runs/ --run-id unknown-oejournal-current-corrupt-provider-probe1-815a979 --timeout 90 --sleep 0.5`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-readable-encrypted-f2da963/rows.ndjson --category corrupt_or_truncated_pdf --publisher unknown --host authorea.com --limit 1 --strategies default_body,accept_pdf,google_referer,browser_html --out pdf_eval_runs/ --run-id unknown-authorea-current-corrupt-provider-probe1-d1106f7 --timeout 90 --sleep 0.5`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
