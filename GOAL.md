@@ -41,10 +41,10 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `eacb1a53` publishes the accepted full 10K read-only confirmation after the unknown-provider refresh. Run `pdf-full10k-after-unknown-refresh-3d04a80` at Taxicab `3d04a80` accepted 2,205/6,293 `good_pdf` (35.04%), +9 versus the publisher-attribution refresh, +12 versus the structured-parser gate, and +368 versus denominator baseline. It has 3,796 `missing_pdf_harvest`, 65 corrupt/truncated, 104 encrypted/unreadable, 92 supplement/preview, 0 timeout, and 0 `taxicab_error`.
-Current phase: local validator/tooling slice is under verification. Residual clustering is now PDF-aware and excludes `good_pdf` plus `no_pdf_expected` rows. The readable-encrypted PDF validator change is measurement-only and does not change scraping; targeted read-only run `pdf-jstage-readable-encrypted-target-cce66ad` on the 85 J-STAGE encrypted rows recovered 80 `good_pdf`, left 4 tiny encrypted rows, and marked 1 supplement/preview. The accepted 95% gap remains 3,774 rows until a full 10K gate confirms this movement. Do not push Taxicab main before the full PDF 95% proof.
+Current publish status: oxjobs #461 commit `eacb1a53` still publishes the prior accepted full 10K gate. New Taxicab full gate `pdf-full10k-after-readable-encrypted-f2da963` at commit `f2da963` is complete locally and ready for oxjobs publication: 2,304/6,293 `good_pdf` (36.61%), +99 versus the prior full gate, with 3,796 `missing_pdf_harvest`, 65 corrupt/truncated, 4 encrypted/unreadable, 93 supplement/preview, 0 timeout, and 0 `taxicab_error`.
+Current phase: readable-encrypted validator lift is accepted locally but not yet published to oxjobs #461. This is measurement/validator-only and does not change scraping. The 95% gap is now 3,675 rows after the full gate. Do not push Taxicab main before the full PDF 95% proof.
 Next exact command:
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && TAXICAB_SHA=$(git rev-parse --short HEAD) && python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --corpus /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv --out pdf_eval_runs/ --run-id pdf-full10k-after-readable-encrypted-${TAXICAB_SHA} --workers 8 --timeout 60 --retries 1 --progress-every 1000
+cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && git pull --rebase && python3 scripts/publish-report.py 461
 ```
 
 After Gate 0 is pushed:
