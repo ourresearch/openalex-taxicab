@@ -65,6 +65,12 @@ recovered 1/10 current missing rows; residual best categories were five
 Oxjobs #461 commit `d4b6da1b` publishes the scrubbed summary/report and
 combined Zyte packet update. This is partial provider-strategy evidence, not a
 production route-code candidate yet.
+Current CUP/Cambridge no-storage provider probe
+`cup-current-missing-provider-probe10-67187dc` at Taxicab commit `41a9df8`
+recovered 0/10 current missing rows; all 40 strategy attempts were
+`js_redirect_unresolved`. Oxjobs #461 commit `38844dea` publishes the scrubbed
+summary/report and combined Zyte packet update. This is provider/Zyte PDF-byte
+and JavaScript/access-flow evidence, not a route-code candidate.
 Latest focused evidence: no-storage run
 `wiley-residual-corrupt-provider-probe-19-a61d34b` recovered 15/19 current
 residual Wiley corrupt rows as `good_pdf`. The four residuals are two
@@ -119,7 +125,8 @@ scraping behavior or the accepted `good_pdf` KPI. Oxjobs #461 commit
 `68c2eb46` publishes the current Elsevier provider probe; oxjobs #461 commit
 `b04396d6` publishes the current De Gruyter provider probe; oxjobs #461 commit
 `40cf1b9e` publishes the current Lippincott provider probe; oxjobs #461 commit
-`d4b6da1b` publishes the current Oxford provider probe.
+`d4b6da1b` publishes the current Oxford provider probe; oxjobs #461 commit
+`38844dea` publishes the current CUP/Cambridge provider probe.
 Current tooling slice: `scripts/provider_pdf_probe.py` adds a generic
 no-storage Zyte provider strategy probe. It reads rows/CSV queues, strips query
 strings/fragments from artifacts, never calls Taxicab POST, and writes
@@ -147,7 +154,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-publisher-attribution-e584811/rows.ndjson --category missing_pdf_harvest --publisher cup --limit 10 --strategies all --out pdf_eval_runs/ --run-id cup-current-missing-provider-probe10-67187dc --timeout 60 --sleep 1`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-publisher-attribution-e584811/rows.ndjson --category missing_pdf_harvest --publisher taylor --limit 10 --strategies all --out pdf_eval_runs/ --run-id taylor-current-missing-provider-probe10-41a9df8 --timeout 60 --sleep 1`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
