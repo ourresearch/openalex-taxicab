@@ -77,9 +77,15 @@ into 1,481 normalized path-pattern subclusters. Top lanes are Springer
 document PDF 195, Cambridge Core AOP 122, ScienceDirect `pdfft` 99, SSRN
 delivery 72, and Taylor API chapter-download 51. This is planning/measurement
 evidence only; it made no Taxicab API, Zyte, Browserbase, R2, or DynamoDB
-writes. Next lane is to choose a fresh non-duplicate path family from that
-artifact or wait for Zyte/Browserbase provider guidance before route code. Do
-not push Taxicab main before the full PDF 95% proof; gate note: no Taxicab main push.
+writes. Taxicab commit `fffb10f` then added prior-evidence status and priority
+bands; oxjobs `df99a77f` publishes `residual-subclusters-prioritized-fffb10f`.
+In the top 160 path families, 105 are provider-lane/do-not-duplicate, 29 need
+Browserbase/Zyte gold comparison first, 17 are fresh bounded-probe candidates,
+four are existing branch route candidates, four are validator/provider lanes,
+and one needs manual inspection. Summary: 105 provider lanes; 17 fresh probes.
+Next lane is one small fresh path-family probe or Browserbase/Zyte
+gold evidence for gold-first lanes. Do not push Taxicab main before the full PDF
+95% proof; gate note: no Taxicab main push.
 Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
 Taxicab commit `8a35869` is 2,196/6,293 `good_pdf` (34.90%), with
 3,805 `missing_pdf_harvest`, 65 `corrupt_or_truncated_pdf`, 0 timeout,
@@ -388,7 +394,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "residual-subclusters-after-taylor-1b303a5|106a93f8|Route-shape|1,481" AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && sed -n '1,60p' pdf_eval_runs/residual-subclusters-prioritized-fffb10f/residual-subclusters.csv`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context

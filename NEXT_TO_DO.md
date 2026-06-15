@@ -11,17 +11,17 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current handoff override: Taxicab commit `1b303a5` adds route-shape residual
-subclusters, and oxjobs commit `106a93f8` publishes aggregate-only route-shape
-evidence. Run `residual-subclusters-after-taylor-1b303a5` keeps the accepted
-PDF KPI at 2,304/6,293 `good_pdf` (36.61%) and splits residuals into 1,481
-normalized path-pattern subclusters. Top lanes are Springer
-`/content/pdf/:doi/:id.pdf` 758, Wiley `/doi/pdf/:doi/:id` 394, De Gruyter
-document PDF 195, Cambridge Core AOP 122, ScienceDirect `pdfft` 99, SSRN
-delivery 72, and Taylor API chapter-download 51. This was planning evidence
-only and made no Taxicab API, Zyte, Browserbase, R2, or DynamoDB writes. Next
-exact action is to choose a fresh non-duplicate path family from that artifact
-or wait for Zyte/Browserbase provider guidance before route code. Gate note: no Taxicab main push.
+Current handoff override: Taxicab commit `fffb10f` adds prioritized
+route-shape residual subclusters, and oxjobs commit `df99a77f` publishes
+aggregate-only priority evidence. Run `residual-subclusters-prioritized-fffb10f`
+keeps the accepted PDF KPI at 2,304/6,293 `good_pdf` (36.61%) and splits the top
+160 path families into 105 provider-lane/do-not-duplicate, 29
+Browserbase/Zyte-gold-first, 17 fresh probes, four existing branch route
+candidates, four validator/provider lanes, and one inspect-first. This was
+planning evidence only and made no Taxicab API, Zyte, Browserbase, R2, or
+DynamoDB writes. Next exact action is one small fresh bounded no-storage
+path-family probe or Browserbase/Zyte gold evidence for gold-first lanes.
+Summary: 105 provider lanes; 17 fresh probes. Gate note: no Taxicab main push.
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
 oxjobs #461 commit `dcb7bb14` publishes the accepted structured-parser full
 gate. Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
@@ -1354,7 +1354,7 @@ Next exact commands:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 git switch codex/taxicab-pdf-phase2
-rg -n "residual-subclusters-after-taylor-1b303a5|106a93f8|Route-shape|1,481" AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md
+sed -n '1,60p' pdf_eval_runs/residual-subclusters-prioritized-fffb10f/residual-subclusters.csv
 ```
 
 ### 12. Continue from the post-95 HTML residual queue only if PDF work is paused
