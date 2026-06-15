@@ -105,9 +105,15 @@ tested strategy returning `empty_response`; no reharvest was run. Oxjobs
 `journalijar-current-missing-provider-probe2-54052bb` recovered 0/2 with every
 tested strategy returning `download_404`; no reharvest was run. Oxjobs
 `02bc9a19` publishes the aggregate-only Journal IJAR evidence.
-Next lane is another small fresh path-family probe from the prioritized queue,
-likely `jmcc-online.com` unless a newer full gate supersedes it. Do not push
-Taxicab main before the full PDF 95% proof; gate note: no Taxicab main push.
+`jmcconline-current-missing-provider-probe2-1d2e57d` recovered 0/2 with both
+rows best classified as `js_redirect_unresolved`; PDF-byte strategies split
+between `empty_response` and unresolved JS. No reharvest was run. Oxjobs
+`e416381d` publishes the aggregate-only JMCC evidence. The small fresh-tail
+queue from `residual-subclusters-prioritized-30121a7` is now exhausted. Next
+action is either a full read-only gate to confirm the current 5-row durable
+cache lift, or a pivot to Browserbase/Zyte gold-first lanes before route code.
+Do not push Taxicab main before the full PDF 95% proof; gate note: no Taxicab
+main push.
 Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
 Taxicab commit `8a35869` is 2,196/6,293 `good_pdf` (34.90%), with
 3,805 `missing_pdf_harvest`, 65 `corrupt_or_truncated_pdf`, 0 timeout,
