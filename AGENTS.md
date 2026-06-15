@@ -42,8 +42,12 @@ published at oxjobs `f57d9036`. Treat Hindawi, Springer, and Elsevier-attributed
 corrupt residuals as Zyte/support or cluster-splitting evidence, not route code.
 Unknown-attribution probe `unknown-current-corrupt-provider-probe5-9b795af`
 recovered 0/5 and is published at oxjobs `ffb66370`; split remaining unknown
-rows by host. Treat Wiley as partial/provider-support plus route validation,
-and Sage as provider/Zyte support evidence. These probes do not move the
+rows by host. Unknown `revistas.uach.cl` singleton probe
+`unknown-revistasuach-current-corrupt-provider-probe1-48f425c` recovered 0/1,
+all strategies `download_404`, and is published at oxjobs `37926446`; next
+unknown singleton is `journal.uniga.ac.id`. Treat Wiley as
+partial/provider-support plus route validation, and Sage as provider/Zyte
+support evidence. These probes do not move the
 accepted 10K metric until a read-only/full gate confirms them.
 Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
 Taxicab commit `8a35869` is 2,196/6,293 `good_pdf` (34.90%), with
@@ -364,7 +368,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-readable-encrypted-f2da963/rows.ndjson --category corrupt_or_truncated_pdf --publisher unknown --host revistas.uach.cl --limit 1 --strategies default_body,accept_pdf,google_referer,browser_html --out pdf_eval_runs/ --run-id unknown-revistasuach-current-corrupt-provider-probe1-48f425c --timeout 90 --sleep 0.5`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-readable-encrypted-f2da963/rows.ndjson --category corrupt_or_truncated_pdf --publisher unknown --host journal.uniga.ac.id --limit 1 --strategies default_body,accept_pdf,google_referer,browser_html --out pdf_eval_runs/ --run-id unknown-journaluniga-current-corrupt-provider-probe1-f52b57e --timeout 90 --sleep 0.5`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
