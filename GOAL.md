@@ -41,10 +41,10 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `eacb1a53` still publishes the prior accepted full 10K gate. New Taxicab full gate `pdf-full10k-after-readable-encrypted-f2da963` at commit `f2da963` is complete locally and ready for oxjobs publication: 2,304/6,293 `good_pdf` (36.61%), +99 versus the prior full gate, with 3,796 `missing_pdf_harvest`, 65 corrupt/truncated, 4 encrypted/unreadable, 93 supplement/preview, 0 timeout, and 0 `taxicab_error`.
-Current phase: readable-encrypted validator lift is accepted locally but not yet published to oxjobs #461. This is measurement/validator-only and does not change scraping. The 95% gap is now 3,675 rows after the full gate. Do not push Taxicab main before the full PDF 95% proof.
+Current publish status: oxjobs #461 commit `2092c008` publishes the accepted full 10K gate `pdf-full10k-after-readable-encrypted-f2da963` from Taxicab commit `f2da963`: 2,304/6,293 `good_pdf` (36.61%), +99 versus the prior full gate and +467 versus denominator baseline, with 3,796 `missing_pdf_harvest`, 65 corrupt/truncated, 4 encrypted/unreadable, 93 supplement/preview, 0 timeout, and 0 `taxicab_error`.
+Current phase: readable-encrypted validator lift is accepted and published. This is measurement/validator-only and does not change scraping. The 95% gap is now 3,675 rows after the full gate. Do not push Taxicab main before the full PDF 95% proof.
 Next exact command:
-cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && git pull --rebase && python3 scripts/publish-report.py 461
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-readable-encrypted-f2da963/rows.ndjson --out /tmp/taxicab-pdf-residual-clusters-readable-encrypted --run-id pdf-full10k-after-readable-encrypted-f2da963 --sample-size 5 --top-n 80
 ```
 
 After Gate 0 is pushed:

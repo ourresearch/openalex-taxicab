@@ -7,14 +7,16 @@ Current goal state: HTML retrieval Phase 1 is complete at 9,583/10,000
 `good_pdf` on the PDF-expected subset of the 10K Goldie corpus. Use
 `GOAL.md` as the current control file and update it before long handoffs.
 Latest PDF measurement gate: accepted full 10K read-only gate
-`pdf-full10k-after-structured-parser-a61d34b` is 2,193/6,293 `good_pdf`
-(34.85%), +283 net rows versus the Human Kinetics gate and +356 rows versus
-the denominator baseline of 1,837/6,293 (29.19%). This is validator/measurement
-correctness for compressed/object-stream PDFs, not production scraping behavior:
-363 prior non-good rows became `good_pdf`, while 80 prior `good_pdf` rows were
-stricter-reclassified as `supplement_or_preview_pdf`. `missing_pdf_harvest` is
-3,807, `corrupt_or_truncated_pdf` is 66, timeout is 0, and `taxicab_error` is 0.
-The gap to 95% is now 3,786 rows.
+`pdf-full10k-after-readable-encrypted-f2da963` is 2,304/6,293 `good_pdf`
+(36.61%), +99 rows versus the unknown-refresh gate and +467 rows versus the
+denominator baseline of 1,837/6,293 (29.19%). This is validator/measurement
+correctness for readable encrypted PDFs, not production scraping behavior:
+PDFs with EOF, nonzero page count, and >=500 extracted text chars now count as
+`good_pdf`, while tiny/unextractable encrypted PDFs still fail.
+`missing_pdf_harvest` is 3,796, `corrupt_or_truncated_pdf` is 65,
+`encrypted_or_unreadable_pdf` is 4, timeout is 0, and `taxicab_error` is 0.
+The gap to 95% is now 3,675 rows. Oxjobs #461 commit `2092c008` publishes this
+accepted full-gate report.
 Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
 Taxicab commit `8a35869` is 2,196/6,293 `good_pdf` (34.90%), with
 3,805 `missing_pdf_harvest`, 65 `corrupt_or_truncated_pdf`, 0 timeout,
@@ -289,15 +291,16 @@ commit `2c171c7e` publishes the current SSRN provider probe; oxjobs #461
 commit `463bb712` publishes the current JSTOR provider probe; oxjobs #461
 commit `14f254ac` publishes the current AIP Publishing provider probe; oxjobs
 #461 commit `e3621c28` publishes the current RSC provider probe; oxjobs #461
-commit `21a7697c` publishes the current ACS provider probe; oxjobs #461 commit `e2bac29b` publishes the current Brill provider probe; oxjobs #461 commit `4838bd1c` publishes the current Thieme provider probe; oxjobs #461 commit `fe048cca` publishes the current SPIE provider probe; oxjobs #461 commit `6de28ec3` publishes the current BMJ provider probe; oxjobs #461 commit `d059488d` publishes the current Sage provider probe; oxjobs #461 commit `eddf9c5a` publishes the current AMA/JAMA provider probe; oxjobs #461 commit `69b2780a` publishes the current Karger provider probe; oxjobs #461 commit `5da73adb` publishes the current APS provider probe; oxjobs #461 commit `88c2fddb` publishes the current ACM provider probe; oxjobs #461 commit `f57bad44` publishes the current Optica provider probe; oxjobs #461 commit `bd7396fb` publishes the current IOP provider probe; oxjobs #461 commit `51b4665a` publishes the all-current IOP confirmation; oxjobs #461 commit `c3c9b0ac` publishes the IOP route validation; oxjobs #461 commit `695fb51d` publishes the ACM route validation; oxjobs #461 commit `5abc1635` publishes the Nature residual and Oxford larger current probe evidence; oxjobs #461 commit `dc4438dc` publishes the unknown direct-PDF recovery evidence and sanitizes old signed URL fields from the #461 hardness set; oxjobs #461 commit `bbf1da67` publishes the AJOL unknown-tail recovery and residual tail probe evidence; oxjobs #461 commit `d9455b42` publishes the current unknown-provider refresh; oxjobs #461 commit `eacb1a53` publishes the accepted unknown-refresh full gate.
+commit `21a7697c` publishes the current ACS provider probe; oxjobs #461 commit `e2bac29b` publishes the current Brill provider probe; oxjobs #461 commit `4838bd1c` publishes the current Thieme provider probe; oxjobs #461 commit `fe048cca` publishes the current SPIE provider probe; oxjobs #461 commit `6de28ec3` publishes the current BMJ provider probe; oxjobs #461 commit `d059488d` publishes the current Sage provider probe; oxjobs #461 commit `eddf9c5a` publishes the current AMA/JAMA provider probe; oxjobs #461 commit `69b2780a` publishes the current Karger provider probe; oxjobs #461 commit `5da73adb` publishes the current APS provider probe; oxjobs #461 commit `88c2fddb` publishes the current ACM provider probe; oxjobs #461 commit `f57bad44` publishes the current Optica provider probe; oxjobs #461 commit `bd7396fb` publishes the current IOP provider probe; oxjobs #461 commit `51b4665a` publishes the all-current IOP confirmation; oxjobs #461 commit `c3c9b0ac` publishes the IOP route validation; oxjobs #461 commit `695fb51d` publishes the ACM route validation; oxjobs #461 commit `5abc1635` publishes the Nature residual and Oxford larger current probe evidence; oxjobs #461 commit `dc4438dc` publishes the unknown direct-PDF recovery evidence and sanitizes old signed URL fields from the #461 hardness set; oxjobs #461 commit `bbf1da67` publishes the AJOL unknown-tail recovery and residual tail probe evidence; oxjobs #461 commit `d9455b42` publishes the current unknown-provider refresh; oxjobs #461 commit `eacb1a53` publishes the accepted unknown-refresh full gate; oxjobs #461 commit `2092c008` publishes the readable-encrypted full gate.
 Latest current-provider confirmations: Nature residual no-storage run `nature-current-missing-provider-probe25-7189521` found 15 residual Nature rows and recovered 0/15; residual best categories were 11 `interstitial_or_paywall` and four `js_redirect_unresolved`. Oxford larger no-storage run `oxford-current-missing-provider-probe25-7189521` recovered 1/25, but the only recovery was a `sciengine.com` candidate; the `academic.oup.com` subset recovered 0/23 with 15 bot blocks, four HTML rows, three interstitial/paywall rows, and one 404. Do not promote Nature or OUP route code from these runs; keep both in provider/Zyte support.
 Latest bounded direct-PDF recovery: unknown-publisher current-provider probes at Taxicab `2244ccc` found recoverable direct PDFs in small clusters. IJISRT recovered 3/3, ISCA recovered 2/2, Microbiology Research recovered 1/3, and Diabetes Journals recovered 0/3. Bounded production-write reharvest `pdf-unknown-ijisrt-isca-reharvest5-2244ccc` recovered 5/5 across IJISRT and ISCA, and read-only confirmation `pdf-unknown-ijisrt-isca-readonly5-2244ccc` preserved 5/5 `good_pdf`. Treat this as durable bounded cache lift until a later accepted full-10K gate confirms corpus-level movement.
-Latest local full-gate confirmation pending oxjobs publication: Taxicab run
+Latest accepted full-gate confirmation published to oxjobs #461: Taxicab run
 `pdf-full10k-after-readable-encrypted-f2da963` at commit `f2da963` accepted
 2,304/6,293 `good_pdf` (36.61%), +99 versus the prior accepted full gate, with
 3,796 missing, 4 encrypted/unreadable, 0 timeout, and 0 `taxicab_error`. Treat
-this as measurement/validator lift, not Taxicab-main production-code deployment,
-until the 95% PDF proof is reached.
+this as measurement/validator lift, not Taxicab-main production-code deployment.
+Oxjobs #461 commit `2092c008` publishes the safe summary/report; the next lane
+is residual clustering from this gate, not another report publication.
 Current tooling slice: generic no-storage provider probing is implemented in
 `scripts/provider_pdf_probe.py` with tests in `tests/test_provider_pdf_probe.py`.
 It does not call Taxicab POST and does not write R2/DynamoDB. It sanitizes URLs
@@ -322,7 +325,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && git pull --rebase && python3 scripts/publish-report.py 461`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-readable-encrypted-f2da963/rows.ndjson --out /tmp/taxicab-pdf-residual-clusters-readable-encrypted --run-id pdf-full10k-after-readable-encrypted-f2da963 --sample-size 5 --top-n 80`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
