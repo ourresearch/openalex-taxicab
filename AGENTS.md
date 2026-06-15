@@ -20,18 +20,24 @@ PDF-byte strategies. ACS recovered 0/46 current missing rows, preserved 8/8
 already-good rows, and recovered 5/6 corrupt/truncated rows. This is route
 evidence only; it is not an accepted full-corpus KPI lift.
 
-Next action: add or run a current ACM local `http_get` branch-validation
-harness against `pdf-full10k-after-freshtail-f4f4a28` rows before any Taxicab
-main push. ACS missing rows stay in the Zyte/support debt lane. Keep Zyte as
-the production core and Browserbase as evidence / gold-sample collection. Do
-not push Taxicab main before the full PDF 95% proof; gate note: no Taxicab main
-push.
+Latest local route validation: `acm-http-get-route-current-4614cef` exercised
+the actual branch `http_get` path over the same current ACM missing rows and
+classified 18/22 as `good_pdf`, with residuals of 3 `js_redirect_unresolved`
+and 1 `timeout`. It made no Taxicab POST/R2/DynamoDB writes. Local
+`rows.ndjson` contains row-level evidence; summary/report are aggregate-only.
+
+Next action: publish the aggregate ACM `http_get` route-validation result to
+oxjobs #461, then keep ACM as a narrow branch candidate for the next production
+regression gate. ACS missing rows stay in the Zyte/support debt lane. Keep Zyte
+as the production core and Browserbase as evidence / gold-sample collection.
+Do not push Taxicab main before the full PDF 95% proof; gate note: no Taxicab
+main push.
 
 Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-rg -n "acm.*http_get|http_get.*acm|route-local|provider_pdf_probe" scripts tests openalex_taxicab
+python3 scripts/secret_scan.py && python3 -m unittest discover -s tests && python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-acm-route-probe
 ```
 
 Historical detail below is chronological and may use "current" relative to the

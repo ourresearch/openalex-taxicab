@@ -51,15 +51,20 @@ commit also publishes the aggregate-only ACM/ACS branch-candidate recheck from
 Taxicab commit `d8038eb`: ACM recovered 15/22 current missing rows with
 no-storage PDF-byte strategies, while ACS recovered 0/46 current missing rows,
 preserved 8/8 already-good rows, and recovered 5/6 corrupt/truncated rows.
-Current phase: ACM is the next branch-validation lane. Do not run another
-duplicate fresh-tail loop. ACS missing rows stay in the Zyte/support debt lane.
-Do not push Taxicab main before the full PDF 95% proof.
+Latest local route validation `acm-http-get-route-current-4614cef` exercised
+the actual branch `http_get` path over the same ACM rows and classified 18/22
+as `good_pdf`, with residuals of 3 `js_redirect_unresolved` and 1 `timeout`.
+It made no Taxicab POST/R2/DynamoDB writes and is not a full-corpus KPI lift.
+Current phase: publish the aggregate ACM route-validation evidence to oxjobs
+#461, then keep ACM as a narrow branch candidate for the next regression gate.
+Do not run another duplicate fresh-tail loop. ACS missing rows stay in the
+Zyte/support debt lane. Do not push Taxicab main before the full PDF 95% proof.
 Current handoff override: the top-level accepted metric is
 `pdf-full10k-after-freshtail-f4f4a28`, 2,309/6,293 `good_pdf` (36.69%), with a
 3,670-row gap to 95%. Historical sections below may use "current" relative to
 older gates; this block is authoritative.
 Next exact command:
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "acm.*http_get|http_get.*acm|route-local|provider_pdf_probe" scripts tests openalex_taxicab
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/secret_scan.py && python3 -m unittest discover -s tests && python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-acm-route-probe
 ```
 
 After Gate 0 is pushed:
