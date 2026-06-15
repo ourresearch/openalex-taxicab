@@ -74,6 +74,44 @@ SENSITIVE_QUERY_PREFIXES = ("X-Amz-",)
 SENSITIVE_QUERY_KEYS = {"bm-verify"}
 PATH_DYNAMIC_EXTENSIONS = {".pdf", ".html", ".htm", ".xml", ".aspx", ".ashx"}
 
+PRIOR_ROUTE_CANDIDATE_PATTERNS = (
+    ("onlinelibrary.wiley.com:/doi/pdfdirect/", "wiley_pdfdirect_branch_candidate"),
+    ("iopscience.iop.org:/article/", "iop_article_pdf_branch_candidate"),
+    ("dl.acm.org:/doi/pdf/", "acm_pdf_byte_branch_candidate"),
+    ("pubs.acs.org:/doi/pdf/", "acs_pdf_byte_branch_candidate"),
+)
+
+PRIOR_PROVIDER_HOSTS = {
+    "aacr.figshare.com",
+    "academic.oup.com",
+    "api.taylorfrancis.com",
+    "ascelibrary.org",
+    "brill.com",
+    "cambridge.org",
+    "degruyterbrill.com",
+    "journals.lww.com",
+    "journals.sagepub.com",
+    "link.springer.com",
+    "opg.optica.org",
+    "papers.ssrn.com",
+    "pubs.rsc.org",
+    "sciencedirect.com",
+    "www.bmj.com",
+    "www.cambridge.org",
+    "www.degruyterbrill.com",
+    "www.eurekaselect.com",
+    "www.inlibra.com",
+    "www.jstor.org",
+    "www.karger.com",
+    "www.nature.com",
+    "www.pdcnet.org",
+    "www.sciencedirect.com",
+    "www.scientific.net",
+    "www.tandfonline.com",
+    "www.thelancet.com",
+    "www.thieme-connect.de",
+}
+
 
 @dataclass(frozen=True)
 class ResidualCluster:
@@ -116,6 +154,9 @@ class ResidualSubcluster:
     recommended_agent: str
     recommended_action: str
     evidence_strength: str
+    prior_evidence_status: str
+    priority_band: str
+    next_probe_decision: str
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -130,6 +171,9 @@ class ResidualSubcluster:
             "recommended_agent": self.recommended_agent,
             "recommended_action": self.recommended_action,
             "evidence_strength": self.evidence_strength,
+            "prior_evidence_status": self.prior_evidence_status,
+            "priority_band": self.priority_band,
+            "next_probe_decision": self.next_probe_decision,
         }
 
 
@@ -206,6 +250,7 @@ def _build_subcluster(
 ) -> ResidualSubcluster:
     weight = HOST_OVERRIDES.get((category, host), RECOVERABILITY_WEIGHTS.get(category, 0.10))
     support_candidates = sum(1 for row in rows if row.support_candidate)
+    prior_status, priority_band, next_decision = subcluster_priority(category, publisher, host, pattern)
     return ResidualSubcluster(
         category=category,
         publisher=publisher,
@@ -218,6 +263,54 @@ def _build_subcluster(
         recommended_agent=recommended_agent(category, publisher, host),
         recommended_action=subcluster_recommended_action(category, publisher, host, pattern),
         evidence_strength=evidence_strength(category, publisher, host),
+        prior_evidence_status=prior_status,
+        priority_band=priority_band,
+        next_probe_decision=next_decision,
+    )
+
+
+def subcluster_priority(category: str, publisher: str, host: str, pattern: str) -> tuple[str, str, str]:
+    for pattern_prefix, status in PRIOR_ROUTE_CANDIDATE_PATTERNS:
+        if pattern.startswith(pattern_prefix):
+            return (
+                status,
+                "confirm_existing_branch_candidate",
+                "Do not start a duplicate provider probe; use targeted read-only/full gates to confirm the existing branch route candidate before any main push.",
+            )
+
+    normalized_host = host.lower()
+    if category == "missing_pdf_harvest" and normalized_host in PRIOR_PROVIDER_HOSTS:
+        return (
+            "prior_negative_or_support_evidence",
+            "provider_lane_do_not_duplicate",
+            "Use existing provider/Zyte packet evidence or wait for provider guidance before route code; only rerun if testing a new provider-advised recipe.",
+        )
+
+    if category in {"html_instead_of_pdf", "js_redirect_unresolved", "interstitial_or_paywall", "bot_block_403"}:
+        return (
+            "needs_browser_or_provider_comparison",
+            "browserbase_or_zyte_gold_first",
+            "Collect Browserbase gold evidence or a Zyte support reproduction before changing Taxicab routing.",
+        )
+
+    if category in {"corrupt_or_truncated_pdf", "encrypted_or_unreadable_pdf"}:
+        return (
+            "needs_byte_validator_confirmation",
+            "validator_or_provider_lane",
+            "Compare byte-level PDF strategies and page/text validation before route code.",
+        )
+
+    if category == "missing_pdf_harvest":
+        return (
+            "fresh_probe_candidate",
+            "probe_next",
+            "Run a bounded no-storage provider probe first; reharvest only if no-storage evidence shows valid PDF recovery.",
+        )
+
+    return (
+        "untriaged_residual",
+        "inspect_first",
+        "Inspect representative rows before assigning route, provider, or validator ownership.",
     )
 
 
@@ -585,6 +678,9 @@ def _write_subcluster_artifacts(
                 "recommended_agent",
                 "recommended_action",
                 "evidence_strength",
+                "prior_evidence_status",
+                "priority_band",
+                "next_probe_decision",
             ]
         )
         for rank, subcluster in enumerate(subclusters[:top_n], start=1):
@@ -602,6 +698,9 @@ def _write_subcluster_artifacts(
                     subcluster.recommended_agent,
                     subcluster.recommended_action,
                     subcluster.evidence_strength,
+                    subcluster.prior_evidence_status,
+                    subcluster.priority_band,
+                    subcluster.next_probe_decision,
                 ]
             )
 
@@ -636,6 +735,7 @@ __all__ = [
     "browserbase_candidates",
     "cluster_rows",
     "path_pattern",
+    "subcluster_priority",
     "recommended_action",
     "recommended_agent",
     "redact_text",

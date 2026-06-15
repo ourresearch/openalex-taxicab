@@ -11,6 +11,7 @@ from openalex_taxicab.residual_clusters import (
     path_pattern,
     redact_url,
     residual_host,
+    subcluster_priority,
     subcluster_rows_by_path,
     write_cluster_artifacts,
     zyte_support_candidates,
@@ -190,6 +191,42 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(by_key[("candidate_discovery", "link.springer.com:/article/:doi/:id")].count, 1)
         self.assertNotIn("10.1007", by_key[("corpus_pdf_url", "link.springer.com:/content/pdf/:doi/:file.pdf")].path_pattern)
 
+    def test_subcluster_priority_marks_prior_provider_lanes(self):
+        status, band, decision = subcluster_priority(
+            "missing_pdf_harvest",
+            "springer",
+            "link.springer.com",
+            "link.springer.com:/content/pdf/:doi/:id.pdf",
+        )
+
+        self.assertEqual(status, "prior_negative_or_support_evidence")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
+        self.assertIn("provider/Zyte", decision)
+
+    def test_subcluster_priority_marks_existing_branch_candidates(self):
+        status, band, decision = subcluster_priority(
+            "missing_pdf_harvest",
+            "acm",
+            "dl.acm.org",
+            "dl.acm.org:/doi/pdf/:doi/:id",
+        )
+
+        self.assertEqual(status, "acm_pdf_byte_branch_candidate")
+        self.assertEqual(band, "confirm_existing_branch_candidate")
+        self.assertIn("duplicate provider probe", decision)
+
+    def test_subcluster_priority_marks_fresh_probe_candidates(self):
+        status, band, decision = subcluster_priority(
+            "missing_pdf_harvest",
+            "unknown",
+            "fresh.example.org",
+            "fresh.example.org:/download/:file.pdf",
+        )
+
+        self.assertEqual(status, "fresh_probe_candidate")
+        self.assertEqual(band, "probe_next")
+        self.assertIn("bounded no-storage provider probe", decision)
+
     def test_residual_host_prefers_existing_non_unknown_host(self):
         item = pdf_row(
             "10.1/a",
@@ -243,8 +280,15 @@ class ResidualClusterTests(unittest.TestCase):
             self.assertEqual(payload["non_good_rows"], 3)
             self.assertEqual(subcluster_payload["run_id"], "cluster-test")
             self.assertGreaterEqual(subcluster_payload["subcluster_count"], 1)
+            springer_subcluster = next(
+                item
+                for item in subcluster_payload["top_subclusters"]
+                if item["path_pattern"].startswith("link.springer.com:/content/pdf/")
+            )
+            self.assertEqual(springer_subcluster["prior_evidence_status"], "prior_negative_or_support_evidence")
             self.assertIn("link.springer.com", paths["clusters_csv"].read_text())
             self.assertIn("path_pattern", paths["subclusters_csv"].read_text())
+            self.assertIn("priority_band", paths["subclusters_csv"].read_text())
             self.assertTrue(paths["clusters_csv"].exists())
             self.assertTrue(paths["subclusters_csv"].exists())
             self.assertTrue(paths["browserbase_candidates"].exists())
