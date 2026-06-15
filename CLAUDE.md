@@ -68,10 +68,18 @@ with all 40 attempts `download_404`; direct TandF probe
 with best categories 9 `interstitial_or_paywall` and 1
 `js_redirect_unresolved`. Neither wrote Taxicab POST/R2/DynamoDB state. Keep
 both Taylor lanes in provider/Zyte support until a provider-advised PDF-byte
-recipe or Browserbase gold comparison exists. Treat Wiley as
-partial/provider-support plus route validation, and Sage as provider/Zyte
-support evidence. These probes do not move the
-accepted 10K metric until a read-only/full gate confirms them.
+recipe or Browserbase gold comparison exists. Route-shape residual
+subclustering is implemented at Taxicab commit `1b303a5` and published at
+oxjobs `106a93f8`. Run `residual-subclusters-after-taylor-1b303a5` keeps the
+accepted KPI unchanged at 2,304/6,293 `good_pdf` (36.61%) and splits residuals
+into 1,481 normalized path-pattern subclusters. Top lanes are Springer
+`/content/pdf/:doi/:id.pdf` 758, Wiley `/doi/pdf/:doi/:id` 394, De Gruyter
+document PDF 195, Cambridge Core AOP 122, ScienceDirect `pdfft` 99, SSRN
+delivery 72, and Taylor API chapter-download 51. This is planning/measurement
+evidence only; it made no Taxicab API, Zyte, Browserbase, R2, or DynamoDB
+writes. Next lane is to choose a fresh non-duplicate path family from that
+artifact or wait for Zyte/Browserbase provider guidance before route code. Do
+not push Taxicab main before the full PDF 95% proof; gate note: no Taxicab main push.
 Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
 Taxicab commit `8a35869` is 2,196/6,293 `good_pdf` (34.90%), with
 3,805 `missing_pdf_harvest`, 65 `corrupt_or_truncated_pdf`, 0 timeout,
@@ -380,7 +388,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "taylor-tandfonline-current-missing-provider-probe10-ae2655d|cca3d122|provider-advised PDF-byte" AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "residual-subclusters-after-taylor-1b303a5|106a93f8|Route-shape|1,481" AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context

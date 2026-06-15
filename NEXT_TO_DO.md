@@ -11,14 +11,17 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
-Current handoff override: Taxicab commit `ae2655d` ran the Taylor direct TandF
-host-specific no-storage provider probe and oxjobs commit `cca3d122` publishes
-the scrubbed aggregate. The direct TandF probe recovered `0/10 good_pdf`; best
-categories were 9 `interstitial_or_paywall` and 1 `js_redirect_unresolved`; it
-did not write Taxicab POST/R2/DynamoDB state. Taylor API probe
-`taylor-api-current-missing-provider-probe10-a230505` was also negative at
-oxjobs `48ffd7d9`: `0/10`, all 40 attempts `download_404`. Next exact action is
-Taylor/Zyte provider guidance or Browserbase gold comparison before route code.
+Current handoff override: Taxicab commit `1b303a5` adds route-shape residual
+subclusters, and oxjobs commit `106a93f8` publishes aggregate-only route-shape
+evidence. Run `residual-subclusters-after-taylor-1b303a5` keeps the accepted
+PDF KPI at 2,304/6,293 `good_pdf` (36.61%) and splits residuals into 1,481
+normalized path-pattern subclusters. Top lanes are Springer
+`/content/pdf/:doi/:id.pdf` 758, Wiley `/doi/pdf/:doi/:id` 394, De Gruyter
+document PDF 195, Cambridge Core AOP 122, ScienceDirect `pdfft` 99, SSRN
+delivery 72, and Taylor API chapter-download 51. This was planning evidence
+only and made no Taxicab API, Zyte, Browserbase, R2, or DynamoDB writes. Next
+exact action is to choose a fresh non-duplicate path family from that artifact
+or wait for Zyte/Browserbase provider guidance before route code. Gate note: no Taxicab main push.
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
 oxjobs #461 commit `dcb7bb14` publishes the accepted structured-parser full
 gate. Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
@@ -1351,7 +1354,7 @@ Next exact commands:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 git switch codex/taxicab-pdf-phase2
-rg -n "taylor-tandfonline-current-missing-provider-probe10-ae2655d|cca3d122|provider-advised PDF-byte" AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md
+rg -n "residual-subclusters-after-taylor-1b303a5|106a93f8|Route-shape|1,481" AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md
 ```
 
 ### 12. Continue from the post-95 HTML residual queue only if PDF work is paused
