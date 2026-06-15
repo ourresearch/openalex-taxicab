@@ -53,7 +53,12 @@ oxjobs `ca6e5e05`; unknown `oejournal.org` recovered 0/1 and is published at
 oxjobs `42da202d`; unknown `authorea.com` recovered 0/1 and is published at
 oxjobs `b405108f`; unknown `mjle.journals.ekb.eg` recovered 0/1 and is
 published at oxjobs `b6a214a5`; the current unknown singleton tail is
-exhausted. Treat Wiley as
+exhausted. Residual cluster refresh
+`residual-clusters-after-unknown-tail-add6ef1` is published at oxjobs
+`cea24883`: 3,989 non-good rows across 174 clusters, led by missing-PDF
+Springer 831, unknown 633, Wiley 568, Elsevier 381, and De Gruyter 199.
+Next lane is source/candidate-host subclustering for `missing_pdf_harvest`
+before more broad publisher probes. Treat Wiley as
 partial/provider-support plus route validation, and Sage as provider/Zyte
 support evidence. These probes do not move the
 accepted 10K metric until a read-only/full gate confirms them.
@@ -365,7 +370,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-readable-encrypted-f2da963/rows.ndjson --out pdf_eval_runs/ --run-id residual-clusters-after-unknown-tail-add6ef1 --sample-size 5 --top-n 40`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "source_pdf|source.*url|candidate|PDF URL|host" scripts openalex_taxicab tests`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
