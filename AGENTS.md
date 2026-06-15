@@ -52,12 +52,16 @@ oxjobs `ca6e5e05`; unknown `oejournal.org` recovered 0/1 and is published at
 oxjobs `42da202d`; unknown `authorea.com` recovered 0/1 and is published at
 oxjobs `b405108f`; unknown `mjle.journals.ekb.eg` recovered 0/1 and is
 published at oxjobs `b6a214a5`; the current unknown singleton tail is
-exhausted. Residual cluster refresh
-`residual-clusters-after-unknown-tail-add6ef1` is published at oxjobs
-`cea24883`: 3,989 non-good rows across 174 clusters, led by missing-PDF
-Springer 831, unknown 633, Wiley 568, Elsevier 381, and De Gruyter 199.
-Next lane is source/candidate-host subclustering for `missing_pdf_harvest`
-before more broad publisher probes. Treat Wiley as
+exhausted. Candidate-host residual clustering is implemented at Taxicab commit
+`a230505` and published at oxjobs `65411a6c`. It keeps the same 3,989 non-good
+rows from the accepted full gate but splits host-unknown `missing_pdf_harvest`
+rows by candidate URL host. The largest remaining concrete hosts are
+`link.springer.com` 813, `onlinelibrary.wiley.com` 544,
+`degruyterbrill.com` 199, `sciencedirect.com` 143, `journals.lww.com` 133,
+`academic.oup.com` 132, `cambridge.org` 122, `papers.ssrn.com` 73,
+`jstor.org` 60, and `api.taylorfrancis.com` 52. Next lane is a host-specific
+Taylor API no-storage provider probe, not another broad publisher probe. Treat
+Wiley as
 partial/provider-support plus route validation, and Sage as provider/Zyte
 support evidence. These probes do not move the
 accepted 10K metric until a read-only/full gate confirms them.
