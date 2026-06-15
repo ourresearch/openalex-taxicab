@@ -203,6 +203,17 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(band, "provider_lane_do_not_duplicate")
         self.assertIn("provider/Zyte", decision)
 
+    def test_subcluster_priority_marks_known_host_variants(self):
+        status, band, _decision = subcluster_priority(
+            "missing_pdf_harvest",
+            "wiley",
+            "onlinelibrary.wiley.com",
+            "onlinelibrary.wiley.com:/doi/pdf/:doi/:id",
+        )
+
+        self.assertEqual(status, "prior_negative_or_support_evidence")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
+
     def test_subcluster_priority_marks_existing_branch_candidates(self):
         status, band, decision = subcluster_priority(
             "missing_pdf_harvest",
