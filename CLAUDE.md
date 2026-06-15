@@ -23,14 +23,19 @@ PDF URL host: Springer 813, Wiley 544, De Gruyter 199, Elsevier/ScienceDirect
 143, Lippincott 133, Oxford 132, CUP 122, SSRN 73, JSTOR 60, Taylor 52, RSC 47,
 and ACS 47. The actionable non-missing lane is smaller but cleaner:
 Wiley corrupt/truncated recovered 9/18 with PDF-byte strategies, ACS
-corrupt/truncated recovered 6/6 with PDF-byte strategies, and Sage
-corrupt/truncated recovered 0/6. Current branch now implements a narrow ACS
+corrupt/truncated recovered 6/6 with PDF-byte strategies, Sage
+corrupt/truncated recovered 0/6, and Hindawi corrupt/truncated recovered 0/2.
+Current branch now implements a narrow ACS
 `pubs.acs.org/doi/pdf/...` PDF-byte route candidate only; it does not route ACS
 `/doi/epdf/` paths. Local no-storage branch `http_get` validation
 `acs-http-get-local-route-precommit-8912673` returned 6/6 `good_pdf`, with no
-Taxicab POST/R2/DynamoDB writes. Treat Wiley as partial/provider-support plus
-route validation, and Sage as provider/Zyte support evidence. These probes do
-not move the accepted 10K metric until a read-only/full gate confirms them.
+Taxicab POST/R2/DynamoDB writes. Oxjobs #461 commit `82e4812f` publishes the
+ACS route evidence. Hindawi no-storage probe
+`hindawi-current-corrupt-provider-probe2-6d11e24` recovered 0/2 and is
+published at oxjobs `66cc6c44`; treat it as Zyte/support or browser-gold
+evidence, not route code. Treat Wiley as partial/provider-support plus route
+validation, and Sage as provider/Zyte support evidence. These probes do not move
+the accepted 10K metric until a read-only/full gate confirms them.
 Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
 Taxicab commit `8a35869` is 2,196/6,293 `good_pdf` (34.90%), with
 3,805 `missing_pdf_harvest`, 65 `corrupt_or_truncated_pdf`, 0 timeout,
@@ -339,7 +344,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 -m unittest discover -s tests && python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-acs-route`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-readable-encrypted-f2da963/rows.ndjson --category corrupt_or_truncated_pdf --publisher springer --limit 5 --strategies default_body,accept_pdf,google_referer,browser_html --out pdf_eval_runs/ --run-id springer-current-corrupt-provider-probe5-6d11e24 --timeout 90 --sleep 0.5`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
