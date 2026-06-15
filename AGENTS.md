@@ -205,9 +205,17 @@ recovered 6/10 current IOP missing rows as `good_pdf`. Valid PDFs came from
 `iopscience.iop.org/article/.../pdf` routes using `default_body`, `accept_pdf`,
 or `google_referer`; residual best categories were two `bot_block_403` rows and
 two `interstitial_or_paywall` book-chapter rows. Oxjobs #461 commit `bd7396fb`
-publishes the scrubbed summary/report and combined Zyte packet update. This is
-the strongest current no-storage route candidate; run all current IOP missing
-rows before production route code.
+publishes the scrubbed summary/report and combined Zyte packet update.
+All-current IOP confirmation
+`iop-current-missing-provider-probe25-ad609f7` at Taxicab commit `ad609f7`
+covered all 18 current refreshed IOP missing rows and recovered 9/18 as
+`good_pdf`. Residual best categories were six `bot_block_403`, two
+`interstitial_or_paywall`, and one `html_instead_of_pdf`. Valid PDFs again came
+from `iopscience.iop.org/article/.../pdf` routes, mostly through `default_body`
+with some `accept_pdf` wins. Oxjobs #461 commit `51b4665a` publishes the
+scrubbed summary/report and combined Zyte packet update. This confirms a narrow
+branch-only IOP article-PDF route candidate; do not broaden to IOP book/chapter
+PDF paths because those hit interstitial/paywall rows.
 Latest focused evidence: no-storage run
 `wiley-residual-corrupt-provider-probe-19-a61d34b` recovered 15/19 current
 residual Wiley corrupt rows as `good_pdf`. The four residuals are two
@@ -269,7 +277,7 @@ commit `2c171c7e` publishes the current SSRN provider probe; oxjobs #461
 commit `463bb712` publishes the current JSTOR provider probe; oxjobs #461
 commit `14f254ac` publishes the current AIP Publishing provider probe; oxjobs
 #461 commit `e3621c28` publishes the current RSC provider probe; oxjobs #461
-commit `21a7697c` publishes the current ACS provider probe; oxjobs #461 commit `e2bac29b` publishes the current Brill provider probe; oxjobs #461 commit `4838bd1c` publishes the current Thieme provider probe; oxjobs #461 commit `fe048cca` publishes the current SPIE provider probe; oxjobs #461 commit `6de28ec3` publishes the current BMJ provider probe; oxjobs #461 commit `d059488d` publishes the current Sage provider probe; oxjobs #461 commit `eddf9c5a` publishes the current AMA/JAMA provider probe; oxjobs #461 commit `69b2780a` publishes the current Karger provider probe; oxjobs #461 commit `5da73adb` publishes the current APS provider probe; oxjobs #461 commit `88c2fddb` publishes the current ACM provider probe; oxjobs #461 commit `f57bad44` publishes the current Optica provider probe; oxjobs #461 commit `bd7396fb` publishes the current IOP provider probe.
+commit `21a7697c` publishes the current ACS provider probe; oxjobs #461 commit `e2bac29b` publishes the current Brill provider probe; oxjobs #461 commit `4838bd1c` publishes the current Thieme provider probe; oxjobs #461 commit `fe048cca` publishes the current SPIE provider probe; oxjobs #461 commit `6de28ec3` publishes the current BMJ provider probe; oxjobs #461 commit `d059488d` publishes the current Sage provider probe; oxjobs #461 commit `eddf9c5a` publishes the current AMA/JAMA provider probe; oxjobs #461 commit `69b2780a` publishes the current Karger provider probe; oxjobs #461 commit `5da73adb` publishes the current APS provider probe; oxjobs #461 commit `88c2fddb` publishes the current ACM provider probe; oxjobs #461 commit `f57bad44` publishes the current Optica provider probe; oxjobs #461 commit `bd7396fb` publishes the current IOP provider probe; oxjobs #461 commit `51b4665a` publishes the all-current IOP confirmation.
 Current tooling slice: `scripts/provider_pdf_probe.py` adds a generic
 no-storage Zyte provider strategy probe. It reads rows/CSV queues, strips query
 strings/fragments from artifacts, never calls Taxicab POST, and writes
@@ -297,7 +305,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && RUN_SHA=$(git rev-parse --short HEAD) && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-publisher-attribution-e584811/rows.ndjson --category missing_pdf_harvest --publisher iop --strategies all --out pdf_eval_runs/ --run-id iop-current-missing-provider-probe-all-$RUN_SHA --timeout 60 --sleep 1`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "iopscience|pdfdirect|DIRECT_FETCH_URLS|BROWSER_HTML_URLS|Wiley PDF-direct" openalex_taxicab/http_cache.py tests`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
