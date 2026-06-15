@@ -190,13 +190,15 @@ found 24 current APS rows and recovered 0/24; best categories were 22
 support lane before route code unless a Zyte-advised recipe changes the result.
 Current ACM no-storage provider probe
 `acm-current-missing-provider-probe10-dba7e2f` at Taxicab commit `dba7e2f`
-recovered 1/10 current ACM missing rows (`10.1145/772970.772976`) through
-`default_body` and `google_referer`; residual best categories were seven
-`html_instead_of_pdf`, one `js_redirect_unresolved`, and one `download_404`.
-Many `dl.acm.org/doi/pdf/...` rows returned 536-byte PDF-labeled HTML shells.
-Oxjobs #461 commit `88c2fddb` publishes the scrubbed summary/report and
-combined Zyte packet update. Keep ACM in the provider/Zyte PDF-byte and
-candidate-discovery lane before route code.
+first recovered 1/10 current ACM missing rows through `default_body` and
+`google_referer`. Larger confirmation
+`acm-current-missing-provider-probe25-26f35ea` at Taxicab commit `26f35ea`
+found all 22 current ACM rows and recovered 6/22: three `default_body` and
+three `google_referer` good PDFs. Residual best categories were 12
+`html_instead_of_pdf`, three `js_redirect_unresolved`, and one
+`empty_response`. Oxjobs #461 commit `88b3d53f` publishes the larger
+confirmation. ACM is now a narrow PDF-byte route-strategy candidate; residual
+536-byte PDF-labeled HTML shells remain provider/Zyte support evidence.
 Current Optica no-storage provider probe
 `optica-current-missing-provider-probe10-1b0823d` at Taxicab commit `1b0823d`
 recovered 0/10 current Optica missing rows. Best categories were eight
@@ -321,7 +323,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && RUN_SHA=$(git rev-parse --short HEAD) && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-publisher-attribution-e584811/rows.ndjson --category missing_pdf_harvest --publisher acm --limit 25 --strategies all --out pdf_eval_runs/ --run-id acm-current-missing-provider-probe25-$RUN_SHA --timeout 60 --sleep 1`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n '_fetch_wiley_pdfdirect|_fetch_iop_article_pdf|dl\.acm|doi/pdf' openalex_taxicab/http_cache.py tests/test_http_cache.py`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
