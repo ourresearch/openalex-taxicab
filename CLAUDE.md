@@ -24,9 +24,12 @@ PDF URL host: Springer 813, Wiley 544, De Gruyter 199, Elsevier/ScienceDirect
 and ACS 47. The actionable non-missing lane is smaller but cleaner:
 Wiley corrupt/truncated recovered 9/18 with PDF-byte strategies, ACS
 corrupt/truncated recovered 6/6 with PDF-byte strategies, and Sage
-corrupt/truncated recovered 0/6. Treat ACS as the next narrow route-candidate
-inspection, Wiley as partial/provider-support plus route validation, and Sage as
-provider/Zyte support evidence. These probes are no-storage evidence only and do
+corrupt/truncated recovered 0/6. Current branch now implements a narrow ACS
+`pubs.acs.org/doi/pdf/...` PDF-byte route candidate only; it does not route ACS
+`/doi/epdf/` paths. Local no-storage branch `http_get` validation
+`acs-http-get-local-route-precommit-8912673` returned 6/6 `good_pdf`, with no
+Taxicab POST/R2/DynamoDB writes. Treat Wiley as partial/provider-support plus
+route validation, and Sage as provider/Zyte support evidence. These probes do
 not move the accepted 10K metric until a read-only/full gate confirms them.
 Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
 Taxicab commit `8a35869` is 2,196/6,293 `good_pdf` (34.90%), with
@@ -336,7 +339,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "pubs\\.acs\\.org|onlinelibrary\\.wiley\\.com|doi/pdfdirect|pdf-byte|pdfdirect" openalex_taxicab tests scripts`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 -m unittest discover -s tests && python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-acs-route`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context

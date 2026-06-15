@@ -483,6 +483,9 @@ def http_get(url,
         if not attempt_n and _is_acm_pdf_url(url):
             return _fetch_acm_pdf(url, connect_timeout, read_timeout)
 
+        if not attempt_n and _is_acs_pdf_url(url):
+            return _fetch_acs_pdf(url, connect_timeout, read_timeout)
+
         # Check if it's a DOI or Handle URL that needs resolution
         is_doi_url = 'doi.org/' in url
         is_handle_url = 'hdl.handle.net/' in url
@@ -748,6 +751,10 @@ ACM_PDF_HOSTS = [
     "dl.acm.org",
 ]
 
+ACS_PDF_HOSTS = [
+    "pubs.acs.org",
+]
+
 
 # Hosts that hide direct PDF URLs behind Cloudflare-style fingerprint checks.
 # Direct httpResponseBody calls to the PDF URL get banned (Zyte 520), but
@@ -820,6 +827,19 @@ def _is_acm_pdf_url(url):
         return False
     return any(host == acm_host or host.endswith(f".{acm_host}")
                for acm_host in ACM_PDF_HOSTS)
+
+
+def _is_acs_pdf_url(url):
+    try:
+        split_url = urlsplit(url)
+    except ValueError:
+        return False
+    host = split_url.netloc.lower()
+    path = split_url.path.lower()
+    if not path.startswith("/doi/pdf/"):
+        return False
+    return any(host == acs_host or host.endswith(f".{acs_host}")
+               for acs_host in ACS_PDF_HOSTS)
 
 
 def _should_use_landing_page_rewrite(url):
@@ -1016,6 +1036,34 @@ def _fetch_acm_pdf(url, connect_timeout=5, read_timeout=60):
             )
         except requests.exceptions.RequestException as exc:
             logger.warning(f"ACM PDF fetch failed using {strategy_name}: {exc}")
+            continue
+        data = response.json()
+        current = _response_from_zyte_body(data, url)
+        last_response = current
+        if isinstance(current.content, bytes) and current.content[:5] == b"%PDF-":
+            return current
+
+    return last_response
+
+
+def _fetch_acs_pdf(url, connect_timeout=5, read_timeout=60):
+    """Fetch ACS /doi/pdf/ URLs as PDF bytes with narrow fallback headers."""
+    zyte_api_url = "https://api.zyte.com/v1/extract"
+    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    last_response = ResponseObject(content=b"", headers=[], status_code=520, url=url)
+
+    for strategy_name, params in _wiley_pdfdirect_strategy_params(url):
+        logger.info(f"ACS PDF fetch using {strategy_name}: {url}")
+        try:
+            response = requests.post(
+                zyte_api_url,
+                auth=(zyte_api_key, ''),
+                json=params,
+                verify=False,
+                timeout=(connect_timeout, read_timeout),
+            )
+        except requests.exceptions.RequestException as exc:
+            logger.warning(f"ACS PDF fetch failed using {strategy_name}: {exc}")
             continue
         data = response.json()
         current = _response_from_zyte_body(data, url)

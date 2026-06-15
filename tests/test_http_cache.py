@@ -284,6 +284,96 @@ class ScienceDirectUrlTests(unittest.TestCase):
                 self.assertIsInstance(response.content, str)
                 self.assertIn("ACM shell", response.content)
 
+    def test_http_get_uses_pdf_body_strategy_for_acs_pdf(self):
+        pdf_url = "https://pubs.acs.org/doi/pdf/10.1021/example"
+        captured = []
+
+        class FakeResponse:
+            def json(self):
+                return {
+                    "statusCode": 200,
+                    "url": pdf_url,
+                    "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                    "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+                }
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse()
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url, doi="10.1021/example")
+
+        self.assertEqual(len(captured), 1)
+        self.assertTrue(captured[0]["httpResponseBody"])
+        self.assertTrue(captured[0]["httpResponseHeaders"])
+        self.assertNotIn("browserHtml", captured[0])
+        self.assertEqual(response.url, pdf_url)
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_http_get_falls_back_for_acs_pdf_strategies(self):
+        pdf_url = "https://pubs.acs.org/doi/pdf/10.1021/example"
+        captured = []
+        responses = [
+            {
+                "statusCode": 200,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                "httpResponseBody": base64.b64encode(b"<html>not pdf</html>").decode(),
+            },
+            {
+                "statusCode": 200,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+            },
+        ]
+
+        class FakeResponse:
+            def __init__(self, data):
+                self._data = data
+
+            def json(self):
+                return self._data
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse(responses[len(captured) - 1])
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url, doi="10.1021/example")
+
+        self.assertEqual(len(captured), 2)
+        self.assertNotIn("customHttpRequestHeaders", captured[0])
+        self.assertEqual(
+            captured[1]["customHttpRequestHeaders"],
+            [{"name": "Accept", "value": "application/pdf,*/*"}],
+        )
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_http_get_does_not_acs_route_epdf(self):
+        epdf_url = "https://pubs.acs.org/doi/epdf/10.1021/example"
+        captured = {}
+
+        def fake_call_with_zyte_api(url, params=None):
+            captured["url"] = url
+            captured["params"] = params
+            return {
+                "statusCode": 200,
+                "url": epdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "httpResponseBody": base64.b64encode(b"<html>ACS shell</html>").decode(),
+            }
+
+        with patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=fake_call_with_zyte_api):
+            response = http_get(epdf_url, doi="10.1021/example")
+
+        self.assertEqual(captured["url"], epdf_url)
+        self.assertEqual(captured["params"]["url"], epdf_url)
+        self.assertNotIn("customHttpRequestHeaders", captured["params"])
+        self.assertIsInstance(response.content, str)
+        self.assertIn("ACS shell", response.content)
+
     def test_rewrites_jbc_pdf_url_to_fulltext(self):
         self.assertEqual(
             jbc_fulltext_url_from_url("https://www.jbc.org/article/S0021-9258(17)43626-X/pdf"),
