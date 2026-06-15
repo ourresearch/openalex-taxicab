@@ -16,6 +16,17 @@ PDFs with EOF, nonzero page count, and >=500 extracted text chars now count as
 `encrypted_or_unreadable_pdf` is 4, timeout is 0, and `taxicab_error` is 0.
 The gap to 95% is now 3,675 rows. Oxjobs #461 commit `2092c008` publishes this
 accepted full-gate report.
+Latest residual clustering from that full gate found 3,989 non-good rows across
+174 clusters. The largest remaining lane is still missing PDF harvest by source
+PDF URL host: Springer 813, Wiley 544, De Gruyter 199, Elsevier/ScienceDirect
+143, Lippincott 133, Oxford 132, CUP 122, SSRN 73, JSTOR 60, Taylor 52, RSC 47,
+and ACS 47. The actionable non-missing lane is smaller but cleaner:
+Wiley corrupt/truncated recovered 9/18 with PDF-byte strategies, ACS
+corrupt/truncated recovered 6/6 with PDF-byte strategies, and Sage
+corrupt/truncated recovered 0/6. Treat ACS as the next narrow route-candidate
+inspection, Wiley as partial/provider-support plus route validation, and Sage as
+provider/Zyte support evidence. These probes are no-storage evidence only and do
+not move the accepted 10K metric until a read-only/full gate confirms them.
 Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
 Taxicab commit `8a35869` is 2,196/6,293 `good_pdf` (34.90%), with
 3,805 `missing_pdf_harvest`, 65 `corrupt_or_truncated_pdf`, 0 timeout,
@@ -335,7 +346,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-readable-encrypted-f2da963/rows.ndjson --out /tmp/taxicab-pdf-residual-clusters-readable-encrypted --run-id pdf-full10k-after-readable-encrypted-f2da963 --sample-size 5 --top-n 80`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "pubs\\.acs\\.org|onlinelibrary\\.wiley\\.com|doi/pdfdirect|pdf-byte|pdfdirect" openalex_taxicab tests scripts`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context

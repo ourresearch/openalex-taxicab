@@ -42,9 +42,9 @@ Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
 Current publish status: oxjobs #461 commit `2092c008` publishes the accepted full 10K gate `pdf-full10k-after-readable-encrypted-f2da963` from Taxicab commit `f2da963`: 2,304/6,293 `good_pdf` (36.61%), +99 versus the prior full gate and +467 versus denominator baseline, with 3,796 `missing_pdf_harvest`, 65 corrupt/truncated, 4 encrypted/unreadable, 93 supplement/preview, 0 timeout, and 0 `taxicab_error`.
-Current phase: readable-encrypted validator lift is accepted and published. This is measurement/validator-only and does not change scraping. The 95% gap is now 3,675 rows after the full gate. Do not push Taxicab main before the full PDF 95% proof.
+Current phase: readable-encrypted validator lift is accepted and published. Residual clustering is complete for this full gate: 3,989 non-good rows across 174 clusters, dominated by missing PDF harvest, with a smaller actionable corrupt/truncated lane. Current corrupt no-storage probes found Wiley 9/18 recovered, ACS 6/6 recovered, and Sage 0/6 recovered with PDF-byte strategies. Treat ACS as the next narrow route-candidate inspection, Wiley as partial/provider-support plus route validation, and Sage as Zyte/provider support evidence. This does not change scraping yet and does not move the accepted 10K metric until a read-only/full gate confirms it. Do not push Taxicab main before the full PDF 95% proof.
 Next exact command:
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-readable-encrypted-f2da963/rows.ndjson --out /tmp/taxicab-pdf-residual-clusters-readable-encrypted --run-id pdf-full10k-after-readable-encrypted-f2da963 --sample-size 5 --top-n 80
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "pubs\\.acs\\.org|onlinelibrary\\.wiley\\.com|doi/pdfdirect|pdf-byte|pdfdirect" openalex_taxicab tests scripts
 ```
 
 After Gate 0 is pushed:
@@ -224,7 +224,9 @@ Gate 21.999ei: run BMJ 25-row current missing-PDF no-storage confirmation from t
 Gate 21.999ej: run RSC 25-row current missing-PDF no-storage confirmation from the refreshed full gate. [done, taxicab 05b1a38, oxjobs 84f1c8ea]
 Gate 21.999ek: run APS 25-row current missing-PDF no-storage confirmation from the refreshed full gate. [done, taxicab 576c058, oxjobs 5435e2c7]
 Gate 21.999el: run ACM 25-row current missing-PDF no-storage confirmation from the refreshed full gate. [done, taxicab 26f35ea, oxjobs 88b3d53f]
-Gate 21.999em: implement narrow ACM PDF-byte route candidate on branch only. [in progress, local validation acm-http-get-local-route-precommit-1950532]
+Gate 21.999em: implement narrow ACM PDF-byte route candidate on branch only. [done, taxicab 39fa9c2, oxjobs 695fb51d]
+Gate 21.999en: publish readable encrypted full gate and sync handoff docs. [done, taxicab 3b07f3e, oxjobs 2092c008]
+Gate 21.999eo: cluster readable-encrypted residuals and probe current corrupt clusters. [in progress, local no-storage probes: Wiley 9/18, ACS 6/6, Sage 0/6]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
