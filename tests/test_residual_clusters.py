@@ -227,11 +227,19 @@ class ResidualClusterTests(unittest.TestCase):
             "agupubs.onlinelibrary.wiley.com",
             "agupubs.onlinelibrary.wiley.com:/doi/pdf/:doi/:id",
         )
+        rupress_status, rupress_band, _ = subcluster_priority(
+            "missing_pdf_harvest",
+            "unknown",
+            "www.rupress.org",
+            "rupress.org:/jcb/article-pdf/:n/:n/:n/:num/...",
+        )
 
         self.assertEqual(concrete_status, "prior_negative_or_support_evidence")
         self.assertEqual(concrete_band, "provider_lane_do_not_duplicate")
         self.assertEqual(wiley_status, "prior_negative_or_support_evidence")
         self.assertEqual(wiley_band, "provider_lane_do_not_duplicate")
+        self.assertEqual(rupress_status, "prior_negative_or_support_evidence")
+        self.assertEqual(rupress_band, "provider_lane_do_not_duplicate")
 
     def test_subcluster_priority_marks_manual_gold_hosts(self):
         status, band, decision = subcluster_priority(

@@ -148,6 +148,7 @@ PRIOR_PROVIDER_HOSTS = {
     "pubs.rsc.org",
     "publications.aaahq.org",
     "pubs.nctm.org",
+    "rupress.org",
     "sciencedirect.com",
     "scholarlypublishingcollective.org",
     "scientific.net",
