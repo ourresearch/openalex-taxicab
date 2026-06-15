@@ -13,7 +13,8 @@ expanded operational context.
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
 Current handoff override: Taxicab commit `30121a7` normalizes prior-evidence
 host variants in prioritized route-shape residual subclusters, and oxjobs commit
-`c28d77b7` publishes aggregate-only priority evidence. Run
+`7b551e72` publishes aggregate-only priority evidence plus the first fresh-tail
+bounded lift. Run
 `residual-subclusters-prioritized-30121a7` keeps the accepted PDF KPI at
 2,304/6,293 `good_pdf` (36.61%) and splits the top 160 path families into 113
 provider-lane/do-not-duplicate, 30 Browserbase/Zyte-gold-first, 8 fresh probes,
@@ -23,6 +24,11 @@ Browserbase, R2, or DynamoDB writes. Next exact action is one small fresh
 bounded no-storage path-family probe or Browserbase/Zyte gold evidence for
 gold-first lanes. Summary: 113 provider lanes; 8 fresh probes. Gate note:
 no Taxicab main push.
+Fresh-tail update: `unifsa-current-missing-provider-probe2-f6e9c80` recovered
+2/2 direct PDF bytes. DOI-only reharvest recovered 0/2 because it followed
+article-view HTML; direct-PDF-URL reharvest recovered 2/2 and read-only
+confirmation recovered 2/2. This is a bounded cache lift and candidate-URL
+discovery lesson, not a new accepted full-10K KPI.
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
 oxjobs #461 commit `dcb7bb14` publishes the accepted structured-parser full
 gate. Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
@@ -1355,7 +1361,7 @@ Next exact commands:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 git switch codex/taxicab-pdf-phase2
-sed -n '145,160p' pdf_eval_runs/residual-subclusters-prioritized-30121a7/residual-subclusters.csv
+sed -n '149,160p' pdf_eval_runs/residual-subclusters-prioritized-30121a7/residual-subclusters.csv
 ```
 
 ### 12. Continue from the post-95 HTML residual queue only if PDF work is paused

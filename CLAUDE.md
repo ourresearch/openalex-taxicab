@@ -84,6 +84,12 @@ are provider-lane/do-not-duplicate, 30 need Browserbase/Zyte gold comparison
 first, 8 are fresh bounded-probe candidates, four are existing branch route
 candidates, four are validator/provider lanes, and one needs manual inspection.
 Summary: 113 provider lanes; 8 fresh probes.
+Fresh-tail update: `unifsa-current-missing-provider-probe2-f6e9c80` recovered
+2/2 direct PDF bytes. DOI-only reharvest recovered 0/2 because it followed
+article-view HTML; direct-PDF-URL reharvest recovered 2/2 and read-only
+confirmation recovered 2/2. This is a bounded cache lift and candidate-URL
+discovery lesson, not a new accepted full-10K KPI. Oxjobs `7b551e72` publishes
+the aggregate-only evidence.
 Next lane is one small fresh path-family probe or Browserbase/Zyte
 gold evidence for gold-first lanes. Do not push Taxicab main before the full PDF
 95% proof; gate note: no Taxicab main push.
@@ -395,7 +401,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && sed -n '145,160p' pdf_eval_runs/residual-subclusters-prioritized-30121a7/residual-subclusters.csv`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && sed -n '149,160p' pdf_eval_runs/residual-subclusters-prioritized-30121a7/residual-subclusters.csv`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
