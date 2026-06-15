@@ -146,8 +146,12 @@ recovered 2/10 current missing rows; residual best categories were six
 `bot_block_403` and two `interstitial_or_paywall`. `default_body` recovered
 both PDFs, while PDF-accept and Google-referer each recovered one. Oxjobs #461
 commit `6de28ec3` publishes the scrubbed summary/report and combined Zyte
-packet update. Treat this as partial provider-strategy evidence; expand with
-larger no-storage evidence or a Zyte-advised recipe before route code.
+packet update. Larger confirmation `bmj-current-missing-provider-probe25-622512f`
+at Taxicab commit `622512f` recovered only 1/25; residuals were 15
+`bot_block_403`, five `interstitial_or_paywall`, three
+`js_redirect_unresolved`, and one `html_instead_of_pdf`. Oxjobs #461 commit
+`e5b648f6` publishes the result. Keep BMJ in the Zyte/provider support lane
+before route code unless a Zyte-advised recipe changes the result.
 Current Sage no-storage provider probe
 `sage-current-missing-provider-probe10-1f57c9b` at Taxicab commit `1f57c9b`
 recovered 0/10 current missing rows; best categories were six `bot_block_403`
@@ -304,7 +308,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && RUN_SHA=$(git rev-parse --short HEAD) && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-publisher-attribution-e584811/rows.ndjson --category missing_pdf_harvest --publisher bmj --limit 25 --strategies all --out pdf_eval_runs/ --run-id bmj-current-missing-provider-probe25-$RUN_SHA --timeout 60 --sleep 1`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && RUN_SHA=$(git rev-parse --short HEAD) && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-publisher-attribution-e584811/rows.ndjson --category missing_pdf_harvest --publisher rsc --limit 25 --strategies all --out pdf_eval_runs/ --run-id rsc-current-missing-provider-probe25-$RUN_SHA --timeout 60 --sleep 1`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
