@@ -99,10 +99,13 @@ with one `bot_block_403` and one `html_instead_of_pdf`; no reharvest was run.
 `pmresearch-current-missing-provider-probe2-fed64e3` recovered 0/2 with one
 `empty_response` and one `js_redirect_unresolved`; no reharvest was run. Oxjobs
 `3a2e3903` publishes the aggregate-only PM Research evidence.
+`mapsmla-current-missing-provider-probe2-3f70f96` recovered 0/2 with every
+tested strategy returning `empty_response`; no reharvest was run. Oxjobs
+`9d011684` publishes the aggregate-only Maps MLA evidence.
 Next lane is another small fresh path-family probe from the prioritized queue,
-likely `maps.mla.org`, `journalijar.com`, or `jmcc-online.com` unless a newer
-full gate supersedes it. Do not push Taxicab main before the full PDF 95%
-proof; gate note: no Taxicab main push.
+likely `journalijar.com` or `jmcc-online.com` unless a newer full gate
+supersedes it. Do not push Taxicab main before the full PDF 95% proof; gate
+note: no Taxicab main push.
 Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
 Taxicab commit `8a35869` is 2,196/6,293 `good_pdf` (34.90%), with
 3,805 `missing_pdf_harvest`, 65 `corrupt_or_truncated_pdf`, 0 timeout,

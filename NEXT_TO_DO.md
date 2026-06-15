@@ -13,17 +13,17 @@ expanded operational context.
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
 Current handoff override: Taxicab commit `30121a7` normalizes prior-evidence
 host variants in prioritized route-shape residual subclusters, and oxjobs commit
-`3a2e3903` publishes aggregate-only priority evidence plus the first three
-fresh-tail bounded lifts and ASHA/PM Research negative evidence. Run
+`9d011684` publishes aggregate-only priority evidence plus the first three
+fresh-tail bounded lifts and ASHA/PM Research/Maps MLA negative evidence. Run
 `residual-subclusters-prioritized-30121a7` keeps the accepted PDF KPI at
 2,304/6,293 `good_pdf` (36.61%) and splits the top 160 path families into 113
 provider-lane/do-not-duplicate, 30 Browserbase/Zyte-gold-first, 8 fresh probes,
 four existing branch route candidates, four validator/provider lanes, and one
 inspect-first. This was planning evidence only and made no Taxicab API, Zyte,
 Browserbase, R2, or DynamoDB writes. Next exact action is the next small fresh
-bounded no-storage path-family probe, likely `maps.mla.org`, `journalijar.com`,
-or `jmcc-online.com` unless a newer full gate supersedes the queue. Summary:
-113 provider lanes; 8 fresh probes. Gate note: no Taxicab main push.
+bounded no-storage path-family probe, likely `journalijar.com` or
+`jmcc-online.com` unless a newer full gate supersedes the queue. Summary: 113
+provider lanes; 8 fresh probes. Gate note: no Taxicab main push.
 Fresh-tail updates: `unifsa-current-missing-provider-probe2-f6e9c80` recovered
 2/2 direct PDF bytes. DOI-only reharvest recovered 0/2 because it followed
 article-view HTML; direct-PDF-URL reharvest recovered 2/2 and read-only
@@ -42,6 +42,9 @@ PM Research update: `pmresearch-current-missing-provider-probe2-fed64e3`
 recovered 0/2; best categories were one `empty_response` and one
 `js_redirect_unresolved`. No reharvest was run. Oxjobs `3a2e3903` publishes the
 aggregate-only PM Research evidence.
+Maps MLA update: `mapsmla-current-missing-provider-probe2-3f70f96` recovered
+0/2; every tested strategy returned `empty_response`. No reharvest was run.
+Oxjobs `9d011684` publishes the aggregate-only Maps MLA evidence.
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
 oxjobs #461 commit `dcb7bb14` publishes the accepted structured-parser full
 gate. Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
