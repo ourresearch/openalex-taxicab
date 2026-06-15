@@ -59,9 +59,14 @@ rows by candidate URL host. The largest remaining concrete hosts are
 `link.springer.com` 813, `onlinelibrary.wiley.com` 544,
 `degruyterbrill.com` 199, `sciencedirect.com` 143, `journals.lww.com` 133,
 `academic.oup.com` 132, `cambridge.org` 122, `papers.ssrn.com` 73,
-`jstor.org` 60, and `api.taylorfrancis.com` 52. Next lane is a host-specific
-Taylor API no-storage provider probe, not another broad publisher probe. Treat
-Wiley as
+`jstor.org` 60, and `api.taylorfrancis.com` 52. The Taylor API host-specific
+probe `taylor-api-current-missing-provider-probe10-a230505` is published at
+oxjobs `48ffd7d9`: `0/10 good_pdf`, all 40 strategy attempts `download_404`,
+no Taxicab POST/R2/DynamoDB writes. Keep
+`api.taylorfrancis.com` in candidate-discovery/provider-support. Next lane is
+the separate Taylor direct host `tandfonline.com` 29-row residual queue because
+direct TandF PDFs have recovered before; use run id
+`taylor-tandfonline-current-missing-provider-probe10-cc6689c`. Treat Wiley as
 partial/provider-support plus route validation, and Sage as provider/Zyte
 support evidence. These probes do not move the
 accepted 10K metric until a read-only/full gate confirms them.
