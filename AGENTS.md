@@ -89,11 +89,14 @@ reharvest and read-only confirmation recovered 2/2. Then
 `turkishstudies-current-missing-provider-probe2-8edb8ac` recovered 1/2 direct
 PDF bytes; direct-PDF-URL reharvest and read-only confirmation preserved 1/2,
 while the other row stayed `download_404`. These are bounded cache lifts and
-candidate-URL discovery lessons, not a new accepted full-10K KPI. Current
-bounded durable fresh-tail lift is 3 rows, pending full-gate confirmation.
-Oxjobs `2d9bed14` publishes the aggregate-only Turkish Studies evidence.
-Next lane is the next small fresh path-family probe from the prioritized queue,
-starting with `static.even3.com` unless a newer full gate supersedes it. Do not
+candidate-URL discovery lessons, not a new accepted full-10K KPI.
+`even3-current-missing-provider-probe2-828c377` then recovered 2/2 direct PDF
+bytes; direct-PDF-URL reharvest and read-only confirmation preserved 2/2.
+Current bounded durable fresh-tail lift is 5 rows, pending full-gate
+confirmation. Oxjobs `3f09cbf8` publishes the aggregate-only Even3 evidence.
+Next lane is another small fresh path-family probe from the prioritized queue,
+likely `pubs.asha.org`, `pm-research.com`, `maps.mla.org`, `journalijar.com`,
+or `jmcc-online.com` unless a newer full gate supersedes it. Do not
 push Taxicab main before the full PDF 95% proof; gate note: no Taxicab main
 push.
 Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
