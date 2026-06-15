@@ -224,7 +224,8 @@ timeouts. It does not route IOP book/chapter PDF paths. Verification passed:
 `python3 -m unittest discover -s tests` ran 97 tests, PDF fixture smoke passed,
 and local no-storage branch `http_get` validation
 `iop-http-get-local-route-precommit` returned 11/16 `good_pdf` and five
-`bot_block_403` residuals, with no Taxicab POST/R2/DynamoDB writes.
+`bot_block_403` residuals, with no Taxicab POST/R2/DynamoDB writes. Oxjobs
+#461 commit `c3c9b0ac` publishes the scrubbed route-validation summary/report.
 Latest focused evidence: no-storage run
 `wiley-residual-corrupt-provider-probe-19-a61d34b` recovered 15/19 current
 residual Wiley corrupt rows as `good_pdf`. The four residuals are two
@@ -278,7 +279,7 @@ commit `2c171c7e` publishes the current SSRN provider probe; oxjobs #461
 commit `463bb712` publishes the current JSTOR provider probe; oxjobs #461
 commit `14f254ac` publishes the current AIP Publishing provider probe; oxjobs
 #461 commit `e3621c28` publishes the current RSC provider probe; oxjobs #461
-commit `21a7697c` publishes the current ACS provider probe; oxjobs #461 commit `e2bac29b` publishes the current Brill provider probe; oxjobs #461 commit `4838bd1c` publishes the current Thieme provider probe; oxjobs #461 commit `fe048cca` publishes the current SPIE provider probe; oxjobs #461 commit `6de28ec3` publishes the current BMJ provider probe; oxjobs #461 commit `d059488d` publishes the current Sage provider probe; oxjobs #461 commit `eddf9c5a` publishes the current AMA/JAMA provider probe; oxjobs #461 commit `69b2780a` publishes the current Karger provider probe; oxjobs #461 commit `5da73adb` publishes the current APS provider probe; oxjobs #461 commit `88c2fddb` publishes the current ACM provider probe; oxjobs #461 commit `f57bad44` publishes the current Optica provider probe; oxjobs #461 commit `bd7396fb` publishes the current IOP provider probe; oxjobs #461 commit `51b4665a` publishes the all-current IOP confirmation.
+commit `21a7697c` publishes the current ACS provider probe; oxjobs #461 commit `e2bac29b` publishes the current Brill provider probe; oxjobs #461 commit `4838bd1c` publishes the current Thieme provider probe; oxjobs #461 commit `fe048cca` publishes the current SPIE provider probe; oxjobs #461 commit `6de28ec3` publishes the current BMJ provider probe; oxjobs #461 commit `d059488d` publishes the current Sage provider probe; oxjobs #461 commit `eddf9c5a` publishes the current AMA/JAMA provider probe; oxjobs #461 commit `69b2780a` publishes the current Karger provider probe; oxjobs #461 commit `5da73adb` publishes the current APS provider probe; oxjobs #461 commit `88c2fddb` publishes the current ACM provider probe; oxjobs #461 commit `f57bad44` publishes the current Optica provider probe; oxjobs #461 commit `bd7396fb` publishes the current IOP provider probe; oxjobs #461 commit `51b4665a` publishes the all-current IOP confirmation; oxjobs #461 commit `c3c9b0ac` publishes the IOP route validation.
 Current tooling slice: generic no-storage provider probing is implemented in
 `scripts/provider_pdf_probe.py` with tests in `tests/test_provider_pdf_probe.py`.
 It does not call Taxicab POST and does not write R2/DynamoDB. It sanitizes URLs
@@ -303,7 +304,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && python3 scripts/publish-report.py 461`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && RUN_SHA=$(git rev-parse --short HEAD) && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-publisher-attribution-e584811/rows.ndjson --category missing_pdf_harvest --publisher bmj --limit 25 --strategies all --out pdf_eval_runs/ --run-id bmj-current-missing-provider-probe25-$RUN_SHA --timeout 60 --sleep 1`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
