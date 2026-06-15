@@ -110,6 +110,14 @@ with browser HTML also hitting six `bot_block_403` rows. Oxjobs #461 commit
 `e3621c28` publishes the scrubbed summary/report and combined Zyte packet
 update. This is partial provider-strategy evidence, not a Taxicab route-code
 candidate yet.
+Current ACS no-storage provider probe
+`acs-current-missing-provider-probe10-7e4b5e5` at Taxicab commit `7e4b5e5`
+recovered 0/10 current missing rows; every DOI's best category was
+`js_redirect_unresolved`. PDF-accept and Google-referer each had one
+`empty_response`, and browser HTML hit one `bot_block_403` row. Oxjobs #461
+commit `21a7697c` publishes the scrubbed summary/report and combined Zyte
+packet update. Keep ACS in the provider/Zyte PDF-byte and JS/access-flow lane
+before route code.
 Latest focused evidence: no-storage run
 `wiley-residual-corrupt-provider-probe-19-a61d34b` recovered 15/19 current
 residual Wiley corrupt rows as `good_pdf`. The four residuals are two
@@ -170,7 +178,8 @@ commit `af13892d` publishes the current Taylor provider probe; oxjobs #461
 commit `2c171c7e` publishes the current SSRN provider probe; oxjobs #461
 commit `463bb712` publishes the current JSTOR provider probe; oxjobs #461
 commit `14f254ac` publishes the current AIP Publishing provider probe; oxjobs
-#461 commit `e3621c28` publishes the current RSC provider probe.
+#461 commit `e3621c28` publishes the current RSC provider probe; oxjobs #461
+commit `21a7697c` publishes the current ACS provider probe.
 Current tooling slice: `scripts/provider_pdf_probe.py` adds a generic
 no-storage Zyte provider strategy probe. It reads rows/CSV queues, strips query
 strings/fragments from artifacts, never calls Taxicab POST, and writes
@@ -198,7 +207,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-publisher-attribution-e584811/rows.ndjson --category missing_pdf_harvest --publisher acs --limit 10 --strategies all --out pdf_eval_runs/ --run-id acs-current-missing-provider-probe10-f709792 --timeout 60 --sleep 1`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-publisher-attribution-e584811/rows.ndjson --category missing_pdf_harvest --publisher brill --limit 10 --strategies all --out pdf_eval_runs/ --run-id brill-current-missing-provider-probe10-7e4b5e5 --timeout 60 --sleep 1`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
