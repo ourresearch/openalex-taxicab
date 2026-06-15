@@ -43,15 +43,17 @@ Status: in progress.
 Branch: codex/taxicab-pdf-phase2
 Current publish status: oxjobs #461 commit `2092c008` publishes the accepted full 10K gate `pdf-full10k-after-readable-encrypted-f2da963` from Taxicab commit `f2da963`: 2,304/6,293 `good_pdf` (36.61%), +99 versus the prior full gate and +467 versus denominator baseline, with 3,796 `missing_pdf_harvest`, 65 corrupt/truncated, 4 encrypted/unreadable, 93 supplement/preview, 0 timeout, and 0 `taxicab_error`.
 Current phase: readable-encrypted validator lift is accepted and published. Residual clustering is complete for this full gate: 3,989 non-good rows across 174 clusters, dominated by missing PDF harvest, with a smaller actionable corrupt/truncated lane. Current corrupt no-storage probes found Wiley 9/18 recovered, ACS 6/6 recovered, Sage 0/6 recovered, Hindawi 0/2 recovered, Springer 0/5 recovered, Elsevier-attributed 0/3 recovered, mixed unknown-attribution 0/5 recovered, unknown `revistas.uach.cl` singleton 0/1 recovered, unknown `journal.uniga.ac.id` singleton 1/1 recovered, unknown `sciresol.s3.us-east-2.amazonaws.com` singleton 0/1 recovered, unknown `oejournal.org` singleton 0/1 recovered, unknown `authorea.com` singleton 0/1 recovered, and unknown `mjle.journals.ekb.eg` singleton 0/1 recovered. Current branch now implements a narrow ACS `pubs.acs.org/doi/pdf/...` PDF-byte route candidate only; it does not route ACS `/doi/epdf/` paths. Local no-storage branch `http_get` validation `acs-http-get-local-route-precommit-8912673` returned 6/6 `good_pdf`, with no Taxicab POST/R2/DynamoDB writes; oxjobs `82e4812f` publishes that evidence. Hindawi probe `hindawi-current-corrupt-provider-probe2-6d11e24` recovered 0/2 and is published at oxjobs `66cc6c44`; Springer probe `springer-current-corrupt-provider-probe5-6d11e24` recovered 0/5 and is published at oxjobs `79f0b3d2`; Elsevier-attributed probe `elsevier-current-corrupt-provider-probe3-d1f3edb` recovered 0/3 and is published at oxjobs `f57d9036`; unknown-attribution probe `unknown-current-corrupt-provider-probe5-9b795af` recovered 0/5 and is published at oxjobs `ffb66370`; unknown `revistas.uach.cl` probe `unknown-revistasuach-current-corrupt-provider-probe1-48f425c` recovered 0/1 and is published at oxjobs `37926446`; unknown `journal.uniga.ac.id` probe `unknown-journaluniga-current-corrupt-provider-probe1-f52b57e` recovered 1/1 and is published at oxjobs `aec51cf8`; unknown `sciresol.s3.us-east-2.amazonaws.com` probe `unknown-sciresol-current-corrupt-provider-probe1-7a00e39` recovered 0/1 and is published at oxjobs `ca6e5e05`; unknown `oejournal.org` probe `unknown-oejournal-current-corrupt-provider-probe1-815a979` recovered 0/1 and is published at oxjobs `42da202d`; unknown `authorea.com` probe `unknown-authorea-current-corrupt-provider-probe1-d1106f7` recovered 0/1 and is published at oxjobs `b405108f`; unknown `mjle.journals.ekb.eg` probe `unknown-mjle-current-corrupt-provider-probe1-60ac8e3` recovered 0/1 and is published at oxjobs `b6a214a5`. The current unknown singleton tail is exhausted, and residual cluster refresh `residual-clusters-after-unknown-tail-add6ef1` is published at oxjobs `cea24883`: 3,989 non-good rows across 174 clusters, led by missing-PDF Springer 831, unknown 633, Wiley 568, Elsevier 381, and De Gruyter 199. Next lane is source/candidate-host subclustering for `missing_pdf_harvest` before more broad publisher probes. These are support/cluster or provider-strategy evidence only. They do not move the accepted 10K metric until a read-only/full gate confirms them. Do not push Taxicab main before the full PDF 95% proof.
-Current handoff override: Taxicab commit `cc6689c` ran the Taylor API
-host-specific no-storage provider probe, and oxjobs commit `48ffd7d9` publishes
-the scrubbed aggregate report. The probe recovered `0/10 good_pdf`; all 40
-strategy attempts were `download_404`; it did not write Taxicab
-POST/R2/DynamoDB state. Keep `api.taylorfrancis.com` in
-candidate-discovery/provider-support. Next lane is the separate Taylor direct
-host `tandfonline.com` residual queue.
+Current handoff override: Taxicab commit `ae2655d` ran the Taylor direct TandF
+host-specific no-storage provider probe, and oxjobs commit `cca3d122` publishes
+the scrubbed aggregate report. The direct TandF probe recovered `0/10
+good_pdf`; best categories were 9 `interstitial_or_paywall` and 1
+`js_redirect_unresolved`; it did not write Taxicab POST/R2/DynamoDB state.
+Taylor API probe `taylor-api-current-missing-provider-probe10-a230505` was also
+negative at oxjobs `48ffd7d9`: `0/10`, all 40 attempts `download_404`. Keep both
+Taylor lanes in provider/Zyte support until a provider-advised PDF-byte recipe
+or Browserbase gold comparison exists.
 Next exact command:
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-readable-encrypted-f2da963/rows.ndjson --category missing_pdf_harvest --publisher taylor --host tandfonline.com --limit 10 --out pdf_eval_runs/ --run-id taylor-tandfonline-current-missing-provider-probe10-cc6689c --timeout 60
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "taylor-tandfonline-current-missing-provider-probe10-ae2655d|cca3d122|provider-advised PDF-byte" AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md
 ```
 
 After Gate 0 is pushed:
@@ -248,7 +250,8 @@ Gate 21.999ez: run unknown `mjle.journals.ekb.eg` current corrupt no-storage pro
 Gate 21.999fa: publish residual cluster refresh after unknown corrupt singleton tail. [done, taxicab 586189b, oxjobs cea24883, residual-clusters-after-unknown-tail-add6ef1 found 3,989 non-good rows across 174 clusters]
 Gate 21.999fb: publish candidate-host residual clustering for missing-PDF rows. [done, taxicab a230505, oxjobs 65411a6c, top concrete hosts link.springer.com 813, onlinelibrary.wiley.com 544, degruyterbrill.com 199, sciencedirect.com 143, api.taylorfrancis.com 52]
 Gate 21.999fc: run Taylor API host-specific no-storage provider probe. [done, taxicab cc6689c, oxjobs 48ffd7d9, 0/10 good_pdf, all 40 attempts download_404, no Taxicab POST/R2/DynamoDB writes]
-Gate 21.999fd: run Taylor direct TandF host-specific no-storage provider probe. [next, host tandfonline.com, no Taxicab POST/R2/DynamoDB writes]
+Gate 21.999fd: run Taylor direct TandF host-specific no-storage provider probe. [done, taxicab ae2655d, oxjobs cca3d122, 0/10 good_pdf, best categories 9 interstitial_or_paywall and 1 js_redirect_unresolved, no Taxicab POST/R2/DynamoDB writes]
+Gate 21.999fe: test a Taylor provider-advised PDF-byte recipe or collect Browserbase gold comparison. [next, no Taxicab main push]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -279,11 +282,11 @@ PDF:
   latest focused evidence: residual-clusters-candidate-host-a230505 splits 3,989 non-good rows by candidate host; top concrete hosts are link.springer.com 813, onlinelibrary.wiley.com 544, degruyterbrill.com 199, sciencedirect.com 143, journals.lww.com 133, academic.oup.com 132, cambridge.org 122, papers.ssrn.com 73, jstor.org 60, and api.taylorfrancis.com 52
   latest implementation candidates: 3b2d218 taxicab: fetch Wiley pdfdirect as PDF bytes; 07c8f95 taxicab: fetch IOP article PDFs as bytes; Taxicab commit 39fa9c2 ACM /doi/pdf byte route implemented on branch; Taxicab commit 6d11e24 ACS /doi/pdf byte route implemented on branch
   local candidate validation: Wiley 13/19 current residual rows classified good_pdf through local http_get; IOP article-PDF route validation `iop-http-get-local-route-precommit` returned 11/16 good_pdf and 5 bot_block_403; ACM route validation `acm-http-get-local-route-precommit-1950532` returned 5/22 classifier good_pdf, 4/22 strict URL-match recoveries, one candidate-DOI mismatch, and no Taxicab POST/R2/DynamoDB writes; ACS route validation `acs-http-get-local-route-precommit-8912673` returned 6/6 good_pdf with no Taxicab POST/R2/DynamoDB writes
-  latest oxjobs publication: 48ffd7d9 #461 taxicab-pdf: publish taylor api probe
+  latest oxjobs publication: cca3d122 #461 taxicab-pdf: publish taylor tandfonline probe
   latest follow-up probes: Wiley /doi/pdf as-is 0/10; Wiley rewrite-to-pdfdirect 2/10 with one DOI mismatch; Springer content/pdf 0/10; ScienceDirect current missing 0/10 after host-filter normalization; combined Zyte packet refreshed
   current code slice: publisher classification uses source PDF URL/candidate PDF URL host fallback; accepted full-gate missing_pdf_harvest unknown-publisher rows drop from 966 to 642, measurement/reporting-only
   current read-only refresh: pdf-full10k-after-readable-encrypted-f2da963 at taxicab f2da963, 2,304/6,293 good_pdf (36.61%), +99 current read-only movement, 3,796 missing_pdf_harvest, 65 corrupt_or_truncated_pdf, 4 encrypted_or_unreadable_pdf, 0 timeout, 0 taxicab_error, 3,675-row gap to 95%; validator/measurement lift, not production scraping-code lift
-  latest provider probe: taylor-api-current-missing-provider-probe10-a230505 at taxicab cc6689c recovered 0/10 current api.taylorfrancis.com missing rows; all 40 strategy attempts were download_404, so Taylor API stays candidate-discovery/provider-support; next probe is direct TandF host tandfonline.com
+  latest provider probe: taylor-tandfonline-current-missing-provider-probe10-ae2655d at taxicab ae2655d recovered 0/10 current tandfonline.com missing rows; best categories were 9 interstitial_or_paywall and 1 js_redirect_unresolved; both Taylor API and direct TandF residuals stay in provider/Zyte support before route code
   no_pdf_expected: 3,707
   denominator-enriched gap to 95%: 3,675 rows on current accepted refresh
   dominant category: 3,796 missing_pdf_harvest

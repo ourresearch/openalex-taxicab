@@ -60,14 +60,15 @@ rows by candidate URL host. The largest remaining concrete hosts are
 `link.springer.com` 813, `onlinelibrary.wiley.com` 544,
 `degruyterbrill.com` 199, `sciencedirect.com` 143, `journals.lww.com` 133,
 `academic.oup.com` 132, `cambridge.org` 122, `papers.ssrn.com` 73,
-`jstor.org` 60, and `api.taylorfrancis.com` 52. The Taylor API host-specific
-probe `taylor-api-current-missing-provider-probe10-a230505` is published at
-oxjobs `48ffd7d9`: `0/10 good_pdf`, all 40 strategy attempts `download_404`,
-no Taxicab POST/R2/DynamoDB writes. Keep
-`api.taylorfrancis.com` in candidate-discovery/provider-support. Next lane is
-the separate Taylor direct host `tandfonline.com` 29-row residual queue because
-direct TandF PDFs have recovered before; use run id
-`taylor-tandfonline-current-missing-provider-probe10-cc6689c`. Treat Wiley as
+`jstor.org` 60, and `api.taylorfrancis.com` 52. Taylor host-specific probing is
+published through oxjobs `cca3d122`: API probe
+`taylor-api-current-missing-provider-probe10-a230505` recovered `0/10 good_pdf`
+with all 40 attempts `download_404`; direct TandF probe
+`taylor-tandfonline-current-missing-provider-probe10-ae2655d` recovered `0/10`
+with best categories 9 `interstitial_or_paywall` and 1
+`js_redirect_unresolved`. Neither wrote Taxicab POST/R2/DynamoDB state. Keep
+both Taylor lanes in provider/Zyte support until a provider-advised PDF-byte
+recipe or Browserbase gold comparison exists. Treat Wiley as
 partial/provider-support plus route validation, and Sage as provider/Zyte
 support evidence. These probes do not move the
 accepted 10K metric until a read-only/full gate confirms them.
@@ -379,7 +380,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "source_pdf|source.*url|candidate|PDF URL|host" scripts openalex_taxicab tests`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "taylor-tandfonline-current-missing-provider-probe10-ae2655d|cca3d122|provider-advised PDF-byte" AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
