@@ -57,6 +57,19 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(len(clusters[0].sample_rows), 2)
         self.assertGreater(clusters[0].estimated_recoverable_rows, clusters[1].estimated_recoverable_rows)
 
+    def test_pdf_success_and_no_pdf_expected_are_not_residuals(self):
+        rows = [
+            row("10.1/a", "good_pdf", "springer", "link.springer.com", support_candidate=False),
+            row("10.1/b", "no_pdf_expected", "elsevier", "unknown", support_candidate=False),
+            row("10.1/c", "missing_pdf_harvest", "wiley", "unknown"),
+        ]
+
+        clusters = cluster_rows(rows, sample_size=5)
+
+        self.assertEqual(len(clusters), 1)
+        self.assertEqual(clusters[0].category, "missing_pdf_harvest")
+        self.assertEqual(clusters[0].publisher, "wiley")
+
     def test_candidate_outputs_separate_lens_and_envoy_queues(self):
         clusters = cluster_rows(
             [

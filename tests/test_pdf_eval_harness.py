@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 from openalex_taxicab.pdf_eval_harness import (
     PDF_CATEGORIES,
+    PDF_CATEGORY_ENCRYPTED_OR_UNREADABLE_PDF,
     PDF_CATEGORY_GOOD_PDF,
     PDF_CATEGORY_HTML_INSTEAD_OF_PDF,
     PDF_CATEGORY_MISSING_PDF_HARVEST,
@@ -209,6 +210,42 @@ class PdfEvalHarnessTests(unittest.TestCase):
         self.assertEqual(row.category, PDF_CATEGORY_GOOD_PDF)
         self.assertGreater(row.page_count, 0)
         self.assertGreater(row.title_overlap, 0)
+
+    def test_readable_encrypted_pdf_is_good_pdf(self):
+        text = "Example Full Text Article 10.5555/readable encrypted PDF body " * 12
+        body = b"%PDF-1.7\n1 0 obj << /Encrypt true >> endobj\n%%EOF\n"
+
+        with patch("openalex_taxicab.pdf_eval_harness.structured_pdf_smoke", return_value=(2, text, True, "")):
+            row = classify_pdf_content(
+                PdfEvidence(
+                    doi="10.5555/readable",
+                    title="Example Full Text Article",
+                    body=body,
+                    content_type="application/pdf",
+                ),
+                run_id="test",
+            )
+
+        self.assertEqual(row.category, PDF_CATEGORY_GOOD_PDF)
+        self.assertNotIn("pdf appears encrypted", row.validation_errors)
+        self.assertEqual(row.page_count, 2)
+
+    def test_tiny_encrypted_pdf_stays_unreadable(self):
+        body = b"%PDF-1.7\n1 0 obj << /Encrypt true >> endobj\n%%EOF\n"
+
+        with patch("openalex_taxicab.pdf_eval_harness.structured_pdf_smoke", return_value=(1, "short", True, "")):
+            row = classify_pdf_content(
+                PdfEvidence(
+                    doi="10.5555/tiny-encrypted",
+                    title="Tiny Encrypted",
+                    body=body,
+                    content_type="application/pdf",
+                ),
+                run_id="test",
+            )
+
+        self.assertEqual(row.category, PDF_CATEGORY_ENCRYPTED_OR_UNREADABLE_PDF)
+        self.assertIn("pdf appears encrypted", row.validation_errors)
 
     def test_first_page_pdf_url_is_preview_not_good_pdf(self):
         row = classify_pdf_content(

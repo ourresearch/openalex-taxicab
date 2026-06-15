@@ -129,6 +129,7 @@ PREVIEW_URL_PATTERNS = tuple(
 )
 
 HTML_MARKERS = ("<html", "<!doctype html", "<body", "<head", "<script")
+READABLE_ENCRYPTED_MIN_TEXT_CHARS = 500
 
 
 @dataclass(frozen=True)
@@ -406,12 +407,20 @@ def classify_pdf_content(evidence: PdfEvidence, *, run_id: str = "") -> PdfEvalR
         overlap = title_overlap(evidence.title, text_smoke)
         normalized_doi = normalize_for_match(evidence.doi)
         doi_match = bool(normalized_doi and normalized_doi in normalize_for_match(text_smoke))
+        has_eof = has_pdf_eof_marker(body)
+        encrypted_signal = structured_encrypted or "/Encrypt" in decoded
+        readable_encrypted = (
+            encrypted_signal
+            and page_count > 0
+            and has_eof
+            and len(text_smoke) >= READABLE_ENCRYPTED_MIN_TEXT_CHARS
+        )
         if structured_error and page_count <= 0:
             validation_errors.append(structured_error)
-        if structured_encrypted or "/Encrypt" in decoded:
+        if encrypted_signal and not readable_encrypted:
             category = PDF_CATEGORY_ENCRYPTED_OR_UNREADABLE_PDF
             validation_errors.append("pdf appears encrypted")
-        elif not has_pdf_eof_marker(body):
+        elif not has_eof:
             category = PDF_CATEGORY_CORRUPT_OR_TRUNCATED_PDF
             validation_errors.append("missing eof marker")
         elif page_count <= 0:

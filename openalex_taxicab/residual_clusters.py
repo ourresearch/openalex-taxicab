@@ -14,16 +14,30 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from openalex_taxicab.eval_harness import CATEGORY_GOOD_HTML, EvalRow, read_rows_ndjson
 
 
+NON_RESIDUAL_CATEGORIES = {
+    CATEGORY_GOOD_HTML,
+    "good_pdf",
+    "no_pdf_expected",
+}
+
 RECOVERABILITY_WEIGHTS = {
     "router_only": 0.55,
     "empty_response": 0.55,
     "js_required": 0.60,
     "missing_harvest": 0.35,
+    "missing_pdf_harvest": 0.12,
     "bot_block_403": 0.50,
     "pdf_instead_of_html": 0.05,
+    "html_instead_of_pdf": 0.40,
+    "js_redirect_unresolved": 0.45,
+    "interstitial_or_paywall": 0.25,
     "download_404": 0.35,
     "timeout": 0.35,
     "invalid_content": 0.10,
+    "corrupt_or_truncated_pdf": 0.20,
+    "wrong_pdf_content": 0.15,
+    "supplement_or_preview_pdf": 0.05,
+    "encrypted_or_unreadable_pdf": 0.08,
     "taxicab_error": 0.10,
 }
 
@@ -38,6 +52,9 @@ BROWSERBASE_CATEGORIES = {
     "js_required",
     "bot_block_403",
     "pdf_instead_of_html",
+    "html_instead_of_pdf",
+    "js_redirect_unresolved",
+    "interstitial_or_paywall",
 }
 
 ZYTE_SUPPORT_CATEGORIES = {
@@ -46,6 +63,10 @@ ZYTE_SUPPORT_CATEGORIES = {
     "js_required",
     "bot_block_403",
     "timeout",
+    "html_instead_of_pdf",
+    "js_redirect_unresolved",
+    "interstitial_or_paywall",
+    "corrupt_or_truncated_pdf",
 }
 
 SENSITIVE_QUERY_PREFIXES = ("X-Amz-",)
@@ -83,7 +104,7 @@ class ResidualCluster:
 def cluster_rows(rows: Iterable[EvalRow], *, sample_size: int = 5) -> list[ResidualCluster]:
     grouped: dict[tuple[str, str, str], list[EvalRow]] = defaultdict(list)
     for row in rows:
-        if row.category == CATEGORY_GOOD_HTML:
+        if row.category in NON_RESIDUAL_CATEGORIES:
             continue
         key = (row.category, row.publisher or "unknown", row.host or "unknown")
         grouped[key].append(row)
@@ -134,8 +155,14 @@ def recommended_agent(category: str, publisher: str, host: str) -> str:
         return "Lens + Envoy"
     if category == "missing_harvest":
         return "Meter + Sentinel"
+    if category == "missing_pdf_harvest":
+        return "Quarry + Meter"
     if category == "pdf_instead_of_html":
         return "Quarry + Lens"
+    if category in {"html_instead_of_pdf", "js_redirect_unresolved", "interstitial_or_paywall"}:
+        return "Lens + Envoy"
+    if category in {"corrupt_or_truncated_pdf", "encrypted_or_unreadable_pdf"}:
+        return "Sentinel + Envoy"
     if category == "bot_block_403":
         return "Lens + Envoy"
     if category in {"empty_response", "js_required"}:
@@ -154,10 +181,22 @@ def recommended_action(category: str, publisher: str, host: str) -> str:
         return "Browserbase sample and Zyte rendering support packet when real browser resolves article"
     if category == "missing_harvest":
         return "Bounded reharvest/read-only verification; accept public lift only through full 10K gate"
+    if category == "missing_pdf_harvest":
+        return "Cluster by publisher/source URL, run no-storage provider probes, and reharvest only bounded recoverable samples"
     if category == "bot_block_403":
         return "Browserbase comparison and Zyte support packet with representative DOI evidence"
     if category == "pdf_instead_of_html":
         return "Split true PDF-only records from recoverable article landing pages before patching"
+    if category == "html_instead_of_pdf":
+        return "Compare browser/Zyte bodies and identify whether HTML is a paywall, viewer shell, or resolvable PDF redirect"
+    if category == "js_redirect_unresolved":
+        return "Use Browserbase gold samples and Zyte support packets for JS redirect chains that should resolve to PDF bytes"
+    if category == "interstitial_or_paywall":
+        return "Separate unavoidable access walls from recoverable interstitial redirects before route changes"
+    if category == "corrupt_or_truncated_pdf":
+        return "Validate bytes/page objects across Zyte strategies and escalate reproducible truncation to Zyte"
+    if category == "encrypted_or_unreadable_pdf":
+        return "Confirm whether PDFs are truly encrypted/legacy or validator-limited before changing retrieval"
     return "Inspect representative rows and classify owner before patching"
 
 
@@ -166,8 +205,14 @@ def evidence_strength(category: str, publisher: str, host: str) -> str:
         return "high: 119-row host cluster plus 0/5 Zyte reharvest recovery and browser-indexed article evidence"
     if category == "missing_harvest":
         return "medium: prior guarded samples recovered 33/70 and full gate accepted +35 rows"
+    if category == "missing_pdf_harvest":
+        return "medium-low: current major-publisher probes are mostly zero, so require fresh subcluster evidence"
     if category == "pdf_instead_of_html":
         return "medium-low: 20-row reharvest recovered 1/20, so split before scaling"
+    if category in {"html_instead_of_pdf", "js_redirect_unresolved", "interstitial_or_paywall"}:
+        return "medium: browser/Zyte comparison can distinguish route bugs from provider limits"
+    if category in {"corrupt_or_truncated_pdf", "encrypted_or_unreadable_pdf"}:
+        return "medium-low: needs byte-level validation before treating as retrieval failure"
     if category in {"empty_response", "js_required", "bot_block_403"}:
         return "medium: clustered full-baseline residuals need browser comparison"
     return "low: needs row-level inspection"

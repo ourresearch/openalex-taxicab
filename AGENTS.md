@@ -300,6 +300,14 @@ commit `21a7697c` publishes the current ACS provider probe; oxjobs #461 commit `
 Latest current-provider confirmations: Nature residual no-storage run `nature-current-missing-provider-probe25-7189521` found 15 residual Nature rows and recovered 0/15; residual best categories were 11 `interstitial_or_paywall` and four `js_redirect_unresolved`. Oxford larger no-storage run `oxford-current-missing-provider-probe25-7189521` recovered 1/25, but the only recovery was a `sciengine.com` candidate; the `academic.oup.com` subset recovered 0/23 with 15 bot blocks, four HTML rows, three interstitial/paywall rows, and one 404. Do not promote Nature or OUP route code from these runs; keep both in provider/Zyte support.
 Latest bounded direct-PDF recovery: unknown-publisher current-provider probes at Taxicab `2244ccc` found recoverable direct PDFs in small clusters. IJISRT recovered 3/3, ISCA recovered 2/2, Microbiology Research recovered 1/3, and Diabetes Journals recovered 0/3. Bounded production-write reharvest `pdf-unknown-ijisrt-isca-reharvest5-2244ccc` recovered 5/5 across IJISRT and ISCA, and read-only confirmation `pdf-unknown-ijisrt-isca-readonly5-2244ccc` preserved 5/5 `good_pdf`. Treat this as durable bounded cache lift until a later accepted full-10K gate confirms corpus-level movement.
 Latest full-gate confirmation: Taxicab run `pdf-full10k-after-unknown-refresh-3d04a80` accepted 2,205/6,293 `good_pdf` (35.04%), with 3,796 missing, 0 timeout, and 0 `taxicab_error`. This confirms +9 good rows versus the publisher-attribution refresh and leaves a 3,774-row gap to 95%. Treat it as confirmed cache/reharvest lift, not Taxicab-main production-code deployment.
+Current validator/tooling slice: residual clustering is now PDF-aware and
+excludes `good_pdf` plus `no_pdf_expected` rows from the residual queue.
+Readable encrypted PDFs now count as `good_pdf` only with EOF, nonzero pages,
+and at least 500 extracted text characters. Targeted read-only run
+`pdf-jstage-readable-encrypted-target-cce66ad` on 85 J-STAGE encrypted rows
+returned 80 `good_pdf`, 4 tiny encrypted residuals, and 1 supplement/preview.
+This remains measurement-only until a full 10K read-only gate confirms the
+corpus-level movement.
 Current tooling slice: `scripts/provider_pdf_probe.py` adds a generic
 no-storage Zyte provider strategy probe. It reads rows/CSV queues, strips query
 strings/fragments from artifacts, never calls Taxicab POST, and writes
@@ -327,7 +335,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && jq '.publisher_category_matrix | to_entries | map({publisher: .key, missing: (.value.missing_pdf_harvest // 0), good: (.value.good_pdf // 0), corrupt: (.value.corrupt_or_truncated_pdf // 0), encrypted: (.value.encrypted_or_unreadable_pdf // 0), supplement: (.value.supplement_or_preview_pdf // 0)}) | sort_by(-.missing) | .[:25]' pdf_eval_runs/pdf-full10k-after-unknown-refresh-3d04a80/summary.json`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && TAXICAB_SHA=$(git rev-parse --short HEAD) && python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --corpus /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv --out pdf_eval_runs/ --run-id pdf-full10k-after-readable-encrypted-${TAXICAB_SHA} --workers 8 --timeout 60 --retries 1 --progress-every 1000`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
