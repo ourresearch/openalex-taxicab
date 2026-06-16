@@ -151,6 +151,7 @@ PRIOR_PROVIDER_HOSTS = {
     "link.springer.com",
     "link.aps.org",
     "maps.mla.org",
+    "mattech-journal.org",
     "nature.com",
     "neurology.org",
     "nomos-elibrary.de",

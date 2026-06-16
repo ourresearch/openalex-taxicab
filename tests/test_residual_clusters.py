@@ -261,6 +261,7 @@ class ResidualClusterTests(unittest.TestCase):
             ("www.ajog.org", "www.ajog.org:/article/:id/pdf"),
             ("pubs.rsna.org", "pubs.rsna.org:/doi/epdf/:doi/:id"),
             ("sk.sagepub.com", "sk.sagepub.com:/ency/edvol/download/:id/chpt/:file.pdf"),
+            ("www.mattech-journal.org", "www.mattech-journal.org:/articles/mattech/pdf/:num/:n/:id.pdf"),
         ]
 
         for host, pattern in closed_hosts:
