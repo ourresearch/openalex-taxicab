@@ -41,35 +41,37 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `f84e7931` publishes the
-planning-only residual-cluster refresh after the accepted Atlantis full gate.
-The accepted full 10K metric remains `pdf-full10k-after-atlantis-3b13642` from
-Taxicab commit `3b13642`: 2,383/6,293 `good_pdf` (37.87%), +2 versus the
-DOI.org/OSTI gate and +546 versus denominator baseline, with 3,789
-`missing_pdf_harvest`, 65 corrupt/truncated, 4 encrypted/unreadable, 23
-supplement/preview, 6 interstitial/paywall, 0 timeout, and 0 `taxicab_error`.
-This is bounded cache/reharvest lift, not a Taxicab-main production scraping
-push. The residual refresh found 3,910 non-good rows across 655 clusters and
-1,426 subclusters; priority bands are 156 provider-lane/do-not-duplicate, 42
-probe-next, 29 Browserbase-or-Zyte-gold-first, 6 existing-branch candidates, 6
-validator/provider lanes, and 1 inspect-first lane. Current phase: reconcile
-`scripts/taxicab_cluster_residuals.py` prior-evidence mapping so already closed
-small hosts are not re-proposed as fresh probes, then rerun residual clustering
-and choose the next non-duplicate provider/access lane or provider-advised
-PDF-byte recipe. Do not promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39
-DOI.org, ACM, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass,
-CCCC, Atlantis Press, or any new lane without a narrower or provider-advised
-recipe. Do not push Taxicab main before the full PDF 95% proof.
+Current publish status: oxjobs #461 commit `7aacac3f` publishes the
+planning-only prior-evidence mapping refresh after the accepted Atlantis full
+gate. The accepted full 10K metric remains
+`pdf-full10k-after-atlantis-3b13642` from Taxicab commit `3b13642`:
+2,383/6,293 `good_pdf` (37.87%), +2 versus the DOI.org/OSTI gate and +546
+versus denominator baseline, with 3,789 `missing_pdf_harvest`, 65
+corrupt/truncated, 4 encrypted/unreadable, 23 supplement/preview, 6
+interstitial/paywall, 0 timeout, and 0 `taxicab_error`. This is bounded
+cache/reharvest lift, not a Taxicab-main production scraping push. The
+prior-map refresh keeps 3,910 non-good rows across 655 clusters and 1,426
+subclusters, but provider-lane/do-not-duplicate rises from 156 to 195, ACM ePDF
+becomes an existing branch candidate, and `probe_next` falls from 42 to 2.
+Current phase: run the top remaining true fresh lane, Mattech/EDP
+(`mattech-journal.org`), through a bounded no-storage provider probe. Do not
+promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39 DOI.org, ACM,
+IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass, CCCC, Atlantis
+Press, IWA/AMPP/Sage Knowledge/RSNA/AJOG/Elgar, or broad Elsevier article-PDF
+lanes without a narrower or provider-advised recipe. Do not push Taxicab main
+before the full PDF 95% proof.
 Current handoff override: the top-level accepted metric is
 `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293 `good_pdf` (37.87%), with a
-3,596-row gap to 95%. Latest oxjobs #461 commit `f84e7931` publishes the
-planning-only Atlantis residual refresh: 3,910 non-good rows, 655 clusters,
-1,426 subclusters, and the next Gate 21.999fr mapping-reconciliation task.
+3,596-row gap to 95%. Latest oxjobs #461 commit `7aacac3f` publishes the
+planning-only Atlantis prior-map refresh from Taxicab commit `ebfbda7`:
+provider-lane/do-not-duplicate is now 195, ACM ePDF is an existing branch
+candidate, `probe_next` is now 2, and the next Gate 21.999fs is the Mattech/EDP
+no-storage provider probe.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-rg -n "prior_evidence|provider_lane_do_not_duplicate|probe_next|Browserbase" scripts/taxicab_cluster_residuals.py tests
+python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category missing_pdf_harvest --host mattech-journal.org --limit 2 --out pdf_eval_runs/ --run-id mattech-current-missing-provider-probe2-ebfbda7 --timeout 60 --sleep 0.5
 
 After Gate 0 is pushed:
 
@@ -287,7 +289,8 @@ Gate 21.999fn: choose another non-duplicate residual lane or provider-advised PD
 Gate 21.999fo: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [done, taxicab d2c69a2, oxjobs 48758ccb, CCCC no-storage provider probe recovered 0/2 and becomes provider/access-flow evidence only]
 Gate 21.999fp: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [done, taxicab 3b13642, oxjobs 9263ff09, Atlantis Press no-storage provider probe recovered 2/2; direct-PDF-URL reharvest/read-only confirmation preserved 2/2; full gate accepted +2 with 0 regressions]
 Gate 21.999fq: refresh residual clusters after Atlantis. [done, taxicab 12edf68, oxjobs f84e7931, planning-only refresh found 3,910 non-good rows across 655 clusters and 1,426 subclusters; no accepted KPI lift]
-Gate 21.999fr: reconcile residual prior-evidence mapping before the next provider probe. [next, measurement/planning only; no Taxicab main push]
+Gate 21.999fr: reconcile residual prior-evidence mapping before the next provider probe. [done, taxicab ebfbda7, oxjobs 7aacac3f, provider-lane/do-not-duplicate 156->195, probe_next 42->2, no accepted KPI lift]
+Gate 21.999fs: run Mattech/EDP bounded no-storage provider probe. [next, evidence only; no Taxicab POST/R2/DynamoDB writes; no Taxicab main push]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
