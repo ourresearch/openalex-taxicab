@@ -17,51 +17,58 @@ Current handoff override: accepted full 10K PDF gate
 +544 versus denominator baseline. It has 3,791 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,598 rows. Oxjobs #461 commit `9bf305d0`
+`taxicab_error`. The gap to 95% is 3,598 rows. Oxjobs #461 commit `dbe90e51`
 publishes the aggregate-only full-gate report/summary plus the latest
-DOI.org/OSTI interstitial recovery evidence. This is bounded cache/reharvest
-lift, not a Taxicab-main production scraping-code lift. Gate note: no Taxicab
-main push.
+post-rank61 branch confirmation evidence. This is bounded cache/reharvest lift
+plus branch/evidence work, not a Taxicab-main production scraping-code lift.
+Gate note: no Taxicab main push.
 
-Latest report publish: oxjobs #461 commit `9bf305d0` publishes the DOI.org/OSTI
+Latest report publish: oxjobs #461 commit `dbe90e51` publishes the DOI.org/OSTI
 interstitial full gate in addition to the prior supplement-validator,
 rank-39 DOI.org JS-redirect gold-first, Elsevier DOI.org, ACM/ACS
-branch-candidate, ACM local `http_get`, and SAGE/Wiley route validation
-evidence. The targeted DOI.org/OSTI lane recovered 2/2 rows through Zyte
-PDF-byte strategies; full gate
+branch-candidate, ACM local `http_get`, SAGE/Wiley route validation, and
+post-rank61 branch confirmations. The targeted DOI.org/OSTI lane recovered 2/2
+rows through Zyte PDF-byte strategies; full gate
 `pdf-full10k-after-rank61-interstitial-8562e3b` recovered +2 rows with 0
 good-to-non-good regressions and reduced `interstitial_or_paywall` from 8 to 6.
+The branch confirmations do not change that accepted KPI: ACM recovered 15/19
+current missing rows through local no-storage `http_get`, ACS recovered 0/19
+current missing rows, and Wiley recovered 0/8 current corrupt rows.
 
-Latest local validations: `rank61-doi-osti-interstitial-recovery-8562e3b`
-proved 2/2 targeted DOI.org/OSTI rows recoverable. Browserbase showed
-recoverability but exposed a download-start collector gap, so keep Browserbase
-as evidence/gold only and use Zyte as production core. Earlier validations
-remain: supplement validator recovered +70 at full-gate scale; ACM branch
-validation classified 18/22 rows as `good_pdf`; SAGE landing-page rewrite
-regressed preservation rows; Wiley and Elsevier DOI.org residual probes
-recovered 0. Row-level evidence stays local; summary/report are aggregate-only.
+Latest local validations: Browserbase PDF evidence mode is fixed at Taxicab
+commit `bdcc38a` for download-start navigation errors. Residual clustering from
+the accepted rank61 full gate found ACM as the strongest current branch
+candidate. Earlier validations remain: supplement validator recovered +70 at
+full-gate scale; DOI.org/OSTI recovered +2 at full-gate scale; SAGE
+landing-page rewrite regressed preservation rows; Wiley, ACS, and Elsevier
+DOI.org residual probes do not currently justify promotion. Row-level evidence
+stays local; summary/report artifacts are aggregate-only.
 
-Next exact action: refresh residual clusters from
-`pdf-full10k-after-rank61-interstitial-8562e3b`, then choose the next
-non-duplicate missing-PDF/provider/access lane. Keep ACM as a narrow branch
-candidate for a future production regression gate. ACS missing rows stay in the
-Zyte/support debt lane. Do not promote SAGE, Wiley, Elsevier DOI.org,
-rank-39 DOI.org, or any new lane without a narrower or provider-advised recipe.
-Do not run another duplicate fresh-tail loop. Historical sections below may use
-"current" relative to older gates; this top block is authoritative.
+Next exact action: run ACM preservation proof against already-good ACM rows
+from `pdf-full10k-after-rank61-interstitial-8562e3b`. If ACM preserves existing
+good rows, publish the aggregate proof to #461 and then decide whether a narrow
+branch route should get a targeted/full regression gate. Do not promote SAGE,
+Wiley, ACS, Elsevier DOI.org, rank-39 DOI.org, or any new lane without a
+narrower or provider-advised recipe. Do not run another duplicate fresh-tail
+loop. Historical sections below may use "current" relative to older gates; this
+top block is authoritative.
 ```
 
 Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py \
-  --rows pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
-  --out pdf_eval_runs/residual-clusters-after-rank61-interstitial-8562e3b \
-  --run-id residual-clusters-after-rank61-interstitial-8562e3b \
-  --sample-size 5 \
-  --top-n 200
-sed -n '1,80p' pdf_eval_runs/residual-clusters-after-rank61-interstitial-8562e3b/residual-subclusters.csv
+python3 scripts/http_get_route_probe.py \
+  --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
+  --category good_pdf \
+  --publisher acm \
+  --host dl.acm.org \
+  --limit 10 \
+  --out /tmp/taxicab-pdf-branch-confirm \
+  --run-id acm-rank61-good-preservation-http-get-route-confirm-bdcc38a \
+  --read-timeout 60 \
+  --connect-timeout 5 \
+  --sleep 0.5
 ```
 
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
@@ -1396,7 +1403,17 @@ Next exact commands:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 git switch codex/taxicab-pdf-phase2
-sed -n '149,160p' pdf_eval_runs/residual-subclusters-prioritized-30121a7/residual-subclusters.csv
+python3 scripts/http_get_route_probe.py \
+  --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
+  --category good_pdf \
+  --publisher acm \
+  --host dl.acm.org \
+  --limit 10 \
+  --out /tmp/taxicab-pdf-branch-confirm \
+  --run-id acm-rank61-good-preservation-http-get-route-confirm-bdcc38a \
+  --read-timeout 60 \
+  --connect-timeout 5 \
+  --sleep 0.5
 ```
 
 ### 12. Continue from the post-95 HTML residual queue only if PDF work is paused

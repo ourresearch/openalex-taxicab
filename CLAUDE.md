@@ -16,45 +16,48 @@ the denominator baseline of 1,837/6,293 (29.19%). The run has 3,791
 3,598 rows. This is a bounded cache/reharvest lift, not a Taxicab-main
 production scraping push.
 
-Latest #461 report publish: oxjobs commit `9bf305d0` records the accepted
-DOI.org/OSTI interstitial full gate from Taxicab commit `8562e3b`, plus the
-prior supplement-validator, rank-39 DOI.org gold-first, Elsevier DOI.org,
-ACM/ACS, SAGE, and Wiley evidence. The DOI.org/OSTI lane recovered 2/2
-targeted rows through Zyte PDF-byte strategies, accepted +2 rows at full-gate
-scale, reduced `interstitial_or_paywall` from 8 to 6, and had 0
-good-to-non-good regressions.
+Latest #461 report publish: oxjobs commit `dbe90e51` records the accepted
+DOI.org/OSTI interstitial full gate from Taxicab commit `8562e3b`, then adds
+post-rank61 branch confirmations from Taxicab branch commit `bdcc38a`. The
+accepted KPI is unchanged by those branch confirmations: ACM current
+missing-PDF rows recovered 15/19 through local no-storage `http_get`, while ACS
+current missing recovered 0/19 and Wiley current corrupt recovered 0/8. These
+are branch/evidence findings, not accepted full-gate lift.
 
-Latest local validations: `rank61-doi-osti-interstitial-recovery-8562e3b`
-proved 2/2 targeted DOI.org/OSTI rows recoverable; Browserbase indicated
-browser recoverability but exposed a download-start collector gap, so the
-accepted recovery came from Zyte/Taxicab PDF-byte handling plus read-only
-confirmation. Earlier validations remain: supplement validator recovered +70
-at full-gate scale; ACM branch validation classified 18/22 rows as `good_pdf`;
-SAGE landing-page rewrite regressed preservation rows; Wiley and Elsevier
-DOI.org residual probes recovered 0. Published artifacts are aggregate-only;
+Latest local validations: Browserbase PDF evidence mode is fixed at Taxicab
+commit `bdcc38a` to survive download-start navigation errors and capture
+started/not-captured download evidence. Residual clustering from
+`pdf-full10k-after-rank61-interstitial-8562e3b` found top duplicate/provider
+lanes already tracked elsewhere, with ACM as the strongest current branch
+candidate: 15/19 current missing rows recovered by local no-storage `http_get`.
+Earlier validations remain: supplement validator recovered +70 at full-gate
+scale; DOI.org/OSTI recovered +2 at full-gate scale; SAGE landing-page rewrite
+regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
+do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
-Next action: refresh residual clusters from
-`pdf-full10k-after-rank61-interstitial-8562e3b`, then choose the next
-non-duplicate missing-PDF/provider/access lane from the refreshed subcluster
-table. Track the Browserbase download-start collector gap separately; do not
-promote Browserbase as production fallback. Keep ACM as a narrow branch
-candidate for a future production regression gate; do not promote SAGE, Wiley,
-Elsevier DOI.org, rank-39 DOI.org, or any new lane without a narrower or
-provider-advised recipe. Keep Zyte as the production core. Do not push Taxicab
-main before the full PDF 95% proof; gate note: no Taxicab main push.
+Next action: run ACM preservation proof against already-good ACM rows from
+`pdf-full10k-after-rank61-interstitial-8562e3b`. If ACM preserves existing good
+rows, publish the aggregate proof to #461 and then decide whether a narrow
+branch route should get a targeted/full regression gate. Keep Browserbase as
+evidence/gold only, Zyte as the production core, and do not push Taxicab main
+before the full PDF 95% proof.
 
 Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py \
-  --rows pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
-  --out pdf_eval_runs/residual-clusters-after-rank61-interstitial-8562e3b \
-  --run-id residual-clusters-after-rank61-interstitial-8562e3b \
-  --sample-size 5 \
-  --top-n 200
-sed -n '1,80p' pdf_eval_runs/residual-clusters-after-rank61-interstitial-8562e3b/residual-subclusters.csv
+python3 scripts/http_get_route_probe.py \
+  --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
+  --category good_pdf \
+  --publisher acm \
+  --host dl.acm.org \
+  --limit 10 \
+  --out /tmp/taxicab-pdf-branch-confirm \
+  --run-id acm-rank61-good-preservation-http-get-route-confirm-bdcc38a \
+  --read-timeout 60 \
+  --connect-timeout 5 \
+  --sleep 0.5
 ```
 
 Historical detail below is chronological and may use "current" relative to the
@@ -367,7 +370,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && sed -n '149,160p' pdf_eval_runs/residual-subclusters-prioritized-30121a7/residual-subclusters.csv`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson --category good_pdf --publisher acm --host dl.acm.org --limit 10 --out /tmp/taxicab-pdf-branch-confirm --run-id acm-rank61-good-preservation-http-get-route-confirm-bdcc38a --read-timeout 60 --connect-timeout 5 --sleep 0.5`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context
@@ -955,7 +958,7 @@ scrubbed summaries, reports, and residual provider packet. Full gate
 `pdf-full10k-after-humankinetics-bbd2225` accepted 1,910/6,293 `good_pdf`
 (30.35%), +20 versus Karger and +73 versus the denominator baseline, with 0
 timeout and 0 `taxicab_error`; oxjobs commit `43ca3830` publishes that report.
-Latest Taxicab code/eval commit before this handoff-doc update is `f623ef7`.
+Latest Taxicab code/eval commit before this handoff-doc update is `bdcc38a`.
 
 ## Agent Operating Rules
 
