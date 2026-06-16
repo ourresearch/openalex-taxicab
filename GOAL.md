@@ -41,52 +41,43 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `c6013191` publishes the accepted
-full 10K gate `pdf-full10k-after-supplement-scan-02b9793` from Taxicab commit
-`02b9793`: 2,379/6,293 `good_pdf` (37.80%), +70 versus the fresh-tail gate and
-+542 versus denominator baseline, with 3,791 `missing_pdf_harvest`, 65
-corrupt/truncated, 4 encrypted/unreadable, 23 supplement/preview, 0 timeout,
-and 0 `taxicab_error`. This is validator-correctness lift from narrowing weak
-supplement text scanning, not a Taxicab-main production scraping push. The same
-oxjobs job also publishes aggregate-only ACM/ACS branch-candidate evidence, ACM
-local `http_get` route validation, SAGE/Wiley route validation, Elsevier
-DOI.org gold-first evidence, rank-39 DOI.org JS-redirect gold-first evidence,
-and the prior fresh-tail full gate.
-ACM provider probes recovered 15/22 current missing rows, and the actual branch
-`http_get` path classified 18/22 as `good_pdf`. ACS recovered 0/46 current
-missing rows, preserved 8/8 already-good rows, and recovered 5/6
-corrupt/truncated rows. SAGE landing-page rewrite recovered 6/6 current
-corrupt/truncated rows but regressed 4/6 already-good rows; direct SAGE
-PDF-byte strategies recovered 0/6. Wiley PDF-direct replay recovered 0/19.
-Elsevier DOI.org probe `elsevier-doi-missing-provider-probe15-e22524b`
-recovered 0/15 current Elsevier-attributed `missing_pdf_harvest` rows; best
-outcomes were 14 `html_instead_of_pdf` and one `js_redirect_unresolved`.
-Rank-39 Browserbase session gold
-`rank39-jsredirect-unknown-doi-browserbase-gold2-c818a1f` recovered 0/2 PDFs,
-and paired Zyte no-storage probe
-`rank39-jsredirect-unknown-doi-provider-probe2-c818a1f` recovered 0/2
-`good_pdf`.
-Latest local validations made no Taxicab POST/R2/DynamoDB writes. Current
-phase: refresh residual clusters from the accepted supplement-validator full
+Current publish status: oxjobs #461 commit `9bf305d0` publishes the accepted
+full 10K gate `pdf-full10k-after-rank61-interstitial-8562e3b` from Taxicab
+commit `8562e3b`: 2,381/6,293 `good_pdf` (37.84%), +2 versus the
+supplement-validator gate and +544 versus denominator baseline, with 3,791
+`missing_pdf_harvest`, 65 corrupt/truncated, 4 encrypted/unreadable, 23
+supplement/preview, 6 interstitial/paywall, 0 timeout, and 0 `taxicab_error`.
+This is bounded cache/reharvest lift, not a Taxicab-main production scraping
+push. The same oxjobs job also publishes aggregate-only supplement-validator,
+ACM/ACS branch-candidate, ACM local `http_get`, SAGE/Wiley route validation,
+Elsevier DOI.org gold-first, rank-39 DOI.org JS-redirect gold-first, and prior
+fresh-tail full-gate evidence.
+The DOI.org/OSTI lane recovered 2/2 targeted rows through Zyte PDF-byte
+strategies, accepted +2 rows at full-gate scale, reduced
+`interstitial_or_paywall` from 8 to 6, and had 0 good-to-non-good regressions.
+Browserbase indicated recoverability but exposed a download-start collector
+gap; track that as evidence-mode work, not production fallback. Current phase:
+refresh residual clusters from the accepted DOI.org/OSTI interstitial full
 gate, then choose the next non-duplicate missing-PDF/provider/access lane. Keep
 ACM as a narrow branch candidate for a future regression gate. Do not promote
 SAGE, Wiley, Elsevier DOI.org, rank-39 DOI.org, or any new lane without a
 narrower or provider-advised recipe. Do not push Taxicab main before the full
 PDF 95% proof.
 Current handoff override: the top-level accepted metric is
-`pdf-full10k-after-supplement-scan-02b9793`, 2,379/6,293 `good_pdf` (37.80%),
-with a 3,600-row gap to 95%. Oxjobs #461 commit `c6013191` publishes this
-accepted full gate from Taxicab commit `02b9793`. Historical sections below may
-use "current" relative to older gates; this block is authoritative.
+`pdf-full10k-after-rank61-interstitial-8562e3b`, 2,381/6,293 `good_pdf`
+(37.84%), with a 3,598-row gap to 95%. Oxjobs #461 commit `9bf305d0`
+publishes this accepted full gate from Taxicab commit `8562e3b`. Historical
+sections below may use "current" relative to older gates; this block is
+authoritative.
 Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_cluster_residuals.py \
-  --rows pdf_eval_runs/pdf-full10k-after-supplement-scan-02b9793/rows.ndjson \
-  --out pdf_eval_runs/residual-clusters-after-supplement-scan-02b9793 \
-  --run-id residual-clusters-after-supplement-scan-02b9793 \
+  --rows pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
+  --out pdf_eval_runs/residual-clusters-after-rank61-interstitial-8562e3b \
+  --run-id residual-clusters-after-rank61-interstitial-8562e3b \
   --sample-size 5 \
   --top-n 200
-sed -n '1,80p' pdf_eval_runs/residual-clusters-after-supplement-scan-02b9793/residual-subclusters.csv
+sed -n '1,80p' pdf_eval_runs/residual-clusters-after-rank61-interstitial-8562e3b/residual-subclusters.csv
 
 After Gate 0 is pushed:
 

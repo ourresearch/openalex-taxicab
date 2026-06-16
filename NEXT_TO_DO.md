@@ -12,42 +12,37 @@ expanded operational context.
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
 Current handoff override: accepted full 10K PDF gate
-`pdf-full10k-after-supplement-scan-02b9793` at Taxicab commit `02b9793` is
-2,379/6,293 `good_pdf` (37.80%), +70 versus the fresh-tail gate and +542
-versus denominator baseline. It has 3,791 `missing_pdf_harvest`, 65
+`pdf-full10k-after-rank61-interstitial-8562e3b` at Taxicab commit `8562e3b` is
+2,381/6,293 `good_pdf` (37.84%), +2 versus the supplement-validator gate and
++544 versus denominator baseline. It has 3,791 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
-`supplement_or_preview_pdf`, 0 timeout, and 0 `taxicab_error`. The gap to 95%
-is 3,600 rows. Oxjobs #461 commit `c6013191` publishes the aggregate-only
-full-gate report/summary plus the latest branch-candidate and gold-first
-evidence. This is validator-correctness lift, not production scraping-code
-lift. Gate note: no Taxicab main push.
+`supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
+`taxicab_error`. The gap to 95% is 3,598 rows. Oxjobs #461 commit `9bf305d0`
+publishes the aggregate-only full-gate report/summary plus the latest
+DOI.org/OSTI interstitial recovery evidence. This is bounded cache/reharvest
+lift, not a Taxicab-main production scraping-code lift. Gate note: no Taxicab
+main push.
 
-Latest report publish: oxjobs #461 commit `c6013191` publishes the
-supplement-validator full gate in addition to the aggregate-only rank-39
-DOI.org JS-redirect gold-first evidence, Elsevier DOI.org, ACM/ACS
-branch-candidate recheck, ACM local `http_get` validation, and SAGE/Wiley route
-validation. Targeted rank-61 replay recovered 9/10 prior
-`supplement_or_preview_pdf` rows as `good_pdf`; full gate
-`pdf-full10k-after-supplement-scan-02b9793` recovered +70 rows with 0
-good-to-non-good regressions. ACM provider probes recovered 15/22 current
-missing rows, and the actual branch `http_get` path classified 18/22 as
-`good_pdf`. SAGE, Wiley, Elsevier DOI.org, and rank-39 DOI.org remain
-evidence/support lanes unless a narrower or provider-advised recipe passes
-targeted and full gates.
+Latest report publish: oxjobs #461 commit `9bf305d0` publishes the DOI.org/OSTI
+interstitial full gate in addition to the prior supplement-validator,
+rank-39 DOI.org JS-redirect gold-first, Elsevier DOI.org, ACM/ACS
+branch-candidate, ACM local `http_get`, and SAGE/Wiley route validation
+evidence. The targeted DOI.org/OSTI lane recovered 2/2 rows through Zyte
+PDF-byte strategies; full gate
+`pdf-full10k-after-rank61-interstitial-8562e3b` recovered +2 rows with 0
+good-to-non-good regressions and reduced `interstitial_or_paywall` from 8 to 6.
 
-Latest local validations: `rank61-supplement-doi-readonly-validator-scan-02b9793`
-classified 9/10 prior supplement/preview rows as `good_pdf`. `acm-http-get-route-current-4614cef` classified 18/22
-ACM rows as `good_pdf`; `sage-pdf-http-get-current-33a6b95` classified 6/6
-SAGE corrupt rows as `good_pdf`; `sage-pdf-http-get-preservation-33a6b95`
-regressed 4/6 SAGE already-good rows; `wiley-pdfdirect-http-get-current-33a6b95`
-recovered 0/19 current Wiley residual rows; `elsevier-doi-missing-provider-probe15-e22524b`
-recovered 0/15 current Elsevier DOI.org candidate rows; rank-39 Browserbase and
-Zyte evidence recovered 0/2 PDFs from the unknown-attribution DOI.org
-JS-redirect lane. All made no Taxicab POST/R2/DynamoDB writes. Row-level
-evidence stays local; summary/report are aggregate-only.
+Latest local validations: `rank61-doi-osti-interstitial-recovery-8562e3b`
+proved 2/2 targeted DOI.org/OSTI rows recoverable. Browserbase showed
+recoverability but exposed a download-start collector gap, so keep Browserbase
+as evidence/gold only and use Zyte as production core. Earlier validations
+remain: supplement validator recovered +70 at full-gate scale; ACM branch
+validation classified 18/22 rows as `good_pdf`; SAGE landing-page rewrite
+regressed preservation rows; Wiley and Elsevier DOI.org residual probes
+recovered 0. Row-level evidence stays local; summary/report are aggregate-only.
 
 Next exact action: refresh residual clusters from
-`pdf-full10k-after-supplement-scan-02b9793`, then choose the next
+`pdf-full10k-after-rank61-interstitial-8562e3b`, then choose the next
 non-duplicate missing-PDF/provider/access lane. Keep ACM as a narrow branch
 candidate for a future production regression gate. ACS missing rows stay in the
 Zyte/support debt lane. Do not promote SAGE, Wiley, Elsevier DOI.org,
@@ -61,12 +56,12 @@ Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_cluster_residuals.py \
-  --rows pdf_eval_runs/pdf-full10k-after-supplement-scan-02b9793/rows.ndjson \
-  --out pdf_eval_runs/residual-clusters-after-supplement-scan-02b9793 \
-  --run-id residual-clusters-after-supplement-scan-02b9793 \
+  --rows pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
+  --out pdf_eval_runs/residual-clusters-after-rank61-interstitial-8562e3b \
+  --run-id residual-clusters-after-rank61-interstitial-8562e3b \
   --sample-size 5 \
   --top-n 200
-sed -n '1,80p' pdf_eval_runs/residual-clusters-after-supplement-scan-02b9793/residual-subclusters.csv
+sed -n '1,80p' pdf_eval_runs/residual-clusters-after-rank61-interstitial-8562e3b/residual-subclusters.csv
 ```
 
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
