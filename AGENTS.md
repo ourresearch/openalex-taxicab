@@ -14,22 +14,21 @@ baseline of 1,837/6,293 (29.19%). The run has 3,789 `missing_pdf_harvest`, 65
 `taxicab_error`. The gap to 95% is 3,596 rows. This is a bounded
 cache/reharvest lift, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `27cef9f9` publishes the Mattech
-prior-map refresh after the accepted full gate. The accepted
+Latest #461 report publish: oxjobs commit `05596e21` publishes the bioRxiv
+branch-candidate refresh after the accepted full gate. The accepted
 metric remains `pdf-full10k-after-atlantis-3b13642`: 2,383/6,293 `good_pdf`
 (37.87%), +2 rows versus the DOI.org/OSTI gate, +546 rows versus denominator
 baseline, and a 3,596-row gap to 95%. The planning-only prior-map refresh keeps
 the same 3,910 non-good rows, 655 clusters, and 1,426 subclusters, but moves
 previously tested provider lanes and Elsevier-style article-PDF residuals out
-of `probe_next`: provider-lane/do-not-duplicate is now 196, ACM ePDF
-remains an existing branch candidate, and `probe_next` is down to 1.
+of `probe_next`: top-240 `probe_next` is now 0 and `confirm_existing_branch_candidate` is 8.
 Published artifacts are aggregate-only; raw rows stay local.
 
 Latest local validations: Atlantis Press is complete at Taxicab commit
-`3b13642`; prior-evidence mapping is complete through `e9cec98`; oxjobs #461 latest
-publish is `27cef9f9`. Browserbase PDF evidence mode remains fixed at Taxicab
+`3b13642`; prior-evidence mapping is complete through `3c80154`; oxjobs #461 latest
+publish is `05596e21`. Browserbase PDF evidence mode remains fixed at Taxicab
 commit `bdcc38a` to survive download-start navigation errors and capture
-started/not-captured download evidence. The Mattech prior-map refresh supersedes the
+started/not-captured download evidence. The bioRxiv branch-candidate refresh supersedes the
 older residual lane queue; do not duplicate the moved provider lanes unless
 testing a provider-advised recipe.
 Earlier validations remain: supplement validator recovered +70 at full-gate
@@ -38,9 +37,7 @@ regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
 do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
-Next action: run a bounded no-storage provider probe on the remaining repeated true
-fresh lane, bioRxiv/CSHLP (`biorxiv.org`), unless a Zyte-advised PDF-byte
-recipe arrives first.
+Next action: run the first branch-candidate confirmation gate, starting with the largest current `confirm_existing_branch_candidate` lane.
 Keep Browserbase as evidence/gold only, Zyte as the production core, and do not
 push Taxicab main before the full PDF 95% proof.
 
@@ -48,7 +45,7 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category missing_pdf_harvest --host biorxiv.org --limit 2 --out pdf_eval_runs/ --run-id biorxiv-current-missing-provider-probe2-e9cec98 --timeout 60 --sleep 0.5
+python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category missing_pdf_harvest --host pubs.acs.org --limit 19 --out pdf_eval_runs/ --run-id acs-branch-candidate-current-confirm-3c80154 --read-timeout 60 --connect-timeout 10 --sleep 0.5
 ```
 
 Historical detail below is chronological and may use "current" relative to the
@@ -372,7 +369,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category missing_pdf_harvest --host biorxiv.org --limit 2 --out pdf_eval_runs/ --run-id biorxiv-current-missing-provider-probe2-e9cec98 --timeout 60 --sleep 0.5`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category missing_pdf_harvest --host pubs.acs.org --limit 19 --out pdf_eval_runs/ --run-id acs-branch-candidate-current-confirm-3c80154 --read-timeout 60 --connect-timeout 10 --sleep 0.5`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
