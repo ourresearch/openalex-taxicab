@@ -79,8 +79,6 @@ PRIOR_ROUTE_CANDIDATE_PATTERNS = (
     ("iopscience.iop.org:/article/", "iop_article_pdf_branch_candidate"),
     ("dl.acm.org:/doi/epdf/", "acm_pdf_byte_branch_candidate"),
     ("dl.acm.org:/doi/pdf/", "acm_pdf_byte_branch_candidate"),
-    ("pubs.acs.org:/doi/epdf/", "acs_pdf_byte_branch_candidate"),
-    ("pubs.acs.org:/doi/pdf/", "acs_pdf_byte_branch_candidate"),
     ("biorxiv.org:/content/biorxiv/early/", "biorxiv_pdf_byte_branch_candidate"),
     ("www.biorxiv.org:/content/biorxiv/early/", "biorxiv_pdf_byte_branch_candidate"),
 )
@@ -165,6 +163,7 @@ PRIOR_PROVIDER_HOSTS = {
     "pdf.sciencedirectassets.com",
     "peterlang.com",
     "pm-research.com",
+    "pubs.acs.org",
     "pubs.rsna.org",
     "pubs.asha.org",
     "pubs.aip.org",

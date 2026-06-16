@@ -214,6 +214,18 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(status, "prior_negative_or_support_evidence")
         self.assertEqual(band, "provider_lane_do_not_duplicate")
 
+    def test_subcluster_priority_demotes_acs_residual_pdf_routes(self):
+        status, band, decision = subcluster_priority(
+            "missing_pdf_harvest",
+            "acs",
+            "pubs.acs.org",
+            "pubs.acs.org:/doi/pdf/:doi/:id",
+        )
+
+        self.assertEqual(status, "prior_negative_or_support_evidence")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
+        self.assertIn("provider/Zyte", decision)
+
     def test_subcluster_priority_matches_www_and_subdomain_prior_hosts(self):
         concrete_status, concrete_band, _ = subcluster_priority(
             "missing_pdf_harvest",
