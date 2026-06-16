@@ -316,17 +316,6 @@ class ResidualClusterTests(unittest.TestCase):
     def test_subcluster_priority_marks_existing_branch_candidates(self):
         status, band, decision = subcluster_priority(
             "missing_pdf_harvest",
-            "acm",
-            "dl.acm.org",
-            "dl.acm.org:/doi/pdf/:doi/:id",
-        )
-
-        self.assertEqual(status, "acm_pdf_byte_branch_candidate")
-        self.assertEqual(band, "confirm_existing_branch_candidate")
-        self.assertIn("duplicate provider probe", decision)
-
-        status, band, decision = subcluster_priority(
-            "missing_pdf_harvest",
             "cshlp",
             "biorxiv.org",
             "www.biorxiv.org:/content/biorxiv/early/:num/:n/:n/...",
@@ -335,6 +324,18 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(status, "biorxiv_pdf_byte_branch_candidate")
         self.assertEqual(band, "confirm_existing_branch_candidate")
         self.assertIn("duplicate provider probe", decision)
+
+    def test_subcluster_priority_demotes_acm_residual_pdf_routes(self):
+        status, band, decision = subcluster_priority(
+            "missing_pdf_harvest",
+            "acm",
+            "dl.acm.org",
+            "dl.acm.org:/doi/pdf/:doi/:id",
+        )
+
+        self.assertEqual(status, "prior_negative_or_support_evidence")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
+        self.assertIn("provider/Zyte", decision)
 
     def test_subcluster_priority_marks_fresh_probe_candidates(self):
         status, band, decision = subcluster_priority(
