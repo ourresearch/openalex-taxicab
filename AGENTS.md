@@ -13,39 +13,41 @@ baseline of 1,837/6,293 (29.19%). The run has 3,791 `missing_pdf_harvest`,
 `supplement_or_preview_pdf`, 0 timeout, and 0 `taxicab_error`. The gap to 95%
 is 3,670 rows.
 
-Latest #461 report publish: oxjobs commit `d1f20969` records the Elsevier
-DOI.org gold-first evidence in addition to the prior ACM/ACS branch-candidate
-recheck, ACM local `http_get` validation, and SAGE/Wiley route validation. ACM
-provider probes recovered 15/22 current missing rows, and the actual branch
-`http_get` path classified 18/22 as `good_pdf`. ACS recovered 0/46 current
-missing rows, preserved 8/8 already-good rows, and recovered 5/6
-corrupt/truncated rows. SAGE landing-page rewrite recovered 6/6 current
-corrupt/truncated rows but regressed 4/6 already-good preservation rows to
-`js_redirect_unresolved`; direct SAGE PDF-byte strategies recovered 0/6. Wiley
-current `/doi/pdfdirect/` replay recovered 0/19 and every row classified as
-`empty_response`. The new Elsevier DOI.org no-storage probe
+Latest #461 report publish: oxjobs commit `fae1e3d1` records the rank-39 DOI.org
+JS-redirect gold-first evidence in addition to the prior Elsevier DOI.org,
+ACM/ACS, SAGE, and Wiley evidence. ACM provider probes recovered 15/22 current
+missing rows, and the actual branch `http_get` path classified 18/22 as
+`good_pdf`. ACS recovered 0/46 current missing rows, preserved 8/8 already-good
+rows, and recovered 5/6 corrupt/truncated rows. SAGE landing-page rewrite
+recovered 6/6 current corrupt/truncated rows but regressed 4/6 already-good
+preservation rows to `js_redirect_unresolved`; direct SAGE PDF-byte strategies
+recovered 0/6. Wiley current `/doi/pdfdirect/` replay recovered 0/19 and every
+row classified as `empty_response`. Elsevier DOI.org no-storage probe
 `elsevier-doi-missing-provider-probe15-e22524b` recovered 0/15 current
-Elsevier-attributed `missing_pdf_harvest` rows; best outcomes were 14
-`html_instead_of_pdf` and one `js_redirect_unresolved`. This is evidence only;
-it is not an accepted full-corpus KPI lift.
+Elsevier-attributed `missing_pdf_harvest` rows. Rank-39 Browserbase session gold
+`rank39-jsredirect-unknown-doi-browserbase-gold2-c818a1f` recovered 0/2 PDFs,
+and paired Zyte no-storage probe
+`rank39-jsredirect-unknown-doi-provider-probe2-c818a1f` recovered 0/2
+`good_pdf`. These are evidence only; no accepted full-corpus KPI lift.
 
 Latest local validations: `acm-http-get-route-current-4614cef` classified 18/22
 ACM rows as `good_pdf`; `sage-pdf-http-get-current-33a6b95` classified 6/6
 SAGE corrupt rows as `good_pdf`; `sage-pdf-http-get-preservation-33a6b95`
 regressed 4/6 SAGE already-good rows; `wiley-pdfdirect-http-get-current-33a6b95`
 recovered 0/19 current Wiley residual rows; `elsevier-doi-missing-provider-probe15-e22524b`
-recovered 0/15 current Elsevier DOI.org candidate rows. These made no Taxicab
-POST/R2/DynamoDB writes. Local `rows.ndjson` files contain row-level evidence;
-published summary/report artifacts are aggregate-only.
+recovered 0/15 current Elsevier DOI.org candidate rows; rank-39 Browserbase and
+Zyte evidence recovered 0/2 PDFs from the unknown-attribution DOI.org
+JS-redirect lane. These made no Taxicab POST/R2/DynamoDB writes. Local
+`rows.ndjson` files contain row-level evidence; published summary/report
+artifacts are aggregate-only.
 
-Next action: select the next non-duplicate residual cluster from the prioritized
-fresh-tail route-shape queue. Keep ACM as a narrow branch candidate for the next
-production regression gate; do not promote SAGE, Wiley, or Elsevier DOI.org
-without a narrower or provider-advised recipe. Browserbase gold check `elsevier-doi-browserbase-gold2-e22524b` sampled
-two rows from the Elsevier DOI.org lane and recovered 0/2 PDFs; both sessions
-ended as `html_not_pdf`. Keep Zyte as the production core and Browserbase as evidence /
-gold-sample collection. Do not push Taxicab main before the full PDF 95% proof;
-gate note: no Taxicab main push.
+Next action: inspect rank 61, a 10-row Elsevier-attributed DOI.org
+`supplement_or_preview_pdf` lane, before assigning validator, provider, or route
+ownership. Keep ACM as a narrow branch candidate for the next production
+regression gate; do not promote SAGE, Wiley, Elsevier DOI.org, or rank-39
+DOI.org evidence without a narrower or provider-advised recipe. Keep Zyte as the
+production core and Browserbase as evidence/gold-sample collection. Do not push
+Taxicab main before the full PDF 95% proof; gate note: no Taxicab main push.
 
 Next exact command:
 
@@ -63,6 +65,7 @@ processed_hosts = {
 }
 processed_subclusters = {
     ('missing_pdf_harvest', 'elsevier', 'doi.org', 'doi.org:/:doi/:id'),
+    ('js_redirect_unresolved', 'unknown', 'unknown', 'doi.org:/:doi/:id'),
 }
 p = Path('pdf_eval_runs/residual-subclusters-prioritized-30121a7/residual-subclusters.csv')
 with p.open() as f:
@@ -76,6 +79,7 @@ with p.open() as f:
             continue
         if row['priority_band'] in {'browserbase_or_zyte_gold_first', 'probe_next', 'validator_or_provider_lane', 'inspect_first'}:
             print(row['rank'], row['count'], row['priority_band'], row['category'], row['publisher'], row['host'], row['path_pattern'], row['next_probe_decision'])
+            break
 PY
 ```
 
