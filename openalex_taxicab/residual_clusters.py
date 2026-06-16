@@ -75,7 +75,6 @@ SENSITIVE_QUERY_KEYS = {"bm-verify"}
 PATH_DYNAMIC_EXTENSIONS = {".pdf", ".html", ".htm", ".xml", ".aspx", ".ashx"}
 
 PRIOR_ROUTE_CANDIDATE_PATTERNS = (
-    ("iopscience.iop.org:/article/", "iop_article_pdf_branch_candidate"),
     ("biorxiv.org:/content/biorxiv/early/", "biorxiv_pdf_byte_branch_candidate"),
     ("www.biorxiv.org:/content/biorxiv/early/", "biorxiv_pdf_byte_branch_candidate"),
 )
@@ -122,6 +121,7 @@ PRIOR_PROVIDER_HOSTS = {
     "indianjournals.com",
     "ingentaconnect.com",
     "inlibra.com",
+    "iopscience.iop.org",
     "iwaponline.com",
     "jacc.org",
     "jacionline.org",
