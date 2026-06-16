@@ -27,6 +27,7 @@ from scripts.taxicab_pdf_eval import (
     browserbase_download_payload,
     classify_browserbase_pdf_bytes,
     classify_live_pdf_row,
+    collect_pdf_browserbase_session_evidence,
     main,
     row_pdf_expected,
     row_pdf_url,
@@ -131,6 +132,78 @@ class FakeBrowserbaseDownload:
 
     def save_as(self, path: str):
         Path(path).write_bytes(self.body)
+
+
+class FakeDownloadStartPage:
+    url = "https://example.org/fulltext.pdf"
+
+    def __init__(self, body: bytes):
+        self.body = body
+        self.download_handler = None
+
+    def on(self, event: str, handler):
+        if event == "download":
+            self.download_handler = handler
+
+    def goto(self, *args, **kwargs):
+        if self.download_handler is not None:
+            self.download_handler(FakeBrowserbaseDownload(self.body, url=self.url))
+        raise RuntimeError("navigation interrupted because download is starting")
+
+    def wait_for_load_state(self, *args, **kwargs):
+        return None
+
+    def wait_for_timeout(self, *args, **kwargs):
+        return None
+
+    def title(self):
+        return "Download"
+
+    def content(self):
+        return "<html><body>Download started</body></html>"
+
+    def screenshot(self, path: str, *args, **kwargs):
+        Path(path).write_bytes(b"png")
+
+
+class FakeBrowserbaseContext:
+    def __init__(self, body: bytes):
+        self.body = body
+
+    def new_page(self):
+        return FakeDownloadStartPage(self.body)
+
+
+class FakeBrowserbaseBrowser:
+    def __init__(self, body: bytes):
+        self.body = body
+        self.closed = False
+
+    def new_context(self, **kwargs):
+        self.accept_downloads = kwargs.get("accept_downloads")
+        return FakeBrowserbaseContext(self.body)
+
+    def close(self):
+        self.closed = True
+
+
+class FakeBrowserbaseChromium:
+    def __init__(self, body: bytes):
+        self.body = body
+
+    def connect_over_cdp(self, *args, **kwargs):
+        return FakeBrowserbaseBrowser(self.body)
+
+
+class FakeSyncPlaywright:
+    def __init__(self, body: bytes):
+        self.chromium = FakeBrowserbaseChromium(body)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        return False
 
 
 class HangingPdfLookupHandler(BaseHTTPRequestHandler):
@@ -506,6 +579,44 @@ class PdfEvalHarnessTests(unittest.TestCase):
             self.assertTrue(payload["download_detected"])
             self.assertTrue(Path(payload["evidence_path"]).exists())
             self.assertEqual(Path(payload["evidence_path"]).suffix, ".pdf")
+
+    def test_browserbase_session_download_start_survives_goto_error(self):
+        row = make_pdf_transport_row(
+            run_id="browserbase-test",
+            doi="10.5555/browserbase",
+            category=PDF_CATEGORY_HTML_INSTEAD_OF_PDF,
+            publisher="example",
+            host="example.org",
+            input_url="https://doi.org/10.5555/browserbase",
+            candidate_url="https://example.org/fulltext.pdf",
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            out_base = Path(tmp) / "evidence"
+            with patch(
+                "playwright.sync_api.sync_playwright",
+                return_value=FakeSyncPlaywright(PdfLookupHandler.pdf_body),
+            ), patch(
+                "scripts.taxicab_pdf_eval.create_browserbase_session",
+                return_value={"id": "session-1", "connect_url": "wss://connect.example"},
+            ), patch("scripts.taxicab_pdf_eval.release_browserbase_session") as release:
+                payload = collect_pdf_browserbase_session_evidence(
+                    row,
+                    evidence_dir=Path(tmp),
+                    out_base=out_base,
+                    target_url="https://example.org/fulltext.pdf",
+                    api_key="secret-key",
+                    timeout_seconds=30,
+                )
+
+            self.assertTrue(payload["available"])
+            self.assertEqual(payload["verdict"], "good_pdf_download_candidate")
+            self.assertTrue(payload["download_detected"])
+            self.assertIn("navigation interrupted", payload["navigation_error"])
+            self.assertTrue(Path(payload["evidence_path"]).exists())
+            self.assertEqual(Path(payload["evidence_path"]).suffix, ".pdf")
+            self.assertTrue(out_base.with_suffix(".json").exists())
+            release.assert_called_once()
 
     def test_pdf_cli_workers_write_expected_summary(self):
         server = DaemonThreadingHTTPServer(("127.0.0.1", 0), PdfLookupHandler)

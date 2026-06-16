@@ -702,9 +702,27 @@ def browserbase_download_payload(
     session_id: str,
 ) -> dict[str, Any]:
     download_path = out_base.with_suffix(".download")
-    download.save_as(str(download_path))
-    body = download_path.read_bytes()
     download_url = getattr(download, "url", "") or final_url
+    try:
+        download.save_as(str(download_path))
+        body = download_path.read_bytes()
+    except Exception as exc:
+        return {
+            "available": False,
+            "verdict": "download_started_not_captured",
+            "doi": row.doi,
+            "target_url": target_url,
+            "final_url": final_url,
+            "mode": "session",
+            "session_id": session_id,
+            "status_code": status_code,
+            "content_type": "",
+            "size_bytes": 0,
+            "is_pdf": False,
+            "download_detected": True,
+            "download_url": download_url,
+            "error": f"{type(exc).__name__}: {exc}",
+        }
     content_type = "application/pdf" if body.startswith(b"%PDF-") else ""
     category = classify_browserbase_pdf_bytes(
         row,
@@ -765,7 +783,12 @@ def collect_pdf_browserbase_session_evidence(
             page = context.new_page()
             downloads: list[Any] = []
             page.on("download", lambda download: downloads.append(download))
-            response = page.goto(target_url, wait_until="domcontentloaded", timeout=int(timeout_seconds * 1000))
+            response = None
+            navigation_error = ""
+            try:
+                response = page.goto(target_url, wait_until="domcontentloaded", timeout=int(timeout_seconds * 1000))
+            except Exception as exc:
+                navigation_error = f"{type(exc).__name__}: {exc}"
             try:
                 page.wait_for_load_state("networkidle", timeout=min(10000, int(timeout_seconds * 1000)))
             except Exception:
@@ -804,6 +827,8 @@ def collect_pdf_browserbase_session_evidence(
                     status_code=status_code,
                     session_id=session_id,
                 )
+                if navigation_error:
+                    payload["navigation_error"] = navigation_error
                 if screenshot_path:
                     payload["screenshot_path"] = str(screenshot_path)
                 out_base.with_suffix(".json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
@@ -835,6 +860,8 @@ def collect_pdf_browserbase_session_evidence(
             "title": title,
             "evidence_path": str(evidence_path),
         }
+        if navigation_error:
+            payload["navigation_error"] = navigation_error
         if screenshot_path:
             payload["screenshot_path"] = str(screenshot_path)
         out_base.with_suffix(".json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
