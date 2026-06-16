@@ -17,63 +17,77 @@ Current handoff override: accepted full 10K PDF gate
 +472 versus denominator baseline. It has 3,791 `missing_pdf_harvest`,
 65 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`,
 93 `supplement_or_preview_pdf`, 0 timeout, and 0 `taxicab_error`. The gap to
-95% is 3,670 rows. Oxjobs #461 commit `bb1bdafb` publishes the aggregate-only
-full-gate report/summary plus the latest branch-candidate recheck. Gate note:
-no Taxicab main push.
+95% is 3,670 rows. Oxjobs #461 commit `d1f20969` publishes the aggregate-only
+full-gate report/summary plus the latest branch-candidate and gold-first
+evidence. Gate note: no Taxicab main push.
 
-Latest report publish: oxjobs #461 commit `bb1bdafb` publishes the SAGE/Wiley
-current branch validation in addition to the aggregate-only ACM/ACS
-branch-candidate recheck and ACM local `http_get` validation. ACM provider
-probes recovered 15/22 current missing rows, and the actual branch `http_get`
-path classified 18/22 as `good_pdf`. ACS recovered 0/46 current missing rows,
-preserved 8/8 already-good rows, and recovered 5/6 corrupt/truncated rows.
-SAGE landing-page rewrite recovered 6/6 current corrupt/truncated rows but
-regressed 4/6 already-good preservation rows to `js_redirect_unresolved`;
-direct SAGE PDF-byte strategies recovered 0/6. Wiley current `/doi/pdfdirect/`
-replay recovered 0/19 and every row classified as `empty_response`. This is
-route evidence only, not an accepted full-corpus KPI lift.
+Latest report publish: oxjobs #461 commit `d1f20969` publishes the Elsevier
+DOI.org gold-first evidence in addition to the aggregate-only ACM/ACS
+branch-candidate recheck, ACM local `http_get` validation, and SAGE/Wiley
+route validation. ACM provider probes recovered 15/22 current missing rows, and
+the actual branch `http_get` path classified 18/22 as `good_pdf`. ACS recovered
+0/46 current missing rows, preserved 8/8 already-good rows, and recovered 5/6
+corrupt/truncated rows. SAGE landing-page rewrite recovered 6/6 current
+corrupt/truncated rows but regressed 4/6 already-good preservation rows to
+`js_redirect_unresolved`; direct SAGE PDF-byte strategies recovered 0/6. Wiley
+current `/doi/pdfdirect/` replay recovered 0/19 and every row classified as
+`empty_response`. Elsevier DOI.org probe
+`elsevier-doi-missing-provider-probe15-e22524b` recovered 0/15 current
+Elsevier-attributed `missing_pdf_harvest` rows; best outcomes were 14
+`html_instead_of_pdf` and one `js_redirect_unresolved`. This is evidence only,
+not an accepted full-corpus KPI lift.
 
-Latest local route validations: `acm-http-get-route-current-4614cef`
-classified 18/22 ACM rows as `good_pdf`; `sage-pdf-http-get-current-33a6b95`
-classified 6/6 SAGE corrupt rows as `good_pdf`; `sage-pdf-http-get-preservation-33a6b95`
+Latest local validations: `acm-http-get-route-current-4614cef` classified 18/22
+ACM rows as `good_pdf`; `sage-pdf-http-get-current-33a6b95` classified 6/6
+SAGE corrupt rows as `good_pdf`; `sage-pdf-http-get-preservation-33a6b95`
 regressed 4/6 SAGE already-good rows; `wiley-pdfdirect-http-get-current-33a6b95`
-recovered 0/19 current Wiley residual rows. All made no Taxicab
+recovered 0/19 current Wiley residual rows; `elsevier-doi-missing-provider-probe15-e22524b`
+recovered 0/15 current Elsevier DOI.org candidate rows. All made no Taxicab
 POST/R2/DynamoDB writes. Row-level evidence stays local; summary/report are
 aggregate-only.
 
 Next exact action: select the next non-duplicate residual cluster from the
 prioritized fresh-tail route-shape queue. Keep ACM as a narrow branch candidate
 for the next production regression gate. ACS missing rows stay in the
-Zyte/support debt lane. Do not promote SAGE or Wiley without a narrower or
-provider-advised recipe. Do not run another duplicate fresh-tail loop.
-Historical sections below may use "current" relative to older gates; this top
-block is authoritative.
+Zyte/support debt lane. Do not promote SAGE, Wiley, or Elsevier DOI.org without
+a narrower or provider-advised recipe. Browserbase gold check `elsevier-doi-browserbase-gold2-e22524b` sampled two
+rows from the Elsevier DOI.org lane and recovered 0/2 PDFs; both sessions ended
+as `html_not_pdf`. Do not run another duplicate fresh-tail loop. Historical sections below may use "current" relative
+to older gates; this top block is authoritative.
+```
 
-Next command:
+Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 - <<'PY'
 import csv
 from pathlib import Path
-processed = {
+processed_hosts = {
     'www4.unifsa.com.br', 'turkishstudies.net', 'static.even3.com',
     'pubs.asha.org', 'pm-research.com', 'maps.mla.org',
     'www.journalijar.com', 'www.jmcc-online.com',
     'pubs.acs.org', 'dl.acm.org', 'journals.sagepub.com',
     'onlinelibrary.wiley.com',
 }
+processed_subclusters = {
+    ('missing_pdf_harvest', 'elsevier', 'doi.org', 'doi.org:/:doi/:id'),
+}
 p = Path('pdf_eval_runs/residual-subclusters-prioritized-30121a7/residual-subclusters.csv')
 with p.open() as f:
     for row in csv.DictReader(f):
         if row['priority_band'] == 'provider_lane_do_not_duplicate':
             continue
-        if row['host'] in processed:
+        if row['host'] in processed_hosts:
+            continue
+        key = (row['category'], row['publisher'], row['host'], row['path_pattern'])
+        if key in processed_subclusters:
             continue
         if row['priority_band'] in {'browserbase_or_zyte_gold_first', 'probe_next', 'validator_or_provider_lane', 'inspect_first'}:
             print(row['rank'], row['count'], row['priority_band'], row['category'], row['publisher'], row['host'], row['path_pattern'], row['next_probe_decision'])
 PY
 ```
+
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
 oxjobs #461 commit `dcb7bb14` publishes the accepted structured-parser full
 gate. Current read-only refresh `pdf-full10k-publisher-attribution-e584811` at
