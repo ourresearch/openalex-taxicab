@@ -1,6 +1,6 @@
 # Taxicab Goal State
 
-Last updated: 2026-06-15 PDT.
+Last updated: 2026-06-16 PDT.
 
 ## Goal
 
@@ -41,8 +41,8 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `05596e21` publishes the
-planning-only bioRxiv branch-candidate refresh after the accepted Atlantis full
+Current publish status: oxjobs #461 commit `37e7fc47` publishes the
+planning-only ACS residual demotion after the accepted Atlantis full
 gate. The accepted full 10K metric remains
 `pdf-full10k-after-atlantis-3b13642` from Taxicab commit `3b13642`:
 2,383/6,293 `good_pdf` (37.87%), +2 versus the DOI.org/OSTI gate and +546
@@ -52,8 +52,9 @@ interstitial/paywall, 0 timeout, and 0 `taxicab_error`. This is bounded
 cache/reharvest lift, not a Taxicab-main production scraping push. The latest
 residual refresh keeps 3,910 non-good rows across 655 clusters and 1,426
 subclusters, but top-240 `probe_next` is now 0 and
-`confirm_existing_branch_candidate` is 8. Current phase: run targeted
-branch-candidate confirmation/preservation gates before any Taxicab main push.
+`confirm_existing_branch_candidate` is 7 after ACS moved to
+provider-lane/do-not-duplicate. Current phase: run ACM already-good preservation
+before any Taxicab main push.
 Do not
 promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39 DOI.org, ACM,
 IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass, CCCC, Atlantis
@@ -62,16 +63,17 @@ lanes without a narrower or provider-advised recipe. Do not push Taxicab main
 before the full PDF 95% proof.
 Current handoff override: the top-level accepted metric is
 `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293 `good_pdf` (37.87%), with a
-3,596-row gap to 95%. Latest oxjobs #461 commit `05596e21` publishes the
-planning-only bioRxiv branch-candidate refresh from Taxicab commit `3c80154`:
-provider probe recovered 1/2, branch `http_get` recovered 2/2, production
-reharvest recovered 0/1, top-240 `probe_next` is now 0, and the next Gate
-21.999fu is branch-candidate confirmation.
+3,596-row gap to 95%. Latest oxjobs #461 commit `37e7fc47` publishes the
+planning-only ACS demotion refresh from Taxicab commit `4256097`: current
+branch `http_get` recovered 0/19 ACS residual rows, ACS PDF/EPDF path families
+are now provider-lane/do-not-duplicate, top-240 `probe_next` remains 0, and
+`confirm_existing_branch_candidate` is now 7. Next Gate 21.999fu is ACM
+already-good preservation.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category missing_pdf_harvest --host pubs.acs.org --limit 19 --out pdf_eval_runs/ --run-id acs-branch-candidate-current-confirm-3c80154 --read-timeout 60 --connect-timeout 10 --sleep 0.5
+python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host dl.acm.org --limit 12 --out pdf_eval_runs/ --run-id acm-current-good-preservation-after-acs-demote-4256097 --read-timeout 60 --connect-timeout 10 --sleep 0.5
 
 After Gate 0 is pushed:
 
@@ -292,6 +294,8 @@ Gate 21.999fq: refresh residual clusters after Atlantis. [done, taxicab 12edf68,
 Gate 21.999fr: reconcile residual prior-evidence mapping before the next provider probe. [done, taxicab ebfbda7, oxjobs 7aacac3f, provider-lane/do-not-duplicate 156->195, probe_next 42->2, no accepted KPI lift]
 Gate 21.999fs: run Mattech/EDP bounded no-storage provider probe and mark it as prior provider evidence. [done, taxicab e9cec98, oxjobs 27cef9f9, recovered 0/2, provider-lane/do-not-duplicate now 196, probe_next now 1, no accepted KPI lift]
 Gate 21.999ft: run bioRxiv/CSHLP bounded no-storage provider probe and branch route confirmation. [done, taxicab 3c80154, oxjobs 05596e21, provider probe recovered 1/2, branch http_get recovered 2/2, production reharvest recovered 0/1, top-240 probe_next now 0, no accepted KPI lift]
+Gate 21.999fu: demote ACS residual branch lane after current confirmation. [done, taxicab 4256097, oxjobs 37e7fc47, current branch http_get recovered 0/19 ACS residual rows, ACS moved to provider-lane/do-not-duplicate, confirm_existing_branch_candidate now 7, no accepted KPI lift]
+Gate 21.999fv: run ACM already-good preservation before branch promotion. [next]
 Gate 21.999fu: run branch-candidate confirmation/preservation gates. [next, start with ACS current missing route-confirmation; no Taxicab main push]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
