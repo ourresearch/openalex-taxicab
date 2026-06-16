@@ -41,7 +41,7 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `dbe90e51` publishes the accepted
+Current publish status: oxjobs #461 commit `b9f5c28e` publishes the accepted
 full 10K gate `pdf-full10k-after-rank61-interstitial-8562e3b` from Taxicab
 commit `8562e3b`: 2,381/6,293 `good_pdf` (37.84%), +2 versus the
 supplement-validator gate and +544 versus denominator baseline, with 3,791
@@ -60,31 +60,35 @@ fixed on the PDF branch at Taxicab commit `bdcc38a`. Residual clustering from
 the accepted full gate found ACM as the strongest current branch candidate:
 15/19 current ACM missing rows recovered through local no-storage `http_get`.
 ACS current missing recovered 0/19 and Wiley current corrupt recovered 0/8.
-Current phase: prove ACM preservation against already-good ACM rows, then
-publish the aggregate evidence and decide whether ACM deserves a narrow
-targeted/full regression gate. Do not promote SAGE, Wiley, ACS, Elsevier
-DOI.org, rank-39 DOI.org, or any new lane without a narrower or
-provider-advised recipe. Do not push Taxicab main before the full PDF 95%
-proof.
+ACM preservation proof preserved 5/6 already-good ACM rows but regressed 1/6
+to `js_redirect_unresolved`, so ACM production promotion is blocked until a
+narrower/provider-advised recipe preserves already-good rows. Current phase:
+run a small Browserbase/Zyte gold sample from the rank61 residual queue. Do not
+promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39 DOI.org, or any new lane
+without a narrower or provider-advised recipe. Do not push Taxicab main before
+the full PDF 95% proof.
 Current handoff override: the top-level accepted metric is
 `pdf-full10k-after-rank61-interstitial-8562e3b`, 2,381/6,293 `good_pdf`
-(37.84%), with a 3,598-row gap to 95%. Latest oxjobs #461 commit `dbe90e51`
-publishes the accepted full gate plus post-rank61 branch confirmation evidence
-without changing the accepted KPI. Historical sections below may use "current"
-relative to older gates; this block is authoritative.
+(37.84%), with a 3,598-row gap to 95%. Latest oxjobs #461 commit `b9f5c28e`
+publishes the accepted full gate, post-rank61 branch confirmation evidence, and
+the ACM preservation blocker without changing the accepted KPI. Historical
+sections below may use "current" relative to older gates; this block is
+authoritative.
 Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/http_get_route_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
-  --category good_pdf \
-  --publisher acm \
-  --host dl.acm.org \
-  --limit 10 \
-  --out /tmp/taxicab-pdf-branch-confirm \
-  --run-id acm-rank61-good-preservation-http-get-route-confirm-bdcc38a \
-  --read-timeout 60 \
-  --connect-timeout 5 \
-  --sleep 0.5
+python3 scripts/taxicab_pdf_eval.py \
+  --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
+  --doi-file pdf_eval_runs/residual-clusters-after-rank61-interstitial-8562e3b/browserbase-candidates.csv \
+  --limit 5 \
+  --with-browserbase \
+  --browserbase-mode session \
+  --out pdf_eval_runs/ \
+  --run-id pdf-browserbase-gold-rank61-top5-bf64d87 \
+  --workers 1 \
+  --row-timeout 180 \
+  --timeout 60 \
+  --retries 1 \
+  --progress-every 1
 
 After Gate 0 is pushed:
 
@@ -293,7 +297,8 @@ Gate 21.999ff8: run and publish sixth fresh-tail no-storage candidate loop. [don
 Gate 21.999ff9: run and publish seventh fresh-tail no-storage candidate loop. [done, taxicab 54052bb, oxjobs 02bc9a19, journalijar-current-missing-provider-probe2-54052bb recovered 0/2; all tested strategies download_404; no reharvest]
 Gate 21.999fg: add Browserbase PDF download-start evidence handling. [done, taxicab bdcc38a, no production scraping behavior change]
 Gate 21.999fh: refresh residual clusters after rank61 and publish post-rank61 branch confirmations. [done, oxjobs dbe90e51, ACM 15/19 current missing recovered through local no-storage http_get, ACS 0/19 current missing, Wiley 0/8 current corrupt]
-Gate 21.999fi: run ACM already-good preservation proof from the rank61 full gate. [next, branch/evidence only; no Taxicab main push]
+Gate 21.999fi: run ACM already-good preservation proof from the rank61 full gate. [done, taxicab bf64d87, oxjobs b9f5c28e, 5/6 preserved and 1/6 regressed to js_redirect_unresolved; ACM route promotion blocked]
+Gate 21.999fj: run rank61 Browserbase/Zyte gold sample. [next, evidence only; no Taxicab main push]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 

@@ -15,13 +15,14 @@ the denominator baseline of 1,837/6,293 (29.19%). The run has 3,791
 3,598 rows. This is a bounded cache/reharvest lift, not a Taxicab-main
 production scraping push.
 
-Latest #461 report publish: oxjobs commit `dbe90e51` records the accepted
+Latest #461 report publish: oxjobs commit `b9f5c28e` records the accepted
 DOI.org/OSTI interstitial full gate from Taxicab commit `8562e3b`, then adds
-post-rank61 branch confirmations from Taxicab branch commit `bdcc38a`. The
-accepted KPI is unchanged by those branch confirmations: ACM current
-missing-PDF rows recovered 15/19 through local no-storage `http_get`, while ACS
-current missing recovered 0/19 and Wiley current corrupt recovered 0/8. These
-are branch/evidence findings, not accepted full-gate lift.
+post-rank61 branch confirmations and the ACM preservation blocker. The accepted
+KPI is unchanged: ACM current missing-PDF rows recovered 15/19 through local
+no-storage `http_get`, but the already-good preservation proof preserved only
+5/6 and regressed 1/6 to `js_redirect_unresolved`. ACS current missing
+recovered 0/19 and Wiley current corrupt recovered 0/8. These are
+branch/evidence findings, not accepted full-gate lift.
 
 Latest local validations: Browserbase PDF evidence mode is fixed at Taxicab
 commit `bdcc38a` to survive download-start navigation errors and capture
@@ -29,34 +30,37 @@ started/not-captured download evidence. Residual clustering from
 `pdf-full10k-after-rank61-interstitial-8562e3b` found top duplicate/provider
 lanes already tracked elsewhere, with ACM as the strongest current branch
 candidate: 15/19 current missing rows recovered by local no-storage `http_get`.
+ACM is now blocked for production promotion because preservation regressed 1/6
+already-good rows.
 Earlier validations remain: supplement validator recovered +70 at full-gate
 scale; DOI.org/OSTI recovered +2 at full-gate scale; SAGE landing-page rewrite
 regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
 do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
-Next action: run ACM preservation proof against already-good ACM rows from
-`pdf-full10k-after-rank61-interstitial-8562e3b`. If ACM preserves existing good
-rows, publish the aggregate proof to #461 and then decide whether a narrow
-branch route should get a targeted/full regression gate. Keep Browserbase as
-evidence/gold only, Zyte as the production core, and do not push Taxicab main
-before the full PDF 95% proof.
+Next action: run a small Browserbase/Zyte gold sample from the rank61
+browserbase-candidate residual queue, then route the result to Zyte support or
+a provider-advised PDF-byte recipe. Keep Browserbase as evidence/gold only,
+Zyte as the production core, and do not push Taxicab main before the full PDF
+95% proof.
 
 Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/http_get_route_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
-  --category good_pdf \
-  --publisher acm \
-  --host dl.acm.org \
-  --limit 10 \
-  --out /tmp/taxicab-pdf-branch-confirm \
-  --run-id acm-rank61-good-preservation-http-get-route-confirm-bdcc38a \
-  --read-timeout 60 \
-  --connect-timeout 5 \
-  --sleep 0.5
+python3 scripts/taxicab_pdf_eval.py \
+  --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
+  --doi-file pdf_eval_runs/residual-clusters-after-rank61-interstitial-8562e3b/browserbase-candidates.csv \
+  --limit 5 \
+  --with-browserbase \
+  --browserbase-mode session \
+  --out pdf_eval_runs/ \
+  --run-id pdf-browserbase-gold-rank61-top5-bf64d87 \
+  --workers 1 \
+  --row-timeout 180 \
+  --timeout 60 \
+  --retries 1 \
+  --progress-every 1
 ```
 
 Historical detail below is chronological and may use "current" relative to the
@@ -380,7 +384,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson --category good_pdf --publisher acm --host dl.acm.org --limit 10 --out /tmp/taxicab-pdf-branch-confirm --run-id acm-rank61-good-preservation-http-get-route-confirm-bdcc38a --read-timeout 60 --connect-timeout 5 --sleep 0.5`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file pdf_eval_runs/residual-clusters-after-rank61-interstitial-8562e3b/browserbase-candidates.csv --limit 5 --with-browserbase --browserbase-mode session --out pdf_eval_runs/ --run-id pdf-browserbase-gold-rank61-top5-bf64d87 --workers 1 --row-timeout 180 --timeout 60 --retries 1 --progress-every 1`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
