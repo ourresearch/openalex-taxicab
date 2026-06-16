@@ -18,22 +18,22 @@ versus denominator baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
 `taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `6e7a3158`
-publishes the aggregate-only bioRxiv/CSHLP preservation failure and residual
-demotion from Taxicab commit `ba5c3a6`. It keeps the accepted KPI unchanged:
-ACS current branch `http_get` recovered 0/19 current residual rows, ACM
-already-good preservation found 0/6 preserved and 6/6 regressed, Wiley
-already-good preservation found 0/12 preserved and 12/12 regressed to
-`empty_response`, IOP already-good preservation found 11/12 preserved but 1/12
-regressed to `bot_block_403`, and bioRxiv already-good preservation found 2/12
-preserved and 10/12 regressed. ACS/ACM/Wiley/IOP/bioRxiv PDF route families
-are now provider-lane/do-not-duplicate. Top-240 `probe_next` remains 0, and
-`confirm_existing_branch_candidate` is now 0. This
+`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `3c935240`
+publishes the aggregate-only Elsevier DOI.org gold-first Zyte recheck from
+Taxicab commit `c8e8538`, and the oxjobs `Check job ID uniqueness` workflow
+passed for that push. It keeps the accepted KPI unchanged: no-storage Zyte
+strategies recovered 0/15, with best categories 14 `html_instead_of_pdf` and 1
+`js_redirect_unresolved`. Browserbase credentials were not present under the
+expected harness names. ACS/ACM/Wiley/IOP/bioRxiv PDF route families and
+Elsevier DOI.org are now provider-lane, gold-first, or do-not-duplicate until a
+narrow/provider-advised recipe exists. Top-240 `probe_next` remains 0, and
+`confirm_existing_branch_candidate` remains 0. This
 is planning/evidence work only, not a Taxicab-main production scraping-code
 lift.
 Gate note: no Taxicab main push.
 
-Latest report publish: oxjobs #461 commit `6e7a3158` publishes the bioRxiv
-preservation/demotion update and keeps the accepted metric at
+Latest report publish: oxjobs #461 commit `3c935240` publishes the Elsevier
+DOI.org gold-first Zyte recheck and keeps the accepted metric at
 `pdf-full10k-after-atlantis-3b13642` (2,383/6,293 `good_pdf`, 37.87%). The
 refresh supersedes the stale rank61/Atlantis lane queue and leaves no top-240
 `probe_next` or `confirm_existing_branch_candidate` lane; next work is choosing
@@ -64,6 +64,15 @@ Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-atlantis-biorxiv-demote --sample-size 5 --top-n 240
+python3 - <<'PY'
+import json
+from pathlib import Path
+rows = json.loads(Path('pdf_eval_runs/residual-subclusters.json').read_text())['top_subclusters']
+for row in rows:
+    if row.get('priority_band') == 'provider_lane_do_not_duplicate':
+        continue
+    print(row.get('count'), row.get('priority_band'), row.get('prior_evidence_status'), row.get('category'), row.get('publisher'), row.get('host'), row.get('candidate_source'), row.get('path_pattern'))
+PY
 ```
 
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;

@@ -15,35 +15,28 @@ baseline of 1,837/6,293 (29.19%). The run has 3,789 `missing_pdf_harvest`, 65
 `taxicab_error`. The gap to 95% is 3,596 rows. This is a bounded
 cache/reharvest lift, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `6e7a3158` publishes the bioRxiv/CSHLP
-already-good preservation failure and residual demotion after the accepted full
-gate. The accepted
+Latest #461 report publish: oxjobs commit `3c935240` publishes the current
+Elsevier DOI.org gold-first Zyte recheck from Taxicab commit `c8e8538`; the
+oxjobs `Check job ID uniqueness` workflow passed for that push. The accepted
 metric remains `pdf-full10k-after-atlantis-3b13642`: 2,383/6,293 `good_pdf`
 (37.87%), +2 rows versus the DOI.org/OSTI gate, +546 rows versus denominator
-baseline, and a 3,596-row gap to 95%. The planning-only prior-map refresh keeps
-the same 3,910 non-good rows, 655 clusters, and 1,426 subclusters. ACS current
-branch `http_get` confirmation recovered 0/19 current residual rows, so ACS
-PDF/EPDF path families are provider-lane/do-not-duplicate. ACM already-good
-preservation found 0/6 preserved and 6/6 regressed, so ACM `/doi/pdf`/`epdf`
-route promotion is blocked. Wiley already-good preservation found 0/12
-preserved and 12/12 regressed to `empty_response`, so Wiley PDF-direct route
-promotion is blocked. IOP already-good preservation found 11/12 preserved but
-1/12 regressed to `bot_block_403`, so IOP article-PDF route promotion is also
-blocked. bioRxiv/CSHLP already-good preservation found only 2/12 preserved and
-10/12 regressed, so bioRxiv route promotion is blocked too. ACS, ACM, Wiley
-PDF-direct, IOP article-PDF, and bioRxiv PDF path families are now
-provider-lane/do-not-duplicate. Top-240 `probe_next` remains 0 and
-`confirm_existing_branch_candidate` is now 0.
-Published artifacts are aggregate-only; raw rows stay local.
+baseline, and a 3,596-row gap to 95%. The Elsevier DOI.org no-storage Zyte
+probe recovered 0/15, with best categories 14 `html_instead_of_pdf` and 1
+`js_redirect_unresolved`; Browserbase credentials were not present under the
+expected harness names, so no Browserbase evidence was collected. ACS, ACM,
+Wiley PDF-direct, IOP article-PDF, bioRxiv PDF path families, and Elsevier
+DOI.org are not promotion candidates without a narrower/provider-advised recipe.
+Top-240 `probe_next` remains 0 and `confirm_existing_branch_candidate` remains
+0. Published artifacts are aggregate-only; raw rows stay local.
 
 Latest local validations: Atlantis Press is complete at Taxicab commit
-`3b13642`; prior-evidence mapping is complete through `ba5c3a6`; oxjobs #461 latest
-publish is `6e7a3158`. Browserbase PDF evidence mode remains fixed at Taxicab
+`3b13642`; prior-evidence mapping is complete through `ba5c3a6`; oxjobs #461
+latest publish is `3c935240`. Browserbase PDF evidence mode remains fixed at Taxicab
 commit `bdcc38a` to survive download-start navigation errors and capture
-started/not-captured download evidence. The ACS, ACM, Wiley, IOP, and bioRxiv
-demotion refreshes supersede the older residual lane queue; do not duplicate
-ACS, ACM, Wiley, IOP, or bioRxiv route work unless testing a provider-advised
-recipe.
+started/not-captured download evidence. The ACS, ACM, Wiley, IOP, bioRxiv, and
+Elsevier DOI.org demotion/gold-first refreshes supersede the older residual
+lane queue; do not duplicate those route families unless testing a
+provider-advised recipe.
 Earlier validations remain: supplement validator recovered +70 at full-gate
 scale; DOI.org/OSTI recovered +2 at full-gate scale; SAGE landing-page rewrite
 regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
@@ -51,7 +44,8 @@ do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
 Next action: choose a non-route provider/gold/validator lane; the current
-branch-candidate queue is exhausted.
+branch-candidate queue is exhausted and Browserbase cannot run until
+`BROWSERBASE_API_KEY`/`BROWSERBASE_PROJECT_ID` are available.
 Keep Browserbase as evidence/gold only, Zyte as the production core, and do not
 push Taxicab main before the full PDF 95% proof.
 
@@ -60,6 +54,15 @@ Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-atlantis-biorxiv-demote --sample-size 5 --top-n 240
+python3 - <<'PY'
+import json
+from pathlib import Path
+rows = json.loads(Path('pdf_eval_runs/residual-subclusters.json').read_text())['top_subclusters']
+for row in rows:
+    if row.get('priority_band') == 'provider_lane_do_not_duplicate':
+        continue
+    print(row.get('count'), row.get('priority_band'), row.get('prior_evidence_status'), row.get('category'), row.get('publisher'), row.get('host'), row.get('candidate_source'), row.get('path_pattern'))
+PY
 ```
 
 Historical detail below is chronological and may use "current" relative to the

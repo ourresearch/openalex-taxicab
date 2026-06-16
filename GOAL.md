@@ -41,20 +41,24 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `6e7a3158` publishes the
-planning-only bioRxiv/CSHLP preservation failure and residual demotion after
-the accepted Atlantis full gate. The accepted full 10K metric remains
+Current publish status: oxjobs #461 commit `3c935240` publishes the
+aggregate-only Elsevier DOI.org gold-first Zyte recheck from Taxicab commit
+`c8e8538`, and the oxjobs `Check job ID uniqueness` workflow passed for that
+push. The accepted full 10K metric remains
 `pdf-full10k-after-atlantis-3b13642` from Taxicab commit `3b13642`:
 2,383/6,293 `good_pdf` (37.87%), +2 versus the DOI.org/OSTI gate and +546
 versus denominator baseline, with 3,789 `missing_pdf_harvest`, 65
 corrupt/truncated, 4 encrypted/unreadable, 23 supplement/preview, 6
 interstitial/paywall, 0 timeout, and 0 `taxicab_error`. This is bounded
 cache/reharvest lift, not a Taxicab-main production scraping push. The latest
-residual refresh keeps 3,910 non-good rows across 655 clusters and 1,426
-subclusters, but top-240 `probe_next` is now 0 and
-`confirm_existing_branch_candidate` is 0 after ACS, ACM, Wiley, IOP, and
-bioRxiv/CSHLP moved to provider-lane/do-not-duplicate. Current phase: choose a
-non-route provider/gold/validator lane before any Taxicab main push.
+Elsevier DOI.org no-storage Zyte probe recovered 0/15, with best categories 14
+`html_instead_of_pdf` and 1 `js_redirect_unresolved`; Browserbase credentials
+were not present under the expected harness names. The residual refresh keeps
+3,910 non-good rows across 655 clusters and 1,426 subclusters, but top-240
+`probe_next` is now 0 and `confirm_existing_branch_candidate` is 0 after ACS,
+ACM, Wiley, IOP, bioRxiv/CSHLP, and Elsevier DOI.org moved out of route
+promotion. Current phase: choose a non-route provider/gold/validator lane before
+any Taxicab main push.
 Do not
 promote SAGE, Wiley, ACS, IOP, Elsevier DOI.org, rank-39 DOI.org, ACM,
 bioRxiv/CSHLP, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass,
@@ -63,18 +67,29 @@ Elsevier article-PDF lanes without a narrower or provider-advised recipe. Do
 not push Taxicab main before the full PDF 95% proof.
 Current handoff override: the top-level accepted metric is
 `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293 `good_pdf` (37.87%), with a
-3,596-row gap to 95%. Latest oxjobs #461 commit `6e7a3158` publishes the
-planning-only bioRxiv/CSHLP demotion refresh from Taxicab commit `ba5c3a6`:
-bioRxiv already-good preservation found 2/12 preserved and 10/12 regressed, so
-bioRxiv/CSHLP article-PDF path families are provider-lane/do-not-duplicate
-alongside ACS, ACM, Wiley, and IOP. Top-240 `probe_next` remains 0, and
-`confirm_existing_branch_candidate` is now 0. Next Gate 21.999fz is choosing a
-non-route provider/gold/validator lane from the residual queue.
+3,596-row gap to 95%. Latest oxjobs #461 commit `3c935240` publishes the
+aggregate-only Elsevier DOI.org gold-first Zyte recheck from Taxicab commit
+`c8e8538`: 0/15 recovered, best categories 14 `html_instead_of_pdf` and 1
+`js_redirect_unresolved`, no Taxicab POST/R2/DynamoDB writes, no production
+behavior change, and no accepted KPI change. Browserbase cannot run until
+`BROWSERBASE_API_KEY`/`BROWSERBASE_PROJECT_ID` are available. Top-240
+`probe_next` remains 0, and `confirm_existing_branch_candidate` remains 0. Next
+Gate 21.999ga is choosing a non-route provider/gold/validator lane from the
+residual queue.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-atlantis-biorxiv-demote --sample-size 5 --top-n 240
+python3 - <<'PY'
+import json
+from pathlib import Path
+rows = json.loads(Path('pdf_eval_runs/residual-subclusters.json').read_text())['top_subclusters']
+for row in rows:
+    if row.get('priority_band') == 'provider_lane_do_not_duplicate':
+        continue
+    print(row.get('count'), row.get('priority_band'), row.get('prior_evidence_status'), row.get('category'), row.get('publisher'), row.get('host'), row.get('candidate_source'), row.get('path_pattern'))
+PY
 
 After Gate 0 is pushed:
 
