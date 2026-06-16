@@ -14,7 +14,7 @@ baseline of 1,837/6,293 (29.19%). The run has 3,789 `missing_pdf_harvest`, 65
 `taxicab_error`. The gap to 95% is 3,596 rows. This is a bounded
 cache/reharvest lift, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `b2d97360` publishes the IOP
+Latest #461 report publish: oxjobs commit `6e7a3158` publishes the bioRxiv/CSHLP
 already-good preservation failure and residual demotion after the accepted full
 gate. The accepted
 metric remains `pdf-full10k-after-atlantis-3b13642`: 2,383/6,293 `good_pdf`
@@ -28,26 +28,29 @@ route promotion is blocked. Wiley already-good preservation found 0/12
 preserved and 12/12 regressed to `empty_response`, so Wiley PDF-direct route
 promotion is blocked. IOP already-good preservation found 11/12 preserved but
 1/12 regressed to `bot_block_403`, so IOP article-PDF route promotion is also
-blocked. ACS, ACM, Wiley PDF-direct, and IOP article-PDF path families are now
-provider-lane/do-not-duplicate. Top-240 `probe_next` remains 0,
-`confirm_existing_branch_candidate` is now 1, and the remaining branch
-candidate is bioRxiv/CSHLP.
+blocked. bioRxiv/CSHLP already-good preservation found only 2/12 preserved and
+10/12 regressed, so bioRxiv route promotion is blocked too. ACS, ACM, Wiley
+PDF-direct, IOP article-PDF, and bioRxiv PDF path families are now
+provider-lane/do-not-duplicate. Top-240 `probe_next` remains 0 and
+`confirm_existing_branch_candidate` is now 0.
 Published artifacts are aggregate-only; raw rows stay local.
 
 Latest local validations: Atlantis Press is complete at Taxicab commit
-`3b13642`; prior-evidence mapping is complete through `6741b06`; oxjobs #461 latest
-publish is `b2d97360`. Browserbase PDF evidence mode remains fixed at Taxicab
+`3b13642`; prior-evidence mapping is complete through `ba5c3a6`; oxjobs #461 latest
+publish is `6e7a3158`. Browserbase PDF evidence mode remains fixed at Taxicab
 commit `bdcc38a` to survive download-start navigation errors and capture
-started/not-captured download evidence. The ACS, ACM, Wiley, and IOP demotion
-refreshes supersede the older residual lane queue; do not duplicate ACS, ACM,
-Wiley, or IOP route work unless testing a provider-advised recipe.
+started/not-captured download evidence. The ACS, ACM, Wiley, IOP, and bioRxiv
+demotion refreshes supersede the older residual lane queue; do not duplicate
+ACS, ACM, Wiley, IOP, or bioRxiv route work unless testing a provider-advised
+recipe.
 Earlier validations remain: supplement validator recovered +70 at full-gate
 scale; DOI.org/OSTI recovered +2 at full-gate scale; SAGE landing-page rewrite
 regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
 do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
-Next action: run bioRxiv/CSHLP already-good preservation before any branch promotion.
+Next action: choose a non-route provider/gold/validator lane; the current
+branch-candidate queue is exhausted.
 Keep Browserbase as evidence/gold only, Zyte as the production core, and do not
 push Taxicab main before the full PDF 95% proof.
 
@@ -55,7 +58,7 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host biorxiv.org --limit 12 --out pdf_eval_runs/ --run-id biorxiv-branch-good-preservation-after-iop-demote-6741b06 --read-timeout 60 --connect-timeout 10 --sleep 0.5
+python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-atlantis-biorxiv-demote --sample-size 5 --top-n 240
 ```
 
 Historical detail below is chronological and may use "current" relative to the
@@ -379,7 +382,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host biorxiv.org --limit 12 --out pdf_eval_runs/ --run-id biorxiv-branch-good-preservation-after-iop-demote-6741b06 --read-timeout 60 --connect-timeout 10 --sleep 0.5`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-atlantis-biorxiv-demote --sample-size 5 --top-n 240`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context

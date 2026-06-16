@@ -41,9 +41,9 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `b2d97360` publishes the
-planning-only IOP preservation failure and residual demotion after the accepted Atlantis full
-gate. The accepted full 10K metric remains
+Current publish status: oxjobs #461 commit `6e7a3158` publishes the
+planning-only bioRxiv/CSHLP preservation failure and residual demotion after
+the accepted Atlantis full gate. The accepted full 10K metric remains
 `pdf-full10k-after-atlantis-3b13642` from Taxicab commit `3b13642`:
 2,383/6,293 `good_pdf` (37.87%), +2 versus the DOI.org/OSTI gate and +546
 versus denominator baseline, with 3,789 `missing_pdf_harvest`, 65
@@ -52,29 +52,29 @@ interstitial/paywall, 0 timeout, and 0 `taxicab_error`. This is bounded
 cache/reharvest lift, not a Taxicab-main production scraping push. The latest
 residual refresh keeps 3,910 non-good rows across 655 clusters and 1,426
 subclusters, but top-240 `probe_next` is now 0 and
-`confirm_existing_branch_candidate` is 1 after ACS, ACM, Wiley, and IOP moved
-to provider-lane/do-not-duplicate. Current phase: run bioRxiv/CSHLP
-already-good preservation before any Taxicab main push.
+`confirm_existing_branch_candidate` is 0 after ACS, ACM, Wiley, IOP, and
+bioRxiv/CSHLP moved to provider-lane/do-not-duplicate. Current phase: choose a
+non-route provider/gold/validator lane before any Taxicab main push.
 Do not
 promote SAGE, Wiley, ACS, IOP, Elsevier DOI.org, rank-39 DOI.org, ACM,
-IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass, CCCC, Atlantis
-Press, IWA/AMPP/Sage Knowledge/RSNA/AJOG/Elgar, or broad Elsevier article-PDF
-lanes without a narrower or provider-advised recipe. Do not push Taxicab main
-before the full PDF 95% proof.
+bioRxiv/CSHLP, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass,
+CCCC, Atlantis Press, IWA/AMPP/Sage Knowledge/RSNA/AJOG/Elgar, or broad
+Elsevier article-PDF lanes without a narrower or provider-advised recipe. Do
+not push Taxicab main before the full PDF 95% proof.
 Current handoff override: the top-level accepted metric is
 `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293 `good_pdf` (37.87%), with a
-3,596-row gap to 95%. Latest oxjobs #461 commit `b2d97360` publishes the
-planning-only IOP demotion refresh from Taxicab commit `6741b06`: IOP
-already-good preservation found 11/12 preserved but 1/12 regressed to
-`bot_block_403`, so IOP article-PDF path families are provider-lane/do-not-
-duplicate alongside ACS, ACM, and Wiley. Top-240 `probe_next` remains 0, and
-`confirm_existing_branch_candidate` is now 1. Next Gate 21.999fy is
-bioRxiv/CSHLP already-good preservation.
+3,596-row gap to 95%. Latest oxjobs #461 commit `6e7a3158` publishes the
+planning-only bioRxiv/CSHLP demotion refresh from Taxicab commit `ba5c3a6`:
+bioRxiv already-good preservation found 2/12 preserved and 10/12 regressed, so
+bioRxiv/CSHLP article-PDF path families are provider-lane/do-not-duplicate
+alongside ACS, ACM, Wiley, and IOP. Top-240 `probe_next` remains 0, and
+`confirm_existing_branch_candidate` is now 0. Next Gate 21.999fz is choosing a
+non-route provider/gold/validator lane from the residual queue.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host biorxiv.org --limit 12 --out pdf_eval_runs/ --run-id biorxiv-branch-good-preservation-after-iop-demote-6741b06 --read-timeout 60 --connect-timeout 10 --sleep 0.5
+python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-atlantis-biorxiv-demote --sample-size 5 --top-n 240
 
 After Gate 0 is pushed:
 
@@ -299,7 +299,8 @@ Gate 21.999fu: demote ACS residual branch lane after current confirmation. [done
 Gate 21.999fv: run ACM already-good preservation before branch promotion. [done, taxicab f106e20, oxjobs 1127bc8b, 0/6 already-good rows preserved and 6/6 regressed, ACM moved to provider-lane/do-not-duplicate, confirm_existing_branch_candidate now 5, no accepted KPI lift]
 Gate 21.999fw: run Wiley already-good preservation before any branch promotion. [done, taxicab 3a599cd, oxjobs 276fc6a3, 0/12 already-good rows preserved and 12/12 regressed to empty_response, Wiley moved to provider-lane/do-not-duplicate, confirm_existing_branch_candidate now 2, no accepted KPI lift]
 Gate 21.999fx: run IOP already-good preservation before any branch promotion. [done, taxicab 6741b06, oxjobs b2d97360, 11/12 already-good rows preserved but 1/12 regressed to bot_block_403, IOP moved to provider-lane/do-not-duplicate, confirm_existing_branch_candidate now 1, no accepted KPI lift]
-Gate 21.999fy: run bioRxiv/CSHLP already-good preservation before any branch promotion. [next, no Taxicab main push]
+Gate 21.999fy: run bioRxiv/CSHLP already-good preservation before any branch promotion. [done, taxicab ba5c3a6, oxjobs 6e7a3158, 2/12 already-good rows preserved and 10/12 regressed, bioRxiv/CSHLP moved to provider-lane/do-not-duplicate, confirm_existing_branch_candidate now 0, no accepted KPI lift]
+Gate 21.999fz: choose a non-route provider/gold/validator residual lane. [next, no Taxicab main push]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
