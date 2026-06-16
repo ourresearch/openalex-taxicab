@@ -17,14 +17,15 @@ Current handoff override: accepted full 10K PDF gate
 +544 versus denominator baseline. It has 3,791 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,598 rows. Oxjobs #461 commit `079cf28f`
+`taxicab_error`. The gap to 95% is 3,598 rows. Oxjobs #461 commit `b8ef1f42`
 publishes the aggregate-only full-gate report/summary plus the latest
-post-rank61 branch confirmation, ACM preservation-blocker, and rank61
-Browserbase/Zyte gold-sample evidence. This is bounded cache/reharvest lift
-plus branch/evidence work, not a Taxicab-main production scraping-code lift.
+post-rank61 branch confirmation, ACM preservation-blocker, rank61
+Browserbase/Zyte gold-sample evidence, and negative IngentaConnect evidence.
+This is bounded cache/reharvest lift plus branch/evidence work, not a
+Taxicab-main production scraping-code lift.
 Gate note: no Taxicab main push.
 
-Latest report publish: oxjobs #461 commit `079cf28f` publishes the DOI.org/OSTI
+Latest report publish: oxjobs #461 commit `b8ef1f42` publishes the DOI.org/OSTI
 interstitial full gate in addition to the prior supplement-validator,
 rank-39 DOI.org JS-redirect gold-first, Elsevier DOI.org, ACM/ACS
 branch-candidate, ACM local `http_get`, SAGE/Wiley route validation, and
@@ -41,7 +42,10 @@ current missing rows through local no-storage `http_get`, ACS recovered 0/19
 current missing rows, and Wiley recovered 0/8 current corrupt rows. ACM
 preservation proof preserved 5/6 already-good rows but regressed 1/6 to
 `js_redirect_unresolved`, so ACM production promotion is blocked from the
-current route recipe.
+current route recipe. IngentaConnect post-rank61 probe
+`ingentaconnect-current-missing-provider-probe2-7f3dc9a` recovered 0/2
+`good_pdf`; both best outcomes were `interstitial_or_paywall` and browser HTML
+returned `bot_block_403`, so that lane is provider/access-flow evidence only.
 
 Latest local validations: Browserbase PDF evidence mode is fixed at Taxicab
 commit `bdcc38a` for download-start navigation errors. Residual clustering from
@@ -52,11 +56,12 @@ landing-page rewrite regressed preservation rows; Wiley, ACS, and Elsevier
 DOI.org residual probes do not currently justify promotion. Row-level evidence
 stays local; summary/report artifacts are aggregate-only.
 
-Next exact action: choose the next non-duplicate residual lane from the latest
-rank61 full-gate rows, or test a provider-advised PDF-byte recipe. Do not
-promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39 DOI.org, ACM, the closed
-top-five Browserbase sample, or any new lane without a narrower or
-provider-advised recipe. Do not run another duplicate fresh-tail loop.
+Next exact action: run the next non-duplicate no-storage provider probe against
+ICE Virtual Library, or test a provider-advised PDF-byte recipe if one arrives.
+Do not promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39 DOI.org, ACM,
+IngentaConnect, the closed top-five Browserbase sample, or any new lane without
+a narrower or provider-advised recipe. Do not run another duplicate fresh-tail
+loop.
 Historical sections below may use "current" relative to older gates; this top
 block is authoritative.
 ```
@@ -65,12 +70,17 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py \
-  --rows pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
-  --out pdf_eval_runs/residual-clusters-after-rank61-next-lane \
-  --run-id residual-clusters-after-rank61-next-lane \
-  --sample-size 5 \
-  --top-n 240
+PYTHONUNBUFFERED=1 python3 scripts/provider_pdf_probe.py \
+  --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
+  --category missing_pdf_harvest \
+  --host icevirtuallibrary.com \
+  --limit 2 \
+  --strategies all \
+  --out pdf_eval_runs/ \
+  --run-id icevirtuallibrary-current-missing-provider-probe2-next \
+  --timeout 45 \
+  --sleep 0.5 \
+  --env-file .env
 ```
 
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
@@ -1405,12 +1415,17 @@ Next exact commands:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 git switch codex/taxicab-pdf-phase2
-python3 scripts/taxicab_cluster_residuals.py \
-  --rows pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
-  --out pdf_eval_runs/residual-clusters-after-rank61-next-lane \
-  --run-id residual-clusters-after-rank61-next-lane \
-  --sample-size 5 \
-  --top-n 240
+PYTHONUNBUFFERED=1 python3 scripts/provider_pdf_probe.py \
+  --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
+  --category missing_pdf_harvest \
+  --host icevirtuallibrary.com \
+  --limit 2 \
+  --strategies all \
+  --out pdf_eval_runs/ \
+  --run-id icevirtuallibrary-current-missing-provider-probe2-next \
+  --timeout 45 \
+  --sleep 0.5 \
+  --env-file .env
 ```
 
 ### 12. Continue from the post-95 HTML residual queue only if PDF work is paused
