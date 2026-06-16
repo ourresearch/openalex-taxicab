@@ -41,74 +41,45 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `48758ccb` publishes the accepted
-full 10K gate `pdf-full10k-after-rank61-interstitial-8562e3b` from Taxicab
-commit `8562e3b`: 2,381/6,293 `good_pdf` (37.84%), +2 versus the
-supplement-validator gate and +544 versus denominator baseline, with 3,791
-`missing_pdf_harvest`, 65 corrupt/truncated, 4 encrypted/unreadable, 23
-supplement/preview, 6 interstitial/paywall, 0 timeout, and 0 `taxicab_error`.
-This is bounded cache/reharvest lift, not a Taxicab-main production scraping
-push. The same oxjobs job also publishes aggregate-only supplement-validator,
-ACM/ACS branch-candidate, ACM local `http_get`, SAGE/Wiley route validation,
-Elsevier DOI.org gold-first, rank-39 DOI.org JS-redirect gold-first, prior
-fresh-tail full-gate evidence, post-rank61 branch confirmations, the ACM
-preservation blocker, and the rank61 Browserbase/Zyte gold sample.
-The DOI.org/OSTI lane recovered 2/2 targeted rows through Zyte PDF-byte
-strategies, accepted +2 rows at full-gate scale, reduced
-`interstitial_or_paywall` from 8 to 6, and had 0 good-to-non-good regressions.
-Browserbase indicated recoverability and the download-start collector gap is
-fixed on the PDF branch at Taxicab commit `bdcc38a`. Residual clustering from
-the accepted full gate found ACM as the strongest current branch candidate:
-15/19 current ACM missing rows recovered through local no-storage `http_get`.
-ACS current missing recovered 0/19 and Wiley current corrupt recovered 0/8.
-ACM preservation proof preserved 5/6 already-good ACM rows but regressed 1/6
-to `js_redirect_unresolved`, so ACM production promotion is blocked until a
-narrower/provider-advised recipe preserves already-good rows. Rank61
-Browserbase/Zyte gold sample `pdf-browserbase-gold-rank61-top5-bf64d87`
-recovered 0/5 Browserbase PDFs, and paired one-row Zyte provider comparison
-recovered 0/1; close that sample as negative gold evidence. IngentaConnect
-post-rank61 probe `ingentaconnect-current-missing-provider-probe2-7f3dc9a`
-recovered 0/2 `good_pdf`; both best outcomes were `interstitial_or_paywall`
-and browser HTML returned `bot_block_403`. ICE Virtual Library probe
-`icevirtuallibrary-current-missing-provider-probe2-1fbdc57` also recovered 0/2
-`good_pdf`, with one `bot_block_403` and one `html_instead_of_pdf`. Both lanes
-are provider/access-flow evidence only. Ecologica probe
-`ecologica-current-missing-provider-probe2-4d76a3c` also recovered 0/2
-`good_pdf`; every tested strategy returned `html_instead_of_pdf`, so Ecologica
-is provider/access-flow evidence only. ASTM Compass probe
-`astm-current-missing-provider-probe2-b1da453` also recovered 0/2 `good_pdf`;
-every tested strategy returned `empty_response`, so ASTM Compass is
-provider/access-flow evidence only. CCCC probe
-`cccc-current-missing-provider-probe2-d2c69a2` recovered 0/2 `good_pdf`;
-every tested strategy returned `html_instead_of_pdf`, so CCCC is
-provider/access-flow evidence only. Current phase: run the next non-duplicate
-residual lane (`atlantis-press.com`) or test a provider-advised PDF-byte
+Current publish status: oxjobs #461 commit `9263ff09` publishes the accepted
+full 10K gate `pdf-full10k-after-atlantis-3b13642` from Taxicab commit
+`3b13642`: 2,383/6,293 `good_pdf` (37.87%), +2 versus the DOI.org/OSTI gate
+and +546 versus denominator baseline, with 3,789 `missing_pdf_harvest`, 65
+corrupt/truncated, 4 encrypted/unreadable, 23 supplement/preview, 6
+interstitial/paywall, 0 timeout, and 0 `taxicab_error`. This is bounded
+cache/reharvest lift, not a Taxicab-main production scraping push. Atlantis
+Press no-storage provider probe `atlantis-current-missing-provider-probe2-3b13642`
+recovered 2/2 `good_pdf` through Zyte PDF-byte strategies; direct-PDF-URL
+reharvest and read-only confirmation both preserved 2/2, and the full gate
+accepted +2 with 0 good-to-non-good regressions. The same oxjobs job retains
+aggregate-only supplement-validator, DOI.org/OSTI, ACM/ACS branch-candidate,
+ACM local `http_get`, SAGE/Wiley route validation, Elsevier DOI.org
+gold-first, rank-39 DOI.org JS-redirect gold-first, prior fresh-tail
+full-gate evidence, post-rank61 branch confirmations, the ACM preservation
+blocker, negative Browserbase/Zyte gold evidence, and negative
+IngentaConnect/ICE/Ecologica/ASTM/CCCC evidence. Current phase: refresh
+residual clusters from `pdf-full10k-after-atlantis-3b13642`, then choose the
+next non-duplicate provider/access lane or test a provider-advised PDF-byte
 recipe. Do not promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39 DOI.org,
-ACM, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass, CCCC, or
-any new lane without a narrower or provider-advised recipe. Do not push
-Taxicab main before the full PDF 95% proof.
+ACM, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass, CCCC,
+Atlantis Press, or any new lane without a narrower or provider-advised recipe.
+Do not push Taxicab main before the full PDF 95% proof.
 Current handoff override: the top-level accepted metric is
-`pdf-full10k-after-rank61-interstitial-8562e3b`, 2,381/6,293 `good_pdf`
-(37.84%), with a 3,598-row gap to 95%. Latest oxjobs #461 commit `48758ccb`
-publishes the accepted full gate, post-rank61 branch confirmation evidence, the
-ACM preservation blocker, negative gold-sample evidence, and negative
-IngentaConnect/ICE/Ecologica/ASTM/CCCC evidence without changing the accepted
-KPI.
+`pdf-full10k-after-atlantis-3b13642`, 2,383/6,293 `good_pdf` (37.87%), with a
+3,596-row gap to 95%. Latest oxjobs #461 commit `9263ff09` publishes the
+accepted full gate, Atlantis bounded recovery, prior post-rank61 branch
+confirmation evidence, the ACM preservation blocker, negative gold-sample
+evidence, and negative IngentaConnect/ICE/Ecologica/ASTM/CCCC evidence.
 Historical sections below may use "current" relative to older gates; this
 block is authoritative.
 Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-PYTHONUNBUFFERED=1 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
-  --category missing_pdf_harvest \
-  --host atlantis-press.com \
-  --limit 2 \
-  --strategies all \
-  --out pdf_eval_runs/ \
-  --run-id atlantis-current-missing-provider-probe2-next \
-  --timeout 45 \
-  --sleep 0.5 \
-  --env-file .env
+python3 scripts/taxicab_cluster_residuals.py \
+  --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson \
+  --out pdf_eval_runs/residual-clusters-after-atlantis-3b13642 \
+  --run-id residual-clusters-after-atlantis-3b13642 \
+  --sample-size 5 \
+  --top-n 240
 
 After Gate 0 is pushed:
 
@@ -324,7 +295,8 @@ Gate 21.999fl: choose another non-duplicate residual lane or provider-advised PD
 Gate 21.999fm: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [done, taxicab 4d76a3c, oxjobs 261d973d, Ecologica no-storage provider probe recovered 0/2 and becomes provider/access-flow evidence only]
 Gate 21.999fn: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [done, taxicab b1da453, oxjobs 808fc018, ASTM Compass no-storage provider probe recovered 0/2 and becomes provider/access-flow evidence only]
 Gate 21.999fo: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [done, taxicab d2c69a2, oxjobs 48758ccb, CCCC no-storage provider probe recovered 0/2 and becomes provider/access-flow evidence only]
-Gate 21.999fp: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [next, evidence only; no Taxicab main push; start with atlantis-press.com unless provider guidance arrives]
+Gate 21.999fp: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [done, taxicab 3b13642, oxjobs 9263ff09, Atlantis Press no-storage provider probe recovered 2/2; direct-PDF-URL reharvest/read-only confirmation preserved 2/2; full gate accepted +2 with 0 regressions]
+Gate 21.999fq: refresh residual clusters after Atlantis. [next, planning/evidence only; no Taxicab main push; start from pdf-full10k-after-atlantis-3b13642]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 

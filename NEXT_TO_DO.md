@@ -12,54 +12,33 @@ expanded operational context.
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
 Current handoff override: accepted full 10K PDF gate
-`pdf-full10k-after-rank61-interstitial-8562e3b` at Taxicab commit `8562e3b` is
-2,381/6,293 `good_pdf` (37.84%), +2 versus the supplement-validator gate and
-+544 versus denominator baseline. It has 3,791 `missing_pdf_harvest`, 65
+`pdf-full10k-after-atlantis-3b13642` at Taxicab commit `3b13642` is
+2,383/6,293 `good_pdf` (37.87%), +2 versus the DOI.org/OSTI gate and +546
+versus denominator baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,598 rows. Oxjobs #461 commit `48758ccb`
-publishes the aggregate-only full-gate report/summary plus the latest
-post-rank61 branch confirmation, ACM preservation-blocker, rank61
-Browserbase/Zyte gold-sample evidence, negative IngentaConnect evidence, and
-negative ICE Virtual Library evidence, negative Ecologica evidence, and
-negative ASTM Compass evidence, and negative CCCC evidence. This is bounded cache/reharvest lift plus
-branch/evidence work, not a
-Taxicab-main production scraping-code lift.
+`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `9263ff09`
+publishes the aggregate-only full-gate report/summary plus Atlantis bounded
+recovery, prior post-rank61 branch confirmation, ACM preservation-blocker,
+rank61 Browserbase/Zyte gold-sample evidence, negative IngentaConnect
+evidence, negative ICE Virtual Library evidence, negative Ecologica evidence,
+negative ASTM Compass evidence, and negative CCCC evidence. This is bounded
+cache/reharvest lift plus branch/evidence work, not a Taxicab-main production
+scraping-code lift.
 Gate note: no Taxicab main push.
 
-Latest report publish: oxjobs #461 commit `48758ccb` publishes the DOI.org/OSTI
-interstitial full gate in addition to the prior supplement-validator,
-rank-39 DOI.org JS-redirect gold-first, Elsevier DOI.org, ACM/ACS
-branch-candidate, ACM local `http_get`, SAGE/Wiley route validation, and
-post-rank61 branch confirmations. It also publishes the rank61
-Browserbase/Zyte gold sample: Taxicab stayed 5/5 `js_redirect_unresolved`,
-Browserbase recovered 0/5 PDFs with 5/5 `html_not_pdf`, and paired one-row
-Zyte provider comparison recovered 0/1 with best category `bot_block_403`.
-The targeted DOI.org/OSTI lane recovered 2/2 rows through Zyte PDF-byte
-strategies; full gate
-`pdf-full10k-after-rank61-interstitial-8562e3b` recovered +2 rows with 0
-good-to-non-good regressions and reduced `interstitial_or_paywall` from 8 to 6.
-The branch confirmations do not change that accepted KPI: ACM recovered 15/19
-current missing rows through local no-storage `http_get`, ACS recovered 0/19
-current missing rows, and Wiley recovered 0/8 current corrupt rows. ACM
-preservation proof preserved 5/6 already-good rows but regressed 1/6 to
-`js_redirect_unresolved`, so ACM production promotion is blocked from the
-current route recipe. IngentaConnect post-rank61 probe
-`ingentaconnect-current-missing-provider-probe2-7f3dc9a` recovered 0/2
-`good_pdf`; both best outcomes were `interstitial_or_paywall` and browser HTML
-returned `bot_block_403`, so that lane is provider/access-flow evidence only.
-ICE Virtual Library probe `icevirtuallibrary-current-missing-provider-probe2-1fbdc57`
-recovered 0/2 `good_pdf`; best outcomes were one `bot_block_403` and one
-`html_instead_of_pdf`, so that lane is also provider/access-flow evidence only.
-Ecologica probe `ecologica-current-missing-provider-probe2-4d76a3c` recovered
-0/2 `good_pdf`; every tested strategy returned `html_instead_of_pdf`, so that
-lane is also provider/access-flow evidence only.
-ASTM Compass probe `astm-current-missing-provider-probe2-b1da453` recovered
-0/2 `good_pdf`; every tested strategy returned `empty_response`, so that lane
-is also provider/access-flow evidence only.
-CCCC probe `cccc-current-missing-provider-probe2-d2c69a2` recovered 0/2
-`good_pdf`; every tested strategy returned `html_instead_of_pdf`, so that lane
-is also provider/access-flow evidence only.
+Latest report publish: oxjobs #461 commit `9263ff09` publishes the Atlantis
+Press full gate in addition to the prior DOI.org/OSTI interstitial full gate,
+supplement-validator, rank-39 DOI.org JS-redirect gold-first, Elsevier DOI.org,
+ACM/ACS branch-candidate, ACM local `http_get`, SAGE/Wiley route validation,
+and post-rank61 branch confirmations. Atlantis no-storage provider probe
+`atlantis-current-missing-provider-probe2-3b13642` recovered 2/2 `good_pdf`
+through Zyte PDF-byte strategies while browser HTML returned `empty_response`;
+direct-PDF-URL reharvest and read-only confirmation both preserved 2/2, and
+full gate `pdf-full10k-after-atlantis-3b13642` accepted +2 rows with 0
+good-to-non-good regressions. The report still carries the rank61
+Browserbase/Zyte gold sample, ACM preservation blocker, and negative
+IngentaConnect/ICE/Ecologica/ASTM/CCCC provider/access-flow evidence.
 
 Latest local validations: Browserbase PDF evidence mode is fixed at Taxicab
 commit `bdcc38a` for download-start navigation errors. Residual clustering from
@@ -70,12 +49,12 @@ landing-page rewrite regressed preservation rows; Wiley, ACS, and Elsevier
 DOI.org residual probes do not currently justify promotion. Row-level evidence
 stays local; summary/report artifacts are aggregate-only.
 
-Next exact action: run the next non-duplicate no-storage provider probe against
-Atlantis Press (`atlantis-press.com`), or test a provider-advised PDF-byte
-recipe if one arrives.
+Next exact action: refresh residual clusters from
+`pdf-full10k-after-atlantis-3b13642`, then choose the next non-duplicate
+provider/access lane or test a provider-advised PDF-byte recipe if one arrives.
 Do not promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39 DOI.org, ACM,
 IngentaConnect, ICE Virtual Library, Ecologica, the closed top-five Browserbase
-sample, ASTM Compass, CCCC, or any new lane without a narrower or
+sample, ASTM Compass, CCCC, Atlantis Press, or any new lane without a narrower or
 provider-advised recipe. Do not run another duplicate fresh-tail loop.
 Historical sections below may use "current" relative to older gates; this top
 block is authoritative.
@@ -85,17 +64,12 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-PYTHONUNBUFFERED=1 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
-  --category missing_pdf_harvest \
-  --host atlantis-press.com \
-  --limit 2 \
-  --strategies all \
-  --out pdf_eval_runs/ \
-  --run-id atlantis-current-missing-provider-probe2-next \
-  --timeout 45 \
-  --sleep 0.5 \
-  --env-file .env
+python3 scripts/taxicab_cluster_residuals.py \
+  --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson \
+  --out pdf_eval_runs/residual-clusters-after-atlantis-3b13642 \
+  --run-id residual-clusters-after-atlantis-3b13642 \
+  --sample-size 5 \
+  --top-n 240
 ```
 
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
@@ -1430,17 +1404,12 @@ Next exact commands:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 git switch codex/taxicab-pdf-phase2
-PYTHONUNBUFFERED=1 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
-  --category missing_pdf_harvest \
-  --host atlantis-press.com \
-  --limit 2 \
-  --strategies all \
-  --out pdf_eval_runs/ \
-  --run-id atlantis-current-missing-provider-probe2-next \
-  --timeout 45 \
-  --sleep 0.5 \
-  --env-file .env
+python3 scripts/taxicab_cluster_residuals.py \
+  --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson \
+  --out pdf_eval_runs/residual-clusters-after-atlantis-3b13642 \
+  --run-id residual-clusters-after-atlantis-3b13642 \
+  --sample-size 5 \
+  --top-n 240
 ```
 
 ### 12. Continue from the post-95 HTML residual queue only if PDF work is paused

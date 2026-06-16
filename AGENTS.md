@@ -6,54 +6,41 @@ PDF-expected portion of the 10K Goldie corpus. Read `GOAL.md` and
 `NEXT_TO_DO.md` before changing code.
 
 Latest PDF metric: accepted full 10K read-only gate
-`pdf-full10k-after-rank61-interstitial-8562e3b` is 2,381/6,293 `good_pdf`
-(37.84%), +2 rows versus the supplement-validator gate and +544 rows versus
-the denominator baseline of 1,837/6,293 (29.19%). The run has 3,791
-`missing_pdf_harvest`, 65 `corrupt_or_truncated_pdf`, 4
-`encrypted_or_unreadable_pdf`, 23 `supplement_or_preview_pdf`, 6
-`interstitial_or_paywall`, 0 timeout, and 0 `taxicab_error`. The gap to 95% is
-3,598 rows. This is a bounded cache/reharvest lift, not a Taxicab-main
-production scraping push.
+`pdf-full10k-after-atlantis-3b13642` is 2,383/6,293 `good_pdf` (37.87%), +2
+rows versus the DOI.org/OSTI gate and +546 rows versus the denominator
+baseline of 1,837/6,293 (29.19%). The run has 3,789 `missing_pdf_harvest`, 65
+`corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
+`supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
+`taxicab_error`. The gap to 95% is 3,596 rows. This is a bounded
+cache/reharvest lift, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `48758ccb` records the accepted
-DOI.org/OSTI interstitial full gate, post-rank61 branch confirmations, the ACM
-preservation blocker, and the rank61 Browserbase/Zyte gold sample. The accepted
-KPI is unchanged: ACM current missing-PDF rows recovered 15/19 through local
-no-storage `http_get`, but the already-good preservation proof preserved only
-5/6 and regressed 1/6 to `js_redirect_unresolved`. The top-five
-Browserbase-candidate sample recovered 0/5 PDFs in Browserbase and the paired
-one-row Zyte provider comparison recovered 0/1, so that sample is closed as
-negative gold evidence. The same report now also closes IngentaConnect:
-`ingentaconnect-current-missing-provider-probe2-7f3dc9a` recovered 0/2
-`good_pdf`; both best outcomes were `interstitial_or_paywall` and browser HTML
-returned `bot_block_403`. It also closes ICE Virtual Library:
-`icevirtuallibrary-current-missing-provider-probe2-1fbdc57` recovered 0/2
-`good_pdf`; best outcomes were one `bot_block_403` and one
-`html_instead_of_pdf`. It also closes Ecologica:
-`ecologica-current-missing-provider-probe2-4d76a3c` recovered 0/2 `good_pdf`;
-all tested strategies returned `html_instead_of_pdf`. It also closes ASTM
-Compass: `astm-current-missing-provider-probe2-b1da453` recovered 0/2
-`good_pdf`; all tested strategies returned `empty_response`. It also closes
-CCCC: `cccc-current-missing-provider-probe2-d2c69a2` recovered 0/2
-`good_pdf`; all tested strategies returned `html_instead_of_pdf`.
+Latest #461 report publish: oxjobs commit `9263ff09` records the accepted
+Atlantis Press full gate. No-storage provider probe
+`atlantis-current-missing-provider-probe2-3b13642` recovered 2/2 `good_pdf`
+through Zyte PDF-byte strategies while browser HTML returned `empty_response`;
+direct-PDF-URL reharvest and read-only confirmation both preserved 2/2, and
+the full 10K gate accepted +2 `good_pdf` with 0 good-to-non-good regressions.
+The same report retains the prior DOI.org/OSTI, supplement-validator,
+post-rank61 branch confirmation, ACM preservation-blocker, negative
+Browserbase/Zyte gold-sample, and negative IngentaConnect/ICE/Ecologica/ASTM/
+CCCC evidence. Published artifacts are aggregate-only; raw rows stay local.
 
-Latest local validations: Browserbase PDF evidence mode is fixed at Taxicab
-commit `bdcc38a` to survive download-start navigation errors and capture
-started/not-captured download evidence. Residual clustering from
-`pdf-full10k-after-rank61-interstitial-8562e3b` found top duplicate/provider
-lanes already tracked elsewhere, with ACM as the strongest current branch
-candidate: 15/19 current missing rows recovered by local no-storage `http_get`.
-ACM is now blocked for production promotion because preservation regressed 1/6
-already-good rows.
+Latest local validations: Atlantis Press is complete at Taxicab commit
+`3b13642` and oxjobs commit `9263ff09`. Browserbase PDF evidence mode remains
+fixed at Taxicab commit `bdcc38a` to survive download-start navigation errors
+and capture started/not-captured download evidence. The prior rank61 residual
+clustering is now stale for lane selection; refresh residual clusters from
+`pdf-full10k-after-atlantis-3b13642` before choosing the next provider/access
+lane.
 Earlier validations remain: supplement validator recovered +70 at full-gate
 scale; DOI.org/OSTI recovered +2 at full-gate scale; SAGE landing-page rewrite
 regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
 do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
-Next action: run the next non-duplicate no-storage provider probe against
-Atlantis Press (`atlantis-press.com`), or test a provider-advised PDF-byte
-recipe if one arrives.
+Next action: refresh residual clusters from the Atlantis full gate, then choose
+the next non-duplicate provider/access lane or test a provider-advised
+PDF-byte recipe if one arrives.
 Keep Browserbase as evidence/gold only, Zyte as the production core, and do not
 push Taxicab main before the full PDF 95% proof.
 
@@ -61,17 +48,12 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-PYTHONUNBUFFERED=1 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
-  --category missing_pdf_harvest \
-  --host atlantis-press.com \
-  --limit 2 \
-  --strategies all \
-  --out pdf_eval_runs/ \
-  --run-id atlantis-current-missing-provider-probe2-next \
-  --timeout 45 \
-  --sleep 0.5 \
-  --env-file .env
+python3 scripts/taxicab_cluster_residuals.py \
+  --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson \
+  --out pdf_eval_runs/residual-clusters-after-atlantis-3b13642 \
+  --run-id residual-clusters-after-atlantis-3b13642 \
+  --sample-size 5 \
+  --top-n 240
 ```
 
 Historical detail below is chronological and may use "current" relative to the
@@ -395,7 +377,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && PYTHONUNBUFFERED=1 python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson --category missing_pdf_harvest --host atlantis-press.com --limit 2 --strategies all --out pdf_eval_runs/ --run-id atlantis-current-missing-provider-probe2-next --timeout 45 --sleep 0.5 --env-file .env`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs/residual-clusters-after-atlantis-3b13642 --run-id residual-clusters-after-atlantis-3b13642 --sample-size 5 --top-n 240`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
