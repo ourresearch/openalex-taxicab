@@ -313,6 +313,17 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(band, "confirm_existing_branch_candidate")
         self.assertIn("duplicate provider probe", decision)
 
+        status, band, decision = subcluster_priority(
+            "missing_pdf_harvest",
+            "cshlp",
+            "biorxiv.org",
+            "www.biorxiv.org:/content/biorxiv/early/:num/:n/:n/...",
+        )
+
+        self.assertEqual(status, "biorxiv_pdf_byte_branch_candidate")
+        self.assertEqual(band, "confirm_existing_branch_candidate")
+        self.assertIn("duplicate provider probe", decision)
+
     def test_subcluster_priority_marks_fresh_probe_candidates(self):
         status, band, decision = subcluster_priority(
             "missing_pdf_harvest",

@@ -81,6 +81,8 @@ PRIOR_ROUTE_CANDIDATE_PATTERNS = (
     ("dl.acm.org:/doi/pdf/", "acm_pdf_byte_branch_candidate"),
     ("pubs.acs.org:/doi/epdf/", "acs_pdf_byte_branch_candidate"),
     ("pubs.acs.org:/doi/pdf/", "acs_pdf_byte_branch_candidate"),
+    ("biorxiv.org:/content/biorxiv/early/", "biorxiv_pdf_byte_branch_candidate"),
+    ("www.biorxiv.org:/content/biorxiv/early/", "biorxiv_pdf_byte_branch_candidate"),
 )
 
 PRIOR_PROVIDER_HOSTS = {
