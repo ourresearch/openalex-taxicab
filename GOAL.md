@@ -41,7 +41,7 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `808fc018` publishes the accepted
+Current publish status: oxjobs #461 commit `48758ccb` publishes the accepted
 full 10K gate `pdf-full10k-after-rank61-interstitial-8562e3b` from Taxicab
 commit `8562e3b`: 2,381/6,293 `good_pdf` (37.84%), +2 versus the
 supplement-validator gate and +544 versus denominator baseline, with 3,791
@@ -78,18 +78,22 @@ are provider/access-flow evidence only. Ecologica probe
 is provider/access-flow evidence only. ASTM Compass probe
 `astm-current-missing-provider-probe2-b1da453` also recovered 0/2 `good_pdf`;
 every tested strategy returned `empty_response`, so ASTM Compass is
+provider/access-flow evidence only. CCCC probe
+`cccc-current-missing-provider-probe2-d2c69a2` recovered 0/2 `good_pdf`;
+every tested strategy returned `html_instead_of_pdf`, so CCCC is
 provider/access-flow evidence only. Current phase: run the next non-duplicate
-residual lane (`cccc.uochb.cas.cz`) or test a provider-advised PDF-byte
+residual lane (`atlantis-press.com`) or test a provider-advised PDF-byte
 recipe. Do not promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39 DOI.org,
-ACM, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass, or any new
-lane without a narrower or provider-advised recipe. Do not push Taxicab main
-before the full PDF 95% proof.
+ACM, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass, CCCC, or
+any new lane without a narrower or provider-advised recipe. Do not push
+Taxicab main before the full PDF 95% proof.
 Current handoff override: the top-level accepted metric is
 `pdf-full10k-after-rank61-interstitial-8562e3b`, 2,381/6,293 `good_pdf`
-(37.84%), with a 3,598-row gap to 95%. Latest oxjobs #461 commit `808fc018`
+(37.84%), with a 3,598-row gap to 95%. Latest oxjobs #461 commit `48758ccb`
 publishes the accepted full gate, post-rank61 branch confirmation evidence, the
 ACM preservation blocker, negative gold-sample evidence, and negative
-IngentaConnect/ICE/Ecologica/ASTM evidence without changing the accepted KPI.
+IngentaConnect/ICE/Ecologica/ASTM/CCCC evidence without changing the accepted
+KPI.
 Historical sections below may use "current" relative to older gates; this
 block is authoritative.
 Next exact command:
@@ -97,11 +101,11 @@ cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 PYTHONUNBUFFERED=1 python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
   --category missing_pdf_harvest \
-  --host cccc.uochb.cas.cz \
+  --host atlantis-press.com \
   --limit 2 \
   --strategies all \
   --out pdf_eval_runs/ \
-  --run-id cccc-current-missing-provider-probe2-next \
+  --run-id atlantis-current-missing-provider-probe2-next \
   --timeout 45 \
   --sleep 0.5 \
   --env-file .env
@@ -319,7 +323,8 @@ Gate 21.999fk: choose next non-duplicate residual lane or provider-advised PDF-b
 Gate 21.999fl: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [done, taxicab 1fbdc57, oxjobs dcbec19c, ICE Virtual Library no-storage provider probe recovered 0/2 and becomes provider/access-flow evidence only]
 Gate 21.999fm: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [done, taxicab 4d76a3c, oxjobs 261d973d, Ecologica no-storage provider probe recovered 0/2 and becomes provider/access-flow evidence only]
 Gate 21.999fn: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [done, taxicab b1da453, oxjobs 808fc018, ASTM Compass no-storage provider probe recovered 0/2 and becomes provider/access-flow evidence only]
-Gate 21.999fo: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [next, evidence only; no Taxicab main push; start with cccc.uochb.cas.cz unless provider guidance arrives]
+Gate 21.999fo: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [done, taxicab d2c69a2, oxjobs 48758ccb, CCCC no-storage provider probe recovered 0/2 and becomes provider/access-flow evidence only]
+Gate 21.999fp: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [next, evidence only; no Taxicab main push; start with atlantis-press.com unless provider guidance arrives]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
