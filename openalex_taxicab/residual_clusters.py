@@ -75,7 +75,6 @@ SENSITIVE_QUERY_KEYS = {"bm-verify"}
 PATH_DYNAMIC_EXTENSIONS = {".pdf", ".html", ".htm", ".xml", ".aspx", ".ashx"}
 
 PRIOR_ROUTE_CANDIDATE_PATTERNS = (
-    ("onlinelibrary.wiley.com:/doi/pdfdirect/", "wiley_pdfdirect_branch_candidate"),
     ("iopscience.iop.org:/article/", "iop_article_pdf_branch_candidate"),
     ("biorxiv.org:/content/biorxiv/early/", "biorxiv_pdf_byte_branch_candidate"),
     ("www.biorxiv.org:/content/biorxiv/early/", "biorxiv_pdf_byte_branch_candidate"),

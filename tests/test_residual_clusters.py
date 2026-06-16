@@ -337,6 +337,18 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(band, "provider_lane_do_not_duplicate")
         self.assertIn("provider/Zyte", decision)
 
+    def test_subcluster_priority_demotes_wiley_pdfdirect_routes(self):
+        status, band, decision = subcluster_priority(
+            "missing_pdf_harvest",
+            "wiley",
+            "chemistry-europe.onlinelibrary.wiley.com",
+            "chemistry-europe.onlinelibrary.wiley.com:/doi/pdfdirect/:doi/:id",
+        )
+
+        self.assertEqual(status, "prior_negative_or_support_evidence")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
+        self.assertIn("provider/Zyte", decision)
+
     def test_subcluster_priority_marks_fresh_probe_candidates(self):
         status, band, decision = subcluster_priority(
             "missing_pdf_harvest",
