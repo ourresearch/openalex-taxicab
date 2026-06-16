@@ -17,25 +17,26 @@ Current handoff override: accepted full 10K PDF gate
 versus denominator baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `276fc6a3`
-publishes the aggregate-only Wiley preservation failure and residual demotion
-from Taxicab commit `3a599cd`. It keeps the accepted KPI unchanged: ACS current
+`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `b2d97360`
+publishes the aggregate-only IOP preservation failure and residual demotion
+from Taxicab commit `6741b06`. It keeps the accepted KPI unchanged: ACS current
 branch `http_get` recovered 0/19 current residual rows, ACM already-good
 preservation found 0/6 preserved and 6/6 regressed, Wiley already-good
-preservation found 0/12 preserved and 12/12 regressed to `empty_response`, and
-ACS/ACM/Wiley PDF route families are now provider-lane/do-not-duplicate.
-Top-240 `probe_next` remains 0, and `confirm_existing_branch_candidate` is now
-2. This
+preservation found 0/12 preserved and 12/12 regressed to `empty_response`, IOP
+already-good preservation found 11/12 preserved but 1/12 regressed to
+`bot_block_403`, and ACS/ACM/Wiley/IOP PDF route families are now
+provider-lane/do-not-duplicate. Top-240 `probe_next` remains 0, and
+`confirm_existing_branch_candidate` is now 1. This
 is planning/evidence work only, not a Taxicab-main production scraping-code
 lift.
 Gate note: no Taxicab main push.
 
-Latest report publish: oxjobs #461 commit `276fc6a3` publishes the Wiley
+Latest report publish: oxjobs #461 commit `b2d97360` publishes the IOP
 preservation/demotion update and keeps the accepted metric at
 `pdf-full10k-after-atlantis-3b13642` (2,383/6,293 `good_pdf`, 37.87%). The
 refresh supersedes the stale rank61/Atlantis lane queue and leaves no top-240
-`probe_next` lane; next work is IOP already-good preservation before any branch
-promotion.
+`probe_next` lane; next work is bioRxiv/CSHLP already-good preservation before
+any branch promotion.
 
 Latest local validations: Browserbase PDF evidence mode is fixed at Taxicab
 commit `bdcc38a` for download-start navigation errors. Residual clustering from
@@ -46,8 +47,8 @@ landing-page rewrite regressed preservation rows; Wiley, ACS, and Elsevier
 DOI.org residual probes do not currently justify promotion. Row-level evidence
 stays local; summary/report artifacts are aggregate-only.
 
-Next exact action: run IOP already-good preservation before any branch
-promotion. Do not promote SAGE, Wiley, ACS, Elsevier
+Next exact action: run bioRxiv/CSHLP already-good preservation before any branch
+promotion. Do not promote SAGE, Wiley, ACS, IOP, Elsevier
 DOI.org, rank-39 DOI.org, ACM, IngentaConnect, ICE Virtual Library, Ecologica,
 the closed top-five Browserbase sample, ASTM Compass, CCCC, Atlantis Press,
 IWA/AMPP/Sage Knowledge/RSNA/AJOG/Elgar, broad Elsevier article-PDF lanes, or
@@ -61,7 +62,7 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host iopscience.iop.org --limit 12 --out pdf_eval_runs/ --run-id iop-branch-good-preservation-after-wiley-demote-3a599cd --read-timeout 60 --connect-timeout 10 --sleep 0.5
+python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host biorxiv.org --limit 12 --out pdf_eval_runs/ --run-id biorxiv-branch-good-preservation-after-iop-demote-6741b06 --read-timeout 60 --connect-timeout 10 --sleep 0.5
 ```
 
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
@@ -1396,7 +1397,7 @@ Next exact commands:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 git switch codex/taxicab-pdf-phase2
-python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host iopscience.iop.org --limit 12 --out pdf_eval_runs/ --run-id iop-branch-good-preservation-after-wiley-demote-3a599cd --read-timeout 60 --connect-timeout 10 --sleep 0.5
+python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host biorxiv.org --limit 12 --out pdf_eval_runs/ --run-id biorxiv-branch-good-preservation-after-iop-demote-6741b06 --read-timeout 60 --connect-timeout 10 --sleep 0.5
 ```
 
 ### 12. Continue from the post-95 HTML residual queue only if PDF work is paused
