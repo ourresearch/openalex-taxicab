@@ -241,6 +241,33 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(rupress_status, "prior_negative_or_support_evidence")
         self.assertEqual(rupress_band, "provider_lane_do_not_duplicate")
 
+    def test_subcluster_priority_marks_closed_small_hosts(self):
+        closed_hosts = [
+            ("pubs.asha.org", "pubs.asha.org:/doi/epdf/:doi/:id"),
+            ("www.pm-research.com", "www.pm-research.com:/content/iijpormgmt/:n/:n/:file.pdf"),
+            ("www.maps.mla.org", "www.maps.mla.org:/bulletin/pdf/:num"),
+            ("www.journalijar.com", "www.journalijar.com:/uploads/:id.pdf"),
+            ("www.jmcc-online.com", "www.jmcc-online.com:/article/:id/pdf"),
+            ("www.ingentaconnect.com", "www.ingentaconnect.com:/search/download"),
+            ("www.icevirtuallibrary.com", "www.icevirtuallibrary.com:/doi/reader/:doi/:id"),
+            ("www.ecologica.cn", "www.ecologica.cn:/stxb/article/pdf/:id"),
+            ("compass.astm.org", "compass.astm.org:/genpdf.cgi"),
+            ("cccc.uochb.cas.cz", "cccc.uochb.cas.cz:/:n/:n/:num/pdf"),
+        ]
+
+        for host, pattern in closed_hosts:
+            with self.subTest(host=host):
+                status, band, decision = subcluster_priority(
+                    "missing_pdf_harvest",
+                    "unknown",
+                    host,
+                    pattern,
+                )
+
+                self.assertEqual(status, "prior_negative_or_support_evidence")
+                self.assertEqual(band, "provider_lane_do_not_duplicate")
+                self.assertIn("provider/Zyte", decision)
+
     def test_subcluster_priority_marks_manual_gold_hosts(self):
         status, band, decision = subcluster_priority(
             "missing_pdf_harvest",
