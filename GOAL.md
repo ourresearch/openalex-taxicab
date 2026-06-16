@@ -41,30 +41,45 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `6cb01c7f` publishes the accepted
+Current publish status: oxjobs #461 commit `7caa6fd7` publishes the accepted
 full 10K gate `pdf-full10k-after-freshtail-f4f4a28` from Taxicab commit
 `f4f4a28`: 2,309/6,293 `good_pdf` (36.69%), +5 versus the
 readable-encrypted gate and +472 versus denominator baseline, with 3,791
 `missing_pdf_harvest`, 65 corrupt/truncated, 4 encrypted/unreadable,
 93 supplement/preview, 0 timeout, and 0 `taxicab_error`. The same oxjobs
-commit also publishes the aggregate-only ACM/ACS branch-candidate recheck from
-Taxicab commit `d8038eb`: ACM recovered 15/22 current missing rows with
-no-storage PDF-byte strategies, while ACS recovered 0/46 current missing rows,
-preserved 8/8 already-good rows, and recovered 5/6 corrupt/truncated rows.
+commit also publishes the aggregate-only ACM/ACS branch-candidate recheck plus
+the ACM local `http_get` route validation: ACM provider probes recovered 15/22
+current missing rows, the actual branch `http_get` path classified 18/22 as
+`good_pdf`, while ACS recovered 0/46 current missing rows, preserved 8/8
+already-good rows, and recovered 5/6 corrupt/truncated rows.
 Latest local route validation `acm-http-get-route-current-4614cef` exercised
 the actual branch `http_get` path over the same ACM rows and classified 18/22
 as `good_pdf`, with residuals of 3 `js_redirect_unresolved` and 1 `timeout`.
 It made no Taxicab POST/R2/DynamoDB writes and is not a full-corpus KPI lift.
-Current phase: publish the aggregate ACM route-validation evidence to oxjobs
-#461, then keep ACM as a narrow branch candidate for the next regression gate.
-Do not run another duplicate fresh-tail loop. ACS missing rows stay in the
-Zyte/support debt lane. Do not push Taxicab main before the full PDF 95% proof.
+Current phase: select the next non-duplicate residual cluster from the
+fresh-tail full-gate rows. Keep ACM as a narrow branch candidate for the next
+regression gate. Do not run another duplicate fresh-tail loop. ACS missing rows
+stay in the Zyte/support debt lane. Do not push Taxicab main before the full
+PDF 95% proof.
 Current handoff override: the top-level accepted metric is
 `pdf-full10k-after-freshtail-f4f4a28`, 2,309/6,293 `good_pdf` (36.69%), with a
 3,670-row gap to 95%. Historical sections below may use "current" relative to
 older gates; this block is authoritative.
 Next exact command:
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/secret_scan.py && python3 -m unittest discover -s tests && python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-acm-route-probe
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 - <<'PY'
+import json
+from collections import Counter
+from pathlib import Path
+rows = Path('pdf_eval_runs/pdf-full10k-after-freshtail-f4f4a28/rows.ndjson')
+counts = Counter()
+for line in rows.open():
+    row = json.loads(line)
+    if row.get('category') not in {'good_pdf', 'no_pdf_expected'}:
+        cluster = row.get('publisher') or row.get('source_pdf_host') or row.get('host') or 'unknown'
+        counts[(row.get('category'), cluster)] += 1
+for (category, cluster), count in counts.most_common(30):
+    print(f'{count:4d} {category:28s} {cluster}')
+PY
 ```
 
 After Gate 0 is pushed:

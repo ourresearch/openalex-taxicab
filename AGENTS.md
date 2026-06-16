@@ -13,10 +13,11 @@ baseline of 1,837/6,293 (29.19%). The run has 3,791 `missing_pdf_harvest`,
 `supplement_or_preview_pdf`, 0 timeout, and 0 `taxicab_error`. The gap to 95%
 is 3,670 rows.
 
-Latest #461 report publish: oxjobs commit `6cb01c7f` records the
-aggregate-only ACM/ACS branch-candidate recheck at Taxicab commit `d8038eb`.
-ACM recovered 15/22 current `missing_pdf_harvest` rows with no-storage
-PDF-byte strategies. ACS recovered 0/46 current missing rows, preserved 8/8
+Latest #461 report publish: oxjobs commit `7caa6fd7` records the
+aggregate-only ACM/ACS branch-candidate recheck and the ACM local `http_get`
+route validation. ACM provider probes recovered 15/22 current
+`missing_pdf_harvest` rows, and the actual branch `http_get` path classified
+18/22 as `good_pdf`. ACS recovered 0/46 current missing rows, preserved 8/8
 already-good rows, and recovered 5/6 corrupt/truncated rows. This is route
 evidence only; it is not an accepted full-corpus KPI lift.
 
@@ -26,9 +27,9 @@ classified 18/22 as `good_pdf`, with residuals of 3 `js_redirect_unresolved`
 and 1 `timeout`. It made no Taxicab POST/R2/DynamoDB writes. Local
 `rows.ndjson` contains row-level evidence; summary/report are aggregate-only.
 
-Next action: publish the aggregate ACM `http_get` route-validation result to
-oxjobs #461, then keep ACM as a narrow branch candidate for the next production
-regression gate. ACS missing rows stay in the Zyte/support debt lane. Keep Zyte
+Next action: select the next non-duplicate residual cluster from the fresh-tail
+full-gate rows. Keep ACM as a narrow branch candidate for the next production
+regression gate; ACS missing rows stay in the Zyte/support debt lane. Keep Zyte
 as the production core and Browserbase as evidence / gold-sample collection.
 Do not push Taxicab main before the full PDF 95% proof; gate note: no Taxicab
 main push.
@@ -37,7 +38,20 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/secret_scan.py && python3 -m unittest discover -s tests && python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-acm-route-probe
+python3 - <<'PY'
+import json
+from collections import Counter
+from pathlib import Path
+rows = Path('pdf_eval_runs/pdf-full10k-after-freshtail-f4f4a28/rows.ndjson')
+counts = Counter()
+for line in rows.open():
+    row = json.loads(line)
+    if row.get('category') not in {'good_pdf', 'no_pdf_expected'}:
+        cluster = row.get('publisher') or row.get('source_pdf_host') or row.get('host') or 'unknown'
+        counts[(row.get('category'), cluster)] += 1
+for (category, cluster), count in counts.most_common(30):
+    print(f'{count:4d} {category:28s} {cluster}')
+PY
 ```
 
 Historical detail below is chronological and may use "current" relative to the
