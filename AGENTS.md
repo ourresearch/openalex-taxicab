@@ -15,7 +15,7 @@ the denominator baseline of 1,837/6,293 (29.19%). The run has 3,791
 3,598 rows. This is a bounded cache/reharvest lift, not a Taxicab-main
 production scraping push.
 
-Latest #461 report publish: oxjobs commit `b8ef1f42` records the accepted
+Latest #461 report publish: oxjobs commit `dcbec19c` records the accepted
 DOI.org/OSTI interstitial full gate, post-rank61 branch confirmations, the ACM
 preservation blocker, and the rank61 Browserbase/Zyte gold sample. The accepted
 KPI is unchanged: ACM current missing-PDF rows recovered 15/19 through local
@@ -26,7 +26,10 @@ one-row Zyte provider comparison recovered 0/1, so that sample is closed as
 negative gold evidence. The same report now also closes IngentaConnect:
 `ingentaconnect-current-missing-provider-probe2-7f3dc9a` recovered 0/2
 `good_pdf`; both best outcomes were `interstitial_or_paywall` and browser HTML
-returned `bot_block_403`.
+returned `bot_block_403`. It also closes ICE Virtual Library:
+`icevirtuallibrary-current-missing-provider-probe2-1fbdc57` recovered 0/2
+`good_pdf`; best outcomes were one `bot_block_403` and one
+`html_instead_of_pdf`.
 
 Latest local validations: Browserbase PDF evidence mode is fixed at Taxicab
 commit `bdcc38a` to survive download-start navigation errors and capture
@@ -42,8 +45,8 @@ regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
 do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
-Next action: run the next non-duplicate no-storage provider probe against ICE
-Virtual Library, or test a provider-advised PDF-byte recipe if one arrives.
+Next action: run the next non-duplicate no-storage provider probe against
+Ecologica, or test a provider-advised PDF-byte recipe if one arrives.
 Keep Browserbase as evidence/gold only, Zyte as the production core, and do not
 push Taxicab main before the full PDF 95% proof.
 
@@ -54,11 +57,11 @@ cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 PYTHONUNBUFFERED=1 python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
   --category missing_pdf_harvest \
-  --host icevirtuallibrary.com \
+  --host ecologica.cn \
   --limit 2 \
   --strategies all \
   --out pdf_eval_runs/ \
-  --run-id icevirtuallibrary-current-missing-provider-probe2-next \
+  --run-id ecologica-current-missing-provider-probe2-next \
   --timeout 45 \
   --sleep 0.5 \
   --env-file .env
@@ -385,7 +388,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && PYTHONUNBUFFERED=1 python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson --category missing_pdf_harvest --host icevirtuallibrary.com --limit 2 --strategies all --out pdf_eval_runs/ --run-id icevirtuallibrary-current-missing-provider-probe2-next --timeout 45 --sleep 0.5 --env-file .env`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && PYTHONUNBUFFERED=1 python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson --category missing_pdf_harvest --host ecologica.cn --limit 2 --strategies all --out pdf_eval_runs/ --run-id ecologica-current-missing-provider-probe2-next --timeout 45 --sleep 0.5 --env-file .env`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context

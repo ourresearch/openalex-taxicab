@@ -41,7 +41,7 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `b8ef1f42` publishes the accepted
+Current publish status: oxjobs #461 commit `dcbec19c` publishes the accepted
 full 10K gate `pdf-full10k-after-rank61-interstitial-8562e3b` from Taxicab
 commit `8562e3b`: 2,381/6,293 `good_pdf` (37.84%), +2 versus the
 supplement-validator gate and +544 versus denominator baseline, with 3,791
@@ -69,29 +69,33 @@ recovered 0/5 Browserbase PDFs, and paired one-row Zyte provider comparison
 recovered 0/1; close that sample as negative gold evidence. IngentaConnect
 post-rank61 probe `ingentaconnect-current-missing-provider-probe2-7f3dc9a`
 recovered 0/2 `good_pdf`; both best outcomes were `interstitial_or_paywall`
-and browser HTML returned `bot_block_403`, so it is now provider/access-flow
-evidence only. Current phase: run the next non-duplicate residual lane
-(`icevirtuallibrary.com`) or test a provider-advised PDF-byte recipe. Do not
-promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39 DOI.org, ACM,
-IngentaConnect, or any new lane without a narrower or provider-advised recipe.
-Do not push Taxicab main before the full PDF 95% proof.
+and browser HTML returned `bot_block_403`. ICE Virtual Library probe
+`icevirtuallibrary-current-missing-provider-probe2-1fbdc57` also recovered 0/2
+`good_pdf`, with one `bot_block_403` and one `html_instead_of_pdf`. Both lanes
+are provider/access-flow evidence only. Current phase: run the next
+non-duplicate residual lane (`ecologica.cn`) or test a provider-advised
+PDF-byte recipe. Do not promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39
+DOI.org, ACM, IngentaConnect, ICE Virtual Library, or any new lane without a
+narrower or provider-advised recipe. Do not push Taxicab main before the full
+PDF 95% proof.
 Current handoff override: the top-level accepted metric is
 `pdf-full10k-after-rank61-interstitial-8562e3b`, 2,381/6,293 `good_pdf`
-(37.84%), with a 3,598-row gap to 95%. Latest oxjobs #461 commit `b8ef1f42`
+(37.84%), with a 3,598-row gap to 95%. Latest oxjobs #461 commit `dcbec19c`
 publishes the accepted full gate, post-rank61 branch confirmation evidence, the
 ACM preservation blocker, negative gold-sample evidence, and negative
-IngentaConnect evidence without changing the accepted KPI. Historical sections
-below may use "current" relative to older gates; this block is authoritative.
+IngentaConnect/ICE evidence without changing the accepted KPI. Historical
+sections below may use "current" relative to older gates; this block is
+authoritative.
 Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 PYTHONUNBUFFERED=1 python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
   --category missing_pdf_harvest \
-  --host icevirtuallibrary.com \
+  --host ecologica.cn \
   --limit 2 \
   --strategies all \
   --out pdf_eval_runs/ \
-  --run-id icevirtuallibrary-current-missing-provider-probe2-next \
+  --run-id ecologica-current-missing-provider-probe2-next \
   --timeout 45 \
   --sleep 0.5 \
   --env-file .env
@@ -306,7 +310,8 @@ Gate 21.999fh: refresh residual clusters after rank61 and publish post-rank61 br
 Gate 21.999fi: run ACM already-good preservation proof from the rank61 full gate. [done, taxicab bf64d87, oxjobs b9f5c28e, 5/6 preserved and 1/6 regressed to js_redirect_unresolved; ACM route promotion blocked]
 Gate 21.999fj: run rank61 Browserbase/Zyte gold sample. [done, taxicab 18e2a76, oxjobs 079cf28f, Browserbase 0/5 PDFs, paired Zyte provider probe 0/1; negative gold evidence only]
 Gate 21.999fk: choose next non-duplicate residual lane or provider-advised PDF-byte recipe. [done, taxicab 7f3dc9a, oxjobs b8ef1f42, IngentaConnect no-storage provider probe recovered 0/2 and becomes provider/access-flow evidence only]
-Gate 21.999fl: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [next, evidence only; no Taxicab main push; start with icevirtuallibrary.com unless provider guidance arrives]
+Gate 21.999fl: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [done, taxicab 1fbdc57, oxjobs dcbec19c, ICE Virtual Library no-storage provider probe recovered 0/2 and becomes provider/access-flow evidence only]
+Gate 21.999fm: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [next, evidence only; no Taxicab main push; start with ecologica.cn unless provider guidance arrives]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
