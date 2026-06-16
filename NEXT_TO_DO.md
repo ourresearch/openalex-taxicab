@@ -17,21 +17,22 @@ Current handoff override: accepted full 10K PDF gate
 versus denominator baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `37e7fc47`
-publishes the aggregate-only ACS residual demotion from Taxicab commit
-`4256097`. It keeps the accepted KPI unchanged: ACS current branch `http_get`
-recovered 0/19 current residual rows, ACS PDF/EPDF path families are now
-provider-lane/do-not-duplicate, top-240 `probe_next` remains 0, and
-`confirm_existing_branch_candidate` is now 7. This
+`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `1127bc8b`
+publishes the aggregate-only ACM preservation failure and residual demotion from
+Taxicab commit `f106e20`. It keeps the accepted KPI unchanged: ACS current
+branch `http_get` recovered 0/19 current residual rows, ACM already-good
+preservation found 0/6 preserved and 6/6 regressed, ACS and ACM PDF/EPDF path
+families are now provider-lane/do-not-duplicate, top-240 `probe_next` remains
+0, and `confirm_existing_branch_candidate` is now 5. This
 is planning/evidence work only, not a Taxicab-main production scraping-code
 lift.
 Gate note: no Taxicab main push.
 
-Latest report publish: oxjobs #461 commit `37e7fc47` publishes the ACS
-residual demotion and keeps the accepted metric at
+Latest report publish: oxjobs #461 commit `1127bc8b` publishes the ACM
+preservation/demotion update and keeps the accepted metric at
 `pdf-full10k-after-atlantis-3b13642` (2,383/6,293 `good_pdf`, 37.87%). The
 refresh supersedes the stale rank61/Atlantis lane queue and leaves no top-240
-`probe_next` lane; next work is ACM already-good preservation before any branch
+`probe_next` lane; next work is Wiley already-good preservation before any branch
 promotion.
 
 Latest local validations: Browserbase PDF evidence mode is fixed at Taxicab
@@ -43,7 +44,7 @@ landing-page rewrite regressed preservation rows; Wiley, ACS, and Elsevier
 DOI.org residual probes do not currently justify promotion. Row-level evidence
 stays local; summary/report artifacts are aggregate-only.
 
-Next exact action: run ACM already-good preservation before any branch
+Next exact action: run Wiley already-good preservation before any branch
 promotion. Do not promote SAGE, Wiley, ACS, Elsevier
 DOI.org, rank-39 DOI.org, ACM, IngentaConnect, ICE Virtual Library, Ecologica,
 the closed top-five Browserbase sample, ASTM Compass, CCCC, Atlantis Press,
@@ -58,7 +59,7 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host dl.acm.org --limit 12 --out pdf_eval_runs/ --run-id acm-current-good-preservation-after-acs-demote-4256097 --read-timeout 60 --connect-timeout 10 --sleep 0.5
+python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host onlinelibrary.wiley.com --limit 12 --out pdf_eval_runs/ --run-id wiley-branch-good-preservation-after-acm-demote-f106e20 --read-timeout 60 --connect-timeout 10 --sleep 0.5
 ```
 
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
@@ -1393,7 +1394,7 @@ Next exact commands:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 git switch codex/taxicab-pdf-phase2
-python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host dl.acm.org --limit 12 --out pdf_eval_runs/ --run-id acm-current-good-preservation-after-acs-demote-4256097 --read-timeout 60 --connect-timeout 10 --sleep 0.5
+python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host onlinelibrary.wiley.com --limit 12 --out pdf_eval_runs/ --run-id wiley-branch-good-preservation-after-acm-demote-f106e20 --read-timeout 60 --connect-timeout 10 --sleep 0.5
 ```
 
 ### 12. Continue from the post-95 HTML residual queue only if PDF work is paused

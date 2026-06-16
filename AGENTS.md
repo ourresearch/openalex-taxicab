@@ -14,32 +14,35 @@ baseline of 1,837/6,293 (29.19%). The run has 3,789 `missing_pdf_harvest`, 65
 `taxicab_error`. The gap to 95% is 3,596 rows. This is a bounded
 cache/reharvest lift, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `37e7fc47` publishes the ACS
-residual demotion after the accepted full gate. The accepted
+Latest #461 report publish: oxjobs commit `1127bc8b` publishes the ACM
+already-good preservation failure and residual demotion after the accepted full
+gate. The accepted
 metric remains `pdf-full10k-after-atlantis-3b13642`: 2,383/6,293 `good_pdf`
 (37.87%), +2 rows versus the DOI.org/OSTI gate, +546 rows versus denominator
 baseline, and a 3,596-row gap to 95%. The planning-only prior-map refresh keeps
 the same 3,910 non-good rows, 655 clusters, and 1,426 subclusters. ACS current
 branch `http_get` confirmation recovered 0/19 current residual rows, so ACS
-PDF/EPDF path families are now provider-lane/do-not-duplicate. Top-240
-`probe_next` remains 0, `confirm_existing_branch_candidate` is now 7, and
-provider-lane/do-not-duplicate is now 197.
+PDF/EPDF path families are provider-lane/do-not-duplicate. ACM already-good
+preservation found 0/6 preserved and 6/6 regressed, so ACM `/doi/pdf`/`epdf`
+route promotion is blocked and ACM is also provider-lane/do-not-duplicate.
+Top-240 `probe_next` remains 0, `confirm_existing_branch_candidate` is now 5,
+and provider-lane/do-not-duplicate is now 199.
 Published artifacts are aggregate-only; raw rows stay local.
 
 Latest local validations: Atlantis Press is complete at Taxicab commit
-`3b13642`; prior-evidence mapping is complete through `4256097`; oxjobs #461 latest
-publish is `37e7fc47`. Browserbase PDF evidence mode remains fixed at Taxicab
+`3b13642`; prior-evidence mapping is complete through `f106e20`; oxjobs #461 latest
+publish is `1127bc8b`. Browserbase PDF evidence mode remains fixed at Taxicab
 commit `bdcc38a` to survive download-start navigation errors and capture
-started/not-captured download evidence. The ACS demotion refresh supersedes the
-older residual lane queue; do not duplicate ACS route work unless testing a
-provider-advised recipe.
+started/not-captured download evidence. The ACS and ACM demotion refreshes
+supersede the older residual lane queue; do not duplicate ACS or ACM route work
+unless testing a provider-advised recipe.
 Earlier validations remain: supplement validator recovered +70 at full-gate
 scale; DOI.org/OSTI recovered +2 at full-gate scale; SAGE landing-page rewrite
 regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
 do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
-Next action: run ACM already-good preservation before any branch promotion.
+Next action: run Wiley already-good preservation before any branch promotion.
 Keep Browserbase as evidence/gold only, Zyte as the production core, and do not
 push Taxicab main before the full PDF 95% proof.
 
@@ -47,7 +50,7 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host dl.acm.org --limit 12 --out pdf_eval_runs/ --run-id acm-current-good-preservation-after-acs-demote-4256097 --read-timeout 60 --connect-timeout 10 --sleep 0.5
+python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host onlinelibrary.wiley.com --limit 12 --out pdf_eval_runs/ --run-id wiley-branch-good-preservation-after-acm-demote-f106e20 --read-timeout 60 --connect-timeout 10 --sleep 0.5
 ```
 
 Historical detail below is chronological and may use "current" relative to the
@@ -371,7 +374,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host dl.acm.org --limit 12 --out pdf_eval_runs/ --run-id acm-current-good-preservation-after-acs-demote-4256097 --read-timeout 60 --connect-timeout 10 --sleep 0.5`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/http_get_route_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category good_pdf --host onlinelibrary.wiley.com --limit 12 --out pdf_eval_runs/ --run-id wiley-branch-good-preservation-after-acm-demote-f106e20 --read-timeout 60 --connect-timeout 10 --sleep 0.5`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
