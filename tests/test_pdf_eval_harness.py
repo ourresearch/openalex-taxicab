@@ -275,6 +275,28 @@ class PdfEvalHarnessTests(unittest.TestCase):
         self.assertEqual(row.category, PDF_CATEGORY_SUPPLEMENT_OR_PREVIEW_PDF)
         self.assertIn("matched preview url pattern", row.error)
 
+    def test_late_supplement_reference_in_article_text_is_good_pdf(self):
+        text = (
+            "Example Full Text Article DOI 10.5555/goodpdf "
+            + ("article body with methods and results " * 80)
+            + "Supplementary material is available online."
+        )
+        with patch(
+            "openalex_taxicab.pdf_eval_harness.structured_pdf_smoke",
+            return_value=(2, text, False, ""),
+        ):
+            row = classify_pdf_content(
+                PdfEvidence(
+                    doi="10.5555/goodpdf",
+                    title="Example Full Text Article",
+                    body=(FIXTURE_DIR / "valid_fulltext.pdf").read_bytes(),
+                    content_type="application/pdf",
+                ),
+                run_id="test",
+            )
+
+        self.assertEqual(row.category, PDF_CATEGORY_GOOD_PDF)
+
     def test_no_pdf_expected_short_circuits_content(self):
         row = classify_pdf_content(
             PdfEvidence(

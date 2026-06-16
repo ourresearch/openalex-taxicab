@@ -117,6 +117,7 @@ SUPPLEMENT_PATTERNS = tuple(
         r"\bfront matter\b",
     )
 )
+SUPPLEMENT_TEXT_SCAN_CHARS = 1500
 
 PREVIEW_URL_PATTERNS = tuple(
     re.compile(pattern, re.IGNORECASE)
@@ -431,7 +432,10 @@ def classify_pdf_content(evidence: PdfEvidence, *, run_id: str = "") -> PdfEvalR
                 (evidence.resolved_url, evidence.candidate_url, evidence.input_url),
                 PREVIEW_URL_PATTERNS,
             )
-            supplement_pattern = first_pattern(text_smoke, SUPPLEMENT_PATTERNS)
+            supplement_pattern = first_pattern(
+                text_smoke[:SUPPLEMENT_TEXT_SCAN_CHARS],
+                SUPPLEMENT_PATTERNS,
+            )
             if preview_url_pattern:
                 category = PDF_CATEGORY_SUPPLEMENT_OR_PREVIEW_PDF
                 validation_errors.append(f"matched preview url pattern: {preview_url_pattern}")
