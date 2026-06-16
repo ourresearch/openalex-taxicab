@@ -313,7 +313,7 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(band, "browserbase_or_zyte_gold_first")
         self.assertIn("gold/manual evidence", decision)
 
-    def test_subcluster_priority_marks_existing_branch_candidates(self):
+    def test_subcluster_priority_demotes_biorxiv_pdf_routes(self):
         status, band, decision = subcluster_priority(
             "missing_pdf_harvest",
             "cshlp",
@@ -321,9 +321,9 @@ class ResidualClusterTests(unittest.TestCase):
             "www.biorxiv.org:/content/biorxiv/early/:num/:n/:n/...",
         )
 
-        self.assertEqual(status, "biorxiv_pdf_byte_branch_candidate")
-        self.assertEqual(band, "confirm_existing_branch_candidate")
-        self.assertIn("duplicate provider probe", decision)
+        self.assertEqual(status, "prior_negative_or_support_evidence")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
+        self.assertIn("provider/Zyte", decision)
 
     def test_subcluster_priority_demotes_acm_residual_pdf_routes(self):
         status, band, decision = subcluster_priority(

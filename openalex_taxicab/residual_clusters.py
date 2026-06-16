@@ -74,10 +74,7 @@ SENSITIVE_QUERY_PREFIXES = ("X-Amz-",)
 SENSITIVE_QUERY_KEYS = {"bm-verify"}
 PATH_DYNAMIC_EXTENSIONS = {".pdf", ".html", ".htm", ".xml", ".aspx", ".ashx"}
 
-PRIOR_ROUTE_CANDIDATE_PATTERNS = (
-    ("biorxiv.org:/content/biorxiv/early/", "biorxiv_pdf_byte_branch_candidate"),
-    ("www.biorxiv.org:/content/biorxiv/early/", "biorxiv_pdf_byte_branch_candidate"),
-)
+PRIOR_ROUTE_CANDIDATE_PATTERNS = ()
 
 PRIOR_PROVIDER_HOSTS = {
     "aacr.figshare.com",
@@ -97,6 +94,7 @@ PRIOR_PROVIDER_HOSTS = {
     "brepolsonline.net",
     "brill.com",
     "bmj.com",
+    "biorxiv.org",
     "cairn.info",
     "cambridge.org",
     "cell.com",
