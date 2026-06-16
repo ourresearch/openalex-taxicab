@@ -16,14 +16,15 @@ the denominator baseline of 1,837/6,293 (29.19%). The run has 3,791
 3,598 rows. This is a bounded cache/reharvest lift, not a Taxicab-main
 production scraping push.
 
-Latest #461 report publish: oxjobs commit `b9f5c28e` records the accepted
-DOI.org/OSTI interstitial full gate from Taxicab commit `8562e3b`, then adds
-post-rank61 branch confirmations and the ACM preservation blocker. The accepted
+Latest #461 report publish: oxjobs commit `079cf28f` records the accepted
+DOI.org/OSTI interstitial full gate, post-rank61 branch confirmations, the ACM
+preservation blocker, and the rank61 Browserbase/Zyte gold sample. The accepted
 KPI is unchanged: ACM current missing-PDF rows recovered 15/19 through local
 no-storage `http_get`, but the already-good preservation proof preserved only
-5/6 and regressed 1/6 to `js_redirect_unresolved`. ACS current missing
-recovered 0/19 and Wiley current corrupt recovered 0/8. These are
-branch/evidence findings, not accepted full-gate lift.
+5/6 and regressed 1/6 to `js_redirect_unresolved`. The top-five
+Browserbase-candidate sample recovered 0/5 PDFs in Browserbase and the paired
+one-row Zyte provider comparison recovered 0/1, so that sample is closed as
+negative gold evidence.
 
 Latest local validations: Browserbase PDF evidence mode is fixed at Taxicab
 commit `bdcc38a` to survive download-start navigation errors and capture
@@ -39,29 +40,21 @@ regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
 do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
-Next action: run a small Browserbase/Zyte gold sample from the rank61
-browserbase-candidate residual queue, then route the result to Zyte support or
-a provider-advised PDF-byte recipe. Keep Browserbase as evidence/gold only,
-Zyte as the production core, and do not push Taxicab main before the full PDF
-95% proof.
+Next action: choose the next non-duplicate residual lane from the latest
+rank61 full-gate rows, or test a provider-advised PDF-byte recipe. Keep
+Browserbase as evidence/gold only, Zyte as the production core, and do not push
+Taxicab main before the full PDF 95% proof.
 
 Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_pdf_eval.py \
-  --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
-  --doi-file pdf_eval_runs/residual-clusters-after-rank61-interstitial-8562e3b/browserbase-candidates.csv \
-  --limit 5 \
-  --with-browserbase \
-  --browserbase-mode session \
-  --out pdf_eval_runs/ \
-  --run-id pdf-browserbase-gold-rank61-top5-bf64d87 \
-  --workers 1 \
-  --row-timeout 180 \
-  --timeout 60 \
-  --retries 1 \
-  --progress-every 1
+python3 scripts/taxicab_cluster_residuals.py \
+  --rows pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
+  --out pdf_eval_runs/residual-clusters-after-rank61-next-lane \
+  --run-id residual-clusters-after-rank61-next-lane \
+  --sample-size 5 \
+  --top-n 240
 ```
 
 Historical detail below is chronological and may use "current" relative to the
@@ -374,7 +367,7 @@ two rows stayed JS redirects and one row timed out empty/browser-shell. Oxjobs
 #461 commit `e9a4458a` publishes the scrubbed missing summary/report. Use these
 probes plus the structured-parser gate to test current residual subtypes before production scraping changes.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file pdf_eval_runs/residual-clusters-after-rank61-interstitial-8562e3b/browserbase-candidates.csv --limit 5 --with-browserbase --browserbase-mode session --out pdf_eval_runs/ --run-id pdf-browserbase-gold-rank61-top5-bf64d87 --workers 1 --row-timeout 180 --timeout 60 --retries 1 --progress-every 1`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson --out pdf_eval_runs/residual-clusters-after-rank61-next-lane --run-id residual-clusters-after-rank61-next-lane --sample-size 5 --top-n 240`.
 Gated PDF reharvest mode is pushed at `8193c47`; the first committed smoke
 recovered 0/5. The Springer seed queue from oxjobs #461 recovered 1/12
 (`10.1007/bf03544238`) and left 11 missing. Reharvest post-context

@@ -17,18 +17,23 @@ Current handoff override: accepted full 10K PDF gate
 +544 versus denominator baseline. It has 3,791 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,598 rows. Oxjobs #461 commit `b9f5c28e`
+`taxicab_error`. The gap to 95% is 3,598 rows. Oxjobs #461 commit `079cf28f`
 publishes the aggregate-only full-gate report/summary plus the latest
-post-rank61 branch confirmation and ACM preservation-blocker evidence. This is
-bounded cache/reharvest lift plus branch/evidence work, not a Taxicab-main
-production scraping-code lift. Gate note: no Taxicab main push.
+post-rank61 branch confirmation, ACM preservation-blocker, and rank61
+Browserbase/Zyte gold-sample evidence. This is bounded cache/reharvest lift
+plus branch/evidence work, not a Taxicab-main production scraping-code lift.
+Gate note: no Taxicab main push.
 
-Latest report publish: oxjobs #461 commit `b9f5c28e` publishes the DOI.org/OSTI
+Latest report publish: oxjobs #461 commit `079cf28f` publishes the DOI.org/OSTI
 interstitial full gate in addition to the prior supplement-validator,
 rank-39 DOI.org JS-redirect gold-first, Elsevier DOI.org, ACM/ACS
 branch-candidate, ACM local `http_get`, SAGE/Wiley route validation, and
-post-rank61 branch confirmations. The targeted DOI.org/OSTI lane recovered 2/2
-rows through Zyte PDF-byte strategies; full gate
+post-rank61 branch confirmations. It also publishes the rank61
+Browserbase/Zyte gold sample: Taxicab stayed 5/5 `js_redirect_unresolved`,
+Browserbase recovered 0/5 PDFs with 5/5 `html_not_pdf`, and paired one-row
+Zyte provider comparison recovered 0/1 with best category `bot_block_403`.
+The targeted DOI.org/OSTI lane recovered 2/2 rows through Zyte PDF-byte
+strategies; full gate
 `pdf-full10k-after-rank61-interstitial-8562e3b` recovered +2 rows with 0
 good-to-non-good regressions and reduced `interstitial_or_paywall` from 8 to 6.
 The branch confirmations do not change that accepted KPI: ACM recovered 15/19
@@ -47,10 +52,10 @@ landing-page rewrite regressed preservation rows; Wiley, ACS, and Elsevier
 DOI.org residual probes do not currently justify promotion. Row-level evidence
 stays local; summary/report artifacts are aggregate-only.
 
-Next exact action: run a small Browserbase/Zyte gold sample from the rank61
-browserbase-candidate residual queue, then route the result to Zyte support or
-a provider-advised PDF-byte recipe. Do not promote SAGE, Wiley, ACS, Elsevier
-DOI.org, rank-39 DOI.org, ACM, or any new lane without a narrower or
+Next exact action: choose the next non-duplicate residual lane from the latest
+rank61 full-gate rows, or test a provider-advised PDF-byte recipe. Do not
+promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39 DOI.org, ACM, the closed
+top-five Browserbase sample, or any new lane without a narrower or
 provider-advised recipe. Do not run another duplicate fresh-tail loop.
 Historical sections below may use "current" relative to older gates; this top
 block is authoritative.
@@ -60,19 +65,12 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_pdf_eval.py \
-  --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
-  --doi-file pdf_eval_runs/residual-clusters-after-rank61-interstitial-8562e3b/browserbase-candidates.csv \
-  --limit 5 \
-  --with-browserbase \
-  --browserbase-mode session \
-  --out pdf_eval_runs/ \
-  --run-id pdf-browserbase-gold-rank61-top5-bf64d87 \
-  --workers 1 \
-  --row-timeout 180 \
-  --timeout 60 \
-  --retries 1 \
-  --progress-every 1
+python3 scripts/taxicab_cluster_residuals.py \
+  --rows pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
+  --out pdf_eval_runs/residual-clusters-after-rank61-next-lane \
+  --run-id residual-clusters-after-rank61-next-lane \
+  --sample-size 5 \
+  --top-n 240
 ```
 
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
@@ -1407,19 +1405,12 @@ Next exact commands:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 git switch codex/taxicab-pdf-phase2
-python3 scripts/taxicab_pdf_eval.py \
-  --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com \
-  --doi-file pdf_eval_runs/residual-clusters-after-rank61-interstitial-8562e3b/browserbase-candidates.csv \
-  --limit 5 \
-  --with-browserbase \
-  --browserbase-mode session \
-  --out pdf_eval_runs/ \
-  --run-id pdf-browserbase-gold-rank61-top5-bf64d87 \
-  --workers 1 \
-  --row-timeout 180 \
-  --timeout 60 \
-  --retries 1 \
-  --progress-every 1
+python3 scripts/taxicab_cluster_residuals.py \
+  --rows pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
+  --out pdf_eval_runs/residual-clusters-after-rank61-next-lane \
+  --run-id residual-clusters-after-rank61-next-lane \
+  --sample-size 5 \
+  --top-n 240
 ```
 
 ### 12. Continue from the post-95 HTML residual queue only if PDF work is paused
