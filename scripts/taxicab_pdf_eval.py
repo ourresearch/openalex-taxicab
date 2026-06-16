@@ -73,6 +73,20 @@ def sha1_file(path: Path) -> str:
     return h.hexdigest()
 
 
+def load_env_file(path: Path) -> None:
+    if not path.exists():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+        key, value = stripped.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+
 def run_dir_for(out: Path, run_id: str) -> Path:
     if out.name == run_id:
         return out
@@ -1011,6 +1025,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--with-browserbase", action="store_true")
     parser.add_argument("--browserbase-mode", choices=["fetch", "session"], default="session")
     parser.add_argument("--browserbase-timeout", type=float, default=60)
+    parser.add_argument("--env-file", help="Optional env file for Browserbase credentials; defaults to repo .env when --with-browserbase is set")
     parser.add_argument("--reharvest", action="store_true")
     parser.add_argument("--progress-every", type=int, default=25)
     return parser
@@ -1022,6 +1037,8 @@ def main(argv: list[str] | None = None) -> int:
     run_id = args.run_id or default_pdf_run_id("taxicab-pdf-fixture" if args.fixture_smoke else "taxicab-pdf")
     if args.fixture_smoke:
         return run_fixture_smoke(Path(args.out), run_id)
+    if args.with_browserbase:
+        load_env_file(Path(args.env_file) if args.env_file else REPO_ROOT / ".env")
     return run_live(args, run_id)
 
 

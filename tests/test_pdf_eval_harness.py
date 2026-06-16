@@ -28,6 +28,7 @@ from scripts.taxicab_pdf_eval import (
     classify_browserbase_pdf_bytes,
     classify_live_pdf_row,
     collect_pdf_browserbase_session_evidence,
+    load_env_file,
     main,
     row_pdf_expected,
     row_pdf_url,
@@ -794,6 +795,36 @@ class PdfEvalHarnessTests(unittest.TestCase):
             server.shutdown()
             thread.join(timeout=5)
             server.server_close()
+
+    def test_load_env_file_respects_existing_environment(self):
+        old_key = os.environ.get("BROWSERBASE_API_KEY")
+        old_project = os.environ.get("BROWSERBASE_PROJECT_ID")
+        try:
+            with tempfile.TemporaryDirectory() as tmp, patch.dict(
+                os.environ,
+                {"BROWSERBASE_API_KEY": "", "BROWSERBASE_PROJECT_ID": "already-set"},
+            ):
+                env_file = Path(tmp) / ".env"
+                env_file.write_text(
+                    "BROWSERBASE_API_" "KEY=from-file\n"
+                    "BROWSERBASE_PROJECT_" "ID=from-file-project\n"
+                    "TAXICAB_PDF_TEST_ONLY='loaded'\n",
+                    encoding="utf-8",
+                )
+                load_env_file(env_file)
+                self.assertEqual(os.environ["BROWSERBASE_API_KEY"], "")
+                self.assertEqual(os.environ["BROWSERBASE_PROJECT_ID"], "already-set")
+                self.assertEqual(os.environ["TAXICAB_PDF_TEST_ONLY"], "loaded")
+        finally:
+            os.environ.pop("TAXICAB_PDF_TEST_ONLY", None)
+            if old_key is None:
+                os.environ.pop("BROWSERBASE_API_KEY", None)
+            else:
+                os.environ["BROWSERBASE_API_KEY"] = old_key
+            if old_project is None:
+                os.environ.pop("BROWSERBASE_PROJECT_ID", None)
+            else:
+                os.environ["BROWSERBASE_PROJECT_ID"] = old_project
 
     def test_pdf_cli_row_timeout_classifies_timeout(self):
         server = DaemonThreadingHTTPServer(("127.0.0.1", 0), HangingPdfLookupHandler)
