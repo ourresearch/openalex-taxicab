@@ -41,16 +41,17 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `fae1e3d1` publishes the accepted
-full 10K gate `pdf-full10k-after-freshtail-f4f4a28` from Taxicab commit
-`f4f4a28`: 2,309/6,293 `good_pdf` (36.69%), +5 versus the
-readable-encrypted gate and +472 versus denominator baseline, with 3,791
-`missing_pdf_harvest`, 65 corrupt/truncated, 4 encrypted/unreadable,
-93 supplement/preview, 0 timeout, and 0 `taxicab_error`. The same oxjobs
-commit also publishes aggregate-only ACM/ACS branch-candidate evidence, ACM
+Current publish status: oxjobs #461 commit `c6013191` publishes the accepted
+full 10K gate `pdf-full10k-after-supplement-scan-02b9793` from Taxicab commit
+`02b9793`: 2,379/6,293 `good_pdf` (37.80%), +70 versus the fresh-tail gate and
++542 versus denominator baseline, with 3,791 `missing_pdf_harvest`, 65
+corrupt/truncated, 4 encrypted/unreadable, 23 supplement/preview, 0 timeout,
+and 0 `taxicab_error`. This is validator-correctness lift from narrowing weak
+supplement text scanning, not a Taxicab-main production scraping push. The same
+oxjobs job also publishes aggregate-only ACM/ACS branch-candidate evidence, ACM
 local `http_get` route validation, SAGE/Wiley route validation, Elsevier
-DOI.org gold-first evidence, and rank-39 DOI.org JS-redirect gold-first
-evidence.
+DOI.org gold-first evidence, rank-39 DOI.org JS-redirect gold-first evidence,
+and the prior fresh-tail full gate.
 ACM provider probes recovered 15/22 current missing rows, and the actual branch
 `http_get` path classified 18/22 as `good_pdf`. ACS recovered 0/46 current
 missing rows, preserved 8/8 already-good rows, and recovered 5/6
@@ -65,47 +66,27 @@ Rank-39 Browserbase session gold
 and paired Zyte no-storage probe
 `rank39-jsredirect-unknown-doi-provider-probe2-c818a1f` recovered 0/2
 `good_pdf`.
-Latest local validations made no Taxicab POST/R2/DynamoDB writes and are not a
-full-corpus KPI lift. Current phase: inspect rank 61, a 10-row
-Elsevier-attributed DOI.org `supplement_or_preview_pdf` lane, before assigning
-validator, provider, or route ownership. Keep ACM as a narrow branch candidate
-for the next regression gate. Do not promote SAGE, Wiley, Elsevier DOI.org, or
-rank-39 DOI.org evidence without a narrower or provider-advised recipe. Do not
-push Taxicab main before the full PDF 95% proof.
+Latest local validations made no Taxicab POST/R2/DynamoDB writes. Current
+phase: refresh residual clusters from the accepted supplement-validator full
+gate, then choose the next non-duplicate missing-PDF/provider/access lane. Keep
+ACM as a narrow branch candidate for a future regression gate. Do not promote
+SAGE, Wiley, Elsevier DOI.org, rank-39 DOI.org, or any new lane without a
+narrower or provider-advised recipe. Do not push Taxicab main before the full
+PDF 95% proof.
 Current handoff override: the top-level accepted metric is
-`pdf-full10k-after-freshtail-f4f4a28`, 2,309/6,293 `good_pdf` (36.69%), with a
-3,670-row gap to 95%. Historical sections below may use "current" relative to
-older gates; this block is authoritative.
+`pdf-full10k-after-supplement-scan-02b9793`, 2,379/6,293 `good_pdf` (37.80%),
+with a 3,600-row gap to 95%. Oxjobs #461 commit `c6013191` publishes this
+accepted full gate from Taxicab commit `02b9793`. Historical sections below may
+use "current" relative to older gates; this block is authoritative.
 Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 - <<'PY'
-import csv
-from pathlib import Path
-processed_hosts = {
-    'www4.unifsa.com.br', 'turkishstudies.net', 'static.even3.com',
-    'pubs.asha.org', 'pm-research.com', 'maps.mla.org',
-    'www.journalijar.com', 'www.jmcc-online.com',
-    'pubs.acs.org', 'dl.acm.org', 'journals.sagepub.com',
-    'onlinelibrary.wiley.com',
-}
-processed_subclusters = {
-    ('missing_pdf_harvest', 'elsevier', 'doi.org', 'doi.org:/:doi/:id'),
-    ('js_redirect_unresolved', 'unknown', 'unknown', 'doi.org:/:doi/:id'),
-}
-p = Path('pdf_eval_runs/residual-subclusters-prioritized-30121a7/residual-subclusters.csv')
-with p.open() as f:
-    for row in csv.DictReader(f):
-        if row['priority_band'] == 'provider_lane_do_not_duplicate':
-            continue
-        if row['host'] in processed_hosts:
-            continue
-        key = (row['category'], row['publisher'], row['host'], row['path_pattern'])
-        if key in processed_subclusters:
-            continue
-        if row['priority_band'] in {'browserbase_or_zyte_gold_first', 'probe_next', 'validator_or_provider_lane', 'inspect_first'}:
-            print(row['rank'], row['count'], row['priority_band'], row['category'], row['publisher'], row['host'], row['path_pattern'], row['next_probe_decision'])
-            break
-PY
+python3 scripts/taxicab_cluster_residuals.py \
+  --rows pdf_eval_runs/pdf-full10k-after-supplement-scan-02b9793/rows.ndjson \
+  --out pdf_eval_runs/residual-clusters-after-supplement-scan-02b9793 \
+  --run-id residual-clusters-after-supplement-scan-02b9793 \
+  --sample-size 5 \
+  --top-n 200
+sed -n '1,80p' pdf_eval_runs/residual-clusters-after-supplement-scan-02b9793/residual-subclusters.csv
 
 After Gate 0 is pushed:
 

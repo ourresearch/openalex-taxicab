@@ -12,36 +12,31 @@ expanded operational context.
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
 Current handoff override: accepted full 10K PDF gate
-`pdf-full10k-after-freshtail-f4f4a28` at Taxicab commit `f4f4a28` is
-2,309/6,293 `good_pdf` (36.69%), +5 versus the readable-encrypted gate and
-+472 versus denominator baseline. It has 3,791 `missing_pdf_harvest`,
-65 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`,
-93 `supplement_or_preview_pdf`, 0 timeout, and 0 `taxicab_error`. The gap to
-95% is 3,670 rows. Oxjobs #461 commit `fae1e3d1` publishes the aggregate-only
+`pdf-full10k-after-supplement-scan-02b9793` at Taxicab commit `02b9793` is
+2,379/6,293 `good_pdf` (37.80%), +70 versus the fresh-tail gate and +542
+versus denominator baseline. It has 3,791 `missing_pdf_harvest`, 65
+`corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
+`supplement_or_preview_pdf`, 0 timeout, and 0 `taxicab_error`. The gap to 95%
+is 3,600 rows. Oxjobs #461 commit `c6013191` publishes the aggregate-only
 full-gate report/summary plus the latest branch-candidate and gold-first
-evidence. Gate note: no Taxicab main push.
+evidence. This is validator-correctness lift, not production scraping-code
+lift. Gate note: no Taxicab main push.
 
-Latest report publish: oxjobs #461 commit `fae1e3d1` publishes the rank-39
-DOI.org JS-redirect gold-first evidence in addition to the aggregate-only
-Elsevier DOI.org, ACM/ACS
-branch-candidate recheck, ACM local `http_get` validation, and SAGE/Wiley
-route validation. ACM provider probes recovered 15/22 current missing rows, and
-the actual branch `http_get` path classified 18/22 as `good_pdf`. ACS recovered
-0/46 current missing rows, preserved 8/8 already-good rows, and recovered 5/6
-corrupt/truncated rows. SAGE landing-page rewrite recovered 6/6 current
-corrupt/truncated rows but regressed 4/6 already-good preservation rows to
-`js_redirect_unresolved`; direct SAGE PDF-byte strategies recovered 0/6. Wiley
-current `/doi/pdfdirect/` replay recovered 0/19 and every row classified as
-`empty_response`. Elsevier DOI.org probe
-`elsevier-doi-missing-provider-probe15-e22524b` recovered 0/15 current
-Elsevier-attributed `missing_pdf_harvest` rows; best outcomes were 14
-`html_instead_of_pdf` and one `js_redirect_unresolved`. Rank-39 Browserbase
-session gold `rank39-jsredirect-unknown-doi-browserbase-gold2-c818a1f`
-recovered 0/2 PDFs, and paired Zyte no-storage probe
-`rank39-jsredirect-unknown-doi-provider-probe2-c818a1f` recovered 0/2
-`good_pdf`. This is evidence only, not an accepted full-corpus KPI lift.
+Latest report publish: oxjobs #461 commit `c6013191` publishes the
+supplement-validator full gate in addition to the aggregate-only rank-39
+DOI.org JS-redirect gold-first evidence, Elsevier DOI.org, ACM/ACS
+branch-candidate recheck, ACM local `http_get` validation, and SAGE/Wiley route
+validation. Targeted rank-61 replay recovered 9/10 prior
+`supplement_or_preview_pdf` rows as `good_pdf`; full gate
+`pdf-full10k-after-supplement-scan-02b9793` recovered +70 rows with 0
+good-to-non-good regressions. ACM provider probes recovered 15/22 current
+missing rows, and the actual branch `http_get` path classified 18/22 as
+`good_pdf`. SAGE, Wiley, Elsevier DOI.org, and rank-39 DOI.org remain
+evidence/support lanes unless a narrower or provider-advised recipe passes
+targeted and full gates.
 
-Latest local validations: `acm-http-get-route-current-4614cef` classified 18/22
+Latest local validations: `rank61-supplement-doi-readonly-validator-scan-02b9793`
+classified 9/10 prior supplement/preview rows as `good_pdf`. `acm-http-get-route-current-4614cef` classified 18/22
 ACM rows as `good_pdf`; `sage-pdf-http-get-current-33a6b95` classified 6/6
 SAGE corrupt rows as `good_pdf`; `sage-pdf-http-get-preservation-33a6b95`
 regressed 4/6 SAGE already-good rows; `wiley-pdfdirect-http-get-current-33a6b95`
@@ -51,48 +46,27 @@ Zyte evidence recovered 0/2 PDFs from the unknown-attribution DOI.org
 JS-redirect lane. All made no Taxicab POST/R2/DynamoDB writes. Row-level
 evidence stays local; summary/report are aggregate-only.
 
-Next exact action: inspect rank 61, a 10-row Elsevier-attributed DOI.org
-`supplement_or_preview_pdf` lane, before assigning validator, provider, or route
-ownership. Keep ACM as a narrow branch candidate for the next production
-regression gate. ACS missing rows stay in the Zyte/support debt lane. Do not
-promote SAGE, Wiley, Elsevier DOI.org, or rank-39 DOI.org evidence without a
-narrower or provider-advised recipe. Do not run another duplicate fresh-tail
-loop. Historical sections below may use "current" relative to older gates; this
-top block is authoritative.
+Next exact action: refresh residual clusters from
+`pdf-full10k-after-supplement-scan-02b9793`, then choose the next
+non-duplicate missing-PDF/provider/access lane. Keep ACM as a narrow branch
+candidate for a future production regression gate. ACS missing rows stay in the
+Zyte/support debt lane. Do not promote SAGE, Wiley, Elsevier DOI.org,
+rank-39 DOI.org, or any new lane without a narrower or provider-advised recipe.
+Do not run another duplicate fresh-tail loop. Historical sections below may use
+"current" relative to older gates; this top block is authoritative.
 ```
 
 Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 - <<'PY'
-import csv
-from pathlib import Path
-processed_hosts = {
-    'www4.unifsa.com.br', 'turkishstudies.net', 'static.even3.com',
-    'pubs.asha.org', 'pm-research.com', 'maps.mla.org',
-    'www.journalijar.com', 'www.jmcc-online.com',
-    'pubs.acs.org', 'dl.acm.org', 'journals.sagepub.com',
-    'onlinelibrary.wiley.com',
-}
-processed_subclusters = {
-    ('missing_pdf_harvest', 'elsevier', 'doi.org', 'doi.org:/:doi/:id'),
-    ('js_redirect_unresolved', 'unknown', 'unknown', 'doi.org:/:doi/:id'),
-}
-p = Path('pdf_eval_runs/residual-subclusters-prioritized-30121a7/residual-subclusters.csv')
-with p.open() as f:
-    for row in csv.DictReader(f):
-        if row['priority_band'] == 'provider_lane_do_not_duplicate':
-            continue
-        if row['host'] in processed_hosts:
-            continue
-        key = (row['category'], row['publisher'], row['host'], row['path_pattern'])
-        if key in processed_subclusters:
-            continue
-        if row['priority_band'] in {'browserbase_or_zyte_gold_first', 'probe_next', 'validator_or_provider_lane', 'inspect_first'}:
-            print(row['rank'], row['count'], row['priority_band'], row['category'], row['publisher'], row['host'], row['path_pattern'], row['next_probe_decision'])
-            break
-PY
+python3 scripts/taxicab_cluster_residuals.py \
+  --rows pdf_eval_runs/pdf-full10k-after-supplement-scan-02b9793/rows.ndjson \
+  --out pdf_eval_runs/residual-clusters-after-supplement-scan-02b9793 \
+  --run-id residual-clusters-after-supplement-scan-02b9793 \
+  --sample-size 5 \
+  --top-n 200
+sed -n '1,80p' pdf_eval_runs/residual-clusters-after-supplement-scan-02b9793/residual-subclusters.csv
 ```
 
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
