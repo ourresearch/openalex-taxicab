@@ -41,45 +41,35 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `9263ff09` publishes the accepted
-full 10K gate `pdf-full10k-after-atlantis-3b13642` from Taxicab commit
-`3b13642`: 2,383/6,293 `good_pdf` (37.87%), +2 versus the DOI.org/OSTI gate
-and +546 versus denominator baseline, with 3,789 `missing_pdf_harvest`, 65
-corrupt/truncated, 4 encrypted/unreadable, 23 supplement/preview, 6
-interstitial/paywall, 0 timeout, and 0 `taxicab_error`. This is bounded
-cache/reharvest lift, not a Taxicab-main production scraping push. Atlantis
-Press no-storage provider probe `atlantis-current-missing-provider-probe2-3b13642`
-recovered 2/2 `good_pdf` through Zyte PDF-byte strategies; direct-PDF-URL
-reharvest and read-only confirmation both preserved 2/2, and the full gate
-accepted +2 with 0 good-to-non-good regressions. The same oxjobs job retains
-aggregate-only supplement-validator, DOI.org/OSTI, ACM/ACS branch-candidate,
-ACM local `http_get`, SAGE/Wiley route validation, Elsevier DOI.org
-gold-first, rank-39 DOI.org JS-redirect gold-first, prior fresh-tail
-full-gate evidence, post-rank61 branch confirmations, the ACM preservation
-blocker, negative Browserbase/Zyte gold evidence, and negative
-IngentaConnect/ICE/Ecologica/ASTM/CCCC evidence. Current phase: refresh
-residual clusters from `pdf-full10k-after-atlantis-3b13642`, then choose the
-next non-duplicate provider/access lane or test a provider-advised PDF-byte
-recipe. Do not promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39 DOI.org,
-ACM, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass, CCCC,
-Atlantis Press, or any new lane without a narrower or provider-advised recipe.
-Do not push Taxicab main before the full PDF 95% proof.
+Current publish status: oxjobs #461 commit `f84e7931` publishes the
+planning-only residual-cluster refresh after the accepted Atlantis full gate.
+The accepted full 10K metric remains `pdf-full10k-after-atlantis-3b13642` from
+Taxicab commit `3b13642`: 2,383/6,293 `good_pdf` (37.87%), +2 versus the
+DOI.org/OSTI gate and +546 versus denominator baseline, with 3,789
+`missing_pdf_harvest`, 65 corrupt/truncated, 4 encrypted/unreadable, 23
+supplement/preview, 6 interstitial/paywall, 0 timeout, and 0 `taxicab_error`.
+This is bounded cache/reharvest lift, not a Taxicab-main production scraping
+push. The residual refresh found 3,910 non-good rows across 655 clusters and
+1,426 subclusters; priority bands are 156 provider-lane/do-not-duplicate, 42
+probe-next, 29 Browserbase-or-Zyte-gold-first, 6 existing-branch candidates, 6
+validator/provider lanes, and 1 inspect-first lane. Current phase: reconcile
+`scripts/taxicab_cluster_residuals.py` prior-evidence mapping so already closed
+small hosts are not re-proposed as fresh probes, then rerun residual clustering
+and choose the next non-duplicate provider/access lane or provider-advised
+PDF-byte recipe. Do not promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39
+DOI.org, ACM, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass,
+CCCC, Atlantis Press, or any new lane without a narrower or provider-advised
+recipe. Do not push Taxicab main before the full PDF 95% proof.
 Current handoff override: the top-level accepted metric is
 `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293 `good_pdf` (37.87%), with a
-3,596-row gap to 95%. Latest oxjobs #461 commit `9263ff09` publishes the
-accepted full gate, Atlantis bounded recovery, prior post-rank61 branch
-confirmation evidence, the ACM preservation blocker, negative gold-sample
-evidence, and negative IngentaConnect/ICE/Ecologica/ASTM/CCCC evidence.
-Historical sections below may use "current" relative to older gates; this
-block is authoritative.
+3,596-row gap to 95%. Latest oxjobs #461 commit `f84e7931` publishes the
+planning-only Atlantis residual refresh: 3,910 non-good rows, 655 clusters,
+1,426 subclusters, and the next Gate 21.999fr mapping-reconciliation task.
+Historical sections below may use "current" relative to older gates; this block
+is authoritative.
 Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py \
-  --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson \
-  --out pdf_eval_runs/residual-clusters-after-atlantis-3b13642 \
-  --run-id residual-clusters-after-atlantis-3b13642 \
-  --sample-size 5 \
-  --top-n 240
+rg -n "prior_evidence|provider_lane_do_not_duplicate|probe_next|Browserbase" scripts/taxicab_cluster_residuals.py tests
 
 After Gate 0 is pushed:
 
@@ -296,7 +286,8 @@ Gate 21.999fm: choose another non-duplicate residual lane or provider-advised PD
 Gate 21.999fn: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [done, taxicab b1da453, oxjobs 808fc018, ASTM Compass no-storage provider probe recovered 0/2 and becomes provider/access-flow evidence only]
 Gate 21.999fo: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [done, taxicab d2c69a2, oxjobs 48758ccb, CCCC no-storage provider probe recovered 0/2 and becomes provider/access-flow evidence only]
 Gate 21.999fp: choose another non-duplicate residual lane or provider-advised PDF-byte recipe. [done, taxicab 3b13642, oxjobs 9263ff09, Atlantis Press no-storage provider probe recovered 2/2; direct-PDF-URL reharvest/read-only confirmation preserved 2/2; full gate accepted +2 with 0 regressions]
-Gate 21.999fq: refresh residual clusters after Atlantis. [next, planning/evidence only; no Taxicab main push; start from pdf-full10k-after-atlantis-3b13642]
+Gate 21.999fq: refresh residual clusters after Atlantis. [done, taxicab 12edf68, oxjobs f84e7931, planning-only refresh found 3,910 non-good rows across 655 clusters and 1,426 subclusters; no accepted KPI lift]
+Gate 21.999fr: reconcile residual prior-evidence mapping before the next provider probe. [next, measurement/planning only; no Taxicab main push]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 

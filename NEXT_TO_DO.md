@@ -17,28 +17,20 @@ Current handoff override: accepted full 10K PDF gate
 versus denominator baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `9263ff09`
-publishes the aggregate-only full-gate report/summary plus Atlantis bounded
-recovery, prior post-rank61 branch confirmation, ACM preservation-blocker,
-rank61 Browserbase/Zyte gold-sample evidence, negative IngentaConnect
-evidence, negative ICE Virtual Library evidence, negative Ecologica evidence,
-negative ASTM Compass evidence, and negative CCCC evidence. This is bounded
-cache/reharvest lift plus branch/evidence work, not a Taxicab-main production
-scraping-code lift.
+`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `f84e7931`
+publishes the aggregate-only Atlantis residual-cluster refresh after the
+accepted full gate. It found 3,910 non-good rows across 655 clusters and 1,426
+subclusters; priority bands are 156 provider-lane/do-not-duplicate, 42
+probe-next, 29 Browserbase-or-Zyte-gold-first, 6 existing-branch candidates, 6
+validator/provider lanes, and 1 inspect-first lane. This is planning/evidence
+work only, not a Taxicab-main production scraping-code lift.
 Gate note: no Taxicab main push.
 
-Latest report publish: oxjobs #461 commit `9263ff09` publishes the Atlantis
-Press full gate in addition to the prior DOI.org/OSTI interstitial full gate,
-supplement-validator, rank-39 DOI.org JS-redirect gold-first, Elsevier DOI.org,
-ACM/ACS branch-candidate, ACM local `http_get`, SAGE/Wiley route validation,
-and post-rank61 branch confirmations. Atlantis no-storage provider probe
-`atlantis-current-missing-provider-probe2-3b13642` recovered 2/2 `good_pdf`
-through Zyte PDF-byte strategies while browser HTML returned `empty_response`;
-direct-PDF-URL reharvest and read-only confirmation both preserved 2/2, and
-full gate `pdf-full10k-after-atlantis-3b13642` accepted +2 rows with 0
-good-to-non-good regressions. The report still carries the rank61
-Browserbase/Zyte gold sample, ACM preservation blocker, and negative
-IngentaConnect/ICE/Ecologica/ASTM/CCCC provider/access-flow evidence.
+Latest report publish: oxjobs #461 commit `f84e7931` publishes the Atlantis
+residual refresh and keeps the accepted metric at
+`pdf-full10k-after-atlantis-3b13642` (2,383/6,293 `good_pdf`, 37.87%). The
+refresh supersedes the stale rank61/Atlantis lane queue and shows that some
+apparently fresh small-host lanes are already closed by existing #461 evidence.
 
 Latest local validations: Browserbase PDF evidence mode is fixed at Taxicab
 commit `bdcc38a` for download-start navigation errors. Residual clustering from
@@ -49,13 +41,15 @@ landing-page rewrite regressed preservation rows; Wiley, ACS, and Elsevier
 DOI.org residual probes do not currently justify promotion. Row-level evidence
 stays local; summary/report artifacts are aggregate-only.
 
-Next exact action: refresh residual clusters from
-`pdf-full10k-after-atlantis-3b13642`, then choose the next non-duplicate
-provider/access lane or test a provider-advised PDF-byte recipe if one arrives.
-Do not promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39 DOI.org, ACM,
-IngentaConnect, ICE Virtual Library, Ecologica, the closed top-five Browserbase
-sample, ASTM Compass, CCCC, Atlantis Press, or any new lane without a narrower or
-provider-advised recipe. Do not run another duplicate fresh-tail loop.
+Next exact action: reconcile `scripts/taxicab_cluster_residuals.py`
+prior-evidence mapping so closed small-host lanes do not remain
+`probe_next`/gold-first candidates, rerun residual clustering, then choose the
+next non-duplicate provider/access lane or test a provider-advised PDF-byte
+recipe if one arrives. Do not promote SAGE, Wiley, ACS, Elsevier DOI.org,
+rank-39 DOI.org, ACM, IngentaConnect, ICE Virtual Library, Ecologica, the
+closed top-five Browserbase sample, ASTM Compass, CCCC, Atlantis Press, or any
+new lane without a narrower or provider-advised recipe. Do not run another
+duplicate fresh-tail loop.
 Historical sections below may use "current" relative to older gates; this top
 block is authoritative.
 ```
@@ -64,12 +58,7 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py \
-  --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson \
-  --out pdf_eval_runs/residual-clusters-after-atlantis-3b13642 \
-  --run-id residual-clusters-after-atlantis-3b13642 \
-  --sample-size 5 \
-  --top-n 240
+rg -n "prior_evidence|provider_lane_do_not_duplicate|probe_next|Browserbase" scripts/taxicab_cluster_residuals.py tests
 ```
 
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
@@ -1404,12 +1393,7 @@ Next exact commands:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 git switch codex/taxicab-pdf-phase2
-python3 scripts/taxicab_cluster_residuals.py \
-  --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson \
-  --out pdf_eval_runs/residual-clusters-after-atlantis-3b13642 \
-  --run-id residual-clusters-after-atlantis-3b13642 \
-  --sample-size 5 \
-  --top-n 240
+rg -n "prior_evidence|provider_lane_do_not_duplicate|probe_next|Browserbase" scripts/taxicab_cluster_residuals.py tests
 ```
 
 ### 12. Continue from the post-95 HTML residual queue only if PDF work is paused

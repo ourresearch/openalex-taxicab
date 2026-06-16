@@ -14,33 +14,36 @@ baseline of 1,837/6,293 (29.19%). The run has 3,789 `missing_pdf_harvest`, 65
 `taxicab_error`. The gap to 95% is 3,596 rows. This is a bounded
 cache/reharvest lift, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `9263ff09` records the accepted
-Atlantis Press full gate. No-storage provider probe
-`atlantis-current-missing-provider-probe2-3b13642` recovered 2/2 `good_pdf`
-through Zyte PDF-byte strategies while browser HTML returned `empty_response`;
-direct-PDF-URL reharvest and read-only confirmation both preserved 2/2, and
-the full 10K gate accepted +2 `good_pdf` with 0 good-to-non-good regressions.
-The same report retains the prior DOI.org/OSTI, supplement-validator,
-post-rank61 branch confirmation, ACM preservation-blocker, negative
-Browserbase/Zyte gold-sample, and negative IngentaConnect/ICE/Ecologica/ASTM/
-CCCC evidence. Published artifacts are aggregate-only; raw rows stay local.
+Latest #461 report publish: oxjobs commit `f84e7931` publishes the Atlantis
+residual-cluster refresh after the accepted full gate. The accepted metric
+remains `pdf-full10k-after-atlantis-3b13642`: 2,383/6,293 `good_pdf` (37.87%),
++2 rows versus the DOI.org/OSTI gate, +546 rows versus denominator baseline,
+and a 3,596-row gap to 95%. The planning-only residual refresh found 3,910
+non-good rows across 655 clusters and 1,426 subclusters. Priority bands are
+156 `provider_lane_do_not_duplicate`, 42 `probe_next`, 29
+`browserbase_or_zyte_gold_first`, 6 `confirm_existing_branch_candidate`, 6
+`validator_or_provider_lane`, and 1 `inspect_first`. It also exposed that some
+apparently fresh small-host lanes are already closed in #461 evidence, so
+reconcile `scripts/taxicab_cluster_residuals.py` prior-evidence mapping before
+probing again. Published artifacts are aggregate-only; raw rows stay local.
 
 Latest local validations: Atlantis Press is complete at Taxicab commit
-`3b13642` and oxjobs commit `9263ff09`. Browserbase PDF evidence mode remains
-fixed at Taxicab commit `bdcc38a` to survive download-start navigation errors
-and capture started/not-captured download evidence. The prior rank61 residual
-clustering is now stale for lane selection; refresh residual clusters from
-`pdf-full10k-after-atlantis-3b13642` before choosing the next provider/access
-lane.
+`3b13642`; Taxicab handoff docs were synced at `12edf68`; oxjobs #461 latest
+publish is `f84e7931`. Browserbase PDF evidence mode remains fixed at Taxicab
+commit `bdcc38a` to survive download-start navigation errors and capture
+started/not-captured download evidence. The residual refresh supersedes the
+older rank61 lane queue; do not choose another provider lane until
+prior-evidence mapping is reconciled.
 Earlier validations remain: supplement validator recovered +70 at full-gate
 scale; DOI.org/OSTI recovered +2 at full-gate scale; SAGE landing-page rewrite
 regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
 do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
-Next action: refresh residual clusters from the Atlantis full gate, then choose
-the next non-duplicate provider/access lane or test a provider-advised
-PDF-byte recipe if one arrives.
+Next action: reconcile the residual-cluster prior-evidence mapping so closed
+small-host lanes do not remain `probe_next`/gold-first candidates, then rerun
+the residual refresh and choose the next non-duplicate provider/access lane or
+test a provider-advised PDF-byte recipe if one arrives.
 Keep Browserbase as evidence/gold only, Zyte as the production core, and do not
 push Taxicab main before the full PDF 95% proof.
 
@@ -48,12 +51,7 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py \
-  --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson \
-  --out pdf_eval_runs/residual-clusters-after-atlantis-3b13642 \
-  --run-id residual-clusters-after-atlantis-3b13642 \
-  --sample-size 5 \
-  --top-n 240
+rg -n "prior_evidence|provider_lane_do_not_duplicate|probe_next|Browserbase" scripts/taxicab_cluster_residuals.py tests
 ```
 
 Historical detail below is chronological and may use "current" relative to the
@@ -377,7 +375,7 @@ category per DOI, and provider-probe host filters normalize `www.` prefixes.
 This is measurement/reporting-only and does not change Taxicab production
 scraping behavior.
 Next exact command:
-`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs/residual-clusters-after-atlantis-3b13642 --run-id residual-clusters-after-atlantis-3b13642 --sample-size 5 --top-n 240`.
+`cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && rg -n "prior_evidence|provider_lane_do_not_duplicate|probe_next|Browserbase" scripts/taxicab_cluster_residuals.py tests`.
 Gated PDF reharvest mode is pushed at commit `8193c47`; the first committed
 5-row smoke recovered 0/5. The Springer seed queue then recovered 1/12
 (`10.1007/bf03544238`) and left 11 rows missing. Reharvest post-context
