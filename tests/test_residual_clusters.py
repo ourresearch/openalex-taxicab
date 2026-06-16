@@ -253,6 +253,14 @@ class ResidualClusterTests(unittest.TestCase):
             ("www.ecologica.cn", "www.ecologica.cn:/stxb/article/pdf/:id"),
             ("compass.astm.org", "compass.astm.org:/genpdf.cgi"),
             ("cccc.uochb.cas.cz", "cccc.uochb.cas.cz:/:n/:n/:num/pdf"),
+            ("iwaponline.com", "iwaponline.com:/wst/article-pdf/:n/:n/:n/:num/..."),
+            ("content.ampp.org", "content.ampp.org:/nace/proceedings-pdf/:id/:num/:n/:num/..."),
+            ("diabetesjournals.org", "diabetesjournals.org:/diabetes/article-pdf/:n/:n/:n/:num/..."),
+            ("www.aimsciences.org", "www.aimsciences.org:/data/article/export-pdf"),
+            ("www.elgaronline.com", "www.elgaronline.com:/downloadpdf/edcollchap/edcoll/:num/:id.pdf"),
+            ("www.ajog.org", "www.ajog.org:/article/:id/pdf"),
+            ("pubs.rsna.org", "pubs.rsna.org:/doi/epdf/:doi/:id"),
+            ("sk.sagepub.com", "sk.sagepub.com:/ency/edvol/download/:id/chpt/:file.pdf"),
         ]
 
         for host, pattern in closed_hosts:
@@ -267,6 +275,18 @@ class ResidualClusterTests(unittest.TestCase):
                 self.assertEqual(status, "prior_negative_or_support_evidence")
                 self.assertEqual(band, "provider_lane_do_not_duplicate")
                 self.assertIn("provider/Zyte", decision)
+
+    def test_subcluster_priority_marks_elsevier_publisher_lanes(self):
+        status, band, decision = subcluster_priority(
+            "missing_pdf_harvest",
+            "elsevier",
+            "valueinhealthjournal.com",
+            "www.valueinhealthjournal.com:/article/:id/pdf",
+        )
+
+        self.assertEqual(status, "prior_negative_or_support_evidence")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
+        self.assertIn("Elsevier", decision)
 
     def test_subcluster_priority_marks_manual_gold_hosts(self):
         status, band, decision = subcluster_priority(

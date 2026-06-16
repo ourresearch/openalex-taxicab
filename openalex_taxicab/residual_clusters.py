@@ -77,7 +77,9 @@ PATH_DYNAMIC_EXTENSIONS = {".pdf", ".html", ".htm", ".xml", ".aspx", ".ashx"}
 PRIOR_ROUTE_CANDIDATE_PATTERNS = (
     ("onlinelibrary.wiley.com:/doi/pdfdirect/", "wiley_pdfdirect_branch_candidate"),
     ("iopscience.iop.org:/article/", "iop_article_pdf_branch_candidate"),
+    ("dl.acm.org:/doi/epdf/", "acm_pdf_byte_branch_candidate"),
     ("dl.acm.org:/doi/pdf/", "acm_pdf_byte_branch_candidate"),
+    ("pubs.acs.org:/doi/epdf/", "acs_pdf_byte_branch_candidate"),
     ("pubs.acs.org:/doi/pdf/", "acs_pdf_byte_branch_candidate"),
 )
 
@@ -93,6 +95,9 @@ PRIOR_PROVIDER_HOSTS = {
     "ascelibrary.org",
     "ascopubs.org",
     "atsjournals.org",
+    "auajournals.org",
+    "ajog.org",
+    "aimsciences.org",
     "brepolsonline.net",
     "brill.com",
     "bmj.com",
@@ -103,10 +108,13 @@ PRIOR_PROVIDER_HOSTS = {
     "cccc.uochb.cas.cz",
     "chestnet.org",
     "compass.astm.org",
+    "content.ampp.org",
     "content.iospress.com",
+    "diabetesjournals.org",
     "dl.begellhouse.com",
     "ejso.com",
     "ecologica.cn",
+    "elgaronline.com",
     "eurekaselect.com",
     "degruyterbrill.com",
     "goldjournal.net",
@@ -116,6 +124,7 @@ PRIOR_PROVIDER_HOSTS = {
     "indianjournals.com",
     "ingentaconnect.com",
     "inlibra.com",
+    "iwaponline.com",
     "jacc.org",
     "jacionline.org",
     "jamanetwork.com",
@@ -153,6 +162,7 @@ PRIOR_PROVIDER_HOSTS = {
     "pdf.sciencedirectassets.com",
     "peterlang.com",
     "pm-research.com",
+    "pubs.rsna.org",
     "pubs.asha.org",
     "pubs.aip.org",
     "pubs.rsc.org",
@@ -163,6 +173,7 @@ PRIOR_PROVIDER_HOSTS = {
     "scholarlypublishingcollective.org",
     "scientific.net",
     "shs.cairn.info",
+    "sk.sagepub.com",
     "tandfonline.com",
     "thegreenjournal.com",
     "thelancet.com",
@@ -392,6 +403,13 @@ def subcluster_priority(category: str, publisher: str, host: str, pattern: str) 
             "prior_negative_or_support_evidence",
             "provider_lane_do_not_duplicate",
             "Use existing provider/Zyte packet evidence or wait for provider guidance before route code; only rerun if testing a new provider-advised recipe.",
+        )
+
+    if category == "missing_pdf_harvest" and publisher.lower() == "elsevier":
+        return (
+            "prior_negative_or_support_evidence",
+            "provider_lane_do_not_duplicate",
+            "Use existing Elsevier/ScienceDirect provider evidence or wait for provider guidance before route code; only rerun if testing a new provider-advised recipe.",
         )
 
     if category in {"html_instead_of_pdf", "js_redirect_unresolved", "interstitial_or_paywall", "bot_block_403"}:
