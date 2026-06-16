@@ -14,44 +14,56 @@ baseline of 1,837/6,293 (29.19%). The run has 3,791 `missing_pdf_harvest`,
 `supplement_or_preview_pdf`, 0 timeout, and 0 `taxicab_error`. The gap to 95%
 is 3,670 rows.
 
-Latest #461 report publish: oxjobs commit `7caa6fd7` records the
-aggregate-only ACM/ACS branch-candidate recheck and the ACM local `http_get`
-route validation. ACM provider probes recovered 15/22 current
-`missing_pdf_harvest` rows, and the actual branch `http_get` path classified
+Latest #461 report publish: oxjobs commit `bb1bdafb` records the SAGE/Wiley
+current branch validation in addition to the prior ACM/ACS branch-candidate
+recheck and ACM local `http_get` validation. ACM provider probes recovered
+15/22 current missing rows, and the actual branch `http_get` path classified
 18/22 as `good_pdf`. ACS recovered 0/46 current missing rows, preserved 8/8
-already-good rows, and recovered 5/6 corrupt/truncated rows. This is route
+already-good rows, and recovered 5/6 corrupt/truncated rows. SAGE landing-page
+rewrite recovered 6/6 current corrupt/truncated rows but regressed 4/6
+already-good preservation rows to `js_redirect_unresolved`; direct SAGE
+PDF-byte strategies recovered 0/6. Wiley current `/doi/pdfdirect/` replay
+recovered 0/19 and every row classified as `empty_response`. This is route
 evidence only; it is not an accepted full-corpus KPI lift.
 
-Latest local route validation: `acm-http-get-route-current-4614cef` exercised
-the actual branch `http_get` path over the same current ACM missing rows and
-classified 18/22 as `good_pdf`, with residuals of 3 `js_redirect_unresolved`
-and 1 `timeout`. It made no Taxicab POST/R2/DynamoDB writes. Local
-`rows.ndjson` contains row-level evidence; summary/report are aggregate-only.
+Latest local route validations: `acm-http-get-route-current-4614cef`
+classified 18/22 ACM rows as `good_pdf`; `sage-pdf-http-get-current-33a6b95`
+classified 6/6 SAGE corrupt rows as `good_pdf`; `sage-pdf-http-get-preservation-33a6b95`
+regressed 4/6 SAGE already-good rows; `wiley-pdfdirect-http-get-current-33a6b95`
+recovered 0/19 current Wiley residual rows. All made no Taxicab
+POST/R2/DynamoDB writes. Local `rows.ndjson` files contain row-level evidence;
+published summary/report artifacts are aggregate-only.
 
-Next action: select the next non-duplicate residual cluster from the fresh-tail
-full-gate rows. Keep ACM as a narrow branch candidate for the next production
-regression gate; ACS missing rows stay in the Zyte/support debt lane. Keep Zyte
-as the production core and Browserbase as evidence / gold-sample collection.
-Do not push Taxicab main before the full PDF 95% proof; gate note: no Taxicab
-main push.
+Next action: select the next non-duplicate residual cluster from the prioritized
+fresh-tail route-shape queue. Keep ACM as a narrow branch candidate for the next
+production regression gate; do not promote SAGE or Wiley without a narrower or
+provider-advised recipe. Keep Zyte as the production core and Browserbase as
+evidence / gold-sample collection. Do not push Taxicab main before the full PDF
+95% proof; gate note: no Taxicab main push.
 
 Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 - <<'PY'
-import json
-from collections import Counter
+import csv
 from pathlib import Path
-rows = Path('pdf_eval_runs/pdf-full10k-after-freshtail-f4f4a28/rows.ndjson')
-counts = Counter()
-for line in rows.open():
-    row = json.loads(line)
-    if row.get('category') not in {'good_pdf', 'no_pdf_expected'}:
-        cluster = row.get('publisher') or row.get('source_pdf_host') or row.get('host') or 'unknown'
-        counts[(row.get('category'), cluster)] += 1
-for (category, cluster), count in counts.most_common(30):
-    print(f'{count:4d} {category:28s} {cluster}')
+processed = {
+    'www4.unifsa.com.br', 'turkishstudies.net', 'static.even3.com',
+    'pubs.asha.org', 'pm-research.com', 'maps.mla.org',
+    'www.journalijar.com', 'www.jmcc-online.com',
+    'pubs.acs.org', 'dl.acm.org', 'journals.sagepub.com',
+    'onlinelibrary.wiley.com',
+}
+p = Path('pdf_eval_runs/residual-subclusters-prioritized-30121a7/residual-subclusters.csv')
+with p.open() as f:
+    for row in csv.DictReader(f):
+        if row['priority_band'] == 'provider_lane_do_not_duplicate':
+            continue
+        if row['host'] in processed:
+            continue
+        if row['priority_band'] in {'browserbase_or_zyte_gold_first', 'probe_next', 'validator_or_provider_lane', 'inspect_first'}:
+            print(row['rank'], row['count'], row['priority_band'], row['category'], row['publisher'], row['host'], row['path_pattern'], row['next_probe_decision'])
 PY
 ```
 
