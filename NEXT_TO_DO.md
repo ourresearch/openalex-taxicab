@@ -17,14 +17,13 @@ Current handoff override: accepted full 10K PDF gate
 versus denominator baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `6e7a3158`
-`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `3c935240`
-publishes the aggregate-only Elsevier DOI.org gold-first Zyte recheck from
-Taxicab commit `c8e8538`, and the oxjobs `Check job ID uniqueness` workflow
-passed for that push. It keeps the accepted KPI unchanged: no-storage Zyte
-strategies recovered 0/15, with best categories 14 `html_instead_of_pdf` and 1
-`js_redirect_unresolved`. Browserbase credentials were not present under the
-expected harness names. ACS/ACM/Wiley/IOP/bioRxiv PDF route families and
+`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `74a062c6`
+publishes the aggregate-only Wiley PDF-direct validator/provider Zyte recheck
+from Taxicab commit `9b01df6`, and the oxjobs `Check job ID uniqueness`
+workflow passed for that push. It keeps the accepted KPI unchanged:
+no-storage Zyte strategies recovered 0/10 current corrupt/truncated rows; all
+direct PDF-byte strategies returned `empty_response`, and browser HTML returned
+HTML/interstitial/JS outcomes. ACS/ACM/Wiley/IOP/bioRxiv PDF route families and
 Elsevier DOI.org are now provider-lane, gold-first, or do-not-duplicate until a
 narrow/provider-advised recipe exists. Top-240 `probe_next` remains 0, and
 `confirm_existing_branch_candidate` remains 0. This
@@ -32,8 +31,8 @@ is planning/evidence work only, not a Taxicab-main production scraping-code
 lift.
 Gate note: no Taxicab main push.
 
-Latest report publish: oxjobs #461 commit `3c935240` publishes the Elsevier
-DOI.org gold-first Zyte recheck and keeps the accepted metric at
+Latest report publish: oxjobs #461 commit `74a062c6` publishes the Wiley
+PDF-direct validator/provider Zyte recheck and keeps the accepted metric at
 `pdf-full10k-after-atlantis-3b13642` (2,383/6,293 `good_pdf`, 37.87%). The
 refresh supersedes the stale rank61/Atlantis lane queue and leaves no top-240
 `probe_next` or `confirm_existing_branch_candidate` lane; next work is choosing
@@ -52,9 +51,9 @@ Next exact action: choose a non-route provider/gold/validator residual lane.
 Do not promote SAGE, Wiley, ACS, IOP, bioRxiv/CSHLP, Elsevier DOI.org,
 rank-39 DOI.org, ACM, IngentaConnect, ICE Virtual Library, Ecologica, the
 closed top-five Browserbase sample, ASTM Compass, CCCC, Atlantis Press,
-IWA/AMPP/Sage Knowledge/RSNA/AJOG/Elgar, broad Elsevier article-PDF lanes, or
-any new lane without a narrower or provider-advised recipe. Do not run another
-duplicate fresh-tail loop.
+IWA/AMPP/Sage Knowledge/RSNA/AJOG/Elgar, broad Elsevier article-PDF lanes,
+Wiley PDF-direct, or any new lane without a narrower or provider-advised
+recipe. Do not run another duplicate fresh-tail loop.
 Historical sections below may use "current" relative to older gates; this top
 block is authoritative.
 ```

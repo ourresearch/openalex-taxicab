@@ -14,23 +14,23 @@ baseline of 1,837/6,293 (29.19%). The run has 3,789 `missing_pdf_harvest`, 65
 `taxicab_error`. The gap to 95% is 3,596 rows. This is a bounded
 cache/reharvest lift, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `3c935240` publishes the current
-Elsevier DOI.org gold-first Zyte recheck from Taxicab commit `c8e8538`; the
-oxjobs `Check job ID uniqueness` workflow passed for that push. The accepted
-metric remains `pdf-full10k-after-atlantis-3b13642`: 2,383/6,293 `good_pdf`
-(37.87%), +2 rows versus the DOI.org/OSTI gate, +546 rows versus denominator
-baseline, and a 3,596-row gap to 95%. The Elsevier DOI.org no-storage Zyte
-probe recovered 0/15, with best categories 14 `html_instead_of_pdf` and 1
-`js_redirect_unresolved`; Browserbase credentials were not present under the
-expected harness names, so no Browserbase evidence was collected. ACS, ACM,
-Wiley PDF-direct, IOP article-PDF, bioRxiv PDF path families, and Elsevier
-DOI.org are not promotion candidates without a narrower/provider-advised recipe.
-Top-240 `probe_next` remains 0 and `confirm_existing_branch_candidate` remains
-0. Published artifacts are aggregate-only; raw rows stay local.
+Latest #461 report publish: oxjobs commit `74a062c6` publishes the current
+Wiley PDF-direct validator/provider Zyte recheck from Taxicab commit `9b01df6`;
+the oxjobs `Check job ID uniqueness` workflow passed for that push. The
+accepted metric remains `pdf-full10k-after-atlantis-3b13642`: 2,383/6,293
+`good_pdf` (37.87%), +2 rows versus the DOI.org/OSTI gate, +546 rows versus
+denominator baseline, and a 3,596-row gap to 95%. The Wiley recheck recovered
+0/10 current `corrupt_or_truncated_pdf` rows; all direct PDF-byte strategies
+returned `empty_response`, and browser HTML returned HTML/interstitial/JS
+outcomes. ACS, ACM, Wiley PDF-direct, IOP article-PDF, bioRxiv PDF path
+families, and Elsevier DOI.org are not promotion candidates without a
+narrower/provider-advised recipe. Top-240 `probe_next` remains 0 and
+`confirm_existing_branch_candidate` remains 0. Published artifacts are
+aggregate-only; raw rows stay local.
 
 Latest local validations: Atlantis Press is complete at Taxicab commit
 `3b13642`; prior-evidence mapping is complete through `ba5c3a6`; oxjobs #461
-latest publish is `3c935240`. Browserbase PDF evidence mode remains fixed at Taxicab
+latest publish is `74a062c6`. Browserbase PDF evidence mode remains fixed at Taxicab
 commit `bdcc38a` to survive download-start navigation errors and capture
 started/not-captured download evidence. The ACS, ACM, Wiley, IOP, bioRxiv, and
 Elsevier DOI.org demotion/gold-first refreshes supersede the older residual
