@@ -17,16 +17,16 @@ Current handoff override: accepted full 10K PDF gate
 +544 versus denominator baseline. It has 3,791 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,598 rows. Oxjobs #461 commit `dcbec19c`
+`taxicab_error`. The gap to 95% is 3,598 rows. Oxjobs #461 commit `261d973d`
 publishes the aggregate-only full-gate report/summary plus the latest
 post-rank61 branch confirmation, ACM preservation-blocker, rank61
 Browserbase/Zyte gold-sample evidence, negative IngentaConnect evidence, and
-negative ICE Virtual Library evidence. This is bounded cache/reharvest lift
-plus branch/evidence work, not a
+negative ICE Virtual Library evidence, and negative Ecologica evidence. This is
+bounded cache/reharvest lift plus branch/evidence work, not a
 Taxicab-main production scraping-code lift.
 Gate note: no Taxicab main push.
 
-Latest report publish: oxjobs #461 commit `dcbec19c` publishes the DOI.org/OSTI
+Latest report publish: oxjobs #461 commit `261d973d` publishes the DOI.org/OSTI
 interstitial full gate in addition to the prior supplement-validator,
 rank-39 DOI.org JS-redirect gold-first, Elsevier DOI.org, ACM/ACS
 branch-candidate, ACM local `http_get`, SAGE/Wiley route validation, and
@@ -50,6 +50,9 @@ returned `bot_block_403`, so that lane is provider/access-flow evidence only.
 ICE Virtual Library probe `icevirtuallibrary-current-missing-provider-probe2-1fbdc57`
 recovered 0/2 `good_pdf`; best outcomes were one `bot_block_403` and one
 `html_instead_of_pdf`, so that lane is also provider/access-flow evidence only.
+Ecologica probe `ecologica-current-missing-provider-probe2-4d76a3c` recovered
+0/2 `good_pdf`; every tested strategy returned `html_instead_of_pdf`, so that
+lane is also provider/access-flow evidence only.
 
 Latest local validations: Browserbase PDF evidence mode is fixed at Taxicab
 commit `bdcc38a` for download-start navigation errors. Residual clustering from
@@ -61,11 +64,12 @@ DOI.org residual probes do not currently justify promotion. Row-level evidence
 stays local; summary/report artifacts are aggregate-only.
 
 Next exact action: run the next non-duplicate no-storage provider probe against
-Ecologica, or test a provider-advised PDF-byte recipe if one arrives.
+ASTM Compass (`compass.astm.org`), or test a provider-advised PDF-byte recipe
+if one arrives.
 Do not promote SAGE, Wiley, ACS, Elsevier DOI.org, rank-39 DOI.org, ACM,
-IngentaConnect, ICE Virtual Library, the closed top-five Browserbase sample, or
-any new lane without a narrower or provider-advised recipe. Do not run another
-duplicate fresh-tail loop.
+IngentaConnect, ICE Virtual Library, Ecologica, the closed top-five Browserbase
+sample, or any new lane without a narrower or provider-advised recipe. Do not
+run another duplicate fresh-tail loop.
 Historical sections below may use "current" relative to older gates; this top
 block is authoritative.
 ```
@@ -77,11 +81,11 @@ cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 PYTHONUNBUFFERED=1 python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
   --category missing_pdf_harvest \
-  --host ecologica.cn \
+  --host compass.astm.org \
   --limit 2 \
   --strategies all \
   --out pdf_eval_runs/ \
-  --run-id ecologica-current-missing-provider-probe2-next \
+  --run-id astm-current-missing-provider-probe2-next \
   --timeout 45 \
   --sleep 0.5 \
   --env-file .env
@@ -1422,11 +1426,11 @@ git switch codex/taxicab-pdf-phase2
 PYTHONUNBUFFERED=1 python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-rank61-interstitial-8562e3b/rows.ndjson \
   --category missing_pdf_harvest \
-  --host ecologica.cn \
+  --host compass.astm.org \
   --limit 2 \
   --strategies all \
   --out pdf_eval_runs/ \
-  --run-id ecologica-current-missing-provider-probe2-next \
+  --run-id astm-current-missing-provider-probe2-next \
   --timeout 45 \
   --sleep 0.5 \
   --env-file .env
