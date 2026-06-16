@@ -22,7 +22,15 @@ from openalex_taxicab.pdf_eval_harness import (
     summarize_pdf_rows,
     write_pdf_artifacts,
 )
-from scripts.taxicab_pdf_eval import TaxicabClient, classify_live_pdf_row, main, row_pdf_expected, row_pdf_url
+from scripts.taxicab_pdf_eval import (
+    TaxicabClient,
+    browserbase_download_payload,
+    classify_browserbase_pdf_bytes,
+    classify_live_pdf_row,
+    main,
+    row_pdf_expected,
+    row_pdf_url,
+)
 
 
 FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures" / "pdf"
@@ -114,6 +122,15 @@ class PdfLookupHandler(BaseHTTPRequestHandler):
 
 class DaemonThreadingHTTPServer(ThreadingHTTPServer):
     daemon_threads = True
+
+
+class FakeBrowserbaseDownload:
+    def __init__(self, body: bytes, url: str = "https://example.org/fulltext.pdf"):
+        self.body = body
+        self.url = url
+
+    def save_as(self, path: str):
+        Path(path).write_bytes(self.body)
 
 
 class HangingPdfLookupHandler(BaseHTTPRequestHandler):
@@ -439,6 +456,56 @@ class PdfEvalHarnessTests(unittest.TestCase):
             server.shutdown()
             thread.join(timeout=5)
             server.server_close()
+
+    def test_browserbase_pdf_bytes_reuse_pdf_validator(self):
+        row = make_pdf_transport_row(
+            run_id="browserbase-test",
+            doi="10.5555/browserbase",
+            category=PDF_CATEGORY_HTML_INSTEAD_OF_PDF,
+            publisher="example",
+            host="example.org",
+            input_url="https://doi.org/10.5555/browserbase",
+            candidate_url="https://example.org/fulltext.pdf",
+        )
+
+        category = classify_browserbase_pdf_bytes(
+            row,
+            body=PdfLookupHandler.pdf_body,
+            content_type="application/pdf",
+            final_url="https://example.org/fulltext.pdf",
+            status_code=200,
+        )
+
+        self.assertEqual(category, PDF_CATEGORY_GOOD_PDF)
+
+    def test_browserbase_download_payload_records_good_pdf_download(self):
+        row = make_pdf_transport_row(
+            run_id="browserbase-test",
+            doi="10.5555/browserbase",
+            category=PDF_CATEGORY_HTML_INSTEAD_OF_PDF,
+            publisher="example",
+            host="example.org",
+            input_url="https://doi.org/10.5555/browserbase",
+            candidate_url="https://example.org/fulltext.pdf",
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            out_base = Path(tmp) / "evidence"
+            payload = browserbase_download_payload(
+                row,
+                download=FakeBrowserbaseDownload(PdfLookupHandler.pdf_body),
+                out_base=out_base,
+                target_url="https://example.org/fulltext.pdf",
+                final_url="https://example.org/fulltext.pdf",
+                status_code=200,
+                session_id="session-1",
+            )
+
+            self.assertTrue(payload["available"])
+            self.assertEqual(payload["verdict"], "good_pdf_download_candidate")
+            self.assertTrue(payload["download_detected"])
+            self.assertTrue(Path(payload["evidence_path"]).exists())
+            self.assertEqual(Path(payload["evidence_path"]).suffix, ".pdf")
 
     def test_pdf_cli_workers_write_expected_summary(self):
         server = DaemonThreadingHTTPServer(("127.0.0.1", 0), PdfLookupHandler)

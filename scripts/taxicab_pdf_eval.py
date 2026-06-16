@@ -660,6 +660,82 @@ def collect_pdf_browserbase_evidence(
     )
 
 
+def classify_browserbase_pdf_bytes(
+    row: Any,
+    *,
+    body: bytes,
+    content_type: str,
+    final_url: str,
+    status_code: int | None = 200,
+) -> str:
+    classified = classify_pdf_content(
+        PdfEvidence(
+            doi=getattr(row, "doi", ""),
+            work_id=getattr(row, "work_id", ""),
+            title=getattr(row, "title", ""),
+            publisher=getattr(row, "publisher", ""),
+            host=getattr(row, "host", "") or host_from_url(final_url),
+            input_url=getattr(row, "input_url", ""),
+            candidate_url=getattr(row, "candidate_url", "") or final_url,
+            candidate_source="browserbase_session",
+            resolved_url=final_url,
+            status_code=status_code,
+            content_type=content_type,
+            body=body,
+            pdf_expected=True,
+            duration_ms=0,
+            mode="browserbase_session",
+        ),
+        run_id=getattr(row, "run_id", "") or "browserbase-session",
+    )
+    return classified.category
+
+
+def browserbase_download_payload(
+    row: Any,
+    *,
+    download: Any,
+    out_base: Path,
+    target_url: str,
+    final_url: str,
+    status_code: int | None,
+    session_id: str,
+) -> dict[str, Any]:
+    download_path = out_base.with_suffix(".download")
+    download.save_as(str(download_path))
+    body = download_path.read_bytes()
+    download_url = getattr(download, "url", "") or final_url
+    content_type = "application/pdf" if body.startswith(b"%PDF-") else ""
+    category = classify_browserbase_pdf_bytes(
+        row,
+        body=body,
+        content_type=content_type,
+        final_url=download_url,
+        status_code=status_code,
+    )
+    is_good_pdf = category == PDF_CATEGORY_GOOD_PDF
+    evidence_path = download_path
+    if is_good_pdf:
+        evidence_path = out_base.with_suffix(".pdf")
+        download_path.replace(evidence_path)
+    payload = {
+        "available": bool(is_good_pdf),
+        "verdict": "good_pdf_download_candidate" if is_good_pdf else f"download_{category}",
+        "doi": row.doi,
+        "target_url": target_url,
+        "final_url": final_url,
+        "mode": "session",
+        "session_id": session_id,
+        "status_code": status_code,
+        "content_type": content_type,
+        "size_bytes": len(body),
+        "is_pdf": bool(body.startswith(b"%PDF-")),
+        "download_detected": True,
+        "evidence_path": str(evidence_path),
+    }
+    return payload
+
+
 def collect_pdf_browserbase_session_evidence(
     row: Any,
     *,
@@ -685,8 +761,10 @@ def collect_pdf_browserbase_session_evidence(
         screenshot_path = Path("")
         with sync_playwright() as playwright:
             browser = playwright.chromium.connect_over_cdp(connect_url, timeout=int(timeout_seconds * 1000))
-            context = browser.contexts[0] if browser.contexts else browser.new_context()
-            page = context.pages[0] if context.pages else context.new_page()
+            context = browser.new_context(accept_downloads=True)
+            page = context.new_page()
+            downloads: list[Any] = []
+            page.on("download", lambda download: downloads.append(download))
             response = page.goto(target_url, wait_until="domcontentloaded", timeout=int(timeout_seconds * 1000))
             try:
                 page.wait_for_load_state("networkidle", timeout=min(10000, int(timeout_seconds * 1000)))
@@ -716,6 +794,21 @@ def collect_pdf_browserbase_session_evidence(
                 page.screenshot(path=str(screenshot_path), full_page=True, timeout=10000)
             except Exception:
                 screenshot_path = Path("")
+            if downloads:
+                payload = browserbase_download_payload(
+                    row,
+                    download=downloads[-1],
+                    out_base=out_base,
+                    target_url=target_url,
+                    final_url=final_url,
+                    status_code=status_code,
+                    session_id=session_id,
+                )
+                if screenshot_path:
+                    payload["screenshot_path"] = str(screenshot_path)
+                out_base.with_suffix(".json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
+                browser.close()
+                return payload
             browser.close()
 
         is_pdf = body.startswith(b"%PDF-") or "application/pdf" in content_type.lower()
