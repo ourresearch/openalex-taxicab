@@ -14,11 +14,12 @@ baseline of 1,837/6,293 (29.19%). The run has 3,789 `missing_pdf_harvest`, 65
 `taxicab_error`. The gap to 95% is 3,596 rows. This is a bounded
 cache/reharvest lift, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `58d55a98` publishes the scrubbed
-AHA/Lippincott summary asset; prior commit `07bc9d9f` published the
-AHA/Lippincott gold check in the report, and `4984229f` made the PDF report
-graph-first and minimalist. These are evidence/reporting updates only and do
-not change the accepted KPI. The current accepted metric remains
+Latest #461 report publish: oxjobs commit `0f9fcaa2` publishes the current
+Elsevier DOI.org Browserbase recheck; prior commit `58d55a98` publishes the
+scrubbed AHA/Lippincott summary asset, `07bc9d9f` published the AHA/Lippincott
+gold check in the report, and `4984229f` made the PDF report graph-first and
+minimalist. These are evidence/reporting updates only and do not change the
+accepted KPI. The current accepted metric remains
 `pdf-full10k-after-atlantis-3b13642`: 2,383/6,293 `good_pdf` (37.87%), +2 rows
 versus the DOI.org/OSTI gate, +546 rows versus denominator baseline, and a
 3,596-row gap to 95%. The AHA/Lippincott one-row lane
@@ -26,7 +27,11 @@ versus the DOI.org/OSTI gate, +546 rows versus denominator baseline, and a
 provider probing and 0/1 through Browserbase gold evidence; Browserbase reached
 a 403 challenge and ended `download_started_not_captured`. No Taxicab
 POST/R2/DynamoDB writes occurred, no route code was written, and no production
-behavior changed. Earlier oxjobs commit `74a062c6` remains the aggregate-only
+behavior changed. The Elsevier DOI.org current recheck
+`elsevier-doi-browserbase-gold5-5d5d0fc` sampled five current
+Elsevier-attributed DOI.org candidate rows and recovered 0/5 through
+Browserbase; verdicts were four `download_started_not_captured` and one
+`html_not_pdf`. Earlier oxjobs commit `74a062c6` remains the aggregate-only
 Wiley PDF-direct validator/provider Zyte recheck from Taxicab commit `9b01df6`;
 that recheck recovered 0/10 current `corrupt_or_truncated_pdf` rows. ACS, ACM,
 Wiley PDF-direct, IOP article-PDF, bioRxiv PDF path families, Elsevier DOI.org,
@@ -37,8 +42,8 @@ aggregate-only; raw rows stay local.
 
 Latest local validations: Atlantis Press is complete at Taxicab commit
 `3b13642`; prior-evidence mapping is complete through `ba5c3a6`; oxjobs #461
-latest publish is `58d55a98`; latest Taxicab handoff commit before this update
-is `a19f0c1`. Browserbase PDF evidence mode remains fixed at
+latest publish is `0f9fcaa2`; latest Taxicab handoff commit before this update
+is `5d5d0fc`. Browserbase PDF evidence mode remains fixed at
 Taxicab commit `bdcc38a` to survive download-start navigation errors and
 capture started/not-captured download evidence. `BROWSERBASE_API_KEY` exists in
 ignored `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env`;
@@ -53,7 +58,8 @@ do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
 Next action: choose the next non-route provider/gold/validator lane; the
-AHA/Lippincott lane is now closed as negative evidence and the current
+AHA/Lippincott and Elsevier DOI.org lanes are now closed as negative evidence
+for current purposes, and the current
 branch-candidate queue is exhausted. Browserbase can be used for evidence/gold
 collection from the ignored Parseland eval env, but must not overwrite the
 Taxicab baseline verdict. Keep Browserbase as evidence/gold only, Zyte as the

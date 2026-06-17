@@ -76,9 +76,10 @@ not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
 accepted metric is `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293
 `good_pdf` (37.87%), with a 3,596-row gap to 95%. Latest oxjobs #461 commit
-`58d55a98` publishes the AHA/Lippincott summary asset; prior `07bc9d9f`
-publishes the AHA/Lippincott gold check; `4984229f` publishes the graph-first
-report. None changes the KPI.
+`0f9fcaa2` publishes the current Elsevier DOI.org Browserbase recheck; prior
+`58d55a98` publishes the AHA/Lippincott summary asset, `07bc9d9f` publishes the
+AHA/Lippincott gold check, and `4984229f` publishes the graph-first report.
+None changes the KPI.
 Earlier oxjobs commit `74a062c6` remains the Wiley PDF-direct
 validator/provider Zyte recheck from Taxicab commit `9b01df6`: 0/10 recovered,
 all direct PDF-byte strategies returned `empty_response`, browser HTML returned
@@ -86,7 +87,11 @@ HTML/interstitial/JS outcomes, no Taxicab POST/R2/DynamoDB writes, no
 production behavior change, and no accepted KPI change. AHA/Lippincott
 `www.ahajournals.org:/doi/pdf/:doi/:id` also recovered 0/1 through Zyte and
 0/1 through Browserbase, with Browserbase ending at a 403 challenge; it is
-negative provider/access-flow evidence, not route-code evidence. Browserbase can run for
+negative provider/access-flow evidence, not route-code evidence. Elsevier
+DOI.org current Browserbase recheck `elsevier-doi-browserbase-gold5-5d5d0fc`
+recovered 0/5, with four `download_started_not_captured` verdicts and one
+`html_not_pdf`; keep it as provider/gold evidence, not route-code evidence.
+Browserbase can run for
 evidence/gold collection using `BROWSERBASE_API_KEY` from ignored
 `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env`;
 `BROWSERBASE_PROJECT_ID` is optional for the current REST session path.
@@ -94,8 +99,10 @@ Browserbase verdicts stay separate from Taxicab baseline categories. AWS
 CLI/default `.env.aws` session credentials are expired; AWS is not required for
 the immediate no-storage Zyte/Browserbase evidence loop. Top-240 `probe_next`
 remains 0, and `confirm_existing_branch_candidate` remains 0. Gate 21.999fz
-closed AHA/Lippincott as negative evidence; next Gate 21.999ga is choosing the
-next non-route provider/gold/validator lane from the residual queue.
+closed AHA/Lippincott as negative evidence; Gate 21.999ga closed current
+Elsevier DOI.org Browserbase recheck as negative evidence; next Gate 21.999gb
+is choosing the next non-route provider/gold/validator lane from the residual
+queue.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
