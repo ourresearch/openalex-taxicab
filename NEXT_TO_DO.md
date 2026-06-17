@@ -19,9 +19,10 @@ Current handoff override: accepted full 10K PDF gate
 versus denominator baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `1cba3fc`
-publishes the AAP Pediatrics provider/gold check; prior `01be98e` publishes the
-Transcript Verlag preview-provider confirmation; prior `10ec3eeb` publishes the
+`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `d054e3d`
+publishes the aggregate-only AAP residual priority-map refresh; prior
+`1cba3fc` publishes the AAP Pediatrics provider/gold check; prior `01be98e`
+publishes the Transcript Verlag preview-provider confirmation; prior `10ec3eeb` publishes the
 unknown-attribution DOI.org numeric JS-redirect gold check; prior `03560e2a`
 publishes the unknown-attribution DOI.org JS-redirect
 duo gold check; prior `1727a6ac` publishes the BCSJ/Oxford Academic DOI.org
@@ -97,7 +98,8 @@ provider-lane/do-not-duplicate, 23 Browserbase/Zyte-gold-first, 8
 validator/provider, and 1 inspect-first. Top-240 `probe_next` remains 0, and
 `confirm_existing_branch_candidate` remains 0.
 
-Next exact action: publish the AAP residual priority-map refresh to oxjobs #461.
+Next exact action: choose the next non-duplicate provider/gold/validator lane
+from the AAP-updated residual queue after explicit prior-evidence review.
 AHA/Lippincott and Elsevier DOI.org are closed as negative gold evidence for
 now; PeerJ is closed as branch-only evidence until full-gate proof exists; AAAS,
 BCSJ/Oxford, the unknown DOI.org JS-redirect duo, and the unknown DOI.org
@@ -120,8 +122,16 @@ block is authoritative.
 Next exact command:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
-python3 scripts/publish-report.py 461
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
+python3 - <<'PY'
+import json
+from pathlib import Path
+rows = json.loads(Path('pdf_eval_runs/residual-subclusters.json').read_text())['top_subclusters']
+for row in rows:
+    if row.get('priority_band') == 'provider_lane_do_not_duplicate':
+        continue
+    print(row.get('count'), row.get('priority_band'), row.get('prior_evidence_status'), row.get('category'), row.get('publisher'), row.get('host'), row.get('candidate_source'), row.get('path_pattern'))
+PY
 ```
 
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;

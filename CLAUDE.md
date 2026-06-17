@@ -15,8 +15,9 @@ baseline of 1,837/6,293 (29.19%). The run has 3,789 `missing_pdf_harvest`, 65
 `taxicab_error`. The gap to 95% is 3,596 rows. This is a bounded
 cache/reharvest lift, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `1cba3fc` publishes the AAP
-Pediatrics provider/gold check; prior `01be98e` publishes the Transcript Verlag
+Latest #461 report publish: oxjobs commit `d054e3d` publishes the AAP residual
+priority-map refresh; prior `1cba3fc` publishes the AAP Pediatrics
+provider/gold check, `01be98e` publishes the Transcript Verlag
 preview-provider confirmation, `10ec3eeb` publishes the unknown-attribution
 DOI.org numeric JS-redirect gold check, `03560e2a` publishes the
 unknown-attribution DOI.org JS-redirect duo gold check, `1727a6ac` publishes the
@@ -47,9 +48,9 @@ aggregate-only; raw rows stay local.
 
 Latest local validations: Atlantis Press is complete at Taxicab commit
 `3b13642`; prior-evidence mapping is complete through the AAP Pediatrics
-queue-hygiene update in this working tree; oxjobs #461 latest publish is
-`1cba3fc`; latest Taxicab branch evidence commit before this update is
-`9399eb7`. Browserbase PDF evidence mode remains fixed at
+queue-hygiene update at Taxicab commit `57e343d`; oxjobs #461 latest publish is
+`d054e3d`; latest Taxicab branch evidence commit is `57e343d`. Browserbase PDF
+evidence mode remains fixed at
 Taxicab commit `bdcc38a` to survive download-start navigation errors and
 capture started/not-captured download evidence. `BROWSERBASE_API_KEY` exists in
 ignored `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env`;
@@ -63,9 +64,9 @@ regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
 do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
-Next action: publish residual refresh `residual-clusters-after-aappediatrics-9399eb7`
-to oxjobs #461, then choose the next non-duplicate provider/gold/validator
-lane. AAP Pediatrics is now closed as negative provider/gold evidence;
+Next action: choose the next non-duplicate provider/gold/validator lane from
+`residual-clusters-after-aappediatrics-9399eb7` after explicit prior-evidence
+review. AAP Pediatrics is now closed as negative provider/gold evidence;
 AHA/Lippincott and Elsevier DOI.org lanes are closed as negative evidence for
 current purposes. PeerJ branch commit `bf1632f` adds a narrow
 `peerj.com/articles/*.pdf` PDF-byte strategy; branch replay recovered 1/1
@@ -106,7 +107,8 @@ summary at
 Local residual refresh `residual-clusters-after-aappediatrics-9399eb7` moves
 AAP to `provider_lane_do_not_duplicate`; top-240 priority bands are 208
 provider-lane/do-not-duplicate, 23 Browserbase/Zyte-gold-first, 8
-validator/provider, and 1 inspect-first.
+validator/provider, and 1 inspect-first. Oxjobs #461 commit `d054e3d`
+publishes the aggregate-only residual refresh.
 Browserbase can be used for evidence/gold
 collection from the ignored Parseland eval env, but must not overwrite the
 Taxicab baseline verdict. Keep Browserbase as evidence/gold only, Zyte as the
@@ -117,8 +119,16 @@ not required for the immediate no-storage Zyte/Browserbase evidence loop.
 Next exact command:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
-python3 scripts/publish-report.py 461
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
+python3 - <<'PY'
+import json
+from pathlib import Path
+rows = json.loads(Path('pdf_eval_runs/residual-subclusters.json').read_text())['top_subclusters']
+for row in rows:
+    if row.get('priority_band') == 'provider_lane_do_not_duplicate':
+        continue
+    print(row.get('count'), row.get('priority_band'), row.get('prior_evidence_status'), row.get('category'), row.get('publisher'), row.get('host'), row.get('candidate_source'), row.get('path_pattern'))
+PY
 ```
 
 Historical detail below is chronological and may use "current" relative to the

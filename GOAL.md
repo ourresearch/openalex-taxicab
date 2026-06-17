@@ -78,6 +78,7 @@ not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
 accepted metric is `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293
 `good_pdf` (37.87%), with a 3,596-row gap to 95%. Latest oxjobs #461 commit
+`d054e3d` publishes the aggregate-only AAP residual priority-map refresh; prior
 `1cba3fc` publishes the AAP Pediatrics provider/gold check; prior `01be98e`
 publishes the Transcript Verlag preview-provider confirmation; prior
 `10ec3eeb` publishes the unknown-attribution DOI.org numeric JS-redirect
@@ -161,13 +162,22 @@ provider/gold evidence; Gate 21.999gi updates residual prior-evidence mapping
 so AAP moves to `provider_lane_do_not_duplicate`. Local residual refresh
 `residual-clusters-after-aappediatrics-9399eb7` has top-240 priority bands:
 208 provider-lane/do-not-duplicate, 23 Browserbase/Zyte-gold-first, 8
-validator/provider, and 1 inspect-first. Next publish that residual refresh to
-oxjobs #461.
+validator/provider, and 1 inspect-first. Oxjobs #461 commit `d054e3d`
+publishes that refresh. Next choose a non-duplicate lane after explicit
+prior-evidence review.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
-cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
-python3 scripts/publish-report.py 461
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
+python3 - <<'PY'
+import json
+from pathlib import Path
+rows = json.loads(Path('pdf_eval_runs/residual-subclusters.json').read_text())['top_subclusters']
+for row in rows:
+    if row.get('priority_band') == 'provider_lane_do_not_duplicate':
+        continue
+    print(row.get('count'), row.get('priority_band'), row.get('prior_evidence_status'), row.get('category'), row.get('publisher'), row.get('host'), row.get('candidate_source'), row.get('path_pattern'))
+PY
 
 After Gate 0 is pushed:
 
