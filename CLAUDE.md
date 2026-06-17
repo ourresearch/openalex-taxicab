@@ -63,7 +63,8 @@ DOI.org residual-priority cleanup at Taxicab commit `1d50d45`; oxjobs #461
 latest publish is `91eafaf82`; latest support snapshot content commit is
 `92420e70b`; latest support snapshot asset commit is `e96ba4bfd`; latest
 Taxicab branch tooling commit is `d761c59` for private provider-ticket packets;
-provider recipe probe support remains `2484993`.
+provider recipe probe support now includes network-capture PDF decoding at
+`56d2c2c`.
 Browserbase PDF
 evidence mode remains fixed at
 Taxicab commit `bdcc38a` to survive download-start navigation errors and
@@ -78,6 +79,13 @@ scale; DOI.org/OSTI recovered +2 at full-gate scale; SAGE landing-page rewrite
 regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
 do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
+
+Latest provider-recipe probe: `springer-network-capture-probe3b-56d2c2c`
+tested the official Zyte browser `networkCapture` shape as a no-storage recipe
+against 3 Springer `link.springer.com/content/pdf` rows. It recovered 0/3
+`good_pdf`: two rows returned target-site 429 rate-limit errors and one row
+returned HTML with an unresolved JS redirect. This is provider/support evidence
+only, not a Taxicab route-code candidate.
 
 Next action: use
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`

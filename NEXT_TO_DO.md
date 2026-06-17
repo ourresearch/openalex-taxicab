@@ -47,7 +47,14 @@ publishes the scrubbed AHA/Lippincott summary asset, `07bc9d9f` publishes the
 AHA/Lippincott gold check in the report, and `4984229f` publishes the
 graph-first minimalist report. The OSTI/PLOS movement is bounded cache/reharvest
 lift plus query-preserving provider-probe harness correction, not a Taxicab-main
-production scraping push. The AHA/Lippincott one-row lane
+production scraping push.
+Current Taxicab branch commit `56d2c2c` adds Zyte browser `networkCapture`
+PDF-body decoding to `scripts/provider_pdf_probe.py`. The first corrected
+Springer no-storage recipe probe
+`springer-network-capture-probe3b-56d2c2c` recovered 0/3 `good_pdf`
+(two target-site 429s, one unresolved JS redirect), so it is provider/support
+evidence only and does not justify Taxicab route code.
+The AHA/Lippincott one-row lane
 `www.ahajournals.org:/doi/pdf/:doi/:id` recovered 0/1 through Zyte no-storage
 provider probing and 0/1 through Browserbase gold evidence; Browserbase reached
 a 403 challenge and ended `download_started_not_captured`. No Taxicab
