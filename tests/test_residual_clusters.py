@@ -463,6 +463,55 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(band, "provider_lane_do_not_duplicate")
         self.assertIn("Elsevier", decision)
 
+    def test_subcluster_priority_demotes_closed_publisher_doi_resolver_lanes(self):
+        cases = [
+            ("bot_block_403", "aaas", "doi.org:/:doi/:id"),
+            ("bot_block_403", "lippincott", "doi.org:/:doi/:id"),
+            ("js_redirect_unresolved", "wiley", "doi.org:/:doi/art.38860"),
+            ("js_redirect_unresolved", "springer", "doi.org:/:doi/:id"),
+            ("html_instead_of_pdf", "oxford", "doi.org:/:doi/:num"),
+            ("html_instead_of_pdf", "aps", "doi.org:/:doi/:id"),
+            ("interstitial_or_paywall", "elsevier", "doi.org:/:doi/:id"),
+            ("corrupt_or_truncated_pdf", "wiley", "doi.org:/:doi/tqem.70039"),
+            ("corrupt_or_truncated_pdf", "springer", "doi.org:/:doi/:id"),
+        ]
+
+        for category, publisher, pattern in cases:
+            with self.subTest(category=category, publisher=publisher, pattern=pattern):
+                status, band, decision = subcluster_priority(category, publisher, "unknown", pattern)
+
+                self.assertEqual(status, "prior_negative_or_support_evidence")
+                self.assertEqual(band, "provider_lane_do_not_duplicate")
+                self.assertIn("publisher-specific DOI.org", decision)
+
+    def test_subcluster_priority_demotes_closed_unknown_doi_resolver_patterns(self):
+        cases = [
+            ("js_redirect_unresolved", "doi.org:/:doi/:id"),
+            ("js_redirect_unresolved", "doi.org:/:doi/:num"),
+            ("js_redirect_unresolved", "doi.org:/:doi/bcsj.35.289"),
+            ("html_instead_of_pdf", "doi.org:/:doi/mat-1811-56"),
+        ]
+
+        for category, pattern in cases:
+            with self.subTest(category=category, pattern=pattern):
+                status, band, decision = subcluster_priority(category, "unknown", "unknown", pattern)
+
+                self.assertEqual(status, "prior_negative_or_support_evidence")
+                self.assertEqual(band, "provider_lane_do_not_duplicate")
+                self.assertIn("unknown DOI.org gold evidence", decision)
+
+    def test_subcluster_priority_demotes_peerj_branch_only_evidence(self):
+        status, band, decision = subcluster_priority(
+            "html_instead_of_pdf",
+            "unknown",
+            "peerj.com",
+            "peerj.com:/articles/:file.pdf",
+        )
+
+        self.assertEqual(status, "prior_branch_only_evidence")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
+        self.assertIn("branch-only evidence", decision)
+
     def test_residual_host_prefers_existing_non_unknown_host(self):
         item = pdf_row(
             "10.1/a",

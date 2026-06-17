@@ -88,6 +88,8 @@ PRIOR_PROVIDER_HOSTS = {
     "ams.org",
     "ascelibrary.org",
     "ascopubs.org",
+    "ahajournals.org",
+    "asa.scitation.org",
     "atsjournals.org",
     "auajournals.org",
     "ajog.org",
@@ -221,6 +223,27 @@ PRIOR_PROVIDER_HOSTS = {
 
 PRIOR_GOLD_HOSTS = {
     "drive.google.com",
+}
+
+PRIOR_DOI_RESOLVER_PUBLISHERS = {
+    "aaas",
+    "aps",
+    "elsevier",
+    "lippincott",
+    "oxford",
+    "springer",
+    "wiley",
+}
+
+PRIOR_UNKNOWN_DOI_RESOLVER_PATTERNS = {
+    "doi.org:/:doi/:id",
+    "doi.org:/:doi/:num",
+    "doi.org:/:doi/bcsj.35.289",
+    "doi.org:/:doi/mat-1811-56",
+}
+
+PRIOR_BRANCH_ONLY_PATTERNS = {
+    ("html_instead_of_pdf", "peerj.com", "peerj.com:/articles/:file.pdf"),
 }
 
 
@@ -390,6 +413,15 @@ def subcluster_priority(category: str, publisher: str, host: str, pattern: str) 
             )
 
     normalized_host = host.lower()
+    normalized_publisher = publisher.lower()
+
+    if (category, _strip_www(normalized_host), pattern) in PRIOR_BRANCH_ONLY_PATTERNS:
+        return (
+            "prior_branch_only_evidence",
+            "provider_lane_do_not_duplicate",
+            "Use existing branch-only evidence and require targeted/full-gate proof before any route promotion.",
+        )
+
     if category == "missing_pdf_harvest" and _host_has_prior_gold_evidence(normalized_host):
         return (
             "prior_gold_or_manual_evidence",
@@ -409,6 +441,24 @@ def subcluster_priority(category: str, publisher: str, host: str, pattern: str) 
             "prior_negative_or_support_evidence",
             "provider_lane_do_not_duplicate",
             "Use existing Elsevier/ScienceDirect provider evidence or wait for provider guidance before route code; only rerun if testing a new provider-advised recipe.",
+        )
+
+    if pattern.startswith("doi.org:") and normalized_publisher in PRIOR_DOI_RESOLVER_PUBLISHERS:
+        return (
+            "prior_negative_or_support_evidence",
+            "provider_lane_do_not_duplicate",
+            "Use existing publisher-specific DOI.org provider/gold evidence or wait for provider guidance before route code; only rerun if testing a new provider-advised recipe.",
+        )
+
+    if (
+        pattern in PRIOR_UNKNOWN_DOI_RESOLVER_PATTERNS
+        and category in {"html_instead_of_pdf", "js_redirect_unresolved", "bot_block_403"}
+        and normalized_publisher == "unknown"
+    ):
+        return (
+            "prior_negative_or_support_evidence",
+            "provider_lane_do_not_duplicate",
+            "Use existing unknown DOI.org gold evidence before route code; only rerun if testing a new provider-advised or manually verified recipe.",
         )
 
     if category == "missing_pdf_harvest" and pattern.startswith("doi.org:"):
