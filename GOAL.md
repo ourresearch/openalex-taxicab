@@ -182,7 +182,14 @@ AMS to `provider_lane_do_not_duplicate`; top-240 subcluster-entry priority
 bands are 216 provider-lane/do-not-duplicate, 20 Browserbase/Zyte-gold-first,
 and 4 validator/provider. Oxjobs #461 commit `77d71e78f` publishes the
 aggregate-only AMS evidence and residual refresh. Next choose a non-duplicate
-lane after explicit prior-evidence review.
+lane after explicit prior-evidence review. Gate 21.999gm fixes the residual
+priority order for Elsevier DOI.org: the 15-row Elsevier DOI.org
+`missing_pdf_harvest` lane now uses prior negative provider/gold evidence
+instead of the generic DOI resolver gold-first rule. Residual refresh
+`residual-clusters-after-elsevier-doi-demote-2f627f4` has top-240 subcluster
+entry bands 217 provider-lane/do-not-duplicate, 19 Browserbase/Zyte-gold-first,
+and 4 validator/provider. The Elsevier DOI.org oxjobs public report update is
+the next reporting slice.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:

@@ -68,8 +68,12 @@ do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
 Next action: choose the next non-duplicate provider/gold/validator lane from
-`residual-clusters-after-ams-demote-9e3bbba` after explicit prior-evidence
-review. AMS is closed as negative provider/gold evidence: Zyte no-storage
+`residual-clusters-after-elsevier-doi-demote-2f627f4` after explicit
+prior-evidence review. Elsevier DOI.org missing-PDF residuals are now correctly
+demoted as prior negative provider/gold evidence instead of re-entering the
+generic DOI resolver gold queue; top-240 active Browserbase/Zyte-gold-first
+row count drops from 35 to 20. AMS is closed as negative provider/gold
+evidence: Zyte no-storage
 recovered 0/1 with four 520 empty responses, and Browserbase recovered 0/1
 with `html_not_pdf`; this is not route-code evidence. ASM/JVI is mixed
 provider evidence and not a route candidate; AAP
@@ -111,12 +115,13 @@ and Browserbase ended `html_not_pdf` on aggregate AAP article-abstract host
 evidence. Oxjobs #461 commit `1cba3fc` publishes the aggregate-only public
 summary at
 `working/taxicab-pdf/evidence/report461-aappediatrics-htmlpdf-gold-summary-9399eb7.json`.
-Local residual refresh `residual-clusters-after-ams-demote-9e3bbba` moves AMS,
-mixed ASM/JVI evidence, plus prior validator/gold lanes to do-not-duplicate
-where appropriate; top-240 subcluster-entry priority bands are 216
-provider-lane/do-not-duplicate, 20 Browserbase/Zyte-gold-first, and 4
-validator/provider. Oxjobs #461 commit `77d71e78f` publishes the aggregate-only
-AMS evidence and residual refresh.
+Local residual refresh `residual-clusters-after-elsevier-doi-demote-2f627f4`
+moves the 15-row Elsevier DOI.org missing-PDF lane to do-not-duplicate, after
+AMS, mixed ASM/JVI evidence, plus prior validator/gold lanes were already
+closed where appropriate; top-240 subcluster-entry priority bands are 217
+provider-lane/do-not-duplicate, 19 Browserbase/Zyte-gold-first, and 4
+validator/provider. The Elsevier DOI.org public report update is the next
+oxjobs slice.
 Browserbase can be used for evidence/gold
 collection from the ignored Parseland eval env, but must not overwrite the
 Taxicab baseline verdict. Keep Browserbase as evidence/gold only, Zyte as the

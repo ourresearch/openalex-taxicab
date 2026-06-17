@@ -390,13 +390,6 @@ def subcluster_priority(category: str, publisher: str, host: str, pattern: str) 
             )
 
     normalized_host = host.lower()
-    if category == "missing_pdf_harvest" and pattern.startswith("doi.org:"):
-        return (
-            "doi_resolver_pdf_route_needs_gold",
-            "browserbase_or_zyte_gold_first",
-            "Resolve the DOI route with Browserbase/Zyte evidence before treating it as a provider-specific PDF route.",
-        )
-
     if category == "missing_pdf_harvest" and _host_has_prior_gold_evidence(normalized_host):
         return (
             "prior_gold_or_manual_evidence",
@@ -416,6 +409,13 @@ def subcluster_priority(category: str, publisher: str, host: str, pattern: str) 
             "prior_negative_or_support_evidence",
             "provider_lane_do_not_duplicate",
             "Use existing Elsevier/ScienceDirect provider evidence or wait for provider guidance before route code; only rerun if testing a new provider-advised recipe.",
+        )
+
+    if category == "missing_pdf_harvest" and pattern.startswith("doi.org:"):
+        return (
+            "doi_resolver_pdf_route_needs_gold",
+            "browserbase_or_zyte_gold_first",
+            "Resolve the DOI route with Browserbase/Zyte evidence before treating it as a provider-specific PDF route.",
         )
 
     if (

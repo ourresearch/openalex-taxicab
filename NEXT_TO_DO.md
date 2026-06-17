@@ -96,18 +96,23 @@ DOI.org, AHA/Lippincott, AAAS, BCSJ/Oxford, and the unknown DOI.org
 JS-redirect duo plus numeric JS-redirect lane, and Transcript Verlag preview
 URLs, AAP Pediatrics, ASM/JVI, and AMS are provider-lane, gold-first,
 validator, or do-not-duplicate until a narrow/provider-advised recipe exists.
+The residual-priority rule now handles Elsevier DOI.org before the generic DOI
+resolver gold-first rule, so the 15-row Elsevier DOI.org `missing_pdf_harvest`
+lane is correctly demoted to `provider_lane_do_not_duplicate`.
 AMS is closed as negative provider/gold evidence: Zyte no-storage recovered 0/1
 with four 520 empty responses, Browserbase recovered 0/1 with `html_not_pdf`,
 and no Taxicab POST/R2/DynamoDB writes or route code changes occurred. Local
-residual refresh `residual-clusters-after-ams-demote-9e3bbba` moves AMS, mixed
-ASM/JVI evidence, and prior validator/gold lanes to do-not-duplicate where
-appropriate; top-240 subcluster-entry priority bands are 216
-provider-lane/do-not-duplicate, 20 Browserbase/Zyte-gold-first, and 4
-validator/provider. Top-240 `probe_next` remains 0, and
+residual refresh `residual-clusters-after-elsevier-doi-demote-2f627f4` moves
+the Elsevier DOI.org lane, AMS, mixed ASM/JVI evidence, and prior
+validator/gold lanes to do-not-duplicate where appropriate; top-240
+subcluster-entry priority bands are 217 provider-lane/do-not-duplicate, 19
+Browserbase/Zyte-gold-first, and 4 validator/provider. Top-240 `probe_next`
+remains 0, and
 `confirm_existing_branch_candidate` remains 0.
 
 Next exact action: choose the next non-duplicate provider/gold/validator lane
-from the AMS-updated residual queue after explicit prior-evidence review.
+from the Elsevier-DOI-demoted residual queue after explicit prior-evidence
+review.
 AHA/Lippincott and Elsevier DOI.org are closed as negative gold evidence for
 now; PeerJ is closed as branch-only evidence until full-gate proof exists; AAAS,
 BCSJ/Oxford, the unknown DOI.org JS-redirect duo, and the unknown DOI.org

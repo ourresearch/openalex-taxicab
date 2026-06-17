@@ -442,7 +442,7 @@ class ResidualClusterTests(unittest.TestCase):
     def test_subcluster_priority_marks_doi_resolver_routes_for_gold(self):
         status, band, decision = subcluster_priority(
             "missing_pdf_harvest",
-            "elsevier",
+            "unknown",
             "doi.org",
             "doi.org:/:doi/:id",
         )
@@ -450,6 +450,18 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(status, "doi_resolver_pdf_route_needs_gold")
         self.assertEqual(band, "browserbase_or_zyte_gold_first")
         self.assertIn("Resolve the DOI route", decision)
+
+    def test_subcluster_priority_demotes_elsevier_doi_resolver_after_gold_evidence(self):
+        status, band, decision = subcluster_priority(
+            "missing_pdf_harvest",
+            "elsevier",
+            "doi.org",
+            "doi.org:/:doi/:id",
+        )
+
+        self.assertEqual(status, "prior_negative_or_support_evidence")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
+        self.assertIn("Elsevier", decision)
 
     def test_residual_host_prefers_existing_non_unknown_host(self):
         item = pdf_row(
