@@ -102,10 +102,14 @@ network-capture token against 3 current Oxford Academic `academic.oup.com`
 rows and recovered 0/3 `good_pdf`: two rows were PDF-viewer/html shells despite
 `application/pdf` content type, and one row returned a 403 bot block. This also
 stays in provider/support; do not write Oxford route code from it.
+Follow-up `ssrn-network-capture-probe3-03cffc3` tested the same broad `pdf`
+network-capture token against 3 current SSRN `papers.ssrn.com` rows and
+recovered 0/3 `good_pdf`: all three rows returned 200 `image/svg+xml` payloads
+classified as `corrupt_or_truncated_pdf`, not PDF bytes. Keep SSRN in
+provider/support; do not write SSRN route code from it.
 
-Next action: run the next no-storage SSRN provider-recipe check with
-`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-osti-plos-ee9001b/rows.ndjson --category missing_pdf_harvest --publisher ssrn --host papers.ssrn.com --limit 3 --recipe-file pdf_eval_runs/zyte-recipes/network-capture-pdf-token.json --strategies browser_network_pdf_token_capture --run-id ssrn-network-capture-probe3-$(git rev-parse --short HEAD) --sleep 1`.
-Use
+Next action: refresh the provider-support handoff and choose the next
+non-duplicate lane from the current residual artifacts. Use
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`
 as the aggregate provider-support handoff, then test any provider-advised
 PDF-byte recipe through no-storage probes before route code. The probe harness

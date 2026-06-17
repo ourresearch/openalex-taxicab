@@ -66,20 +66,18 @@ Follow-up `oxford-network-capture-probe3-bea12c4` tested three current Oxford
 Academic `academic.oup.com` rows and recovered 0/3 `good_pdf`; outcomes were
 two `html_instead_of_pdf` PDF-viewer/html shells and one 403 bot block. This is
 also provider/support evidence only.
+Follow-up `ssrn-network-capture-probe3-03cffc3` tested three current SSRN
+`papers.ssrn.com` rows and recovered 0/3 `good_pdf`; all three responses were
+200 `image/svg+xml` payloads classified as `corrupt_or_truncated_pdf`, not PDF
+bytes. This is also provider/support evidence only.
 
 Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-osti-plos-ee9001b/rows.ndjson \
-  --category missing_pdf_harvest \
-  --publisher ssrn \
-  --host papers.ssrn.com \
-  --limit 3 \
-  --recipe-file pdf_eval_runs/zyte-recipes/network-capture-pdf-token.json \
-  --strategies browser_network_pdf_token_capture \
-  --run-id ssrn-network-capture-probe3-$(git rev-parse --short HEAD) \
-  --sleep 1
+python3 scripts/build_pdf_provider_ticket.py \
+  --run-id zyte-provider-ticket-after-osti-plos-ee9001b \
+  --top-lanes 25 \
+  --samples-per-lane 3
 ```
 The AHA/Lippincott one-row lane
 `www.ahajournals.org:/doi/pdf/:doi/:id` recovered 0/1 through Zyte no-storage
