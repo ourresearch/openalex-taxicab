@@ -19,8 +19,11 @@ Current handoff override: accepted full 10K PDF gate
 baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 4 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,594 rows. Oxjobs #461 commit `08009124e`
-publishes the aggregate-only OSTI/PLOS accepted recovery and refreshed residual
+`taxicab_error`. The gap to 95% is 3,594 rows. Oxjobs #461 commit `e96ba4bfd`
+makes the aggregate provider-support snapshot publicly allow-listed; prior
+`92420e70b` publishes
+`working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`;
+prior `08009124e` publishes the aggregate-only OSTI/PLOS accepted recovery and refreshed residual
 queue; prior `5a1254630` publishes the aggregate-only closed DOI.org
 residual-priority cleanup and refreshed residual queue; prior `3c125878f`
 publishes the aggregate-only
@@ -124,9 +127,12 @@ commit `5a1254630` publishes the aggregate-only cleanup. Latest residual refresh
 `residual-clusters-after-osti-plos-ee9001b` has top-240 all
 provider-lane/do-not-duplicate after OSTI/PLOS recovery.
 
-Next exact action: review aggregate residual clusters and prepare
-provider-advised/Zyte support follow-through. Do not repeat OSTI/PLOS as fresh
-route/provider work unless testing provider-advised guidance.
+Next exact action: use
+`working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`
+as the aggregate provider-support handoff, then test only provider-advised
+PDF-byte recipes through no-storage probes before route code. Do not repeat
+OSTI/PLOS as fresh route/provider work unless testing provider-advised
+guidance.
 AHA/Lippincott and Elsevier DOI.org are closed as negative gold evidence for
 now; PeerJ is closed as branch-only evidence until full-gate proof exists; AAAS,
 BCSJ/Oxford, the unknown DOI.org JS-redirect duo, and the unknown DOI.org

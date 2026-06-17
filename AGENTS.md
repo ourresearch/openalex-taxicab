@@ -15,10 +15,13 @@ rows versus the Atlantis gate and +548 rows versus the denominator baseline of
 direct-PDF cache/reharvest lift plus query-preserving provider-probe harness
 correction, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `08009124e` publishes the OSTI/PLOS
-accepted recovery, graph/report refresh, and residual queue showing top-240 all
-provider-lane/do-not-duplicate. Prior `5a1254630` publishes the closed DOI.org
-residual-priority cleanup and refreshed residual queue; prior
+Latest #461 report publish: oxjobs commit `e96ba4bfd` makes the aggregate
+provider-support snapshot publicly allow-listed; prior `92420e70b` publishes
+the aggregate snapshot at
+`working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`;
+prior `08009124e` publishes the OSTI/PLOS accepted recovery, graph/report
+refresh, and residual queue showing top-240 all provider-lane/do-not-duplicate.
+Prior `5a1254630` publishes the closed DOI.org residual-priority cleanup and refreshed residual queue; prior
 `3c125878f` publishes the Elsevier DOI.org residual-priority correction; prior
 `77d71e78f` publishes the AMS negative provider/gold evidence and AMS-demoted
 residual priority-map refresh; prior `386f5fa73` publishes the ASM/JVI mixed provider evidence and residual
@@ -55,7 +58,8 @@ Latest local validations: OSTI/PLOS query-preserving provider-probe recovery is
 complete at Taxicab branch commit `ee9001b`; Atlantis Press is complete at
 Taxicab commit `3b13642`; prior-evidence mapping is complete through the closed
 DOI.org residual-priority cleanup at Taxicab commit `1d50d45`; oxjobs #461
-latest publish is `08009124e`; latest Taxicab branch evidence commit is
+latest publish is `e96ba4bfd`; latest support snapshot content commit is
+`92420e70b`; latest Taxicab branch evidence commit is
 `ee9001b`.
 Browserbase PDF
 evidence mode remains fixed at
@@ -72,9 +76,12 @@ regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
 do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
-Next action: review aggregate residual clusters and prepare provider-advised
-recipe/Zyte support follow-through. The OSTI/PLOS gold-first rows are already
-recovered and closed by `pdf-full10k-after-osti-plos-ee9001b`; residual refresh
+Next action: use
+`working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`
+as the aggregate provider-support handoff, then test any provider-advised
+PDF-byte recipe through no-storage probes before route code. The OSTI/PLOS
+gold-first rows are already recovered and closed by
+`pdf-full10k-after-osti-plos-ee9001b`; residual refresh
 `residual-clusters-after-osti-plos-ee9001b` has top-240 all
 provider-lane/do-not-duplicate. Closed DOI.org and branch-only residuals were
 demoted by `residual-clusters-after-closed-doi-demote-1d50d45`; Elsevier DOI.org

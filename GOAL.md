@@ -41,9 +41,13 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `08009124e` publishes the OSTI/PLOS
-accepted recovery, graph/report refresh, and residual queue showing top-240 all
-provider-lane/do-not-duplicate; prior `5a1254630` publishes the closed DOI.org
+Current publish status: oxjobs #461 commit `e96ba4bfd` makes the aggregate
+provider-support snapshot publicly allow-listed; prior `92420e70b` publishes
+the aggregate snapshot at
+`working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`;
+prior `08009124e` publishes the OSTI/PLOS accepted recovery, graph/report
+refresh, and residual queue showing top-240 all provider-lane/do-not-duplicate;
+prior `5a1254630` publishes the closed DOI.org
 residual-priority cleanup and refreshed queue; prior `3c125878f` publishes the
 Elsevier DOI.org residual-priority correction, prior `77d71e78f`
 publishes the AMS negative provider/gold evidence and residual refresh, and
@@ -81,8 +85,11 @@ not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
 accepted metric is `pdf-full10k-after-osti-plos-ee9001b`, 2,385/6,293
 `good_pdf` (37.90%), with a 3,594-row gap to 95%. Latest oxjobs #461 commit
-`08009124e` publishes the aggregate-only OSTI/PLOS accepted recovery and
-refreshed residual queue; prior `5a1254630` publishes the aggregate-only closed
+`e96ba4bfd` makes the aggregate provider-support snapshot public, prior
+`92420e70b` publishes the aggregate snapshot
+`working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`,
+and prior `08009124e` publishes the aggregate-only OSTI/PLOS accepted recovery
+and refreshed residual queue; prior `5a1254630` publishes the aggregate-only closed
 DOI.org residual-priority cleanup and refreshed queue; prior `3c125878f`
 publishes the aggregate-only
 Elsevier DOI.org residual-priority correction; prior `77d71e78f` publishes the aggregate-only
@@ -205,9 +212,11 @@ Oxjobs #461 commit `5a1254630` publishes the aggregate-only cleanup. Gate
 21.999go recovers the aggregate OSTI and PLOS interstitial/paywall lanes at
 Taxicab branch commit `ee9001b`; full gate
 `pdf-full10k-after-osti-plos-ee9001b` is 2,385/6,293 `good_pdf` (37.90%) with
-0 regressions, and oxjobs #461 commit `08009124e` publishes the report. Next
-review aggregate residual clusters and prepare provider-advised/Zyte support
-follow-through.
+0 regressions, oxjobs #461 commit `92420e70b` publishes the aggregate provider
+support snapshot, and `e96ba4bfd` makes that snapshot publicly allow-listed.
+Next use `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`
+as the provider-support handoff and test only provider-advised PDF-byte recipes
+through no-storage probes before route code.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
