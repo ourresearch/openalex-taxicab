@@ -92,6 +92,10 @@ provider/support evidence only. The private ignored-local Zyte ticket packet
 was regenerated after these probes with
 `python3 scripts/build_pdf_provider_ticket.py --run-id zyte-provider-ticket-after-osti-plos-ee9001b --top-lanes 25 --samples-per-lane 3`;
 keep the raw packet out of git and oxjobs.
+Next no-storage probe `lippincott-network-capture-probe3-84b519f` recovered
+0/3 from current `journals.lww.com` rows: two unresolved JS redirects and one
+403 bot block. This also stays in provider/support; do not write Lippincott
+route code from it.
 
 Next action: use
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`
