@@ -111,9 +111,14 @@ Publishing `pubs.aip.org` rows with the same network-capture recipe and
 recovered 0/3 `good_pdf`: two rows returned 403 bot blocks and one row returned
 a PDF-viewer/html shell. Keep AIP in provider/support; do not write AIP route
 code from it.
+Follow-up `jstor-network-capture-probe3-next` tested 3 current JSTOR
+`jstor.org` rows with the same network-capture recipe and recovered 0/3
+`good_pdf`: every row returned 200 `text/html` article/book page content, not
+PDF bytes. Keep JSTOR in provider/support; do not write JSTOR route code from
+it.
 
-Next action: run the next no-storage JSTOR provider-recipe check with
-`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-osti-plos-ee9001b/rows.ndjson --category missing_pdf_harvest --publisher jstor --host jstor.org --limit 3 --recipe-file pdf_eval_runs/zyte-recipes/network-capture-pdf-token.json --strategies browser_network_pdf_token_capture --out /tmp/taxicab-pdf-probes --run-id jstor-network-capture-probe3-next`.
+Next action: run the next no-storage Brill provider-recipe check with
+`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-osti-plos-ee9001b/rows.ndjson --category missing_pdf_harvest --publisher brill --host brill.com --limit 3 --recipe-file pdf_eval_runs/zyte-recipes/network-capture-pdf-token.json --strategies browser_network_pdf_token_capture --out /tmp/taxicab-pdf-probes --run-id brill-network-capture-probe3-next`.
 Use
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`
 as the aggregate provider-support handoff, then test any provider-advised
