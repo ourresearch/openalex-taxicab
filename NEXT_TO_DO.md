@@ -135,7 +135,12 @@ as the aggregate provider-support handoff, then test only provider-advised
 PDF-byte recipes through no-storage probes before route code. Use
 `python3 scripts/provider_pdf_probe.py --recipe-file <ignored-recipe.json> --strategies <recipe_name> ...`
 for provider recipes; recipe probes must not call `/taxicab` POST or write
-R2/DynamoDB. Do not repeat
+R2/DynamoDB. Taxicab branch commit `d761c59` adds the private ignored-local
+provider-ticket builder. Use
+`python3 scripts/build_pdf_provider_ticket.py --run-id zyte-provider-ticket-after-osti-plos-ee9001b --top-lanes 25 --samples-per-lane 3`
+when Zyte needs DOI-level examples; the latest local packet is
+`pdf_eval_runs/zyte-provider-ticket-after-osti-plos-ee9001b/`. Do not commit or
+publish that raw packet; oxjobs stays aggregate-only. Do not repeat
 OSTI/PLOS as fresh route/provider work unless testing provider-advised
 guidance.
 AHA/Lippincott and Elsevier DOI.org are closed as negative gold evidence for

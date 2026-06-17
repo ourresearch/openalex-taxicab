@@ -62,7 +62,8 @@ Taxicab commit `3b13642`; prior-evidence mapping is complete through the closed
 DOI.org residual-priority cleanup at Taxicab commit `1d50d45`; oxjobs #461
 latest publish is `91eafaf82`; latest support snapshot content commit is
 `92420e70b`; latest support snapshot asset commit is `e96ba4bfd`; latest
-Taxicab branch tooling commit is `2484993`.
+Taxicab branch tooling commit is `d761c59` for private provider-ticket packets;
+provider recipe probe support remains `2484993`.
 Browserbase PDF
 evidence mode remains fixed at
 Taxicab commit `bdcc38a` to survive download-start navigation errors and
@@ -85,6 +86,13 @@ PDF-byte recipe through no-storage probes before route code. The probe harness
 accepts provider recipes with
 `python3 scripts/provider_pdf_probe.py --recipe-file <ignored-recipe.json> --strategies <recipe_name> ...`;
 recipe runs must stay no-storage and must not call `/taxicab` POST. The OSTI/PLOS
+Build a private ignored-local Zyte ticket packet when row-level examples are
+needed with
+`python3 scripts/build_pdf_provider_ticket.py --run-id zyte-provider-ticket-after-osti-plos-ee9001b --top-lanes 25 --samples-per-lane 3`.
+The latest local packet is under
+`pdf_eval_runs/zyte-provider-ticket-after-osti-plos-ee9001b/`; do not commit or
+copy the raw packet into oxjobs because it contains DOI-level examples.
+The OSTI/PLOS
 gold-first rows are already recovered and closed by
 `pdf-full10k-after-osti-plos-ee9001b`; residual refresh
 `residual-clusters-after-osti-plos-ee9001b` has top-240 all

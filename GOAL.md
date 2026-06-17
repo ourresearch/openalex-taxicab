@@ -222,27 +222,17 @@ as the provider-support handoff and test only provider-advised PDF-byte recipes
 through no-storage probes before route code. Use
 `python3 scripts/provider_pdf_probe.py --recipe-file <ignored-recipe.json> --strategies <recipe_name> ...`
 for provider recipes; recipe probes must not call `/taxicab` POST or write
-R2/DynamoDB.
+R2/DynamoDB. Taxicab branch commit `d761c59` adds a private ignored-local
+provider-ticket builder for row-level Zyte examples:
+`python3 scripts/build_pdf_provider_ticket.py --run-id zyte-provider-ticket-after-osti-plos-ee9001b --top-lanes 25 --samples-per-lane 3`.
+Latest generated packet:
+`pdf_eval_runs/zyte-provider-ticket-after-osti-plos-ee9001b/`.
+Do not commit or publish that raw packet; oxjobs stays aggregate-only.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 - <<'PY'
-import csv
-from pathlib import Path
-with Path("pdf_eval_runs/residual-clusters.csv").open(newline="", encoding="utf-8") as f:
-    for row in list(csv.DictReader(f))[:20]:
-        print(f"{row['rank']}\t{row['category']}\t{row['publisher']}\t{row['host']}\t{row['count']}\t{row['recommended_agent']}\t{row['evidence_strength']}")
-PY
-python3 - <<'PY'
-import json
-from pathlib import Path
-rows = json.loads(Path('pdf_eval_runs/residual-subclusters.json').read_text())['top_subclusters']
-for row in rows:
-    if row.get('priority_band') != 'browserbase_or_zyte_gold_first':
-        continue
-    print(row.get('count'), row.get('category'), row.get('publisher'), row.get('host'), row.get('candidate_source'), row.get('path_pattern'))
-PY
+python3 scripts/provider_pdf_probe.py --recipe-file <ignored-recipe.json> --strategies <recipe_name> --publisher springer --host link.springer.com --limit 10 --run-id <provider-recipe-run>
 
 After Gate 0 is pushed:
 
