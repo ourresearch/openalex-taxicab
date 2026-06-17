@@ -15,28 +15,29 @@ baseline of 1,837/6,293 (29.19%). The run has 3,789 `missing_pdf_harvest`, 65
 `taxicab_error`. The gap to 95% is 3,596 rows. This is a bounded
 cache/reharvest lift, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `74a062c6` publishes the current
-Wiley PDF-direct validator/provider Zyte recheck from Taxicab commit `9b01df6`;
-the oxjobs `Check job ID uniqueness` workflow passed for that push. The
+Latest #461 report publish: oxjobs commit `4984229f` makes the PDF report
+graph-first and minimalist. It does not change the accepted KPI. The current
 accepted metric remains `pdf-full10k-after-atlantis-3b13642`: 2,383/6,293
 `good_pdf` (37.87%), +2 rows versus the DOI.org/OSTI gate, +546 rows versus
-denominator baseline, and a 3,596-row gap to 95%. The Wiley recheck recovered
-0/10 current `corrupt_or_truncated_pdf` rows; all direct PDF-byte strategies
-returned `empty_response`, and browser HTML returned HTML/interstitial/JS
-outcomes. ACS, ACM, Wiley PDF-direct, IOP article-PDF, bioRxiv PDF path
-families, and Elsevier DOI.org are not promotion candidates without a
-narrower/provider-advised recipe. Top-240 `probe_next` remains 0 and
+denominator baseline, and a 3,596-row gap to 95%. Earlier oxjobs commit
+`74a062c6` remains the aggregate-only Wiley PDF-direct validator/provider Zyte
+recheck from Taxicab commit `9b01df6`; that recheck recovered 0/10 current
+`corrupt_or_truncated_pdf` rows. ACS, ACM, Wiley PDF-direct, IOP article-PDF,
+bioRxiv PDF path families, and Elsevier DOI.org are not promotion candidates
+without a narrower/provider-advised recipe. Top-240 `probe_next` remains 0 and
 `confirm_existing_branch_candidate` remains 0. Published artifacts are
 aggregate-only; raw rows stay local.
 
 Latest local validations: Atlantis Press is complete at Taxicab commit
 `3b13642`; prior-evidence mapping is complete through `ba5c3a6`; oxjobs #461
-latest publish is `74a062c6`. Browserbase PDF evidence mode remains fixed at Taxicab
-commit `bdcc38a` to survive download-start navigation errors and capture
-started/not-captured download evidence. The ACS, ACM, Wiley, IOP, bioRxiv, and
-Elsevier DOI.org demotion/gold-first refreshes supersede the older residual
-lane queue; do not duplicate those route families unless testing a
-provider-advised recipe.
+latest publish is `4984229f`. Browserbase PDF evidence mode remains fixed at
+Taxicab commit `bdcc38a` to survive download-start navigation errors and
+capture started/not-captured download evidence. `BROWSERBASE_API_KEY` exists in
+ignored `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env`;
+`BROWSERBASE_PROJECT_ID` is optional for the current REST session path. The
+ACS, ACM, Wiley, IOP, bioRxiv, and Elsevier DOI.org demotion/gold-first
+refreshes supersede the older residual lane queue; do not duplicate those route
+families unless testing a provider-advised recipe.
 Earlier validations remain: supplement validator recovered +70 at full-gate
 scale; DOI.org/OSTI recovered +2 at full-gate scale; SAGE landing-page rewrite
 regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
@@ -44,16 +45,18 @@ do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
 Next action: choose a non-route provider/gold/validator lane; the current
-branch-candidate queue is exhausted and Browserbase cannot run until
-`BROWSERBASE_API_KEY`/`BROWSERBASE_PROJECT_ID` are available.
-Keep Browserbase as evidence/gold only, Zyte as the production core, and do not
-push Taxicab main before the full PDF 95% proof.
+branch-candidate queue is exhausted. Browserbase can be used for evidence/gold
+collection from the ignored Parseland eval env, but must not overwrite the
+Taxicab baseline verdict. Keep Browserbase as evidence/gold only, Zyte as the
+production core, and do not push Taxicab main before the full PDF 95% proof.
+AWS CLI/default `.env.aws` session credentials are currently expired; AWS is
+not required for the immediate no-storage Zyte/Browserbase evidence loop.
 
 Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-atlantis-biorxiv-demote --sample-size 5 --top-n 240
+python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-gate-21-999fz-next-lane --sample-size 5 --top-n 240
 python3 - <<'PY'
 import json
 from pathlib import Path
@@ -972,7 +975,8 @@ Latest Taxicab code/eval commit before this handoff-doc update is `bdcc38a`.
 - `main` auto-deploys to ECS through `.github/workflows/aws.yml`. Work on a `codex/` branch and push only after focused verification.
 - For PDF Phase 2, use `codex/taxicab-pdf-phase2` after the HTML Phase 1 main-sync commit is on `main`.
 - Never print or commit secret values. Secret names may appear in docs, but raw values for `ZYTE_API_KEY`, `BROWSERBASE_API_KEY`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, `R2_SECRET_ACCESS_KEY`, and `CRAWLERA_KEY` must stay out of tracked files and reports.
-- Use the local ignored credential files before asking Shubh to authenticate. `.env` contains Taxicab provider/R2/Zyte material, and `.env.aws` contains AWS CLI-style session variables. Load them into process environment without echoing values; ask for auth only if the files are missing or a safe command proves the session is expired.
+- Use the local ignored credential files before asking Shubh to authenticate. `.env` contains Taxicab provider/R2/Zyte material, and ignored `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env` contains `BROWSERBASE_API_KEY`; `BROWSERBASE_PROJECT_ID` is optional for the current REST session path. Load credentials into process environment without echoing values.
+- AWS CLI/default `.env.aws` session credentials were last verified expired. AWS is not needed for the immediate no-storage evidence loop; when ECS, CloudWatch, Secrets Manager, or SSM discovery is needed, refresh auth with `aws login` or a complete non-expired ignored env pair.
 - Zyte remains the production retrieval core. Browserbase is evidence/recoverability unless a later, separately tested production fallback is approved.
 - Taxicab V1 reporting lives in `/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-audit` (#133). #336 is Parseland-only.
 - PDF Phase 2 gets a separate auto-ID oxjob named `taxicab-pdf`; do not mix PDF KPIs into #133's HTML target.

@@ -1,6 +1,6 @@
 # Taxicab Goal State
 
-Last updated: 2026-06-16 PDT.
+Last updated: 2026-06-17 PDT.
 
 ## Goal
 
@@ -41,46 +41,54 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `74a062c6` publishes the
-aggregate-only Wiley PDF-direct validator/provider Zyte recheck from Taxicab
-commit `9b01df6`, and the oxjobs `Check job ID uniqueness` workflow passed for
-that push. The accepted full 10K metric remains
+Current publish status: oxjobs #461 commit `4984229f` publishes the graph-first,
+minimalist PDF progress report. It is report-only and does not change the
+accepted KPI. The accepted full 10K metric remains
 `pdf-full10k-after-atlantis-3b13642` from Taxicab commit `3b13642`:
 2,383/6,293 `good_pdf` (37.87%), +2 versus the DOI.org/OSTI gate and +546
 versus denominator baseline, with 3,789 `missing_pdf_harvest`, 65
 corrupt/truncated, 4 encrypted/unreadable, 23 supplement/preview, 6
 interstitial/paywall, 0 timeout, and 0 `taxicab_error`. This is bounded
-cache/reharvest lift, not a Taxicab-main production scraping push. The latest
-Wiley no-storage Zyte recheck recovered 0/10 current corrupt/truncated rows;
-all direct PDF-byte strategies returned `empty_response`, and browser HTML
-returned HTML/interstitial/JS outcomes. The residual refresh keeps 3,910
-non-good rows across 655 clusters and 1,426 subclusters, but top-240
-`probe_next` is now 0 and `confirm_existing_branch_candidate` is 0 after ACS,
-ACM, Wiley, IOP, bioRxiv/CSHLP, and Elsevier DOI.org moved out of route
-promotion. Current phase: choose a non-route provider/gold/validator lane before
-any Taxicab main push.
+cache/reharvest lift, not a Taxicab-main production scraping push. Earlier
+oxjobs commit `74a062c6` publishes the aggregate-only Wiley PDF-direct
+validator/provider Zyte recheck from Taxicab commit `9b01df6`; it recovered
+0/10 current corrupt/truncated rows, all direct PDF-byte strategies returned
+`empty_response`, and browser HTML returned HTML/interstitial/JS outcomes. The
+residual refresh keeps 3,910 non-good rows across 655 clusters and 1,426
+subclusters, but top-240 `probe_next` is now 0 and
+`confirm_existing_branch_candidate` is 0 after ACS, ACM, Wiley, IOP,
+bioRxiv/CSHLP, and Elsevier DOI.org moved out of route promotion. Current
+phase: choose a non-route provider/gold/validator lane before any Taxicab main
+push.
 Do not
 promote SAGE, Wiley, ACS, IOP, Elsevier DOI.org, rank-39 DOI.org, ACM,
 bioRxiv/CSHLP, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass,
 CCCC, Atlantis Press, IWA/AMPP/Sage Knowledge/RSNA/AJOG/Elgar, or broad
 Elsevier article-PDF lanes without a narrower or provider-advised recipe. Do
 not push Taxicab main before the full PDF 95% proof.
-Current handoff override: the top-level accepted metric is
-`pdf-full10k-after-atlantis-3b13642`, 2,383/6,293 `good_pdf` (37.87%), with a
-3,596-row gap to 95%. Latest oxjobs #461 commit `74a062c6` publishes the
-aggregate-only Wiley PDF-direct validator/provider Zyte recheck from Taxicab
-commit `9b01df6`: 0/10 recovered, all direct PDF-byte strategies returned
-`empty_response`, browser HTML returned HTML/interstitial/JS outcomes, no
-Taxicab POST/R2/DynamoDB writes, no production behavior change, and no accepted
-KPI change. Browserbase cannot run until `BROWSERBASE_API_KEY` /
-`BROWSERBASE_PROJECT_ID` are available. Top-240 `probe_next` remains 0, and
-`confirm_existing_branch_candidate` remains 0. Next Gate 21.999gb is choosing a
-non-route provider/gold/validator lane from the residual queue.
+Current handoff override: `/goal` is active for PDF Phase 2. The top-level
+accepted metric is `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293
+`good_pdf` (37.87%), with a 3,596-row gap to 95%. Latest oxjobs #461 commit
+`4984229f` publishes the graph-first report and does not change the KPI.
+Earlier oxjobs commit `74a062c6` remains the Wiley PDF-direct
+validator/provider Zyte recheck from Taxicab commit `9b01df6`: 0/10 recovered,
+all direct PDF-byte strategies returned `empty_response`, browser HTML returned
+HTML/interstitial/JS outcomes, no Taxicab POST/R2/DynamoDB writes, no
+production behavior change, and no accepted KPI change. Browserbase can run for
+evidence/gold collection using `BROWSERBASE_API_KEY` from ignored
+`/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env`;
+`BROWSERBASE_PROJECT_ID` is optional for the current REST session path.
+Browserbase verdicts stay separate from Taxicab baseline categories. AWS
+CLI/default `.env.aws` session credentials are expired; AWS is not required for
+the immediate no-storage Zyte/Browserbase evidence loop. Top-240 `probe_next`
+remains 0, and `confirm_existing_branch_candidate` remains 0. Next Gate
+21.999fz is choosing a non-route provider/gold/validator lane from the residual
+queue.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-atlantis-biorxiv-demote --sample-size 5 --top-n 240
+python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-gate-21-999fz-next-lane --sample-size 5 --top-n 240
 python3 - <<'PY'
 import json
 from pathlib import Path

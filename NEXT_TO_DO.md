@@ -1,6 +1,6 @@
 # Taxicab next work for Codex and Claude
 
-Last updated: 2026-06-16 PDT.
+Last updated: 2026-06-17 PDT.
 
 This file is the handoff contract for Taxicab retrieval-quality work. Read it
 before doing new work. Keep it current before ending a long session. For the
@@ -11,41 +11,33 @@ expanded operational context.
 
 ```text
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
+PDF Phase 2 /goal: active, target >=95% good_pdf on pdf_expected_total.
+
 Current handoff override: accepted full 10K PDF gate
 `pdf-full10k-after-atlantis-3b13642` at Taxicab commit `3b13642` is
 2,383/6,293 `good_pdf` (37.87%), +2 versus the DOI.org/OSTI gate and +546
 versus denominator baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `74a062c6`
-publishes the aggregate-only Wiley PDF-direct validator/provider Zyte recheck
-from Taxicab commit `9b01df6`, and the oxjobs `Check job ID uniqueness`
-workflow passed for that push. It keeps the accepted KPI unchanged:
-no-storage Zyte strategies recovered 0/10 current corrupt/truncated rows; all
-direct PDF-byte strategies returned `empty_response`, and browser HTML returned
-HTML/interstitial/JS outcomes. ACS/ACM/Wiley/IOP/bioRxiv PDF route families and
-Elsevier DOI.org are now provider-lane, gold-first, or do-not-duplicate until a
+`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `4984229f`
+publishes the graph-first minimalist report; it is report-only and does not
+change the accepted KPI. Earlier oxjobs commit `74a062c6` publishes the
+aggregate-only Wiley PDF-direct validator/provider Zyte recheck from Taxicab
+commit `9b01df6`: 0/10 recovered, no Taxicab POST/R2/DynamoDB writes, no
+production behavior change, and no accepted KPI change.
+
+Browserbase credential state: `BROWSERBASE_API_KEY` exists in ignored
+`/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env`;
+`BROWSERBASE_PROJECT_ID` is optional for the current REST session path.
+Browserbase is evidence/gold only and must not overwrite Taxicab baseline
+categories. AWS state: default AWS CLI and `.env.aws` session credentials are
+expired, but AWS is not required for the immediate no-storage Zyte/Browserbase
+evidence loop.
+
+Current lane state: ACS/ACM/Wiley/IOP/bioRxiv PDF route families and Elsevier
+DOI.org are provider-lane, gold-first, or do-not-duplicate until a
 narrow/provider-advised recipe exists. Top-240 `probe_next` remains 0, and
-`confirm_existing_branch_candidate` remains 0. This
-is planning/evidence work only, not a Taxicab-main production scraping-code
-lift.
-Gate note: no Taxicab main push.
-
-Latest report publish: oxjobs #461 commit `74a062c6` publishes the Wiley
-PDF-direct validator/provider Zyte recheck and keeps the accepted metric at
-`pdf-full10k-after-atlantis-3b13642` (2,383/6,293 `good_pdf`, 37.87%). The
-refresh supersedes the stale rank61/Atlantis lane queue and leaves no top-240
-`probe_next` or `confirm_existing_branch_candidate` lane; next work is choosing
-a non-route provider/gold/validator residual lane.
-
-Latest local validations: Browserbase PDF evidence mode is fixed at Taxicab
-commit `bdcc38a` for download-start navigation errors. Residual clustering from
-the accepted rank61 full gate found ACM as the strongest current branch
-candidate. Earlier validations remain: supplement validator recovered +70 at
-full-gate scale; DOI.org/OSTI recovered +2 at full-gate scale; SAGE
-landing-page rewrite regressed preservation rows; Wiley, ACS, and Elsevier
-DOI.org residual probes do not currently justify promotion. Row-level evidence
-stays local; summary/report artifacts are aggregate-only.
+`confirm_existing_branch_candidate` remains 0.
 
 Next exact action: choose a non-route provider/gold/validator residual lane.
 Do not promote SAGE, Wiley, ACS, IOP, bioRxiv/CSHLP, Elsevier DOI.org,
@@ -53,7 +45,9 @@ rank-39 DOI.org, ACM, IngentaConnect, ICE Virtual Library, Ecologica, the
 closed top-five Browserbase sample, ASTM Compass, CCCC, Atlantis Press,
 IWA/AMPP/Sage Knowledge/RSNA/AJOG/Elgar, broad Elsevier article-PDF lanes,
 Wiley PDF-direct, or any new lane without a narrower or provider-advised
-recipe. Do not run another duplicate fresh-tail loop.
+recipe. Do not run another duplicate fresh-tail loop. Do not push Taxicab main
+before full PDF 95% proof.
+
 Historical sections below may use "current" relative to older gates; this top
 block is authoritative.
 ```
@@ -62,7 +56,7 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-atlantis-biorxiv-demote --sample-size 5 --top-n 240
+python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-gate-21-999fz-next-lane --sample-size 5 --top-n 240
 python3 - <<'PY'
 import json
 from pathlib import Path
