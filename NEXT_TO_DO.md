@@ -54,6 +54,10 @@ Springer no-storage recipe probe
 `springer-network-capture-probe3b-56d2c2c` recovered 0/3 `good_pdf`
 (two target-site 429s, one unresolved JS redirect), so it is provider/support
 evidence only and does not justify Taxicab route code.
+Follow-up `degruyter-network-capture-probe3-d178c76` tested a broader `pdf`
+network-capture token against three current De Gruyter Brill
+`/document/doi/.../pdf` rows and recovered 0/3 `good_pdf`; all three returned
+405 text/html captcha evidence. This is also provider/support evidence only.
 The AHA/Lippincott one-row lane
 `www.ahajournals.org:/doi/pdf/:doi/:id` recovered 0/1 through Zyte no-storage
 provider probing and 0/1 through Browserbase gold evidence; Browserbase reached

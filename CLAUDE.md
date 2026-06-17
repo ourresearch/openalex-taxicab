@@ -85,7 +85,14 @@ tested the official Zyte browser `networkCapture` shape as a no-storage recipe
 against 3 Springer `link.springer.com/content/pdf` rows. It recovered 0/3
 `good_pdf`: two rows returned target-site 429 rate-limit errors and one row
 returned HTML with an unresolved JS redirect. This is provider/support evidence
-only, not a Taxicab route-code candidate.
+only, not a Taxicab route-code candidate. Follow-up
+`degruyter-network-capture-probe3-d178c76` tested a broader `pdf` network
+capture token against 3 De Gruyter Brill `/document/doi/.../pdf` rows and
+recovered 0/3; every row returned 405 text/html captcha evidence. This is also
+provider/support evidence only. The private ignored-local Zyte ticket packet
+was regenerated after these probes with
+`python3 scripts/build_pdf_provider_ticket.py --run-id zyte-provider-ticket-after-osti-plos-ee9001b --top-lanes 25 --samples-per-lane 3`;
+keep the raw packet out of git and oxjobs.
 
 Next action: use
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`
