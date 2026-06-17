@@ -15,15 +15,16 @@ baseline of 1,837/6,293 (29.19%). The run has 3,789 `missing_pdf_harvest`, 65
 `taxicab_error`. The gap to 95% is 3,596 rows. This is a bounded
 cache/reharvest lift, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `01be98e` publishes the Transcript
-Verlag preview-provider confirmation; prior commit `10ec3eeb` publishes the
-unknown-attribution DOI.org numeric JS-redirect gold check, `03560e2a`
-publishes the unknown-attribution DOI.org JS-redirect duo gold check,
-`1727a6ac` publishes the BCSJ/Oxford Academic DOI.org JS-redirect gold check,
-`5c29deb5` publishes the AAAS Science.org gold check, `0e59e67f` publishes the
-PeerJ branch evidence, and `4984229f` made the PDF report graph-first and
-minimalist. These are evidence/reporting updates only and do not change the
-accepted KPI. The current accepted metric remains
+Latest #461 report publish: oxjobs commit `1cba3fc` publishes the AAP
+Pediatrics provider/gold check; prior `01be98e` publishes the Transcript Verlag
+preview-provider confirmation, `10ec3eeb` publishes the unknown-attribution
+DOI.org numeric JS-redirect gold check, `03560e2a` publishes the
+unknown-attribution DOI.org JS-redirect duo gold check, `1727a6ac` publishes the
+BCSJ/Oxford Academic DOI.org JS-redirect gold check, `5c29deb5` publishes the
+AAAS Science.org gold check, `0e59e67f` publishes the PeerJ branch evidence, and
+`4984229f` made the PDF report graph-first and minimalist. These are
+evidence/reporting updates only and do not change the accepted KPI. The current
+accepted metric remains
 `pdf-full10k-after-atlantis-3b13642`: 2,383/6,293 `good_pdf` (37.87%), +2 rows
 versus the DOI.org/OSTI gate, +546 rows versus denominator baseline, and a
 3,596-row gap to 95%. The AHA/Lippincott one-row lane
@@ -45,9 +46,10 @@ narrower/provider-advised recipe. Top-240 `probe_next` remains 0 and
 aggregate-only; raw rows stay local.
 
 Latest local validations: Atlantis Press is complete at Taxicab commit
-`3b13642`; prior-evidence mapping is complete through `ba5c3a6`; oxjobs #461
-latest publish is `01be98e`; latest Taxicab branch evidence commit before
-this update is `1587acb`. Browserbase PDF evidence mode remains fixed at
+`3b13642`; prior-evidence mapping is complete through the AAP Pediatrics
+queue-hygiene update in this working tree; oxjobs #461 latest publish is
+`1cba3fc`; latest Taxicab branch evidence commit before this update is
+`9399eb7`. Browserbase PDF evidence mode remains fixed at
 Taxicab commit `bdcc38a` to survive download-start navigation errors and
 capture started/not-captured download evidence. `BROWSERBASE_API_KEY` exists in
 ignored `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env`;
@@ -61,9 +63,11 @@ regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
 do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
-Next action: choose the next non-route provider/gold/validator lane; the
-AHA/Lippincott and Elsevier DOI.org lanes are now closed as negative evidence
-for current purposes. PeerJ branch commit `bf1632f` adds a narrow
+Next action: publish residual refresh `residual-clusters-after-aappediatrics-9399eb7`
+to oxjobs #461, then choose the next non-duplicate provider/gold/validator
+lane. AAP Pediatrics is now closed as negative provider/gold evidence;
+AHA/Lippincott and Elsevier DOI.org lanes are closed as negative evidence for
+current purposes. PeerJ branch commit `bf1632f` adds a narrow
 `peerj.com/articles/*.pdf` PDF-byte strategy; branch replay recovered 1/1
 current PeerJ `html_instead_of_pdf` residual, preserved 1/1 already-good PeerJ
 row with 0 regressions, and did not recover the remaining PeerJ
@@ -92,6 +96,17 @@ PDF-byte strategies stayed `supplement_or_preview_pdf`, browser HTML returned
 `html_instead_of_pdf`, and oxjobs #461 commit `01be98e` publishes the
 aggregate-only public summary at
 `working/taxicab-pdf/evidence/report461-transcript-preview-provider-probe4-summary-1587acb.json`.
+AAP Pediatrics provider/gold check at Taxicab branch commit `9399eb7` recovered
+0/1 through Zyte and 0/1 through Browserbase; direct PDF-byte strategies stayed
+`js_redirect_unresolved`, Zyte browser HTML reached `interstitial_or_paywall`,
+and Browserbase ended `html_not_pdf` on aggregate AAP article-abstract host
+evidence. Oxjobs #461 commit `1cba3fc` publishes the aggregate-only public
+summary at
+`working/taxicab-pdf/evidence/report461-aappediatrics-htmlpdf-gold-summary-9399eb7.json`.
+Local residual refresh `residual-clusters-after-aappediatrics-9399eb7` moves
+AAP to `provider_lane_do_not_duplicate`; top-240 priority bands are 208
+provider-lane/do-not-duplicate, 23 Browserbase/Zyte-gold-first, 8
+validator/provider, and 1 inspect-first.
 Browserbase can be used for evidence/gold
 collection from the ignored Parseland eval env, but must not overwrite the
 Taxicab baseline verdict. Keep Browserbase as evidence/gold only, Zyte as the
@@ -102,8 +117,8 @@ not required for the immediate no-storage Zyte/Browserbase evidence loop.
 Next exact command:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category html_instead_of_pdf --host pediatrics.aappublications.org --limit 1 --strategies all --out pdf_eval_runs/ --run-id aappediatrics-htmlpdf-provider-probe1-1587acb --timeout 90 --sleep 0.5
+cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
+python3 scripts/publish-report.py 461
 ```
 
 Historical detail below is chronological and may use "current" relative to the

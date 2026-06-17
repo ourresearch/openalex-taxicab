@@ -154,6 +154,7 @@ PRIOR_PROVIDER_HOSTS = {
     "opg.optica.org",
     "onlinelibrary.wiley.com",
     "papers.ssrn.com",
+    "pediatrics.aappublications.org",
     "persee.fr",
     "pdcnet.org",
     "pdf.sciencedirectassets.com",
@@ -165,6 +166,7 @@ PRIOR_PROVIDER_HOSTS = {
     "pubs.aip.org",
     "pubs.rsc.org",
     "publications.aaahq.org",
+    "publications.aap.org",
     "pubs.nctm.org",
     "rupress.org",
     "sciencedirect.com",
@@ -408,6 +410,16 @@ def subcluster_priority(category: str, publisher: str, host: str, pattern: str) 
             "prior_negative_or_support_evidence",
             "provider_lane_do_not_duplicate",
             "Use existing Elsevier/ScienceDirect provider evidence or wait for provider guidance before route code; only rerun if testing a new provider-advised recipe.",
+        )
+
+    if (
+        category in {"html_instead_of_pdf", "js_redirect_unresolved", "interstitial_or_paywall", "bot_block_403"}
+        and _host_has_prior_provider_evidence(normalized_host)
+    ):
+        return (
+            "prior_negative_or_support_evidence",
+            "provider_lane_do_not_duplicate",
+            "Use existing provider/Zyte packet evidence or wait for provider guidance before route code; only rerun if testing a new provider-advised recipe.",
         )
 
     if category in {"html_instead_of_pdf", "js_redirect_unresolved", "interstitial_or_paywall", "bot_block_403"}:

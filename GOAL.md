@@ -78,8 +78,9 @@ not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
 accepted metric is `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293
 `good_pdf` (37.87%), with a 3,596-row gap to 95%. Latest oxjobs #461 commit
-`01be98e` publishes the Transcript Verlag preview-provider confirmation;
-prior `10ec3eeb` publishes the unknown-attribution DOI.org numeric JS-redirect
+`1cba3fc` publishes the AAP Pediatrics provider/gold check; prior `01be98e`
+publishes the Transcript Verlag preview-provider confirmation; prior
+`10ec3eeb` publishes the unknown-attribution DOI.org numeric JS-redirect
 gold check; prior `03560e2a` publishes the unknown-attribution DOI.org
 JS-redirect duo gold check; prior `1727a6ac` publishes the BCSJ/Oxford Academic
 DOI.org JS-redirect gold check; prior `5c29deb5` publishes the AAAS Science.org gold
@@ -131,6 +132,14 @@ PDF-byte strategies stay `supplement_or_preview_pdf`, and browser HTML returns
 public summary at
 `working/taxicab-pdf/evidence/report461-transcript-preview-provider-probe4-summary-1587acb.json`.
 This is candidate-quality/provider evidence only, not route-code evidence.
+AAP Pediatrics provider/gold check at Taxicab branch commit `9399eb7` recovers
+0/1 through Zyte no-storage strategies and 0/1 through Browserbase; direct
+PDF-byte strategies stay `js_redirect_unresolved`, Zyte browser HTML reaches
+`interstitial_or_paywall`, and Browserbase ends `html_not_pdf` on aggregate AAP
+article-abstract host evidence. Oxjobs #461 commit `1cba3fc` publishes the
+scrubbed public summary at
+`working/taxicab-pdf/evidence/report461-aappediatrics-htmlpdf-gold-summary-9399eb7.json`.
+This is provider/access-flow evidence only, not route-code evidence.
 Browserbase can run for
 evidence/gold collection using `BROWSERBASE_API_KEY` from ignored
 `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env`;
@@ -147,13 +156,18 @@ as negative provider/gold evidence; Gate 21.999ge closed the unknown DOI.org
 JS-redirect duo as negative provider/gold evidence; Gate 21.999gf closed the
 unknown DOI.org numeric JS-redirect lane as negative provider/gold evidence;
 Gate 21.999gg closed Transcript Verlag preview URLs as candidate-quality
-provider evidence; next Gate 21.999gh is the AAP Pediatrics one-row provider
-probe.
+provider evidence; Gate 21.999gh closed AAP Pediatrics as negative
+provider/gold evidence; Gate 21.999gi updates residual prior-evidence mapping
+so AAP moves to `provider_lane_do_not_duplicate`. Local residual refresh
+`residual-clusters-after-aappediatrics-9399eb7` has top-240 priority bands:
+208 provider-lane/do-not-duplicate, 23 Browserbase/Zyte-gold-first, 8
+validator/provider, and 1 inspect-first. Next publish that residual refresh to
+oxjobs #461.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category html_instead_of_pdf --host pediatrics.aappublications.org --limit 1 --strategies all --out pdf_eval_runs/ --run-id aappediatrics-htmlpdf-provider-probe1-1587acb --timeout 90 --sleep 0.5
+cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
+python3 scripts/publish-report.py 461
 
 After Gate 0 is pushed:
 

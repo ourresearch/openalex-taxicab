@@ -19,10 +19,11 @@ Current handoff override: accepted full 10K PDF gate
 versus denominator baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `01be98e`
-publishes the Transcript Verlag preview-provider confirmation; prior
-`10ec3eeb` publishes the unknown-attribution DOI.org numeric JS-redirect gold
-check; prior `03560e2a` publishes the unknown-attribution DOI.org JS-redirect
+`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `1cba3fc`
+publishes the AAP Pediatrics provider/gold check; prior `01be98e` publishes the
+Transcript Verlag preview-provider confirmation; prior `10ec3eeb` publishes the
+unknown-attribution DOI.org numeric JS-redirect gold check; prior `03560e2a`
+publishes the unknown-attribution DOI.org JS-redirect
 duo gold check; prior `1727a6ac` publishes the BCSJ/Oxford Academic DOI.org
 JS-redirect gold check; prior `5c29deb5` publishes the AAAS Science.org gold
 check; prior `0e59e67f`
@@ -65,6 +66,12 @@ from Taxicab commit `1587acb`: Zyte recovered 0/4 current
 `supplement_or_preview_pdf`, and browser HTML returned `html_instead_of_pdf`.
 Public summary:
 `working/taxicab-pdf/evidence/report461-transcript-preview-provider-probe4-summary-1587acb.json`.
+Oxjobs commit `1cba3fc` records AAP Pediatrics provider/gold evidence from
+Taxicab branch commit `9399eb7`: Zyte recovered 0/1, direct PDF-byte strategies
+stayed `js_redirect_unresolved`, Zyte browser HTML reached
+`interstitial_or_paywall`, Browserbase recovered 0/1, and Browserbase ended
+`html_not_pdf` on aggregate AAP article-abstract host evidence. Public summary:
+`working/taxicab-pdf/evidence/report461-aappediatrics-htmlpdf-gold-summary-9399eb7.json`.
 Earlier oxjobs commit
 `74a062c6` publishes the aggregate-only
 Wiley PDF-direct validator/provider Zyte recheck from Taxicab commit `9b01df6`:
@@ -82,17 +89,22 @@ evidence loop.
 Current lane state: ACS/ACM/Wiley/IOP/bioRxiv PDF route families, Elsevier
 DOI.org, AHA/Lippincott, AAAS, BCSJ/Oxford, and the unknown DOI.org
 JS-redirect duo plus numeric JS-redirect lane, and Transcript Verlag preview
-URLs are provider-lane, gold-first, validator, or do-not-duplicate until a
-narrow/provider-advised recipe exists. Top-240
-`probe_next` remains 0, and `confirm_existing_branch_candidate` remains 0.
+URLs, and AAP Pediatrics are provider-lane, gold-first, validator, or
+do-not-duplicate until a narrow/provider-advised recipe exists. Local residual
+refresh `residual-clusters-after-aappediatrics-9399eb7` moves AAP to
+`provider_lane_do_not_duplicate`; top-240 priority bands are 208
+provider-lane/do-not-duplicate, 23 Browserbase/Zyte-gold-first, 8
+validator/provider, and 1 inspect-first. Top-240 `probe_next` remains 0, and
+`confirm_existing_branch_candidate` remains 0.
 
-Next exact action: run the one-row AAP Pediatrics no-storage provider probe.
+Next exact action: publish the AAP residual priority-map refresh to oxjobs #461.
 AHA/Lippincott and Elsevier DOI.org are closed as negative gold evidence for
 now; PeerJ is closed as branch-only evidence until full-gate proof exists; AAAS,
 BCSJ/Oxford, the unknown DOI.org JS-redirect duo, and the unknown DOI.org
 numeric JS-redirect lane are closed as negative provider/gold evidence.
 Transcript Verlag preview URLs are closed as candidate-quality/provider
-evidence. Do not duplicate those lanes unless a provider-advised recipe appears.
+evidence, and AAP Pediatrics is closed as negative provider/gold evidence. Do
+not duplicate those lanes unless a provider-advised recipe appears.
 Do not promote SAGE, Wiley, ACS, IOP, bioRxiv/CSHLP, Elsevier DOI.org,
 rank-39 DOI.org, ACM, IngentaConnect, ICE Virtual Library, Ecologica, the
 closed top-five Browserbase sample, ASTM Compass, CCCC, Atlantis Press,
@@ -108,8 +120,8 @@ block is authoritative.
 Next exact command:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category html_instead_of_pdf --host pediatrics.aappublications.org --limit 1 --strategies all --out pdf_eval_runs/ --run-id aappediatrics-htmlpdf-provider-probe1-1587acb --timeout 90 --sleep 0.5
+cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
+python3 scripts/publish-report.py 461
 ```
 
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
