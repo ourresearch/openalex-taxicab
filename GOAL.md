@@ -41,12 +41,11 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `01be98e` publishes the Transcript
-Verlag preview-provider confirmation; prior commit `10ec3eeb` publishes the
-unknown-attribution DOI.org numeric JS-redirect gold check, `03560e2a`
-publishes the unknown-attribution DOI.org JS-redirect duo gold check, and
-`4984229f` publishes the graph-first minimalist PDF progress report. These are
-evidence/reporting-only updates and do not change the accepted KPI. The
+Current publish status: oxjobs #461 commit `3c125878f` publishes the Elsevier
+DOI.org residual-priority correction and refreshed queue; prior `77d71e78f`
+publishes the AMS negative provider/gold evidence and residual refresh, and
+prior `386f5fa73` publishes the ASM/JVI mixed provider evidence and residual
+refresh. These are evidence/reporting-only updates and do not change the accepted KPI. The
 accepted full 10K metric remains
 `pdf-full10k-after-atlantis-3b13642` from Taxicab commit `3b13642`:
 2,383/6,293 `good_pdf` (37.87%), +2 versus the DOI.org/OSTI gate and +546
@@ -78,8 +77,9 @@ not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
 accepted metric is `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293
 `good_pdf` (37.87%), with a 3,596-row gap to 95%. Latest oxjobs #461 commit
-`77d71e78f` publishes the aggregate-only AMS negative provider/gold evidence
-and residual priority-map refresh; prior `386f5fa73` publishes the
+`3c125878f` publishes the aggregate-only Elsevier DOI.org residual-priority
+correction and refreshed queue; prior `77d71e78f` publishes the aggregate-only
+AMS negative provider/gold evidence and residual priority-map refresh; prior `386f5fa73` publishes the
 aggregate-only ASM/JVI mixed provider evidence and residual priority-map
 refresh; prior
 `d054e3d` publishes the aggregate-only AAP residual priority-map refresh; prior
@@ -188,8 +188,9 @@ priority order for Elsevier DOI.org: the 15-row Elsevier DOI.org
 instead of the generic DOI resolver gold-first rule. Residual refresh
 `residual-clusters-after-elsevier-doi-demote-2f627f4` has top-240 subcluster
 entry bands 217 provider-lane/do-not-duplicate, 19 Browserbase/Zyte-gold-first,
-and 4 validator/provider. The Elsevier DOI.org oxjobs public report update is
-the next reporting slice.
+and 4 validator/provider. Oxjobs #461 commit `3c125878f` publishes the
+aggregate-only Elsevier DOI.org residual-priority correction and refreshed
+queue. Next choose a non-duplicate lane after explicit prior-evidence review.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:

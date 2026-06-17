@@ -19,9 +19,10 @@ Current handoff override: accepted full 10K PDF gate
 versus denominator baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `77d71e78f`
-publishes the aggregate-only AMS negative provider/gold evidence and residual
-priority-map refresh; prior `386f5fa73` publishes the aggregate-only ASM/JVI
+`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `3c125878f`
+publishes the aggregate-only Elsevier DOI.org residual-priority correction and
+refreshed residual queue; prior `77d71e78f` publishes the aggregate-only AMS
+negative provider/gold evidence and residual priority-map refresh; prior `386f5fa73` publishes the aggregate-only ASM/JVI
 mixed provider evidence and residual priority-map refresh; prior `d054e3d`
 publishes the aggregate-only AAP residual
 priority-map refresh; prior
@@ -109,6 +110,8 @@ subcluster-entry priority bands are 217 provider-lane/do-not-duplicate, 19
 Browserbase/Zyte-gold-first, and 4 validator/provider. Top-240 `probe_next`
 remains 0, and
 `confirm_existing_branch_candidate` remains 0.
+Oxjobs #461 commit `3c125878f` publishes the aggregate-only Elsevier DOI.org
+residual-priority correction and refreshed queue.
 
 Next exact action: choose the next non-duplicate provider/gold/validator lane
 from the Elsevier-DOI-demoted residual queue after explicit prior-evidence
