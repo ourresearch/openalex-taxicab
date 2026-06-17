@@ -78,6 +78,8 @@ not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
 accepted metric is `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293
 `good_pdf` (37.87%), with a 3,596-row gap to 95%. Latest oxjobs #461 commit
+`386f5fa73` publishes the aggregate-only ASM/JVI mixed provider evidence and
+residual priority-map refresh; prior
 `d054e3d` publishes the aggregate-only AAP residual priority-map refresh; prior
 `1cba3fc` publishes the AAP Pediatrics provider/gold check; prior `01be98e`
 publishes the Transcript Verlag preview-provider confirmation; prior
@@ -163,8 +165,14 @@ so AAP moves to `provider_lane_do_not_duplicate`. Local residual refresh
 `residual-clusters-after-aappediatrics-9399eb7` has top-240 priority bands:
 208 provider-lane/do-not-duplicate, 23 Browserbase/Zyte-gold-first, 8
 validator/provider, and 1 inspect-first. Oxjobs #461 commit `d054e3d`
-publishes that refresh. Next choose a non-duplicate lane after explicit
-prior-evidence review.
+publishes that refresh. Gate 21.999gj closes ASM/JVI as mixed provider
+evidence: first no-storage probe recovered 1/1 through `accept_pdf`, but the
+repeat recovered 0/1 with empty PDF-byte responses and browser HTML. No route
+code was promoted. Gate 21.999gk updates residual prior-evidence mapping so
+`residual-clusters-after-asm-demote-186706c` has top-240 priority bands: 215
+provider-lane/do-not-duplicate, 21 Browserbase/Zyte-gold-first, and 4
+validator/provider. Oxjobs #461 commit `386f5fa73` publishes that refresh.
+Next choose a non-duplicate lane after explicit prior-evidence review.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
