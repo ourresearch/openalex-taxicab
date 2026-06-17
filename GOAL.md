@@ -41,8 +41,9 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `e96ba4bfd` makes the aggregate
-provider-support snapshot publicly allow-listed; prior `92420e70b` publishes
+Current publish status: oxjobs #461 commit `91eafaf82` documents the provider
+recipe probe path in the #461 report, learning log, and improvement plan. Prior
+`e96ba4bfd` makes the aggregate provider-support snapshot publicly allow-listed; prior `92420e70b` publishes
 the aggregate snapshot at
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`;
 prior `08009124e` publishes the OSTI/PLOS accepted recovery, graph/report
@@ -85,6 +86,7 @@ not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
 accepted metric is `pdf-full10k-after-osti-plos-ee9001b`, 2,385/6,293
 `good_pdf` (37.90%), with a 3,594-row gap to 95%. Latest oxjobs #461 commit
+`91eafaf82` documents the provider recipe probe path, prior
 `e96ba4bfd` makes the aggregate provider-support snapshot public, prior
 `92420e70b` publishes the aggregate snapshot
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`,
@@ -214,7 +216,8 @@ Taxicab branch commit `ee9001b`; full gate
 `pdf-full10k-after-osti-plos-ee9001b` is 2,385/6,293 `good_pdf` (37.90%) with
 0 regressions, oxjobs #461 commit `92420e70b` publishes the aggregate provider
 support snapshot, and `e96ba4bfd` makes that snapshot publicly allow-listed.
-Next use `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`
+Oxjobs #461 commit `91eafaf82` documents the provider recipe probe path in the
+report. Next use `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`
 as the provider-support handoff and test only provider-advised PDF-byte recipes
 through no-storage probes before route code. Use
 `python3 scripts/provider_pdf_probe.py --recipe-file <ignored-recipe.json> --strategies <recipe_name> ...`

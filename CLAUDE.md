@@ -16,8 +16,9 @@ rows versus the Atlantis gate and +548 rows versus the denominator baseline of
 direct-PDF cache/reharvest lift plus query-preserving provider-probe harness
 correction, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `e96ba4bfd` makes the aggregate
-provider-support snapshot publicly allow-listed; prior `92420e70b` publishes
+Latest #461 report publish: oxjobs commit `91eafaf82` documents the provider
+recipe probe path in the #461 report, learning log, and improvement plan. Prior
+`e96ba4bfd` makes the aggregate provider-support snapshot publicly allow-listed; prior `92420e70b` publishes
 the aggregate snapshot at
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`;
 prior `08009124e` publishes the OSTI/PLOS accepted recovery, graph/report
@@ -59,9 +60,9 @@ Latest local validations: OSTI/PLOS query-preserving provider-probe recovery is
 complete at Taxicab branch commit `ee9001b`; Atlantis Press is complete at
 Taxicab commit `3b13642`; prior-evidence mapping is complete through the closed
 DOI.org residual-priority cleanup at Taxicab commit `1d50d45`; oxjobs #461
-latest publish is `e96ba4bfd`; latest support snapshot content commit is
-`92420e70b`; latest Taxicab branch evidence commit is
-`ee9001b`.
+latest publish is `91eafaf82`; latest support snapshot content commit is
+`92420e70b`; latest support snapshot asset commit is `e96ba4bfd`; latest
+Taxicab branch tooling commit is `2484993`.
 Browserbase PDF
 evidence mode remains fixed at
 Taxicab commit `bdcc38a` to survive download-start navigation errors and

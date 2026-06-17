@@ -19,7 +19,9 @@ Current handoff override: accepted full 10K PDF gate
 baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 4 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,594 rows. Oxjobs #461 commit `e96ba4bfd`
+`taxicab_error`. The gap to 95% is 3,594 rows. Oxjobs #461 commit `91eafaf82`
+documents the provider recipe probe path in the #461 report, learning log, and
+improvement plan; prior `e96ba4bfd`
 makes the aggregate provider-support snapshot publicly allow-listed; prior
 `92420e70b` publishes
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`;
