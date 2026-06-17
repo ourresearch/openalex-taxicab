@@ -107,12 +107,14 @@ PRIOR_PROVIDER_HOSTS = {
     "diabetesjournals.org",
     "dl.acm.org",
     "dl.begellhouse.com",
+    "downloads.hindawi.com",
     "ejso.com",
     "ecologica.cn",
     "elgaronline.com",
     "eurekaselect.com",
     "degruyterbrill.com",
     "goldjournal.net",
+    "hindawi.com",
     "hpbonline.org",
     "icevirtuallibrary.com",
     "igi-global.com",
@@ -135,6 +137,7 @@ PRIOR_PROVIDER_HOSTS = {
     "journals.sagepub.com",
     "journals.ametsoc.org",
     "journals.asm.org",
+    "jvi.asm.org",
     "journals.physiology.org",
     "jpharmsci.org",
     "jpet.aspetjournals.org",
@@ -178,6 +181,7 @@ PRIOR_PROVIDER_HOSTS = {
     "thegreenjournal.com",
     "thelancet.com",
     "thieme-connect.de",
+    "transcript-verlag.de",
     "vestnik.krsu.kg",
     "vr-elibrary.de",
     "www.ajconline.org",
@@ -210,6 +214,7 @@ PRIOR_PROVIDER_HOSTS = {
     "www.tandfonline.com",
     "www.thelancet.com",
     "www.thieme-connect.de",
+    "www.transcript-verlag.de",
     "www.vr-elibrary.de",
 }
 
@@ -394,8 +399,8 @@ def subcluster_priority(category: str, publisher: str, host: str, pattern: str) 
     if category == "missing_pdf_harvest" and _host_has_prior_gold_evidence(normalized_host):
         return (
             "prior_gold_or_manual_evidence",
-            "browserbase_or_zyte_gold_first",
-            "Use existing gold/manual evidence before starting another no-storage provider probe.",
+            "provider_lane_do_not_duplicate",
+            "Use existing gold/manual evidence; only rerun if testing a new provider-advised or manually verified recipe.",
         )
 
     if category == "missing_pdf_harvest" and _host_has_prior_provider_evidence(normalized_host):
@@ -420,6 +425,22 @@ def subcluster_priority(category: str, publisher: str, host: str, pattern: str) 
             "prior_negative_or_support_evidence",
             "provider_lane_do_not_duplicate",
             "Use existing provider/Zyte packet evidence or wait for provider guidance before route code; only rerun if testing a new provider-advised recipe.",
+        )
+
+    if (
+        category
+        in {
+            "corrupt_or_truncated_pdf",
+            "encrypted_or_unreadable_pdf",
+            "supplement_or_preview_pdf",
+            "wrong_pdf_content",
+        }
+        and _host_has_prior_provider_evidence(normalized_host)
+    ):
+        return (
+            "prior_negative_or_support_evidence",
+            "provider_lane_do_not_duplicate",
+            "Use existing provider/Zyte packet or validator evidence; only rerun if testing a new provider-advised recipe or a stricter validator hypothesis.",
         )
 
     if category in {"html_instead_of_pdf", "js_redirect_unresolved", "interstitial_or_paywall", "bot_block_403"}:

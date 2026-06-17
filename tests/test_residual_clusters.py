@@ -322,8 +322,38 @@ class ResidualClusterTests(unittest.TestCase):
         )
 
         self.assertEqual(status, "prior_gold_or_manual_evidence")
-        self.assertEqual(band, "browserbase_or_zyte_gold_first")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
         self.assertIn("gold/manual evidence", decision)
+
+    def test_subcluster_priority_demotes_prior_provider_validator_lanes(self):
+        cases = [
+            (
+                "corrupt_or_truncated_pdf",
+                "hindawi",
+                "downloads.hindawi.com",
+                "downloads.hindawi.com:/journals/cin/:num/:file.pdf",
+            ),
+            (
+                "corrupt_or_truncated_pdf",
+                "wiley",
+                "onlinelibrary.wiley.com",
+                "onlinelibrary.wiley.com:/doi/pdfdirect/:doi/:id",
+            ),
+            (
+                "supplement_or_preview_pdf",
+                "unknown",
+                "transcript-verlag.de",
+                "www.transcript-verlag.de:/chunks/media/chunk_prev/:id.pdf",
+            ),
+        ]
+
+        for category, publisher, host, pattern in cases:
+            with self.subTest(category=category, host=host):
+                status, band, decision = subcluster_priority(category, publisher, host, pattern)
+
+                self.assertEqual(status, "prior_negative_or_support_evidence")
+                self.assertEqual(band, "provider_lane_do_not_duplicate")
+                self.assertIn("provider/Zyte", decision)
 
     def test_subcluster_priority_demotes_biorxiv_pdf_routes(self):
         status, band, decision = subcluster_priority(
@@ -367,6 +397,18 @@ class ResidualClusterTests(unittest.TestCase):
             "iop",
             "iopscience.iop.org",
             "iopscience.iop.org:/article/:doi/:id/pdf",
+        )
+
+        self.assertEqual(status, "prior_negative_or_support_evidence")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
+        self.assertIn("provider/Zyte", decision)
+
+    def test_subcluster_priority_demotes_asm_jvi_mixed_provider_evidence(self):
+        status, band, decision = subcluster_priority(
+            "js_redirect_unresolved",
+            "asm",
+            "jvi.asm.org",
+            "jvi.asm.org:/content/jvi/:n/:n/:file.pdf",
         )
 
         self.assertEqual(status, "prior_negative_or_support_evidence")
