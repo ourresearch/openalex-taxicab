@@ -15,8 +15,10 @@ baseline of 1,837/6,293 (29.19%). The run has 3,789 `missing_pdf_harvest`, 65
 `taxicab_error`. The gap to 95% is 3,596 rows. This is a bounded
 cache/reharvest lift, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `386f5fa73` publishes the ASM/JVI
-mixed provider evidence and residual priority-map refresh; prior `d054e3d`
+Latest #461 report publish: oxjobs commit `77d71e78f` publishes the AMS
+negative provider/gold evidence and AMS-demoted residual priority-map refresh;
+prior `386f5fa73` publishes the ASM/JVI mixed provider evidence and residual
+priority-map refresh; prior `d054e3d`
 publishes the AAP residual priority-map refresh; prior `1cba3fc` publishes the AAP Pediatrics
 provider/gold check, `01be98e` publishes the Transcript Verlag
 preview-provider confirmation, `10ec3eeb` publishes the unknown-attribution
@@ -48,9 +50,10 @@ narrower/provider-advised recipe. Top-240 `probe_next` remains 0 and
 aggregate-only; raw rows stay local.
 
 Latest local validations: Atlantis Press is complete at Taxicab commit
-`3b13642`; prior-evidence mapping is complete through the mixed provider lane
-update at Taxicab commit `186706c`; oxjobs #461 latest publish is
-`386f5fa73`; latest Taxicab branch evidence commit is `186706c`. Browserbase PDF
+`3b13642`; prior-evidence mapping is complete through the AMS negative
+provider/gold lane update at Taxicab commit `06df138`; oxjobs #461 latest
+publish is `77d71e78f`; latest Taxicab branch evidence commit is `06df138`.
+Browserbase PDF
 evidence mode remains fixed at
 Taxicab commit `bdcc38a` to survive download-start navigation errors and
 capture started/not-captured download evidence. `BROWSERBASE_API_KEY` exists in
@@ -113,9 +116,8 @@ Local residual refresh `residual-clusters-after-ams-demote-9e3bbba` moves AMS,
 mixed ASM/JVI evidence, plus prior validator/gold lanes to do-not-duplicate
 where appropriate; top-240 subcluster-entry priority bands are 216
 provider-lane/do-not-duplicate, 20 Browserbase/Zyte-gold-first, and 4
-validator/provider. Oxjobs #461 commit `386f5fa73` publishes the prior
-aggregate-only ASM/JVI residual refresh; the AMS public report update is the
-next oxjobs slice.
+validator/provider. Oxjobs #461 commit `77d71e78f` publishes the aggregate-only
+AMS evidence and residual refresh.
 Browserbase can be used for evidence/gold
 collection from the ignored Parseland eval env, but must not overwrite the
 Taxicab baseline verdict. Keep Browserbase as evidence/gold only, Zyte as the

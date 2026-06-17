@@ -19,9 +19,11 @@ Current handoff override: accepted full 10K PDF gate
 versus denominator baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `386f5fa73`
-publishes the aggregate-only ASM/JVI mixed provider evidence and residual
-priority-map refresh; prior `d054e3d` publishes the aggregate-only AAP residual
+`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `77d71e78f`
+publishes the aggregate-only AMS negative provider/gold evidence and residual
+priority-map refresh; prior `386f5fa73` publishes the aggregate-only ASM/JVI
+mixed provider evidence and residual priority-map refresh; prior `d054e3d`
+publishes the aggregate-only AAP residual
 priority-map refresh; prior
 `1cba3fc` publishes the AAP Pediatrics provider/gold check; prior `01be98e`
 publishes the Transcript Verlag preview-provider confirmation; prior `10ec3eeb` publishes the

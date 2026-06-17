@@ -78,8 +78,10 @@ not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
 accepted metric is `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293
 `good_pdf` (37.87%), with a 3,596-row gap to 95%. Latest oxjobs #461 commit
-`386f5fa73` publishes the aggregate-only ASM/JVI mixed provider evidence and
-residual priority-map refresh; prior
+`77d71e78f` publishes the aggregate-only AMS negative provider/gold evidence
+and residual priority-map refresh; prior `386f5fa73` publishes the
+aggregate-only ASM/JVI mixed provider evidence and residual priority-map
+refresh; prior
 `d054e3d` publishes the aggregate-only AAP residual priority-map refresh; prior
 `1cba3fc` publishes the AAP Pediatrics provider/gold check; prior `01be98e`
 publishes the Transcript Verlag preview-provider confirmation; prior
@@ -178,9 +180,9 @@ recovered 0/1 with four 520 empty responses, Browserbase recovered 0/1 with
 occurred. Residual refresh `residual-clusters-after-ams-demote-9e3bbba` moves
 AMS to `provider_lane_do_not_duplicate`; top-240 subcluster-entry priority
 bands are 216 provider-lane/do-not-duplicate, 20 Browserbase/Zyte-gold-first,
-and 4 validator/provider. The AMS oxjobs public report update is the next
-reporting slice. Next choose a non-duplicate lane after explicit
-prior-evidence review.
+and 4 validator/provider. Oxjobs #461 commit `77d71e78f` publishes the
+aggregate-only AMS evidence and residual refresh. Next choose a non-duplicate
+lane after explicit prior-evidence review.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
