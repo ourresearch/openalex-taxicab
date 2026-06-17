@@ -76,7 +76,8 @@ not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
 accepted metric is `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293
 `good_pdf` (37.87%), with a 3,596-row gap to 95%. Latest oxjobs #461 commit
-`0e59e67f` publishes the PeerJ branch evidence; prior `0f9fcaa2` publishes the
+`5c29deb5` publishes the AAAS Science.org gold check; prior `0e59e67f`
+publishes the PeerJ branch evidence; prior `0f9fcaa2` publishes the
 current Elsevier DOI.org Browserbase recheck; prior
 `58d55a98` publishes the AHA/Lippincott summary asset, `07bc9d9f` publishes the
 AHA/Lippincott gold check, and `4984229f` publishes the graph-first report.
@@ -96,6 +97,10 @@ PeerJ branch commit `bf1632f` recovers 1/1 current PeerJ `html_instead_of_pdf`
 residual and preserves 1/1 already-good PeerJ row with 0 regressions, but the
 remaining PeerJ `missing_pdf_harvest` row does not recover. This is branch
 evidence only; no accepted KPI lift and no Taxicab main push.
+AAAS Science.org gold check at Taxicab branch commit `53d3704` recovers 0/1
+through Zyte no-storage strategies and 0/1 through Browserbase; Browserbase
+ends `html_not_pdf` on `www.science.org`. This is provider/access-flow
+evidence only, not route-code evidence.
 Browserbase can run for
 evidence/gold collection using `BROWSERBASE_API_KEY` from ignored
 `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env`;
@@ -106,8 +111,9 @@ the immediate no-storage Zyte/Browserbase evidence loop. Top-240 `probe_next`
 remains 0, and `confirm_existing_branch_candidate` remains 0. Gate 21.999fz
 closed AHA/Lippincott as negative evidence; Gate 21.999ga closed current
 Elsevier DOI.org Browserbase recheck as negative evidence; Gate 21.999gb
-validated PeerJ as branch-only evidence; next Gate 21.999gc is choosing the
-next non-route provider/gold/validator lane from the residual queue.
+validated PeerJ as branch-only evidence; Gate 21.999gc closed AAAS Science.org
+as negative provider/gold evidence; next Gate 21.999gd is choosing the next
+non-route provider/gold/validator lane from the residual queue.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:

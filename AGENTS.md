@@ -66,7 +66,10 @@ row with 0 regressions, and did not recover the remaining PeerJ
 `missing_pdf_harvest` row. Oxjobs #461 commit `0e59e67f` publishes the
 aggregate-only PeerJ evidence. This is branch evidence only, not an accepted
 KPI lift or Taxicab main push. The current branch-candidate queue is otherwise
-exhausted. Browserbase can be used for evidence/gold
+exhausted. AAAS Science.org gold check at Taxicab branch commit `53d3704`
+recovered 0/1 through Zyte and 0/1 through Browserbase; Browserbase ended
+`html_not_pdf` on `www.science.org`, and oxjobs #461 commit `5c29deb5`
+publishes the aggregate-only evidence. Browserbase can be used for evidence/gold
 collection from the ignored Parseland eval env, but must not overwrite the
 Taxicab baseline verdict. Keep Browserbase as evidence/gold only, Zyte as the
 production core, and do not push Taxicab main before the full PDF 95% proof.
