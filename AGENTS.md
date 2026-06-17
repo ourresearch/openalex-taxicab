@@ -59,8 +59,14 @@ local `rows.ndjson` files contain row-level evidence.
 
 Next action: choose the next non-route provider/gold/validator lane; the
 AHA/Lippincott and Elsevier DOI.org lanes are now closed as negative evidence
-for current purposes, and the current
-branch-candidate queue is exhausted. Browserbase can be used for evidence/gold
+for current purposes. PeerJ branch commit `bf1632f` adds a narrow
+`peerj.com/articles/*.pdf` PDF-byte strategy; branch replay recovered 1/1
+current PeerJ `html_instead_of_pdf` residual, preserved 1/1 already-good PeerJ
+row with 0 regressions, and did not recover the remaining PeerJ
+`missing_pdf_harvest` row. Oxjobs #461 commit `0e59e67f` publishes the
+aggregate-only PeerJ evidence. This is branch evidence only, not an accepted
+KPI lift or Taxicab main push. The current branch-candidate queue is otherwise
+exhausted. Browserbase can be used for evidence/gold
 collection from the ignored Parseland eval env, but must not overwrite the
 Taxicab baseline verdict. Keep Browserbase as evidence/gold only, Zyte as the
 production core, and do not push Taxicab main before the full PDF 95% proof.
@@ -71,7 +77,7 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-gate-21-999fz-next-lane --sample-size 5 --top-n 240
+python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-peerj-branch-bf1632f --sample-size 5 --top-n 240
 python3 - <<'PY'
 import json
 from pathlib import Path

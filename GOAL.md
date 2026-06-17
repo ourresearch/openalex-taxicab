@@ -76,10 +76,11 @@ not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
 accepted metric is `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293
 `good_pdf` (37.87%), with a 3,596-row gap to 95%. Latest oxjobs #461 commit
-`0f9fcaa2` publishes the current Elsevier DOI.org Browserbase recheck; prior
+`0e59e67f` publishes the PeerJ branch evidence; prior `0f9fcaa2` publishes the
+current Elsevier DOI.org Browserbase recheck; prior
 `58d55a98` publishes the AHA/Lippincott summary asset, `07bc9d9f` publishes the
 AHA/Lippincott gold check, and `4984229f` publishes the graph-first report.
-None changes the KPI.
+None changes the accepted full-gate KPI.
 Earlier oxjobs commit `74a062c6` remains the Wiley PDF-direct
 validator/provider Zyte recheck from Taxicab commit `9b01df6`: 0/10 recovered,
 all direct PDF-byte strategies returned `empty_response`, browser HTML returned
@@ -91,6 +92,10 @@ negative provider/access-flow evidence, not route-code evidence. Elsevier
 DOI.org current Browserbase recheck `elsevier-doi-browserbase-gold5-5d5d0fc`
 recovered 0/5, with four `download_started_not_captured` verdicts and one
 `html_not_pdf`; keep it as provider/gold evidence, not route-code evidence.
+PeerJ branch commit `bf1632f` recovers 1/1 current PeerJ `html_instead_of_pdf`
+residual and preserves 1/1 already-good PeerJ row with 0 regressions, but the
+remaining PeerJ `missing_pdf_harvest` row does not recover. This is branch
+evidence only; no accepted KPI lift and no Taxicab main push.
 Browserbase can run for
 evidence/gold collection using `BROWSERBASE_API_KEY` from ignored
 `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env`;
@@ -100,14 +105,14 @@ CLI/default `.env.aws` session credentials are expired; AWS is not required for
 the immediate no-storage Zyte/Browserbase evidence loop. Top-240 `probe_next`
 remains 0, and `confirm_existing_branch_candidate` remains 0. Gate 21.999fz
 closed AHA/Lippincott as negative evidence; Gate 21.999ga closed current
-Elsevier DOI.org Browserbase recheck as negative evidence; next Gate 21.999gb
-is choosing the next non-route provider/gold/validator lane from the residual
-queue.
+Elsevier DOI.org Browserbase recheck as negative evidence; Gate 21.999gb
+validated PeerJ as branch-only evidence; next Gate 21.999gc is choosing the
+next non-route provider/gold/validator lane from the residual queue.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-gate-21-999fz-next-lane --sample-size 5 --top-n 240
+python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-peerj-branch-bf1632f --sample-size 5 --top-n 240
 python3 - <<'PY'
 import json
 from pathlib import Path

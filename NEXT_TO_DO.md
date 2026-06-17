@@ -19,8 +19,9 @@ Current handoff override: accepted full 10K PDF gate
 versus denominator baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `0f9fcaa2`
-publishes the current Elsevier DOI.org Browserbase recheck; prior `58d55a98`
+`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `0e59e67f`
+publishes the PeerJ branch evidence; prior `0f9fcaa2` publishes the current
+Elsevier DOI.org Browserbase recheck; prior `58d55a98`
 publishes the scrubbed AHA/Lippincott summary asset, `07bc9d9f` publishes the
 AHA/Lippincott gold check in the report, and `4984229f` publishes the
 graph-first minimalist report. These are evidence/reporting-only updates and do
@@ -33,6 +34,11 @@ behavior changed. The current Elsevier DOI.org Browserbase recheck
 `elsevier-doi-browserbase-gold5-5d5d0fc` recovered 0/5, with four
 `download_started_not_captured` verdicts and one `html_not_pdf`; it is
 negative provider/gold evidence, not route-code evidence. Earlier oxjobs commit
+`0e59e67f` also records PeerJ branch evidence from Taxicab commit `bf1632f`:
+branch replay recovered 1/1 current PeerJ `html_instead_of_pdf` residual,
+preserved 1/1 already-good PeerJ row with 0 regressions, and did not recover
+the remaining PeerJ `missing_pdf_harvest` row. This is branch evidence only,
+not an accepted KPI lift or Taxicab main push. Earlier oxjobs commit
 `74a062c6` publishes the aggregate-only
 Wiley PDF-direct validator/provider Zyte recheck from Taxicab commit `9b01df6`:
 0/10 recovered, no Taxicab POST/R2/DynamoDB writes, no production behavior
@@ -53,7 +59,7 @@ do-not-duplicate until a narrow/provider-advised recipe exists. Top-240
 
 Next exact action: choose the next non-route provider/gold/validator residual
 lane. AHA/Lippincott and Elsevier DOI.org are closed as negative gold evidence
-for now.
+for now; PeerJ is closed as branch-only evidence until full-gate proof exists.
 Do not promote SAGE, Wiley, ACS, IOP, bioRxiv/CSHLP, Elsevier DOI.org,
 rank-39 DOI.org, ACM, IngentaConnect, ICE Virtual Library, Ecologica, the
 closed top-five Browserbase sample, ASTM Compass, CCCC, Atlantis Press,
@@ -70,7 +76,7 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-gate-21-999fz-next-lane --sample-size 5 --top-n 240
+python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-peerj-branch-bf1632f --sample-size 5 --top-n 240
 python3 - <<'PY'
 import json
 from pathlib import Path
