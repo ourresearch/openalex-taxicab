@@ -62,6 +62,7 @@ class ProbeRecord:
     publisher: str = "unknown"
     host: str = ""
     input_url: str = ""
+    fetch_url: str = ""
     candidate_url: str = ""
     candidate_source: str = ""
     baseline_category: str = ""
@@ -138,6 +139,7 @@ def record_from_row(row: dict[str, Any]) -> ProbeRecord:
         publisher=publisher,
         host=host,
         input_url=sanitize_url(input_url) or input_url,
+        fetch_url=candidate_url,
         candidate_url=sanitized_candidate,
         candidate_source=_first_value(row, ("candidate_source", "baseline_candidate_source")) or "provider_probe_input",
         baseline_category=_first_value(row, ("category", "baseline_category")),
@@ -372,7 +374,7 @@ def run_probe(args: argparse.Namespace) -> int:
     for index, record in enumerate(records, start=1):
         print(f"{index}/{len(records)} {record.doi} {record.publisher} {record.host}", flush=True)
         for strategy in strategies:
-            params = strategy_params(strategy, record.candidate_url)
+            params = strategy_params(strategy, record.fetch_url or record.candidate_url)
             status_code, content_type, body, resolved_url, error = zyte_fetch(params, timeout=args.timeout)
             row = classify_pdf_content(
                 PdfEvidence(

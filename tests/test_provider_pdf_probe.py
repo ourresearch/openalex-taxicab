@@ -78,6 +78,29 @@ class ProviderPdfProbeTests(unittest.TestCase):
             self.assertEqual(len(filtered), 1)
             self.assertEqual(filtered[0].doi, "10.1/a")
             self.assertEqual(filtered[0].candidate_url, "https://link.springer.com/content/pdf/10.1/a.pdf")
+            self.assertEqual(filtered[0].fetch_url, "https://link.springer.com/content/pdf/10.1/a.pdf?download=true")
+
+    def test_reads_query_pdf_urls_with_separate_fetch_and_artifact_urls(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "queue.csv"
+            path.write_text(
+                "doi,publisher,candidate_url\n"
+                "10.1371/journal.pone.example,plos,"
+                "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.example&type=printable\n",
+                encoding="utf-8",
+            )
+
+            records = read_input_records(path)
+
+            self.assertEqual(len(records), 1)
+            self.assertEqual(
+                records[0].candidate_url,
+                "https://journals.plos.org/plosone/article/file",
+            )
+            self.assertEqual(
+                records[0].fetch_url,
+                "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.example&type=printable",
+            )
 
     def test_limit_zero_returns_no_records(self):
         with tempfile.TemporaryDirectory() as tmp:
