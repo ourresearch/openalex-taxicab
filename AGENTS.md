@@ -96,8 +96,15 @@ Next no-storage probe `lippincott-network-capture-probe3-84b519f` recovered
 0/3 from current `journals.lww.com` rows: two unresolved JS redirects and one
 403 bot block. This also stays in provider/support; do not write Lippincott
 route code from it.
+Follow-up `oxford-network-capture-probe3-bea12c4` tested the same broad `pdf`
+network-capture token against 3 current Oxford Academic `academic.oup.com`
+rows and recovered 0/3 `good_pdf`: two rows were PDF-viewer/html shells despite
+`application/pdf` content type, and one row returned a 403 bot block. This also
+stays in provider/support; do not write Oxford route code from it.
 
-Next action: use
+Next action: run the next no-storage SSRN provider-recipe check with
+`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-osti-plos-ee9001b/rows.ndjson --category missing_pdf_harvest --publisher ssrn --host papers.ssrn.com --limit 3 --recipe-file pdf_eval_runs/zyte-recipes/network-capture-pdf-token.json --strategies browser_network_pdf_token_capture --run-id ssrn-network-capture-probe3-$(git rev-parse --short HEAD) --sleep 1`.
+Use
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`
 as the aggregate provider-support handoff, then test any provider-advised
 PDF-byte recipe through no-storage probes before route code. The probe harness
