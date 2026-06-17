@@ -14,14 +14,16 @@ HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
 PDF Phase 2 /goal: active, target >=95% good_pdf on pdf_expected_total.
 
 Current handoff override: accepted full 10K PDF gate
-`pdf-full10k-after-atlantis-3b13642` at Taxicab commit `3b13642` is
-2,383/6,293 `good_pdf` (37.87%), +2 versus the DOI.org/OSTI gate and +546
-versus denominator baseline. It has 3,789 `missing_pdf_harvest`, 65
+`pdf-full10k-after-osti-plos-ee9001b` at Taxicab branch commit `ee9001b` is
+2,385/6,293 `good_pdf` (37.90%), +2 versus Atlantis and +548 versus denominator
+baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
-`supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `5a1254630`
-publishes the aggregate-only closed DOI.org residual-priority cleanup and
-refreshed residual queue; prior `3c125878f` publishes the aggregate-only
+`supplement_or_preview_pdf`, 4 `interstitial_or_paywall`, 0 timeout, and 0
+`taxicab_error`. The gap to 95% is 3,594 rows. Oxjobs #461 commit `08009124e`
+publishes the aggregate-only OSTI/PLOS accepted recovery and refreshed residual
+queue; prior `5a1254630` publishes the aggregate-only closed DOI.org
+residual-priority cleanup and refreshed residual queue; prior `3c125878f`
+publishes the aggregate-only
 Elsevier DOI.org residual-priority correction; prior `77d71e78f` publishes the aggregate-only AMS
 negative provider/gold evidence and residual priority-map refresh; prior `386f5fa73` publishes the aggregate-only ASM/JVI
 mixed provider evidence and residual priority-map refresh; prior `d054e3d`
@@ -38,8 +40,9 @@ publishes the PeerJ branch evidence; prior `0f9fcaa2` publishes the current
 Elsevier DOI.org Browserbase recheck; prior `58d55a98`
 publishes the scrubbed AHA/Lippincott summary asset, `07bc9d9f` publishes the
 AHA/Lippincott gold check in the report, and `4984229f` publishes the
-graph-first minimalist report. These are evidence/reporting-only updates and do
-not change the accepted KPI. The AHA/Lippincott one-row lane
+graph-first minimalist report. The OSTI/PLOS movement is bounded cache/reharvest
+lift plus query-preserving provider-probe harness correction, not a Taxicab-main
+production scraping push. The AHA/Lippincott one-row lane
 `www.ahajournals.org:/doi/pdf/:doi/:id` recovered 0/1 through Zyte no-storage
 provider probing and 0/1 through Browserbase gold evidence; Browserbase reached
 a 403 challenge and ended `download_started_not_captured`. No Taxicab
@@ -113,15 +116,17 @@ remains 0, and
 `confirm_existing_branch_candidate` remains 0.
 Oxjobs #461 commit `3c125878f` publishes the aggregate-only Elsevier DOI.org
 residual-priority correction and refreshed queue.
-Latest residual refresh `residual-clusters-after-closed-doi-demote-1d50d45`
+Prior residual refresh `residual-clusters-after-closed-doi-demote-1d50d45`
 demotes closed publisher DOI.org, unknown DOI.org, validator/provider, and
 PeerJ branch-only lanes; top-240 subcluster-entry priority bands are 238
 provider-lane/do-not-duplicate and 2 Browserbase/Zyte-gold-first. Oxjobs #461
-commit `5a1254630` publishes the aggregate-only cleanup.
+commit `5a1254630` publishes the aggregate-only cleanup. Latest residual refresh
+`residual-clusters-after-osti-plos-ee9001b` has top-240 all
+provider-lane/do-not-duplicate after OSTI/PLOS recovery.
 
-Next exact action: run evidence-only Browserbase/Zyte gold checks for the two
-remaining top-240 active lanes, aggregate OSTI and PLOS interstitial/paywall
-rows, or wait for provider-advised recipes.
+Next exact action: review aggregate residual clusters and prepare
+provider-advised/Zyte support follow-through. Do not repeat OSTI/PLOS as fresh
+route/provider work unless testing provider-advised guidance.
 AHA/Lippincott and Elsevier DOI.org are closed as negative gold evidence for
 now; PeerJ is closed as branch-only evidence until full-gate proof exists; AAAS,
 BCSJ/Oxford, the unknown DOI.org JS-redirect duo, and the unknown DOI.org
@@ -1490,7 +1495,13 @@ Next exact commands:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 git switch codex/taxicab-pdf-phase2
-python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-atlantis-biorxiv-demote --sample-size 5 --top-n 240
+python3 - <<'PY'
+import csv
+from pathlib import Path
+with Path("pdf_eval_runs/residual-clusters.csv").open(newline="", encoding="utf-8") as f:
+    for row in list(csv.DictReader(f))[:20]:
+        print(f"{row['rank']}\t{row['category']}\t{row['publisher']}\t{row['host']}\t{row['count']}\t{row['recommended_agent']}\t{row['evidence_strength']}")
+PY
 ```
 
 ### 12. Continue from the post-95 HTML residual queue only if PDF work is paused

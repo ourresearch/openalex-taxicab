@@ -41,19 +41,22 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `5a1254630` publishes the closed
-DOI.org residual-priority cleanup and refreshed queue; prior `3c125878f`
-publishes the Elsevier DOI.org residual-priority correction, prior `77d71e78f`
+Current publish status: oxjobs #461 commit `08009124e` publishes the OSTI/PLOS
+accepted recovery, graph/report refresh, and residual queue showing top-240 all
+provider-lane/do-not-duplicate; prior `5a1254630` publishes the closed DOI.org
+residual-priority cleanup and refreshed queue; prior `3c125878f` publishes the
+Elsevier DOI.org residual-priority correction, prior `77d71e78f`
 publishes the AMS negative provider/gold evidence and residual refresh, and
 prior `386f5fa73` publishes the ASM/JVI mixed provider evidence and residual
-refresh. These are evidence/reporting-only updates and do not change the accepted KPI. The
-accepted full 10K metric remains
-`pdf-full10k-after-atlantis-3b13642` from Taxicab commit `3b13642`:
-2,383/6,293 `good_pdf` (37.87%), +2 versus the DOI.org/OSTI gate and +546
-versus denominator baseline, with 3,789 `missing_pdf_harvest`, 65
+refresh. The accepted full 10K metric is now
+`pdf-full10k-after-osti-plos-ee9001b` from Taxicab branch commit `ee9001b`:
+2,385/6,293 `good_pdf` (37.90%), +2 versus Atlantis and +548 versus denominator
+baseline, with 3,789 `missing_pdf_harvest`, 65
 corrupt/truncated, 4 encrypted/unreadable, 23 supplement/preview, 6
-interstitial/paywall, 0 timeout, and 0 `taxicab_error`. This is bounded
-cache/reharvest lift, not a Taxicab-main production scraping push. The
+interstitial/paywall before this gate and 4 after this gate, 0 timeout, and
+0 `taxicab_error`. This is bounded OSTI/PLOS cache/reharvest lift plus a
+query-preserving provider-probe harness correction, not a Taxicab-main
+production scraping push. The
 AHA/Lippincott one-row lane `www.ahajournals.org:/doi/pdf/:doi/:id` recovered
 0/1 through Zyte no-storage provider probing and 0/1 through Browserbase gold
 evidence; Browserbase reached a 403 challenge and ended
@@ -76,10 +79,12 @@ CCCC, Atlantis Press, IWA/AMPP/Sage Knowledge/RSNA/AJOG/Elgar, or broad
 Elsevier article-PDF lanes without a narrower or provider-advised recipe. Do
 not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
-accepted metric is `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293
-`good_pdf` (37.87%), with a 3,596-row gap to 95%. Latest oxjobs #461 commit
-`5a1254630` publishes the aggregate-only closed DOI.org residual-priority
-cleanup and refreshed queue; prior `3c125878f` publishes the aggregate-only
+accepted metric is `pdf-full10k-after-osti-plos-ee9001b`, 2,385/6,293
+`good_pdf` (37.90%), with a 3,594-row gap to 95%. Latest oxjobs #461 commit
+`08009124e` publishes the aggregate-only OSTI/PLOS accepted recovery and
+refreshed residual queue; prior `5a1254630` publishes the aggregate-only closed
+DOI.org residual-priority cleanup and refreshed queue; prior `3c125878f`
+publishes the aggregate-only
 Elsevier DOI.org residual-priority correction; prior `77d71e78f` publishes the aggregate-only
 AMS negative provider/gold evidence and residual priority-map refresh; prior `386f5fa73` publishes the
 aggregate-only ASM/JVI mixed provider evidence and residual priority-map
@@ -196,13 +201,24 @@ queue. Gate 21.999gn demotes closed publisher DOI.org, unknown DOI.org,
 validator/provider, and PeerJ branch-only lanes. Residual refresh
 `residual-clusters-after-closed-doi-demote-1d50d45` has top-240 subcluster
 entry bands 238 provider-lane/do-not-duplicate and 2 Browserbase/Zyte-gold-first.
-Oxjobs #461 commit `5a1254630` publishes the aggregate-only cleanup. Next run
-evidence-only Browserbase/Zyte checks for aggregate OSTI and PLOS
-interstitial/paywall lanes, or wait for provider-advised recipes.
+Oxjobs #461 commit `5a1254630` publishes the aggregate-only cleanup. Gate
+21.999go recovers the aggregate OSTI and PLOS interstitial/paywall lanes at
+Taxicab branch commit `ee9001b`; full gate
+`pdf-full10k-after-osti-plos-ee9001b` is 2,385/6,293 `good_pdf` (37.90%) with
+0 regressions, and oxjobs #461 commit `08009124e` publishes the report. Next
+review aggregate residual clusters and prepare provider-advised/Zyte support
+follow-through.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
+python3 - <<'PY'
+import csv
+from pathlib import Path
+with Path("pdf_eval_runs/residual-clusters.csv").open(newline="", encoding="utf-8") as f:
+    for row in list(csv.DictReader(f))[:20]:
+        print(f"{row['rank']}\t{row['category']}\t{row['publisher']}\t{row['host']}\t{row['count']}\t{row['recommended_agent']}\t{row['evidence_strength']}")
+PY
 python3 - <<'PY'
 import json
 from pathlib import Path
