@@ -374,6 +374,60 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertIsInstance(response.content, str)
         self.assertIn("ACS shell", response.content)
 
+    def test_http_get_falls_back_for_peerj_pdf_strategies(self):
+        pdf_url = "https://peerj.com/articles/7168.pdf"
+        captured = []
+        responses = [
+            {
+                "statusCode": 400,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "httpResponseBody": base64.b64encode(b"<html>not pdf</html>").decode(),
+            },
+            {
+                "statusCode": 400,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "httpResponseBody": base64.b64encode(b"<html>still not pdf</html>").decode(),
+            },
+            {
+                "statusCode": 200,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+            },
+        ]
+
+        class FakeResponse:
+            def __init__(self, data):
+                self._data = data
+
+            def json(self):
+                return self._data
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse(responses[len(captured) - 1])
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url, doi="10.7717/peerj.7168")
+
+        self.assertEqual(len(captured), 3)
+        self.assertNotIn("customHttpRequestHeaders", captured[0])
+        self.assertEqual(
+            captured[1]["customHttpRequestHeaders"],
+            [{"name": "Accept", "value": "application/pdf,*/*"}],
+        )
+        self.assertEqual(
+            captured[2]["customHttpRequestHeaders"],
+            [
+                {"name": "Accept", "value": "application/pdf,*/*"},
+                {"name": "Referer", "value": "https://www.google.com/"},
+            ],
+        )
+        self.assertEqual(response.url, pdf_url)
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
     def test_rewrites_jbc_pdf_url_to_fulltext(self):
         self.assertEqual(
             jbc_fulltext_url_from_url("https://www.jbc.org/article/S0021-9258(17)43626-X/pdf"),
