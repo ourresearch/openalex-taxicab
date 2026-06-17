@@ -269,25 +269,137 @@ def strategy_params(strategy: str, url: str, recipes: RecipeMap | None = None) -
     raise ValueError(f"unknown strategy: {strategy}")
 
 
-def response_content_type(data: dict[str, Any]) -> str:
-    headers = data.get("httpResponseHeaders") or []
-    if not isinstance(headers, list):
+def _header_value(headers: Any, name: str) -> str:
+    expected = name.lower()
+    if isinstance(headers, dict):
+        for header_name, value in headers.items():
+            if str(header_name).lower() == expected:
+                return str(value or "")
         return ""
-    for header in headers:
-        if not isinstance(header, dict):
-            continue
-        name = str(header.get("name") or "").lower()
-        if name == "content-type":
-            return str(header.get("value") or "")
+    if isinstance(headers, list):
+        for header in headers:
+            if isinstance(header, dict):
+                header_name = str(header.get("name") or "").lower()
+                if header_name == expected:
+                    return str(header.get("value") or "")
+            elif isinstance(header, (list, tuple)) and len(header) >= 2:
+                header_name = str(header[0] or "").lower()
+                if header_name == expected:
+                    return str(header[1] or "")
     return ""
 
 
-def decode_zyte_body(data: dict[str, Any]) -> tuple[str, bytes]:
+def response_content_type(data: dict[str, Any]) -> str:
+    return _header_value(data.get("httpResponseHeaders") or [], "content-type")
+
+
+def _response_body_bytes(value: Any) -> bytes:
+    if not value:
+        return b""
+    try:
+        return base64.b64decode(value)
+    except Exception:
+        return b""
+
+
+def _as_int(value: Any) -> int | None:
+    try:
+        if value is None or value == "":
+            return None
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _captured_url(capture: dict[str, Any]) -> str:
+    return sanitize_url(
+        str(
+            capture.get("url")
+            or capture.get("responseUrl")
+            or capture.get("requestUrl")
+            or capture.get("targetUrl")
+            or ""
+        )
+    )
+
+
+def _network_capture_content_type(capture: dict[str, Any]) -> str:
+    return _header_value(
+        capture.get("httpResponseHeaders")
+        or capture.get("responseHeaders")
+        or capture.get("headers")
+        or [],
+        "content-type",
+    )
+
+
+def best_network_capture(data: dict[str, Any]) -> tuple[str, bytes, str, int | None]:
+    captures = data.get("networkCapture") or []
+    if not isinstance(captures, list):
+        return "", b"", "", None
+
+    candidates: list[tuple[int, int, str, bytes, str, int | None]] = []
+    for capture in captures:
+        if not isinstance(capture, dict):
+            continue
+        body = _response_body_bytes(capture.get("httpResponseBody"))
+        if not body:
+            continue
+        content_type = _network_capture_content_type(capture)
+        url = _captured_url(capture)
+        content_type_lc = content_type.lower()
+        url_lc = url.lower()
+        if body.startswith(b"%PDF-"):
+            score = 0
+        elif "application/pdf" in content_type_lc:
+            score = 1
+        elif ".pdf" in url_lc:
+            score = 2
+        else:
+            score = 3
+        status_code = _as_int(capture.get("statusCode") or capture.get("status"))
+        candidates.append((score, -len(body), content_type, body, url, status_code))
+
+    if not candidates:
+        return "", b"", "", None
+    _, _, content_type, body, url, status_code = min(candidates, key=lambda item: (item[0], item[1]))
+    return content_type, body, url, status_code
+
+
+def decode_zyte_payload(data: dict[str, Any]) -> tuple[int | None, str, bytes, str]:
+    captured_content_type, captured_body, captured_url, captured_status = best_network_capture(data)
+    if captured_body:
+        return (
+            captured_status or _as_int(data.get("statusCode")),
+            captured_content_type,
+            captured_body,
+            captured_url or sanitize_url(str(data.get("url") or "")),
+        )
     if data.get("httpResponseBody"):
-        return response_content_type(data), base64.b64decode(data.get("httpResponseBody") or b"")
+        return (
+            _as_int(data.get("statusCode")),
+            response_content_type(data),
+            _response_body_bytes(data.get("httpResponseBody")),
+            sanitize_url(str(data.get("url") or "")),
+        )
     if data.get("browserHtml"):
-        return "text/html", str(data.get("browserHtml") or "").encode("utf-8", errors="replace")
-    return response_content_type(data), b""
+        return (
+            _as_int(data.get("statusCode")),
+            "text/html",
+            str(data.get("browserHtml") or "").encode("utf-8", errors="replace"),
+            sanitize_url(str(data.get("url") or "")),
+        )
+    return (
+        _as_int(data.get("statusCode")),
+        response_content_type(data),
+        b"",
+        sanitize_url(str(data.get("url") or "")),
+    )
+
+
+def decode_zyte_body(data: dict[str, Any]) -> tuple[str, bytes]:
+    _, content_type, body, _ = decode_zyte_payload(data)
+    return content_type, body
 
 
 def zyte_fetch(params: dict[str, Any], *, timeout: int) -> tuple[int | None, str, bytes, str, str]:
@@ -315,12 +427,12 @@ def zyte_fetch(params: dict[str, Any], *, timeout: int) -> tuple[int | None, str
             str(data.get("detail") or data.get("title") or "zyte error"),
         )
 
-    content_type, body = decode_zyte_body(data)
+    status_code, content_type, body, resolved_url = decode_zyte_payload(data)
     return (
-        data.get("statusCode"),
+        status_code,
         content_type,
         body,
-        sanitize_url(str(data.get("url") or params.get("url") or "")),
+        resolved_url or sanitize_url(str(params.get("url") or "")),
         "",
     )
 

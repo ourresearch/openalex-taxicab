@@ -1,9 +1,11 @@
+import base64
 import json
 import tempfile
 import unittest
 from pathlib import Path
 
 from scripts.provider_pdf_probe import (
+    decode_zyte_body,
     filter_records,
     load_recipe_strategies,
     read_input_records,
@@ -12,6 +14,10 @@ from scripts.provider_pdf_probe import (
     strategy_params,
     write_probe_artifacts,
 )
+
+
+def base64_text(body: bytes) -> str:
+    return base64.b64encode(body).decode("ascii")
 
 
 class ProviderPdfProbeTests(unittest.TestCase):
@@ -117,6 +123,76 @@ class ProviderPdfProbeTests(unittest.TestCase):
 
             with self.assertRaises(ValueError):
                 load_recipe_strategies(path)
+
+    def test_decode_zyte_body_prefers_network_capture_pdf_over_browser_html(self):
+        pdf_body = b"%PDF-1.7\n" + b"0" * 2048
+        content_type, body = decode_zyte_body(
+            {
+                "url": "https://link.springer.com/content/pdf/10.1/a.pdf",
+                "statusCode": 200,
+                "browserHtml": "<html><body>PDF viewer shell</body></html>",
+                "networkCapture": [
+                    {
+                        "url": "https://link.springer.com/content/pdf/10.1/a.pdf?download=true",
+                        "statusCode": 200,
+                        "httpResponseHeaders": [
+                            {"name": "content-type", "value": "application/pdf"}
+                        ],
+                        "httpResponseBody": base64_text(pdf_body),
+                    }
+                ],
+            }
+        )
+
+        self.assertEqual(content_type, "application/pdf")
+        self.assertTrue(body.startswith(b"%PDF-"))
+
+    def test_decode_zyte_body_accepts_mapping_headers_in_network_capture(self):
+        html_body = b"<html><body>Download interstitial</body></html>"
+        content_type, body = decode_zyte_body(
+            {
+                "url": "https://example.org/article",
+                "statusCode": 200,
+                "networkCapture": [
+                    {
+                        "responseUrl": "https://example.org/full.pdf",
+                        "statusCode": 200,
+                        "httpResponseHeaders": {"Content-Type": "text/html; charset=utf-8"},
+                        "httpResponseBody": base64_text(html_body),
+                    }
+                ],
+            }
+        )
+
+        self.assertEqual(content_type, "text/html; charset=utf-8")
+        self.assertEqual(body, html_body)
+
+    def test_decode_zyte_body_picks_largest_pdf_network_capture(self):
+        small_pdf = b"%PDF-1.4\nsmall"
+        large_pdf = b"%PDF-1.7\n" + b"x" * 4096
+        content_type, body = decode_zyte_body(
+            {
+                "networkCapture": [
+                    {
+                        "url": "https://example.org/preview.pdf",
+                        "httpResponseHeaders": [
+                            {"name": "content-type", "value": "application/pdf"}
+                        ],
+                        "httpResponseBody": base64_text(small_pdf),
+                    },
+                    {
+                        "url": "https://example.org/full.pdf",
+                        "httpResponseHeaders": [
+                            {"name": "content-type", "value": "application/pdf"}
+                        ],
+                        "httpResponseBody": base64_text(large_pdf),
+                    },
+                ]
+            }
+        )
+
+        self.assertEqual(content_type, "application/pdf")
+        self.assertEqual(body, large_pdf)
 
     def test_reads_ndjson_rows_and_filters_missing_cluster(self):
         with tempfile.TemporaryDirectory() as tmp:
