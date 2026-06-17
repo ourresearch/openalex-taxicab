@@ -15,14 +15,15 @@ baseline of 1,837/6,293 (29.19%). The run has 3,789 `missing_pdf_harvest`, 65
 `taxicab_error`. The gap to 95% is 3,596 rows. This is a bounded
 cache/reharvest lift, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `10ec3eeb` publishes the
-unknown-attribution DOI.org numeric JS-redirect gold check; prior commit
-`03560e2a` publishes the unknown-attribution DOI.org JS-redirect duo gold
-check, `1727a6ac` publishes the BCSJ/Oxford Academic DOI.org JS-redirect gold
-check, `5c29deb5` publishes the AAAS Science.org gold check, `0e59e67f`
-publishes the PeerJ branch evidence, and `4984229f` made the PDF report
-graph-first and minimalist. These are evidence/reporting updates only and do
-not change the accepted KPI. The current accepted metric remains
+Latest #461 report publish: oxjobs commit `01be98e` publishes the Transcript
+Verlag preview-provider confirmation; prior commit `10ec3eeb` publishes the
+unknown-attribution DOI.org numeric JS-redirect gold check, `03560e2a`
+publishes the unknown-attribution DOI.org JS-redirect duo gold check,
+`1727a6ac` publishes the BCSJ/Oxford Academic DOI.org JS-redirect gold check,
+`5c29deb5` publishes the AAAS Science.org gold check, `0e59e67f` publishes the
+PeerJ branch evidence, and `4984229f` made the PDF report graph-first and
+minimalist. These are evidence/reporting updates only and do not change the
+accepted KPI. The current accepted metric remains
 `pdf-full10k-after-atlantis-3b13642`: 2,383/6,293 `good_pdf` (37.87%), +2 rows
 versus the DOI.org/OSTI gate, +546 rows versus denominator baseline, and a
 3,596-row gap to 95%. The AHA/Lippincott one-row lane
@@ -45,8 +46,8 @@ aggregate-only; raw rows stay local.
 
 Latest local validations: Atlantis Press is complete at Taxicab commit
 `3b13642`; prior-evidence mapping is complete through `ba5c3a6`; oxjobs #461
-latest publish is `10ec3eeb`; latest Taxicab branch evidence commit before
-this update is `d4ed55b`. Browserbase PDF evidence mode remains fixed at
+latest publish is `01be98e`; latest Taxicab branch evidence commit before
+this update is `1587acb`. Browserbase PDF evidence mode remains fixed at
 Taxicab commit `bdcc38a` to survive download-start navigation errors and
 capture started/not-captured download evidence. `BROWSERBASE_API_KEY` exists in
 ignored `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env`;
@@ -85,6 +86,12 @@ commit `d4ed55b` recovered 0/1 through Zyte and 0/1 through Browserbase;
 Browserbase ended `html_not_pdf` on aggregate Mediasphera host evidence, and
 oxjobs #461 commit `10ec3eeb` publishes the aggregate-only public summary at
 `working/taxicab-pdf/evidence/report461-unknown-doiorg-numeric-jsredirect-gold-summary-d4ed55b.json`.
+Transcript Verlag preview-provider confirmation at Taxicab branch commit
+`1587acb` recovered 0/4 current `supplement_or_preview_pdf` rows through Zyte;
+PDF-byte strategies stayed `supplement_or_preview_pdf`, browser HTML returned
+`html_instead_of_pdf`, and oxjobs #461 commit `01be98e` publishes the
+aggregate-only public summary at
+`working/taxicab-pdf/evidence/report461-transcript-preview-provider-probe4-summary-1587acb.json`.
 Browserbase can be used for evidence/gold
 collection from the ignored Parseland eval env, but must not overwrite the
 Taxicab baseline verdict. Keep Browserbase as evidence/gold only, Zyte as the
@@ -96,16 +103,7 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-numeric-jsredirect-d4ed55b --sample-size 5 --top-n 240
-python3 - <<'PY'
-import json
-from pathlib import Path
-rows = json.loads(Path('pdf_eval_runs/residual-subclusters.json').read_text())['top_subclusters']
-for row in rows:
-    if row.get('priority_band') == 'provider_lane_do_not_duplicate':
-        continue
-    print(row.get('count'), row.get('priority_band'), row.get('prior_evidence_status'), row.get('category'), row.get('publisher'), row.get('host'), row.get('candidate_source'), row.get('path_pattern'))
-PY
+python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category html_instead_of_pdf --host pediatrics.aappublications.org --limit 1 --strategies all --out pdf_eval_runs/ --run-id aappediatrics-htmlpdf-provider-probe1-1587acb --timeout 90 --sleep 0.5
 ```
 
 Historical detail below is chronological and may use "current" relative to the

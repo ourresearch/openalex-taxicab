@@ -41,12 +41,13 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `10ec3eeb` publishes the
-unknown-attribution DOI.org numeric JS-redirect gold check; prior commit
-`03560e2a` publishes the unknown-attribution DOI.org JS-redirect duo gold
-check, and `4984229f` publishes the graph-first minimalist PDF progress
-report. These are evidence/reporting-only updates and do not change the
-accepted KPI. The accepted full 10K metric remains
+Current publish status: oxjobs #461 commit `01be98e` publishes the Transcript
+Verlag preview-provider confirmation; prior commit `10ec3eeb` publishes the
+unknown-attribution DOI.org numeric JS-redirect gold check, `03560e2a`
+publishes the unknown-attribution DOI.org JS-redirect duo gold check, and
+`4984229f` publishes the graph-first minimalist PDF progress report. These are
+evidence/reporting-only updates and do not change the accepted KPI. The
+accepted full 10K metric remains
 `pdf-full10k-after-atlantis-3b13642` from Taxicab commit `3b13642`:
 2,383/6,293 `good_pdf` (37.87%), +2 versus the DOI.org/OSTI gate and +546
 versus denominator baseline, with 3,789 `missing_pdf_harvest`, 65
@@ -77,8 +78,9 @@ not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
 accepted metric is `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293
 `good_pdf` (37.87%), with a 3,596-row gap to 95%. Latest oxjobs #461 commit
-`10ec3eeb` publishes the unknown-attribution DOI.org numeric JS-redirect gold
-check; prior `03560e2a` publishes the unknown-attribution DOI.org
+`01be98e` publishes the Transcript Verlag preview-provider confirmation;
+prior `10ec3eeb` publishes the unknown-attribution DOI.org numeric JS-redirect
+gold check; prior `03560e2a` publishes the unknown-attribution DOI.org
 JS-redirect duo gold check; prior `1727a6ac` publishes the BCSJ/Oxford Academic
 DOI.org JS-redirect gold check; prior `5c29deb5` publishes the AAAS Science.org gold
 check; prior `0e59e67f`
@@ -122,6 +124,13 @@ host evidence. Oxjobs #461 commit `10ec3eeb` publishes the scrubbed public
 summary at
 `working/taxicab-pdf/evidence/report461-unknown-doiorg-numeric-jsredirect-gold-summary-d4ed55b.json`.
 This is provider/access-flow evidence only, not route-code evidence.
+Transcript Verlag preview-provider confirmation at Taxicab branch commit
+`1587acb` recovers 0/4 current `supplement_or_preview_pdf` rows through Zyte;
+PDF-byte strategies stay `supplement_or_preview_pdf`, and browser HTML returns
+`html_instead_of_pdf`. Oxjobs #461 commit `01be98e` publishes the scrubbed
+public summary at
+`working/taxicab-pdf/evidence/report461-transcript-preview-provider-probe4-summary-1587acb.json`.
+This is candidate-quality/provider evidence only, not route-code evidence.
 Browserbase can run for
 evidence/gold collection using `BROWSERBASE_API_KEY` from ignored
 `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env`;
@@ -137,23 +146,14 @@ as negative provider/gold evidence; Gate 21.999gd closed BCSJ/Oxford Academic
 as negative provider/gold evidence; Gate 21.999ge closed the unknown DOI.org
 JS-redirect duo as negative provider/gold evidence; Gate 21.999gf closed the
 unknown DOI.org numeric JS-redirect lane as negative provider/gold evidence;
-next Gate 21.999gg is
-choosing the next
-non-route provider/gold/validator lane from the residual queue.
+Gate 21.999gg closed Transcript Verlag preview URLs as candidate-quality
+provider evidence; next Gate 21.999gh is the AAP Pediatrics one-row provider
+probe.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-numeric-jsredirect-d4ed55b --sample-size 5 --top-n 240
-python3 - <<'PY'
-import json
-from pathlib import Path
-rows = json.loads(Path('pdf_eval_runs/residual-subclusters.json').read_text())['top_subclusters']
-for row in rows:
-    if row.get('priority_band') == 'provider_lane_do_not_duplicate':
-        continue
-    print(row.get('count'), row.get('priority_band'), row.get('prior_evidence_status'), row.get('category'), row.get('publisher'), row.get('host'), row.get('candidate_source'), row.get('path_pattern'))
-PY
+python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category html_instead_of_pdf --host pediatrics.aappublications.org --limit 1 --strategies all --out pdf_eval_runs/ --run-id aappediatrics-htmlpdf-provider-probe1-1587acb --timeout 90 --sleep 0.5
 
 After Gate 0 is pushed:
 

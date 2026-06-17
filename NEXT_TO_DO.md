@@ -19,10 +19,11 @@ Current handoff override: accepted full 10K PDF gate
 versus denominator baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `10ec3eeb`
-publishes the unknown-attribution DOI.org numeric JS-redirect gold check; prior
-`03560e2a` publishes the unknown-attribution DOI.org JS-redirect duo gold
-check; prior `1727a6ac` publishes the BCSJ/Oxford Academic DOI.org
+`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `01be98e`
+publishes the Transcript Verlag preview-provider confirmation; prior
+`10ec3eeb` publishes the unknown-attribution DOI.org numeric JS-redirect gold
+check; prior `03560e2a` publishes the unknown-attribution DOI.org JS-redirect
+duo gold check; prior `1727a6ac` publishes the BCSJ/Oxford Academic DOI.org
 JS-redirect gold check; prior `5c29deb5` publishes the AAAS Science.org gold
 check; prior `0e59e67f`
 publishes the PeerJ branch evidence; prior `0f9fcaa2` publishes the current
@@ -58,6 +59,12 @@ numeric JS-redirect gold evidence from Taxicab commit `d4ed55b`: Zyte recovered
 0/1, Browserbase recovered 0/1, and Browserbase ended `html_not_pdf` on
 aggregate Mediasphera host evidence. Public summary:
 `working/taxicab-pdf/evidence/report461-unknown-doiorg-numeric-jsredirect-gold-summary-d4ed55b.json`.
+Oxjobs commit `01be98e` records Transcript Verlag preview-provider evidence
+from Taxicab commit `1587acb`: Zyte recovered 0/4 current
+`supplement_or_preview_pdf` rows, PDF-byte strategies stayed
+`supplement_or_preview_pdf`, and browser HTML returned `html_instead_of_pdf`.
+Public summary:
+`working/taxicab-pdf/evidence/report461-transcript-preview-provider-probe4-summary-1587acb.json`.
 Earlier oxjobs commit
 `74a062c6` publishes the aggregate-only
 Wiley PDF-direct validator/provider Zyte recheck from Taxicab commit `9b01df6`:
@@ -74,15 +81,18 @@ evidence loop.
 
 Current lane state: ACS/ACM/Wiley/IOP/bioRxiv PDF route families, Elsevier
 DOI.org, AHA/Lippincott, AAAS, BCSJ/Oxford, and the unknown DOI.org
-JS-redirect duo plus numeric JS-redirect lane are provider-lane, gold-first, or
-do-not-duplicate until a narrow/provider-advised recipe exists. Top-240
+JS-redirect duo plus numeric JS-redirect lane, and Transcript Verlag preview
+URLs are provider-lane, gold-first, validator, or do-not-duplicate until a
+narrow/provider-advised recipe exists. Top-240
 `probe_next` remains 0, and `confirm_existing_branch_candidate` remains 0.
 
-Next exact action: choose the next non-route provider/gold/validator residual
-lane. AHA/Lippincott and Elsevier DOI.org are closed as negative gold evidence
-for now; PeerJ is closed as branch-only evidence until full-gate proof exists;
-AAAS, BCSJ/Oxford, the unknown DOI.org JS-redirect duo, and the unknown
-DOI.org numeric JS-redirect lane are closed as negative provider/gold evidence.
+Next exact action: run the one-row AAP Pediatrics no-storage provider probe.
+AHA/Lippincott and Elsevier DOI.org are closed as negative gold evidence for
+now; PeerJ is closed as branch-only evidence until full-gate proof exists; AAAS,
+BCSJ/Oxford, the unknown DOI.org JS-redirect duo, and the unknown DOI.org
+numeric JS-redirect lane are closed as negative provider/gold evidence.
+Transcript Verlag preview URLs are closed as candidate-quality/provider
+evidence. Do not duplicate those lanes unless a provider-advised recipe appears.
 Do not promote SAGE, Wiley, ACS, IOP, bioRxiv/CSHLP, Elsevier DOI.org,
 rank-39 DOI.org, ACM, IngentaConnect, ICE Virtual Library, Ecologica, the
 closed top-five Browserbase sample, ASTM Compass, CCCC, Atlantis Press,
@@ -99,16 +109,7 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-numeric-jsredirect-d4ed55b --sample-size 5 --top-n 240
-python3 - <<'PY'
-import json
-from pathlib import Path
-rows = json.loads(Path('pdf_eval_runs/residual-subclusters.json').read_text())['top_subclusters']
-for row in rows:
-    if row.get('priority_band') == 'provider_lane_do_not_duplicate':
-        continue
-    print(row.get('count'), row.get('priority_band'), row.get('prior_evidence_status'), row.get('category'), row.get('publisher'), row.get('host'), row.get('candidate_source'), row.get('path_pattern'))
-PY
+python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --category html_instead_of_pdf --host pediatrics.aappublications.org --limit 1 --strategies all --out pdf_eval_runs/ --run-id aappediatrics-htmlpdf-provider-probe1-1587acb --timeout 90 --sleep 0.5
 ```
 
 Current gate: structured PDF parser is implemented at Taxicab commit `a61d34b`;
