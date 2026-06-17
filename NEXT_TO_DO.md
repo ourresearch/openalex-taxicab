@@ -19,9 +19,10 @@ Current handoff override: accepted full 10K PDF gate
 versus denominator baseline. It has 3,789 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 6 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `5c29deb5`
-publishes the AAAS Science.org gold check; prior `0e59e67f` publishes the
-PeerJ branch evidence; prior `0f9fcaa2` publishes the current
+`taxicab_error`. The gap to 95% is 3,596 rows. Oxjobs #461 commit `1727a6ac`
+publishes the BCSJ/Oxford Academic DOI.org JS-redirect gold check; prior
+`5c29deb5` publishes the AAAS Science.org gold check; prior `0e59e67f` publishes
+the PeerJ branch evidence; prior `0f9fcaa2` publishes the current
 Elsevier DOI.org Browserbase recheck; prior `58d55a98`
 publishes the scrubbed AHA/Lippincott summary asset, `07bc9d9f` publishes the
 AHA/Lippincott gold check in the report, and `4984229f` publishes the
@@ -43,6 +44,9 @@ not an accepted KPI lift or Taxicab main push. Oxjobs commit `5c29deb5`
 records AAAS Science.org gold evidence from Taxicab commit `53d3704`: Zyte
 recovered 0/1, Browserbase recovered 0/1, and Browserbase ended
 `html_not_pdf` on `www.science.org`. Earlier oxjobs commit
+`1727a6ac` records BCSJ/Oxford Academic gold evidence from Taxicab commit
+`897c742`: Zyte recovered 0/1, Browserbase recovered 0/1, and Browserbase
+ended `html_not_pdf` on `academic.oup.com`. Earlier oxjobs commit
 `74a062c6` publishes the aggregate-only
 Wiley PDF-direct validator/provider Zyte recheck from Taxicab commit `9b01df6`:
 0/10 recovered, no Taxicab POST/R2/DynamoDB writes, no production behavior
@@ -57,14 +61,14 @@ expired, but AWS is not required for the immediate no-storage Zyte/Browserbase
 evidence loop.
 
 Current lane state: ACS/ACM/Wiley/IOP/bioRxiv PDF route families, Elsevier
-DOI.org, and AHA/Lippincott are provider-lane, gold-first, or
+DOI.org, AHA/Lippincott, AAAS, and BCSJ/Oxford are provider-lane, gold-first, or
 do-not-duplicate until a narrow/provider-advised recipe exists. Top-240
 `probe_next` remains 0, and `confirm_existing_branch_candidate` remains 0.
 
 Next exact action: choose the next non-route provider/gold/validator residual
 lane. AHA/Lippincott and Elsevier DOI.org are closed as negative gold evidence
 for now; PeerJ is closed as branch-only evidence until full-gate proof exists;
-AAAS is closed as negative provider/gold evidence.
+AAAS and BCSJ/Oxford are closed as negative provider/gold evidence.
 Do not promote SAGE, Wiley, ACS, IOP, bioRxiv/CSHLP, Elsevier DOI.org,
 rank-39 DOI.org, ACM, IngentaConnect, ICE Virtual Library, Ecologica, the
 closed top-five Browserbase sample, ASTM Compass, CCCC, Atlantis Press,
@@ -81,7 +85,7 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-peerj-branch-bf1632f --sample-size 5 --top-n 240
+python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-bcsj-gold-897c742 --sample-size 5 --top-n 240
 python3 - <<'PY'
 import json
 from pathlib import Path

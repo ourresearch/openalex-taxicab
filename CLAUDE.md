@@ -15,11 +15,12 @@ baseline of 1,837/6,293 (29.19%). The run has 3,789 `missing_pdf_harvest`, 65
 `taxicab_error`. The gap to 95% is 3,596 rows. This is a bounded
 cache/reharvest lift, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `0f9fcaa2` publishes the current
-Elsevier DOI.org Browserbase recheck; prior commit `58d55a98` publishes the
-scrubbed AHA/Lippincott summary asset, `07bc9d9f` published the AHA/Lippincott
-gold check in the report, and `4984229f` made the PDF report graph-first and
-minimalist. These are evidence/reporting updates only and do not change the
+Latest #461 report publish: oxjobs commit `1727a6ac` publishes the BCSJ/Oxford
+Academic DOI.org JS-redirect gold check; prior commit `5c29deb5` publishes the
+AAAS Science.org gold check, `0e59e67f` publishes the PeerJ branch evidence,
+`0f9fcaa2` publishes the current Elsevier DOI.org Browserbase recheck, and
+`4984229f` made the PDF report graph-first and minimalist. These are
+evidence/reporting updates only and do not change the
 accepted KPI. The current accepted metric remains
 `pdf-full10k-after-atlantis-3b13642`: 2,383/6,293 `good_pdf` (37.87%), +2 rows
 versus the DOI.org/OSTI gate, +546 rows versus denominator baseline, and a
@@ -43,8 +44,8 @@ aggregate-only; raw rows stay local.
 
 Latest local validations: Atlantis Press is complete at Taxicab commit
 `3b13642`; prior-evidence mapping is complete through `ba5c3a6`; oxjobs #461
-latest publish is `0f9fcaa2`; latest Taxicab handoff commit before this update
-is `5d5d0fc`. Browserbase PDF evidence mode remains fixed at
+latest publish is `1727a6ac`; latest Taxicab branch commit before this update
+is `897c742`. Browserbase PDF evidence mode remains fixed at
 Taxicab commit `bdcc38a` to survive download-start navigation errors and
 capture started/not-captured download evidence. `BROWSERBASE_API_KEY` exists in
 ignored `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env`;
@@ -70,7 +71,11 @@ KPI lift or Taxicab main push. The current branch-candidate queue is otherwise
 exhausted. AAAS Science.org gold check at Taxicab branch commit `53d3704`
 recovered 0/1 through Zyte and 0/1 through Browserbase; Browserbase ended
 `html_not_pdf` on `www.science.org`, and oxjobs #461 commit `5c29deb5`
-publishes the aggregate-only evidence. Browserbase can be used for evidence/gold
+publishes the aggregate-only evidence. BCSJ/Oxford Academic gold check at
+Taxicab branch commit `897c742` recovered 0/1 through Zyte and 0/1 through
+Browserbase; Browserbase ended `html_not_pdf` on `academic.oup.com`, and
+oxjobs #461 commit `1727a6ac` publishes the aggregate-only evidence.
+Browserbase can be used for evidence/gold
 collection from the ignored Parseland eval env, but must not overwrite the
 Taxicab baseline verdict. Keep Browserbase as evidence/gold only, Zyte as the
 production core, and do not push Taxicab main before the full PDF 95% proof.
@@ -81,7 +86,7 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-peerj-branch-bf1632f --sample-size 5 --top-n 240
+python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-atlantis-3b13642/rows.ndjson --out pdf_eval_runs --run-id residual-clusters-after-bcsj-gold-897c742 --sample-size 5 --top-n 240
 python3 - <<'PY'
 import json
 from pathlib import Path
