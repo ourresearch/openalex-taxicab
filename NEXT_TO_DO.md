@@ -78,21 +78,31 @@ Follow-up `jstor-network-capture-probe3-next` tested three current JSTOR
 `jstor.org` rows and recovered 0/3 `good_pdf`; every row returned 200
 `text/html` article/book page content, not PDF bytes. This is also
 provider/support evidence only.
+Follow-up `brill-network-capture-probe3-next` tested three current Brill
+`brill.com` rows and recovered 0/3 `good_pdf`; every row returned 405
+`text/html` human-verification content. This is also provider/support evidence
+only.
+
+The current NetworkCapture sweep is 0/24 across Springer, De Gruyter Brill,
+Lippincott, Oxford Academic, SSRN, AIP Publishing, JSTOR, and Brill. The
+private ignored-local Zyte packet is
+`pdf_eval_runs/zyte-provider-ticket-networkcapture-0of24-1001461/`. A local
+residual refresh at `/tmp/taxicab-pdf-residual-refresh-after-networkcapture`
+found top-240 priority bands are all `provider_lane_do_not_duplicate`.
 
 Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-mkdir -p /tmp/taxicab-pdf-probes
 python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-osti-plos-ee9001b/rows.ndjson \
   --category missing_pdf_harvest \
-  --publisher brill \
-  --host brill.com \
+  --publisher <publisher> \
+  --host <host> \
   --limit 3 \
-  --recipe-file pdf_eval_runs/zyte-recipes/network-capture-pdf-token.json \
-  --strategies browser_network_pdf_token_capture \
+  --recipe-file <ignored-zyte-recipe.json> \
+  --strategies <strategy_name> \
   --out /tmp/taxicab-pdf-probes \
-  --run-id brill-network-capture-probe3-next
+  --run-id <provider>-zyte-advised-probe3
 ```
 The AHA/Lippincott one-row lane
 `www.ahajournals.org:/doi/pdf/:doi/:id` recovered 0/1 through Zyte no-storage

@@ -116,9 +116,22 @@ Follow-up `jstor-network-capture-probe3-next` tested 3 current JSTOR
 `good_pdf`: every row returned 200 `text/html` article/book page content, not
 PDF bytes. Keep JSTOR in provider/support; do not write JSTOR route code from
 it.
+Follow-up `brill-network-capture-probe3-next` tested 3 current Brill
+`brill.com` rows with the same network-capture recipe and recovered 0/3
+`good_pdf`: every row returned 405 `text/html` human-verification content. Keep
+Brill in provider/support; do not write Brill route code from it.
 
-Next action: run the next no-storage Brill provider-recipe check with
-`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-osti-plos-ee9001b/rows.ndjson --category missing_pdf_harvest --publisher brill --host brill.com --limit 3 --recipe-file pdf_eval_runs/zyte-recipes/network-capture-pdf-token.json --strategies browser_network_pdf_token_capture --out /tmp/taxicab-pdf-probes --run-id brill-network-capture-probe3-next`.
+Current NetworkCapture sweep is 0/24 across Springer, De Gruyter Brill,
+Lippincott, Oxford Academic, SSRN, AIP Publishing, JSTOR, and Brill. The
+private ignored-local Zyte packet is
+`pdf_eval_runs/zyte-provider-ticket-networkcapture-0of24-1001461/`. A local
+residual refresh `residual-refresh-after-networkcapture-0of24-1001461` found
+top-240 priority bands are all `provider_lane_do_not_duplicate`, so the next
+action is provider guidance, not another route guess.
+
+Next action: if Zyte provides a PDF-byte recipe, save it as an ignored local
+JSON file and run a no-storage probe with
+`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-osti-plos-ee9001b/rows.ndjson --category missing_pdf_harvest --publisher <publisher> --host <host> --limit 3 --recipe-file <ignored-recipe.json> --strategies <strategy_name> --out /tmp/taxicab-pdf-probes --run-id <provider>-zyte-advised-probe3`.
 Use
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`
 as the aggregate provider-support handoff, then test any provider-advised
