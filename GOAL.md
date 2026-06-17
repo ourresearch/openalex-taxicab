@@ -41,8 +41,9 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `3c125878f` publishes the Elsevier
-DOI.org residual-priority correction and refreshed queue; prior `77d71e78f`
+Current publish status: oxjobs #461 commit `5a1254630` publishes the closed
+DOI.org residual-priority cleanup and refreshed queue; prior `3c125878f`
+publishes the Elsevier DOI.org residual-priority correction, prior `77d71e78f`
 publishes the AMS negative provider/gold evidence and residual refresh, and
 prior `386f5fa73` publishes the ASM/JVI mixed provider evidence and residual
 refresh. These are evidence/reporting-only updates and do not change the accepted KPI. The
@@ -77,8 +78,9 @@ not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
 accepted metric is `pdf-full10k-after-atlantis-3b13642`, 2,383/6,293
 `good_pdf` (37.87%), with a 3,596-row gap to 95%. Latest oxjobs #461 commit
-`3c125878f` publishes the aggregate-only Elsevier DOI.org residual-priority
-correction and refreshed queue; prior `77d71e78f` publishes the aggregate-only
+`5a1254630` publishes the aggregate-only closed DOI.org residual-priority
+cleanup and refreshed queue; prior `3c125878f` publishes the aggregate-only
+Elsevier DOI.org residual-priority correction; prior `77d71e78f` publishes the aggregate-only
 AMS negative provider/gold evidence and residual priority-map refresh; prior `386f5fa73` publishes the
 aggregate-only ASM/JVI mixed provider evidence and residual priority-map
 refresh; prior
@@ -190,7 +192,13 @@ instead of the generic DOI resolver gold-first rule. Residual refresh
 entry bands 217 provider-lane/do-not-duplicate, 19 Browserbase/Zyte-gold-first,
 and 4 validator/provider. Oxjobs #461 commit `3c125878f` publishes the
 aggregate-only Elsevier DOI.org residual-priority correction and refreshed
-queue. Next choose a non-duplicate lane after explicit prior-evidence review.
+queue. Gate 21.999gn demotes closed publisher DOI.org, unknown DOI.org,
+validator/provider, and PeerJ branch-only lanes. Residual refresh
+`residual-clusters-after-closed-doi-demote-1d50d45` has top-240 subcluster
+entry bands 238 provider-lane/do-not-duplicate and 2 Browserbase/Zyte-gold-first.
+Oxjobs #461 commit `5a1254630` publishes the aggregate-only cleanup. Next run
+evidence-only Browserbase/Zyte checks for aggregate OSTI and PLOS
+interstitial/paywall lanes, or wait for provider-advised recipes.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:
@@ -200,9 +208,9 @@ import json
 from pathlib import Path
 rows = json.loads(Path('pdf_eval_runs/residual-subclusters.json').read_text())['top_subclusters']
 for row in rows:
-    if row.get('priority_band') == 'provider_lane_do_not_duplicate':
+    if row.get('priority_band') != 'browserbase_or_zyte_gold_first':
         continue
-    print(row.get('count'), row.get('priority_band'), row.get('prior_evidence_status'), row.get('category'), row.get('publisher'), row.get('host'), row.get('candidate_source'), row.get('path_pattern'))
+    print(row.get('count'), row.get('category'), row.get('publisher'), row.get('host'), row.get('candidate_source'), row.get('path_pattern'))
 PY
 
 After Gate 0 is pushed:

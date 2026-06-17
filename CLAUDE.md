@@ -15,8 +15,9 @@ baseline of 1,837/6,293 (29.19%). The run has 3,789 `missing_pdf_harvest`, 65
 `taxicab_error`. The gap to 95% is 3,596 rows. This is a bounded
 cache/reharvest lift, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `3c125878f` publishes the Elsevier
-DOI.org residual-priority correction and refreshed residual queue; prior
+Latest #461 report publish: oxjobs commit `5a1254630` publishes the closed
+DOI.org residual-priority cleanup and refreshed residual queue; prior
+`3c125878f` publishes the Elsevier DOI.org residual-priority correction; prior
 `77d71e78f` publishes the AMS negative provider/gold evidence and AMS-demoted
 residual priority-map refresh; prior `386f5fa73` publishes the ASM/JVI mixed provider evidence and residual
 priority-map refresh; prior `d054e3d`
@@ -51,9 +52,9 @@ narrower/provider-advised recipe. Top-240 `probe_next` remains 0 and
 aggregate-only; raw rows stay local.
 
 Latest local validations: Atlantis Press is complete at Taxicab commit
-`3b13642`; prior-evidence mapping is complete through the Elsevier DOI.org
-residual-priority update at Taxicab commit `1d8dff1`; oxjobs #461 latest
-publish is `3c125878f`; latest Taxicab branch evidence commit is `1d8dff1`.
+`3b13642`; prior-evidence mapping is complete through the closed DOI.org
+residual-priority cleanup at Taxicab commit `1d50d45`; oxjobs #461 latest
+publish is `5a1254630`; latest Taxicab branch evidence commit is `1d50d45`.
 Browserbase PDF
 evidence mode remains fixed at
 Taxicab commit `bdcc38a` to survive download-start navigation errors and
@@ -69,13 +70,15 @@ regressed preservation rows; Wiley, ACS, and Elsevier DOI.org residual probes
 do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
-Next action: choose the next non-duplicate provider/gold/validator lane from
-`residual-clusters-after-elsevier-doi-demote-2f627f4` after explicit
-prior-evidence review. Elsevier DOI.org missing-PDF residuals are now correctly
-demoted as prior negative provider/gold evidence instead of re-entering the
-generic DOI resolver gold queue; top-240 active Browserbase/Zyte-gold-first
-row count drops from 35 to 20. AMS is closed as negative provider/gold
-evidence: Zyte no-storage
+Next action: run evidence-only Browserbase/Zyte gold checks for the only two
+remaining active top-240 gold-first rows: aggregate OSTI and PLOS
+interstitial/paywall lanes. Closed DOI.org and branch-only residuals are now
+demoted by `residual-clusters-after-closed-doi-demote-1d50d45`: top-240
+subcluster-entry bands are 238 provider-lane/do-not-duplicate and 2
+Browserbase/Zyte-gold-first. Elsevier DOI.org missing-PDF residuals are
+correctly demoted as prior negative provider/gold evidence instead of
+re-entering the generic DOI resolver gold queue. AMS is closed as negative
+provider/gold evidence: Zyte no-storage
 recovered 0/1 with four 520 empty responses, and Browserbase recovered 0/1
 with `html_not_pdf`; this is not route-code evidence. ASM/JVI is mixed
 provider evidence and not a route candidate; AAP
@@ -124,6 +127,11 @@ closed where appropriate; top-240 subcluster-entry priority bands are 217
 provider-lane/do-not-duplicate, 19 Browserbase/Zyte-gold-first, and 4
 validator/provider. Oxjobs #461 commit `3c125878f` publishes the aggregate-only
 Elsevier DOI.org residual-priority correction and refreshed queue.
+Local residual refresh `residual-clusters-after-closed-doi-demote-1d50d45`
+demotes closed publisher DOI.org, unknown DOI.org, validator/provider, and
+PeerJ branch-only lanes; oxjobs #461 commit `5a1254630` publishes the
+aggregate-only cleanup. Only aggregate OSTI and PLOS remain active in the
+top-240 gold-first queue.
 Browserbase can be used for evidence/gold
 collection from the ignored Parseland eval env, but must not overwrite the
 Taxicab baseline verdict. Keep Browserbase as evidence/gold only, Zyte as the
