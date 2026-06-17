@@ -85,6 +85,7 @@ PRIOR_PROVIDER_HOSTS = {
     "ajconline.org",
     "ajo.com",
     "americanjournalofsurgery.com",
+    "ams.org",
     "ascelibrary.org",
     "ascopubs.org",
     "atsjournals.org",

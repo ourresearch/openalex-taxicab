@@ -66,8 +66,11 @@ do not currently justify promotion. Published artifacts are aggregate-only;
 local `rows.ndjson` files contain row-level evidence.
 
 Next action: choose the next non-duplicate provider/gold/validator lane from
-`residual-clusters-after-asm-demote-186706c` after explicit prior-evidence
-review. ASM/JVI is mixed provider evidence and not a route candidate; AAP
+`residual-clusters-after-ams-demote-9e3bbba` after explicit prior-evidence
+review. AMS is closed as negative provider/gold evidence: Zyte no-storage
+recovered 0/1 with four 520 empty responses, and Browserbase recovered 0/1
+with `html_not_pdf`; this is not route-code evidence. ASM/JVI is mixed
+provider evidence and not a route candidate; AAP
 Pediatrics is closed as negative provider/gold evidence;
 AHA/Lippincott and Elsevier DOI.org lanes are closed as negative evidence for
 current purposes. PeerJ branch commit `bf1632f` adds a narrow
@@ -106,11 +109,13 @@ and Browserbase ended `html_not_pdf` on aggregate AAP article-abstract host
 evidence. Oxjobs #461 commit `1cba3fc` publishes the aggregate-only public
 summary at
 `working/taxicab-pdf/evidence/report461-aappediatrics-htmlpdf-gold-summary-9399eb7.json`.
-Local residual refresh `residual-clusters-after-asm-demote-186706c` moves
-mixed ASM/JVI evidence plus prior validator/gold lanes to do-not-duplicate
-where appropriate; top-240 priority bands are 215 provider-lane/do-not-duplicate,
-21 Browserbase/Zyte-gold-first, and 4 validator/provider. Oxjobs #461 commit
-`386f5fa73` publishes the aggregate-only residual refresh.
+Local residual refresh `residual-clusters-after-ams-demote-9e3bbba` moves AMS,
+mixed ASM/JVI evidence, plus prior validator/gold lanes to do-not-duplicate
+where appropriate; top-240 subcluster-entry priority bands are 216
+provider-lane/do-not-duplicate, 20 Browserbase/Zyte-gold-first, and 4
+validator/provider. Oxjobs #461 commit `386f5fa73` publishes the prior
+aggregate-only ASM/JVI residual refresh; the AMS public report update is the
+next oxjobs slice.
 Browserbase can be used for evidence/gold
 collection from the ignored Parseland eval env, but must not overwrite the
 Taxicab baseline verdict. Keep Browserbase as evidence/gold only, Zyte as the

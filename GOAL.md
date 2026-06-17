@@ -172,7 +172,15 @@ code was promoted. Gate 21.999gk updates residual prior-evidence mapping so
 `residual-clusters-after-asm-demote-186706c` has top-240 priority bands: 215
 provider-lane/do-not-duplicate, 21 Browserbase/Zyte-gold-first, and 4
 validator/provider. Oxjobs #461 commit `386f5fa73` publishes that refresh.
-Next choose a non-duplicate lane after explicit prior-evidence review.
+Gate 21.999gl closes AMS as negative provider/gold evidence: Zyte no-storage
+recovered 0/1 with four 520 empty responses, Browserbase recovered 0/1 with
+`html_not_pdf`, and no Taxicab POST/R2/DynamoDB writes or route code changes
+occurred. Residual refresh `residual-clusters-after-ams-demote-9e3bbba` moves
+AMS to `provider_lane_do_not_duplicate`; top-240 subcluster-entry priority
+bands are 216 provider-lane/do-not-duplicate, 20 Browserbase/Zyte-gold-first,
+and 4 validator/provider. The AMS oxjobs public report update is the next
+reporting slice. Next choose a non-duplicate lane after explicit
+prior-evidence review.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:

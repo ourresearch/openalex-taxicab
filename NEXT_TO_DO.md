@@ -92,24 +92,29 @@ evidence loop.
 Current lane state: ACS/ACM/Wiley/IOP/bioRxiv PDF route families, Elsevier
 DOI.org, AHA/Lippincott, AAAS, BCSJ/Oxford, and the unknown DOI.org
 JS-redirect duo plus numeric JS-redirect lane, and Transcript Verlag preview
-URLs, AAP Pediatrics, and ASM/JVI are provider-lane, gold-first, validator, or
-do-not-duplicate until a narrow/provider-advised recipe exists. Local residual
-refresh `residual-clusters-after-asm-demote-186706c` moves mixed ASM/JVI
-evidence plus prior validator/gold lanes to do-not-duplicate where appropriate;
-top-240 priority bands are 215 provider-lane/do-not-duplicate, 21
-Browserbase/Zyte-gold-first, and 4 validator/provider. Top-240 `probe_next`
-remains 0, and `confirm_existing_branch_candidate` remains 0.
+URLs, AAP Pediatrics, ASM/JVI, and AMS are provider-lane, gold-first,
+validator, or do-not-duplicate until a narrow/provider-advised recipe exists.
+AMS is closed as negative provider/gold evidence: Zyte no-storage recovered 0/1
+with four 520 empty responses, Browserbase recovered 0/1 with `html_not_pdf`,
+and no Taxicab POST/R2/DynamoDB writes or route code changes occurred. Local
+residual refresh `residual-clusters-after-ams-demote-9e3bbba` moves AMS, mixed
+ASM/JVI evidence, and prior validator/gold lanes to do-not-duplicate where
+appropriate; top-240 subcluster-entry priority bands are 216
+provider-lane/do-not-duplicate, 20 Browserbase/Zyte-gold-first, and 4
+validator/provider. Top-240 `probe_next` remains 0, and
+`confirm_existing_branch_candidate` remains 0.
 
 Next exact action: choose the next non-duplicate provider/gold/validator lane
-from the ASM-updated residual queue after explicit prior-evidence review.
+from the AMS-updated residual queue after explicit prior-evidence review.
 AHA/Lippincott and Elsevier DOI.org are closed as negative gold evidence for
 now; PeerJ is closed as branch-only evidence until full-gate proof exists; AAAS,
 BCSJ/Oxford, the unknown DOI.org JS-redirect duo, and the unknown DOI.org
 numeric JS-redirect lane are closed as negative provider/gold evidence.
 Transcript Verlag preview URLs are closed as candidate-quality/provider
 evidence, AAP Pediatrics is closed as negative provider/gold evidence, and
-ASM/JVI is closed as mixed non-repeatable provider evidence. Do not duplicate
-those lanes unless a provider-advised recipe appears.
+ASM/JVI is closed as mixed non-repeatable provider evidence. AMS is closed as
+negative provider/gold evidence. Do not duplicate those lanes unless a
+provider-advised recipe appears.
 Do not promote SAGE, Wiley, ACS, IOP, bioRxiv/CSHLP, Elsevier DOI.org,
 rank-39 DOI.org, ACM, IngentaConnect, ICE Virtual Library, Ecologica, the
 closed top-five Browserbase sample, ASTM Compass, CCCC, Atlantis Press,

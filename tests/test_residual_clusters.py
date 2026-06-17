@@ -415,6 +415,18 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(band, "provider_lane_do_not_duplicate")
         self.assertIn("provider/Zyte", decision)
 
+    def test_subcluster_priority_demotes_ams_negative_gold_evidence(self):
+        status, band, decision = subcluster_priority(
+            "html_instead_of_pdf",
+            "unknown",
+            "ams.org",
+            "www.ams.org:/amsip/:n/:file.pdf",
+        )
+
+        self.assertEqual(status, "prior_negative_or_support_evidence")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
+        self.assertIn("provider/Zyte", decision)
+
     def test_subcluster_priority_marks_fresh_probe_candidates(self):
         status, band, decision = subcluster_priority(
             "missing_pdf_harvest",
