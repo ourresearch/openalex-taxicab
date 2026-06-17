@@ -469,7 +469,8 @@ Gate 21.999gg: test AIP Publishing token network-capture recipe on a bounded no-
 Gate 21.999gh: test JSTOR token network-capture recipe on a bounded no-storage sample. [done, jstor-network-capture-probe3-next recovered 0/3; all 3 returned 200 text/html article/book pages, not PDF bytes; provider/support evidence only]
 Gate 21.999gi: test Brill token network-capture recipe on a bounded no-storage sample. [done, brill-network-capture-probe3-next recovered 0/3; all 3 returned 405 text/html human-verification content; provider/support evidence only]
 Gate 21.999gj: refresh private provider packet and residual queue after NetworkCapture 0/24 sweep. [done, private packet zyte-provider-ticket-networkcapture-0of24-1001461; residual refresh top-240 priority bands all provider_lane_do_not_duplicate]
-Gate 21.999gk: test a Zyte-advised PDF-byte recipe through no-storage provider probes. [next, blocked on provider recipe/support response]
+Gate 21.999gk: test Springer wait-before-networkCapture variant on a bounded no-storage sample. [done, springer-network-wait-capture-probe3-c767a1d recovered 0/3; corrupt/tiny JSON, unresolved JS/router-like HTML, and interstitial/paywall HTML; provider/support evidence only]
+Gate 21.999gl: test a Zyte-advised PDF-byte recipe through no-storage provider probes. [next, blocked on provider recipe/support response]
 Gate 22: push verified PDF production changes to Taxicab main after >=95% gate and full regression proof.
 ```
 
@@ -509,7 +510,8 @@ PDF:
   latest provider probe: aip-pubs-network-capture-probe3-next at taxicab 92f9bce tested Zyte browser networkCapture with a broad pdf token against 3 current AIP Publishing pubs.aip.org rows; recovered 0/3 good_pdf, with 2 bot_block_403 and 1 html_instead_of_pdf PDF-viewer/html shell; provider/support evidence only
   latest provider probe: jstor-network-capture-probe3-next at taxicab 98e4491 tested Zyte browser networkCapture with a broad pdf token against 3 current JSTOR jstor.org rows; recovered 0/3 good_pdf, all with 200 text/html article/book page content, not PDF bytes; provider/support evidence only
   latest provider probe: brill-network-capture-probe3-next at taxicab 1001461 tested Zyte browser networkCapture with a broad pdf token against 3 current Brill brill.com rows; recovered 0/3 good_pdf, all with 405 text/html human-verification content; provider/support evidence only
-  latest NetworkCapture sweep: 0/24 good_pdf across Springer, De Gruyter Brill, Lippincott, Oxford Academic, SSRN, AIP Publishing, JSTOR, and Brill
+  latest provider probe: springer-network-wait-capture-probe3-c767a1d at taxicab c767a1d tested Zyte browser networkCapture with a short waitForTimeout against 3 current Springer link.springer.com rows; recovered 0/3 good_pdf, with corrupt/tiny JSON, unresolved JS/router-like HTML, and interstitial/paywall HTML; provider/support evidence only
+  latest NetworkCapture sweep: 0/24 good_pdf across Springer, De Gruyter Brill, Lippincott, Oxford Academic, SSRN, AIP Publishing, JSTOR, and Brill; including the Springer wait-capture variant, capture follow-through is 0/27 sampled rows
   latest private provider packet: pdf_eval_runs/zyte-provider-ticket-networkcapture-0of24-1001461/ (ignored local, do not commit)
   latest residual refresh: residual-refresh-after-networkcapture-0of24-1001461 under /tmp; top-240 priority bands all provider_lane_do_not_duplicate, so next work needs Zyte provider guidance rather than blind route code
   previous provider probe: lippincott-network-capture-probe3-84b519f at taxicab 84b519f tested Zyte browser networkCapture with a broad pdf token against 3 current Lippincott journals.lww.com rows; recovered 0/3 good_pdf, with 2 js_redirect_unresolved and 1 bot_block_403; provider/support evidence only

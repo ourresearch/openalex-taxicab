@@ -82,9 +82,17 @@ Follow-up `brill-network-capture-probe3-next` tested three current Brill
 `brill.com` rows and recovered 0/3 `good_pdf`; every row returned 405
 `text/html` human-verification content. This is also provider/support evidence
 only.
+Follow-up `springer-network-wait-capture-probe3-c767a1d` tested a
+docs-derived browser `networkCapture` recipe with a short `waitForTimeout`
+against three current Springer `link.springer.com` rows and recovered 0/3
+`good_pdf`: one tiny JSON body classified as corrupt/truncated, one unresolved
+JS/router-like HTML page, and one interstitial/paywall HTML page. This is
+provider/support evidence only; a blind browser wait before capture is not
+enough evidence for Taxicab route code.
 
 The current NetworkCapture sweep is 0/24 across Springer, De Gruyter Brill,
 Lippincott, Oxford Academic, SSRN, AIP Publishing, JSTOR, and Brill. The
+Springer wait-capture variant makes the follow-through 0/27 sampled rows. The
 private ignored-local Zyte packet is
 `pdf_eval_runs/zyte-provider-ticket-networkcapture-0of24-1001461/`. A local
 residual refresh at `/tmp/taxicab-pdf-residual-refresh-after-networkcapture`

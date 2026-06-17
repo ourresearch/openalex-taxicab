@@ -121,14 +121,22 @@ Follow-up `brill-network-capture-probe3-next` tested 3 current Brill
 `brill.com` rows with the same network-capture recipe and recovered 0/3
 `good_pdf`: every row returned 405 `text/html` human-verification content. Keep
 Brill in provider/support; do not write Brill route code from it.
+Follow-up `springer-network-wait-capture-probe3-c767a1d` tested a
+docs-derived browser `networkCapture` recipe with a short `waitForTimeout`
+against 3 current Springer `link.springer.com` rows and recovered 0/3
+`good_pdf`: one tiny JSON body classified as corrupt/truncated, one unresolved
+JS/router-like HTML page, and one interstitial/paywall HTML page. Keep Springer
+in provider/support; a blind browser wait before capture is not enough evidence
+for Taxicab route code.
 
 Current NetworkCapture sweep is 0/24 across Springer, De Gruyter Brill,
-Lippincott, Oxford Academic, SSRN, AIP Publishing, JSTOR, and Brill. The
+Lippincott, Oxford Academic, SSRN, AIP Publishing, JSTOR, and Brill; the
+Springer wait-capture variant makes the follow-through 0/27 sampled rows. The
 private ignored-local Zyte packet is
 `pdf_eval_runs/zyte-provider-ticket-networkcapture-0of24-1001461/`. A local
 residual refresh `residual-refresh-after-networkcapture-0of24-1001461` found
 top-240 priority bands are all `provider_lane_do_not_duplicate`, so the next
-action is provider guidance, not another route guess.
+action is Zyte-supported provider guidance, not another route guess.
 
 Next action: if Zyte provides a PDF-byte recipe, save it as an ignored local
 JSON file and run a no-storage probe with
