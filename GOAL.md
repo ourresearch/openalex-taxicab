@@ -216,7 +216,10 @@ Taxicab branch commit `ee9001b`; full gate
 support snapshot, and `e96ba4bfd` makes that snapshot publicly allow-listed.
 Next use `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`
 as the provider-support handoff and test only provider-advised PDF-byte recipes
-through no-storage probes before route code.
+through no-storage probes before route code. Use
+`python3 scripts/provider_pdf_probe.py --recipe-file <ignored-recipe.json> --strategies <recipe_name> ...`
+for provider recipes; recipe probes must not call `/taxicab` POST or write
+R2/DynamoDB.
 Historical sections below may use "current" relative to older gates; this block
 is authoritative.
 Next exact command:

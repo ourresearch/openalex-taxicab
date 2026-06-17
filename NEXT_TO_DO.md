@@ -130,7 +130,10 @@ provider-lane/do-not-duplicate after OSTI/PLOS recovery.
 Next exact action: use
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`
 as the aggregate provider-support handoff, then test only provider-advised
-PDF-byte recipes through no-storage probes before route code. Do not repeat
+PDF-byte recipes through no-storage probes before route code. Use
+`python3 scripts/provider_pdf_probe.py --recipe-file <ignored-recipe.json> --strategies <recipe_name> ...`
+for provider recipes; recipe probes must not call `/taxicab` POST or write
+R2/DynamoDB. Do not repeat
 OSTI/PLOS as fresh route/provider work unless testing provider-advised
 guidance.
 AHA/Lippincott and Elsevier DOI.org are closed as negative gold evidence for

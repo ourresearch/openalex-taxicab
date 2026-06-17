@@ -5,6 +5,7 @@ from pathlib import Path
 
 from scripts.provider_pdf_probe import (
     filter_records,
+    load_recipe_strategies,
     read_input_records,
     sanitize_url,
     strategy_list,
@@ -44,6 +45,78 @@ class ProviderPdfProbeTests(unittest.TestCase):
         self.assertIn("browser_html", strategy_list("all"))
         with self.assertRaises(ValueError):
             strategy_list("default_body,not-a-strategy")
+
+    def test_recipe_file_adds_provider_advised_strategy(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "recipes.json"
+            path.write_text(
+                json.dumps(
+                    {
+                        "strategies": [
+                            {
+                                "name": "zyte_ticket_pdf_body",
+                                "params": {
+                                    "url": "{url}",
+                                    "httpResponseBody": True,
+                                    "httpResponseHeaders": True,
+                                    "customHttpRequestHeaders": [
+                                        {"name": "Accept", "value": "application/pdf,*/*"},
+                                        {"name": "Referer", "value": "{{url}}"},
+                                    ],
+                                },
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            recipes = load_recipe_strategies(path)
+
+            self.assertEqual(strategy_list("zyte_ticket_pdf_body", recipes), ["zyte_ticket_pdf_body"])
+            self.assertEqual(
+                strategy_list("all", recipes),
+                [
+                    "default_body",
+                    "accept_pdf",
+                    "google_referer",
+                    "browser_html",
+                    "zyte_ticket_pdf_body",
+                ],
+            )
+            self.assertEqual(
+                strategy_params(
+                    "zyte_ticket_pdf_body",
+                    "https://example.org/full.pdf?download=1",
+                    recipes,
+                ),
+                {
+                    "url": "https://example.org/full.pdf?download=1",
+                    "httpResponseBody": True,
+                    "httpResponseHeaders": True,
+                    "customHttpRequestHeaders": [
+                        {"name": "Accept", "value": "application/pdf,*/*"},
+                        {"name": "Referer", "value": "https://example.org/full.pdf?download=1"},
+                    ],
+                },
+            )
+
+    def test_recipe_file_rejects_builtin_shadowing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "recipes.json"
+            path.write_text(
+                json.dumps(
+                    {
+                        "strategies": [
+                            {"name": "default_body", "params": {"httpResponseBody": True}}
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(ValueError):
+                load_recipe_strategies(path)
 
     def test_reads_ndjson_rows_and_filters_missing_cluster(self):
         with tempfile.TemporaryDirectory() as tmp:

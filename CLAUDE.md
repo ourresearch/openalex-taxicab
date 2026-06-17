@@ -80,7 +80,10 @@ local `rows.ndjson` files contain row-level evidence.
 Next action: use
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`
 as the aggregate provider-support handoff, then test any provider-advised
-PDF-byte recipe through no-storage probes before route code. The OSTI/PLOS
+PDF-byte recipe through no-storage probes before route code. The probe harness
+accepts provider recipes with
+`python3 scripts/provider_pdf_probe.py --recipe-file <ignored-recipe.json> --strategies <recipe_name> ...`;
+recipe runs must stay no-storage and must not call `/taxicab` POST. The OSTI/PLOS
 gold-first rows are already recovered and closed by
 `pdf-full10k-after-osti-plos-ee9001b`; residual refresh
 `residual-clusters-after-osti-plos-ee9001b` has top-240 all

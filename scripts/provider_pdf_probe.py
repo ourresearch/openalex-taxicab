@@ -52,6 +52,7 @@ BEST_CATEGORY_RANK = {
     "missing_pdf_harvest": 130,
     "no_pdf_expected": 140,
 }
+RecipeMap = dict[str, dict[str, Any]]
 
 
 @dataclass(frozen=True)
@@ -193,7 +194,52 @@ def filter_records(
     return filtered
 
 
-def strategy_params(strategy: str, url: str) -> dict[str, Any]:
+def _replace_url_placeholders(value: Any, url: str) -> Any:
+    if isinstance(value, str):
+        return value.replace("{{url}}", url).replace("{url}", url)
+    if isinstance(value, list):
+        return [_replace_url_placeholders(item, url) for item in value]
+    if isinstance(value, dict):
+        return {
+            str(key): _replace_url_placeholders(item, url)
+            for key, item in value.items()
+        }
+    return value
+
+
+def load_recipe_strategies(path: Path | str | None) -> RecipeMap:
+    if not path:
+        return {}
+    recipe_path = Path(path)
+    data = json.loads(recipe_path.read_text(encoding="utf-8"))
+    raw_strategies = data.get("strategies") if isinstance(data, dict) else data
+    if not isinstance(raw_strategies, list):
+        raise ValueError("recipe file must contain a list or an object with a strategies list")
+    recipes: RecipeMap = {}
+    for item in raw_strategies:
+        if not isinstance(item, dict):
+            raise ValueError("each recipe strategy must be an object")
+        name = str(item.get("name") or "").strip()
+        params = item.get("params")
+        if not name:
+            raise ValueError("recipe strategy missing name")
+        if name in DEFAULT_STRATEGIES:
+            raise ValueError(f"recipe strategy shadows built-in strategy: {name}")
+        if name in recipes:
+            raise ValueError(f"duplicate recipe strategy: {name}")
+        if not isinstance(params, dict):
+            raise ValueError(f"recipe strategy {name} missing params object")
+        recipes[name] = params
+    return recipes
+
+
+def strategy_params(strategy: str, url: str, recipes: RecipeMap | None = None) -> dict[str, Any]:
+    recipes = recipes or {}
+    if strategy in recipes:
+        params = _replace_url_placeholders(recipes[strategy], url)
+        if "url" not in params:
+            params = {"url": url, **params}
+        return params
     base = {
         "url": url,
         "httpResponseBody": True,
@@ -279,12 +325,13 @@ def zyte_fetch(params: dict[str, Any], *, timeout: int) -> tuple[int | None, str
     )
 
 
-def strategy_list(raw: str) -> list[str]:
+def strategy_list(raw: str, recipes: RecipeMap | None = None) -> list[str]:
+    recipes = recipes or {}
     if not raw or raw == "all":
-        return list(DEFAULT_STRATEGIES)
+        return list(DEFAULT_STRATEGIES) + list(recipes)
     strategies = [item.strip() for item in raw.split(",") if item.strip()]
     for strategy in strategies:
-        strategy_params(strategy, "https://example.org/test.pdf")
+        strategy_params(strategy, "https://example.org/test.pdf", recipes)
     return strategies
 
 
@@ -361,7 +408,8 @@ def write_probe_artifacts(rows: list[dict[str, Any]], out_dir: Path, *, run_id: 
 
 def run_probe(args: argparse.Namespace) -> int:
     load_env_file(Path(args.env_file) if args.env_file else REPO_ROOT / ".env")
-    strategies = strategy_list(args.strategies)
+    recipes = load_recipe_strategies(args.recipe_file)
+    strategies = strategy_list(args.strategies, recipes)
     records = filter_records(
         read_input_records(Path(args.input)),
         category=args.category,
@@ -374,7 +422,7 @@ def run_probe(args: argparse.Namespace) -> int:
     for index, record in enumerate(records, start=1):
         print(f"{index}/{len(records)} {record.doi} {record.publisher} {record.host}", flush=True)
         for strategy in strategies:
-            params = strategy_params(strategy, record.fetch_url or record.candidate_url)
+            params = strategy_params(strategy, record.fetch_url or record.candidate_url, recipes)
             status_code, content_type, body, resolved_url, error = zyte_fetch(params, timeout=args.timeout)
             row = classify_pdf_content(
                 PdfEvidence(
@@ -415,6 +463,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--host", default="", help="Host substring filter")
     parser.add_argument("--limit", type=int, default=3, help="Maximum DOI records to probe")
     parser.add_argument("--strategies", default="all", help="Comma list or 'all'")
+    parser.add_argument(
+        "--recipe-file",
+        default="",
+        help=(
+            "Optional JSON file of provider-advised Zyte strategy templates. "
+            "Format: {\"strategies\":[{\"name\":\"ticket_recipe\","
+            "\"params\":{\"url\":\"{url}\",...}}]}"
+        ),
+    )
     parser.add_argument("--out", default="pdf_eval_runs/")
     parser.add_argument("--run-id", default="")
     parser.add_argument("--timeout", type=int, default=60)
