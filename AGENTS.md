@@ -106,9 +106,15 @@ network-capture token against 3 current SSRN `papers.ssrn.com` rows and
 recovered 0/3 `good_pdf`: all three rows returned 200 `image/svg+xml` payloads
 classified as `corrupt_or_truncated_pdf`, not PDF bytes. Keep SSRN in
 provider/support; do not write SSRN route code from it.
+Follow-up `aip-pubs-network-capture-probe3-next` tested 3 current AIP
+Publishing `pubs.aip.org` rows with the same network-capture recipe and
+recovered 0/3 `good_pdf`: two rows returned 403 bot blocks and one row returned
+a PDF-viewer/html shell. Keep AIP in provider/support; do not write AIP route
+code from it.
 
-Next action: refresh the provider-support handoff and choose the next
-non-duplicate lane from the current residual artifacts. Use
+Next action: run the next no-storage JSTOR provider-recipe check with
+`python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/pdf-full10k-after-osti-plos-ee9001b/rows.ndjson --category missing_pdf_harvest --publisher jstor --host jstor.org --limit 3 --recipe-file pdf_eval_runs/zyte-recipes/network-capture-pdf-token.json --strategies browser_network_pdf_token_capture --out /tmp/taxicab-pdf-probes --run-id jstor-network-capture-probe3-next`.
+Use
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`
 as the aggregate provider-support handoff, then test any provider-advised
 PDF-byte recipe through no-storage probes before route code. The probe harness

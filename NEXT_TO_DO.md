@@ -70,14 +70,25 @@ Follow-up `ssrn-network-capture-probe3-03cffc3` tested three current SSRN
 `papers.ssrn.com` rows and recovered 0/3 `good_pdf`; all three responses were
 200 `image/svg+xml` payloads classified as `corrupt_or_truncated_pdf`, not PDF
 bytes. This is also provider/support evidence only.
+Follow-up `aip-pubs-network-capture-probe3-next` tested three current AIP
+Publishing `pubs.aip.org` rows and recovered 0/3 `good_pdf`; outcomes were two
+403 bot blocks and one `html_instead_of_pdf` PDF-viewer/html shell. This is
+also provider/support evidence only.
 
 Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/build_pdf_provider_ticket.py \
-  --run-id zyte-provider-ticket-after-osti-plos-ee9001b \
-  --top-lanes 25 \
-  --samples-per-lane 3
+mkdir -p /tmp/taxicab-pdf-probes
+python3 scripts/provider_pdf_probe.py \
+  --input pdf_eval_runs/pdf-full10k-after-osti-plos-ee9001b/rows.ndjson \
+  --category missing_pdf_harvest \
+  --publisher jstor \
+  --host jstor.org \
+  --limit 3 \
+  --recipe-file pdf_eval_runs/zyte-recipes/network-capture-pdf-token.json \
+  --strategies browser_network_pdf_token_capture \
+  --out /tmp/taxicab-pdf-probes \
+  --run-id jstor-network-capture-probe3-next
 ```
 The AHA/Lippincott one-row lane
 `www.ahajournals.org:/doi/pdf/:doi/:id` recovered 0/1 through Zyte no-storage
