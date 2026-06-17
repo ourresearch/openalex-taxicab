@@ -301,6 +301,45 @@ class ResidualClusterTests(unittest.TestCase):
                 self.assertEqual(band, "provider_lane_do_not_duplicate")
                 self.assertIn("provider/Zyte", decision)
 
+    def test_subcluster_priority_marks_deep_prior_provider_hosts(self):
+        closed_hosts = [
+            ("www.spiedigitallibrary.org", "www.spiedigitallibrary.org:/conference-proceedings-of-spie/:id.pdf"),
+            ("aip.scitation.org", "aip.scitation.org:/doi/pdf/:doi/:id"),
+            ("asmedigitalcollection.asme.org", "asmedigitalcollection.asme.org:/article-pdf/:id.pdf"),
+            ("onepetro.org", "onepetro.org:/SPEADIP/proceedings-pdf/:id.pdf"),
+            ("online.ucpress.edu", "online.ucpress.edu:/article-pdf/:id.pdf"),
+            ("www.emerald.com", "www.emerald.com:/insight/content/doi/:doi/:id/full/pdf"),
+            ("royalsocietypublishing.org", "royalsocietypublishing.org:/doi/pdf/:doi/:id"),
+            ("www.jstage.jst.go.jp", "www.jstage.jst.go.jp:/article/jcns/:n/:n/_pdf"),
+            ("cdnsciencepub.com", "cdnsciencepub.com:/doi/pdf/:doi/:id"),
+            ("bioone.org", "bioone.org:/journals/:id.pdf"),
+            ("direct.mit.edu", "direct.mit.edu:/article-pdf/:id.pdf"),
+            ("arc.aiaa.org", "arc.aiaa.org:/doi/pdf/:doi/:id"),
+            ("read.dukeupress.edu", "read.dukeupress.edu:/article-pdf/:id.pdf"),
+            ("pubs.geoscienceworld.org", "pubs.geoscienceworld.org:/article-pdf/:id.pdf"),
+            ("connect.springerpub.com", "connect.springerpub.com:/content/book/:id/pdf"),
+            ("www.microbiologyresearch.org", "www.microbiologyresearch.org:/deliver/fulltext/mgen/:n/:n/:id.pdf"),
+            ("digital-library.theiet.org", "digital-library.theiet.org:/doi/epdf/:doi/:id"),
+            ("content.iospress.com:443", "content.iospress.com:443:/download/:id"),
+            ("meetingorganizer.copernicus.org", "meetingorganizer.copernicus.org:/EGU21/:id.html"),
+            ("journals.humankinetics.com", "journals.humankinetics.com:/downloadpdf/view/:id.pdf"),
+            ("journals.jps.jp", "journals.jps.jp:/doi/pdf/:doi"),
+            ("worldscientific.com", "www.worldscientific.com:/doi/pdf/:doi/:id"),
+        ]
+
+        for host, pattern in closed_hosts:
+            with self.subTest(host=host):
+                status, band, decision = subcluster_priority(
+                    "missing_pdf_harvest",
+                    "unknown",
+                    host,
+                    pattern,
+                )
+
+                self.assertEqual(status, "prior_negative_or_support_evidence")
+                self.assertEqual(band, "provider_lane_do_not_duplicate")
+                self.assertIn("provider/Zyte", decision)
+
     def test_subcluster_priority_marks_elsevier_publisher_lanes(self):
         status, band, decision = subcluster_priority(
             "missing_pdf_harvest",
