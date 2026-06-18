@@ -246,6 +246,7 @@ PRIOR_PROVIDER_HOSTS = {
     "www.thieme-connect.de",
     "www.transcript-verlag.de",
     "www.vr-elibrary.de",
+    "wmpllc.org",
     "wulixb.iphy.ac.cn",
     "worldscientific.com",
 }
