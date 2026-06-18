@@ -211,6 +211,7 @@ PRIOR_PROVIDER_HOSTS = {
     "transcript-verlag.de",
     "vestnik.krsu.kg",
     "vr-elibrary.de",
+    "virtusinterpress.org",
     "www.ajconline.org",
     "www.ajo.com",
     "www.americanjournalofsurgery.com",
