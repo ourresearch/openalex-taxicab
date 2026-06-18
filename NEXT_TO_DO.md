@@ -1,41 +1,35 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 Sorbonne Accepted Recovery
+## Current PDF Handoff: 2026-06-18 ResearchHub Provider/Validator Evidence
 
-Accepted strict full 10K PDF gate `pdf-full10k-after-sorbonne-26d14fc`
-is `2,401/6,293 good_pdf` (`38.15%`), up `+1` versus Taru/S3 and `+564`
+Accepted strict full 10K PDF gate remains `pdf-full10k-after-sorbonne-26d14fc`:
+`2,401/6,293 good_pdf` (`38.15%`), up `+1` versus Taru/S3 and `+564`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,578` rows. Full-gate delta was exactly
-one transition, `missing_pdf_harvest -> good_pdf`, with `0` good-to-non-good
-regressions, `0` timeouts, and `0` Taxicab errors.
+`5,979/6,293`, so the current gap is `3,578` rows. The accepted Sorbonne full
+gate changed exactly one row, `missing_pdf_harvest -> good_pdf`, with `0`
+good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
-Sorbonne / `sup.sorbonne-universite.fr` was the next clean low-volume lane
-after Taru/S3. No-storage provider probe
-`unknown-sorbonne-current-provider-probe1-26d14fc` recovered `1/1 good_pdf`
-from direct PDF-byte strategies. The recovered PDF validated with PDF magic,
-`3,063,126` bytes, `52` pages, `281` extracted text characters, and no
-validation errors. Caveat: `doi_match=false` and title overlap was `0.0`, so
-record this as byte-valid accepted evidence with a scanned/low-text warning,
-not as a strong text-match example. Browser HTML returned an empty/520 provider
-failure, so this is a direct PDF-byte lane, not a browser-rendering lane.
+Latest evidence-only lane: ResearchHub / `storage.prod.researchhub.com`.
+No-storage provider probe `unknown-researchhub-current-provider-probe1-26d14fc`
+returned PDF bytes via `default_body`, `accept_pdf`, and `google_referer`; Zyte
+`browser_html` returned `html_instead_of_pdf`. Do **not** reharvest or count it
+as an accepted recovery: the returned PDF is byte-valid but wrong-content-like
+for this work (`67,285` bytes, `1` page, `638` text chars, `doi_match=false`,
+`title_overlap=0.0`, and an unrelated ebook/ad evidence snippet). Keep raw DOI
+and row-level evidence local only.
 
-Bounded production reharvest showed the exact recovery path: DOI-only
-`unknown-sorbonne-reharvest1-26d14fc` stayed `0/1 missing_pdf_harvest`, but
-PDF-URL reharvest `unknown-sorbonne-pdfurl-reharvest1-26d14fc` recovered `1/1
-good_pdf`. Read-only confirmation `unknown-sorbonne-pdfurl-readonly1-26d14fc`
-also returned `1/1 good_pdf`, and the full 10K gate accepted the row. No
-Taxicab production code changed; this was a bounded cache/reharvest recovery.
-
-Residual queue after the accepted Sorbonne gate: full 1,408-subcluster export
-has `1,056` provider-lane/do-not-duplicate, `313` one-row `probe_next`, `20`
+Planning-code update: `openalex_taxicab/residual_clusters.py` now marks
+`storage.prod.researchhub.com` as prior provider/validator evidence so it does
+not remain a duplicate fresh `probe_next` lane. Residual refresh
+`residual-clusters-after-researchhub-demote-657942b` has `1,057`
+provider-lane/do-not-duplicate subclusters, `312` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. Skip prior-evidence, demoted, or resolved hosts:
-`turkishstudies.net`, `triggered.clockss.orghttps:`, `theses.fr`,
-`thejns.org`, `tesr.journals.ekb.eg`, `techscience.com`, `techno-press.org`,
-`tarupublication.s3.ap-south-1.amazonaws.com`, and
-`sup.sorbonne-universite.fr`. Next exact low-volume fresh probe, if continuing
-singleton probes, is `storage.prod.researchhub.com`:
+subclusters. This changed prioritization only; it did not change Taxicab
+production scraping behavior or the accepted KPI.
+
+Next exact low-volume fresh probe, after skipping prior/demoted `turkishstudies.net`,
+malformed `triggered.clockss.orghttps:`, and ResearchHub, is `sssjournal.com`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
@@ -43,25 +37,19 @@ python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-sorbonne-26d14fc/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host storage.prod.researchhub.com \
+  --host sssjournal.com \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-researchhub-current-provider-probe1-26d14fc \
+  --run-id unknown-sssjournal-current-provider-probe1-657942b \
   --timeout 60
 ```
 
-If prioritizing larger expected recovery, stop singleton probing and move
-Envoy-Zyte to provider-advised recipes/support packets for the large
-do-not-duplicate lanes.
-
-For bounded reharvest DOI-file runs, use a real `/tmp/*.csv` path. Do not use
-process substitution for CSV input because `/dev/fd/...` has no `.csv` suffix
-and the harness treats it as plain DOI text. Keep raw row-level artifacts
-local/ignored. Public oxjobs #461 artifacts must be aggregate or scrubbed.
-Browserbase remains evidence/gold only; Zyte remains the production provider
-core. Any lower metric/evidence blocks below this one are historical; this block
-is the current handoff.
+Public #461 artifacts for this slice must be aggregate/scrubbed only. Browserbase
+remains evidence/gold only; Zyte remains the production provider core. Current
+#461 live raw endpoint may lag after pushes; `origin/main` is the source of truth
+when CI is green and the live cache is stale. Any lower metric/evidence blocks
+are historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-18 UTC.
 

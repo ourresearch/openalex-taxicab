@@ -204,6 +204,7 @@ PRIOR_PROVIDER_HOSTS = {
     "shs.cairn.info",
     "sk.sagepub.com",
     "spiedigitallibrary.org",
+    "storage.prod.researchhub.com",
     "tandfonline.com",
     "tesr.journals.ekb.eg",
     "techscience.com",
