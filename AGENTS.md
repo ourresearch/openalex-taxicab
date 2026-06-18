@@ -1,35 +1,36 @@
 # OpenAlex Taxicab Agent Guide
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-17 Zurnalai Accepted Gate
+## Current PDF Handoff: 2026-06-17 UP Poznan Accepted Gate
 
-Accepted strict full 10K PDF gate `pdf-full10k-after-zurnalai-225188f` is
-`2,390/6,293 good_pdf` (`37.98%`), up `+1` versus JID and `+553`
+Accepted strict full 10K PDF gate `pdf-full10k-after-uppoznan-4d9ce15` is
+`2,391/6,293 good_pdf` (`37.99%`), up `+1` versus zurnalai and `+554`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,589` rows.
+`5,979/6,293`, so the current gap is `3,588` rows.
 
-Zurnalai recovered one `zurnalai.vu.lt` PDF through no-storage Zyte direct
+UP Poznan recovered one `www1.up.poznan.pl` PDF through no-storage Zyte direct
 PDF-byte evidence, explicit bounded reharvest, read-only confirmation, and a
-strict full 10K read-only no-regression gate. ESSOAr, Cochrane Library, and CMI
-remain prior provider-negative evidence (`0/1` each). No Taxicab production
-scraping-code change and no Taxicab `main` push came from this slice; this is a
-bounded cache/reharvest lift accepted by the full read-only gate.
+strict full 10K read-only no-regression gate. Zurnalai remains accepted at the
+prior gate; ESSOAr, Cochrane Library, and CMI remain prior provider-negative
+evidence (`0/1` each). No Taxicab production scraping-code change and no
+Taxicab `main` push came from this slice; this is a bounded cache/reharvest
+lift accepted by the full read-only gate.
 
-Residual queue after zurnalai acceptance: `425` provider-lane/do-not-duplicate
+Residual queue after UP Poznan acceptance: `425` provider-lane/do-not-duplicate
 subclusters, `55` low-volume `probe_next` subclusters, and `20`
 validator/provider lanes. Next exact probe candidate:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-zurnalai-225188f/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-uppoznan-4d9ce15/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host www1.up.poznan.pl \
+  --host wulixb.iphy.ac.cn \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-uppoznan-current-provider-probe1-<commit> \
+  --run-id unknown-wulixb-current-provider-probe1-<commit> \
   --timeout 60
 ```
 
@@ -38,7 +39,7 @@ process substitution for CSV input because `/dev/fd/...` has no `.csv` suffix
 and the harness treats it as plain DOI text. Keep raw row-level artifacts
 local/ignored. Public oxjobs #461 artifacts must be aggregate or scrubbed.
 Browserbase remains evidence/gold only; Zyte remains the production provider
-core. Any lower OSTI/PLOS, JPS, Tellus, JTH, or JID metric blocks are
+core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, or zurnalai metric blocks are
 historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
