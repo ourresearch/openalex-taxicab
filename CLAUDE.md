@@ -1,40 +1,40 @@
 # OpenAlex Taxicab
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 UKM Accepted Gate
+## Current PDF Handoff: 2026-06-18 UFN Accepted Gate
 
-Accepted strict full 10K PDF gate `pdf-full10k-after-ukm-bc4d7a7`
-is `2,397/6,293 good_pdf` (`38.09%`), up `+1` versus Unisa Press and `+560`
+Accepted strict full 10K PDF gate `pdf-full10k-after-ufn-a26f05a`
+is `2,398/6,293 good_pdf` (`38.11%`), up `+1` versus UKM and `+561`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,582` rows.
+`5,979/6,293`, so the current gap is `3,581` rows.
 
-UKM / `ukm.my` was the next fresh low-volume lane after the accepted Unisa
-Press gate. No-storage provider probe `unknown-ukm-current-provider-probe1-bc4d7a7`
+UFN / `ufn.ru` was the next fresh low-volume lane after the accepted UKM gate.
+No-storage provider probe `unknown-ufn-current-provider-probe1-a26f05a`
 recovered `1/1 good_pdf`: `default_body`, `accept_pdf`, and `google_referer`
 returned valid PDF bytes; `browser_html` returned `html_instead_of_pdf`.
-Bounded reharvest `unknown-ukm-reharvest1-bc4d7a7` recovered `1/1`; read-only
-confirmation `unknown-ukm-readonly1-bc4d7a7` preserved `1/1`; strict full gate
-`pdf-full10k-after-ukm-bc4d7a7` accepted `+1 good_pdf` with `0`
-good-to-non-good regressions. `missing_pdf_harvest` is now `3,777`.
+Bounded reharvest `unknown-ufn-reharvest1-a26f05a` recovered `1/1`; read-only
+confirmation `unknown-ufn-readonly1-a26f05a` preserved `1/1`; strict full gate
+`pdf-full10k-after-ufn-a26f05a` accepted `+1 good_pdf` with `0`
+good-to-non-good regressions. `missing_pdf_harvest` is now `3,776`; `timeout`
+and `taxicab_error` remain `0`.
 
-Residual queue after the accepted UKM gate: full 1,412-subcluster export has
-`1,051` provider-lane/do-not-duplicate, `322` one-row `probe_next`, `20`
+Residual queue after the accepted UFN gate: full 1,411-subcluster export has
+`1,051` provider-lane/do-not-duplicate, `321` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. First non-provider lane is a validator-confirmation
-`corrupt_or_truncated_pdf` singleton. Next exact low-volume fresh probe, if
-continuing singleton probes:
+subclusters. First fresh low-volume `probe_next` lane is `turkishstudies.net`.
+Next exact low-volume fresh probe, if continuing singleton probes:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-ukm-bc4d7a7/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-ufn-a26f05a/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host ufn.ru \
+  --host turkishstudies.net \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-ufn-current-provider-probe1-<commit> \
+  --run-id unknown-turkishstudies-current-provider-probe1-a26f05a \
   --timeout 60
 ```
 
@@ -49,8 +49,8 @@ local/ignored. Public oxjobs #461 artifacts must be aggregate or scrubbed.
 Browserbase remains evidence/gold only; Zyte remains the production provider
 core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, UP Poznan,
 wulixb, worldwidejournals, wmpllc, visnykj, virtus, vetsci, Vestnik Rosnou,
-Vektornm, or Unisa Press metric/evidence blocks are historical; this block is
-the current handoff.
+Vektornm, Unisa Press, UKM, or UFN metric/evidence blocks are historical; this
+block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Academic content harvesting API. Fetches HTML and PDFs from publisher websites via Zyte API, stores in Cloudflare R2 + DynamoDB.
 
