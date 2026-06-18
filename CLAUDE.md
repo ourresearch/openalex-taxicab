@@ -1,7 +1,7 @@
 # OpenAlex Taxicab
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 SS Editora Accepted Recovery
+## Current PDF Handoff: 2026-06-18 Spandidos Negative Evidence
 
 Accepted strict full 10K PDF gate is now `pdf-full10k-after-sseditora-ac692df`:
 `2,402/6,293 good_pdf` (`38.17%`), up `+1` versus Sorbonne and `+565`
@@ -22,10 +22,20 @@ Taxicab PDF record, and read-only confirmation
 byte-valid at 4,795,636 bytes, 305 pages, `title_overlap=1.0`, with
 `doi_match=false`; keep the DOI/session/raw URL details local only.
 
-Residual refresh `residual-clusters-after-sseditora-ac692df` has `1,060`
-provider-lane/do-not-duplicate subclusters, `308` one-row `probe_next`, `20`
+Latest evidence-only lane: Spandidos / `spandidos-publications.com`. No-storage
+Zyte provider probe `unknown-spandidos-current-provider-probe1-ac692df`
+recovered `0/1`: all four strategies returned tiny HTTP 402/Tomcat HTML, not
+PDF bytes. Browserbase gold run `unknown-spandidos-browserbase-gold1-0057279`
+also recovered `0/1`: it reached the article page but only exposed citation,
+library recommendation, and `Purchase PDF` paths, with no full-text PDF. No
+Taxicab POST/R2/DynamoDB writes occurred, no route code was promoted, and the
+accepted full-gate metric is unchanged. Residual priority now demotes
+Spandidos to `provider_lane_do_not_duplicate`.
+
+Residual refresh `residual-clusters-after-spandidos-0057279` has `1,061`
+provider-lane/do-not-duplicate subclusters, `307` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. The next exact low-volume fresh probe is `spandidos-publications.com`:
+subclusters. The next exact low-volume fresh probe is `solen.cz`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
@@ -33,22 +43,23 @@ python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-sseditora-ac692df/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host spandidos-publications.com \
+  --host solen.cz \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-spandidos-current-provider-probe1-ac692df \
+  --run-id unknown-solen-current-provider-probe1-after-spandidos \
   --timeout 60
 ```
 
 Oxjobs #461 publication is complete for SS Editora: commit `07f8b2044`
 publishes the aggregate recovery summary, full-gate summary, residual refresh,
 graph, learning notes, and next-lane handoff; CI run `27769231317` passed, and
-the live raw report plus JSON asset were verified. Public #461 artifacts for
-this slice are scrubbed: no raw DOIs, Browserbase session IDs, signed URLs, or
-raw discovered PDF URLs. Browserbase remains evidence/gold only; Zyte remains
-the production provider core. Any lower metric/evidence blocks are historical;
-this block is the current handoff.
+the live raw report plus JSON asset were verified. Oxjobs #461 still needs the
+Spandidos negative provider/gold evidence and residual-demotion update. Public
+#461 artifacts for this slice must be scrubbed: no raw DOIs, Browserbase
+session IDs, signed URLs, or raw discovered PDF URLs. Browserbase remains
+evidence/gold only; Zyte remains the production provider core. Any lower
+metric/evidence blocks are historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Academic content harvesting API. Fetches HTML and PDFs from publisher websites via Zyte API, stores in Cloudflare R2 + DynamoDB.
 
@@ -66,8 +77,10 @@ Latest #461 report publish: oxjobs commit `07f8b2044` publishes the SS Editora
 accepted recovery, full gate `pdf-full10k-after-sseditora-ac692df`, residual
 refresh `residual-clusters-after-sseditora-ac692df`, and next
 `spandidos-publications.com` handoff; CI run `27769231317` passed and the live
-raw report plus JSON asset were verified. Prior `1f38cb40f` publishes the SSS
-Journal provider/gold negative evidence and residual queue. Prior `af33e5eec`
+raw report plus JSON asset were verified. Next #461 publish should record the
+Spandidos 0/1 Zyte + 0/1 Browserbase negative evidence, residual demotion, and
+next `solen.cz` handoff. Prior `1f38cb40f` publishes the SSS Journal
+provider/gold negative evidence and residual queue. Prior `af33e5eec`
 publishes the ResearchHub provider/validator evidence and residual-priority
 demotion. Older provider-support snapshot entries
 remain historical context, including
