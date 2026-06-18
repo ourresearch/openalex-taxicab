@@ -1,33 +1,36 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 TechScience Provider Evidence
+## Current PDF Handoff: 2026-06-18 Techno-Press Provider/Route Evidence
 
 Accepted strict full 10K PDF gate `pdf-full10k-after-tidsskrift-146f509`
 is `2,399/6,293 good_pdf` (`38.12%`), up `+1` versus UFN and `+562`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
 `5,979/6,293`, so the current gap is `3,580` rows.
 
-TechScience / `techscience.com` was the next clean low-volume lane after TESR.
-No-storage provider probe `unknown-techscience-current-provider-probe1-f128df9`
-recovered `0/1 good_pdf`: best category was `interstitial_or_paywall`;
-`default_body`, `accept_pdf`, and `google_referer` returned
-interstitial/paywall HTML, while `browser_html` returned `empty_response`.
-No Taxicab POST/R2/DynamoDB write was issued, no reharvest/full gate was run,
-and the accepted KPI remains the Tidsskrift gate above. Treat `techscience.com` as
-provider-lane/do-not-duplicate until Zyte supplies a working recipe or a
-separate gold path proves a narrow Taxicab-side recovery.
+Techno-Press / `techno-press.org` was the next clean low-volume lane after
+TechScience. No-storage provider probe
+`unknown-technopress-current-provider-probe1-87fcd3e` recovered `1/1 good_pdf`
+from direct PDF-byte strategies, but both bounded production reharvest attempts
+failed: DOI-only and PDF-URL reharvest stored HTML and left the row as
+`missing_pdf_harvest`. A tentative local `http_get` route was also rejected:
+`technopress-http-get-route-current-87fcd3e` recovered `0/1`, returning
+`html_instead_of_pdf`, and preservation had `0` already-good Techno-Press rows
+to test. No Taxicab production route code was kept. Treat `techno-press.org`
+as provider/recipe evidence until Zyte supplies a stable way to reproduce the
+PDF bytes through production `http_get`.
 
-Residual queue after demoting the TechScience lane: full 1,410-subcluster export has
-`1,055` provider-lane/do-not-duplicate, `316` one-row `probe_next`, `20`
+Residual queue after demoting the Techno-Press lane: full 1,410-subcluster export has
+`1,056` provider-lane/do-not-duplicate, `315` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
 subclusters. `turkishstudies.net` is not fresh: prior evidence already
 recovered one direct-PDF row and left one upstream `download_404`. Skip it
 unless testing that known remaining row. Skip the malformed
 `triggered.clockss.orghttps:` residual until it is inspected. Also skip the
-now-demoted `theses.fr`, `thejns.org`, `tesr.journals.ekb.eg`, and
-`techscience.com` lanes. Next exact low-volume fresh probe, if continuing
-singleton probes, is `techno-press.org`:
+now-demoted `theses.fr`, `thejns.org`, `tesr.journals.ekb.eg`,
+`techscience.com`, and `techno-press.org` lanes. Next exact low-volume fresh
+probe, if continuing singleton probes, is
+`tarupublication.s3.ap-south-1.amazonaws.com`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
@@ -35,11 +38,11 @@ python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-tidsskrift-146f509/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host techno-press.org \
+  --host tarupublication.s3.ap-south-1.amazonaws.com \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-technopress-current-provider-probe1-after-techscience \
+  --run-id unknown-tarupublication-current-provider-probe1-after-technopress \
   --timeout 60
 ```
 
@@ -55,8 +58,8 @@ Browserbase remains evidence/gold only; Zyte remains the production provider
 core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, UP Poznan,
 wulixb, worldwidejournals, wmpllc, visnykj, virtus, vetsci, Turkish Studies,
 Vestnik Rosnou, Vektornm, Unisa Press, UKM, UFN, Tidsskrift, Theses, TheJNS,
-TESR, or TechScience metric/evidence blocks are historical; this block is the
-current handoff.
+TESR, TechScience, or Techno-Press metric/evidence blocks are historical; this
+block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-18 UTC.
 

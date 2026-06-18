@@ -207,6 +207,7 @@ PRIOR_PROVIDER_HOSTS = {
     "tandfonline.com",
     "tesr.journals.ekb.eg",
     "techscience.com",
+    "techno-press.org",
     "thegreenjournal.com",
     "thejns.org",
     "thelancet.com",
