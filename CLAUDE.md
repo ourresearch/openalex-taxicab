@@ -1,56 +1,51 @@
 # OpenAlex Taxicab
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 SSS Journal Provider/Gold Evidence
+## Current PDF Handoff: 2026-06-18 SS Editora Accepted Recovery
 
-Accepted strict full 10K PDF gate remains `pdf-full10k-after-sorbonne-26d14fc`:
-`2,401/6,293 good_pdf` (`38.15%`), up `+1` versus Taru/S3 and `+564`
+Accepted strict full 10K PDF gate is now `pdf-full10k-after-sseditora-ac692df`:
+`2,402/6,293 good_pdf` (`38.17%`), up `+1` versus Sorbonne and `+565`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,578` rows. The accepted Sorbonne full
-gate changed exactly one row, `missing_pdf_harvest -> good_pdf`, with `0`
-good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
+`5,979/6,293`, so the current gap is `3,577` rows. The full gate changed exactly
+one row, `missing_pdf_harvest -> good_pdf`, with `0` good-to-non-good
+regressions, `0` timeouts, and `0` Taxicab errors.
 
-Latest evidence-only lane: SSS Journal / `sssjournal.com`. No-storage provider
-probe `unknown-sssjournal-current-provider-probe1-d83afa6` recovered `0/1`.
-All Zyte strategies returned `html_instead_of_pdf`: small `text/html` mobile
-viewer/download-shell content, not PDF bytes. Browserbase session evidence
-`unknown-sssjournal-browserbase-gold1-d83afa6` also ended `html_not_pdf` on the
-same target URL, and a direct byte sanity probe returned the same 852-byte HTML
-shell with no `%PDF-` magic. Do **not** reharvest or count it as an accepted
-recovery. Keep raw DOI/session details local only.
+Latest accepted recovery lane: SS Editora / `sseditora.com.br`. The initial
+no-storage provider probe against the DOI target recovered `0/1` because every
+strategy reached a 404 HTML page. Browserbase gold evidence reached the final
+publisher page and found a hidden same-domain PDF link in the rendered download
+/ online-reading tab. A second no-storage provider probe against that embedded
+PDF asset recovered `1/1 good_pdf` through direct PDF-byte strategies. Bounded
+PDF-URL reharvest `unknown-sseditora-pdfurl-reharvest1-ac692df` created a durable
+Taxicab PDF record, and read-only confirmation
+`unknown-sseditora-pdfurl-readonly1-ac692df` stayed `1/1 good_pdf`. The PDF is
+byte-valid at 4,795,636 bytes, 305 pages, `title_overlap=1.0`, with
+`doi_match=false`; keep the DOI/session/raw URL details local only.
 
-Planning-code update: Taxicab commit `0870c29` marks `sssjournal.com`, the
-previous Turkish Studies residual, and malformed `triggered.clockss.orghttps:`
-as prior provider/gold evidence so they do not remain duplicate fresh
-`probe_next` lanes. Residual refresh
-`residual-clusters-after-sssjournal-demote-0870c29` has `1,060`
-provider-lane/do-not-duplicate subclusters, `309` one-row `probe_next`, `20`
+Residual refresh `residual-clusters-after-sseditora-ac692df` has `1,060`
+provider-lane/do-not-duplicate subclusters, `308` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. This changed prioritization only; it did not change Taxicab
-production scraping behavior or the accepted KPI.
-
-Next exact low-volume fresh probe is `sseditora.com.br`:
+subclusters. The next exact low-volume fresh probe is `spandidos-publications.com`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-sorbonne-26d14fc/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-sseditora-ac692df/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host sseditora.com.br \
+  --host spandidos-publications.com \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-sseditora-current-provider-probe1-0870c29 \
+  --run-id unknown-spandidos-current-provider-probe1-ac692df \
   --timeout 60
 ```
 
-Oxjobs #461 publication is complete for this slice: commit `1f38cb40f`, CI run
-`27767083440` passed, and the live raw `evidence/report.html` plus scrubbed JSON
-summary show the SSS Journal markers. Public #461 artifacts are aggregate and
-scrubbed only. Browserbase remains evidence/gold only; Zyte remains the
-production provider core. Any lower metric/evidence blocks are historical; this
-block is the current handoff.
+Oxjobs #461 still needs the SS Editora aggregate/scrubbed report update. Public
+#461 artifacts for this slice must not include raw DOIs, Browserbase session
+IDs, signed URLs, or raw discovered PDF URLs. Browserbase remains evidence/gold
+only; Zyte remains the production provider core. Any lower metric/evidence
+blocks are historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Academic content harvesting API. Fetches HTML and PDFs from publisher websites via Zyte API, stores in Cloudflare R2 + DynamoDB.
 
@@ -59,16 +54,17 @@ Current goal state: HTML retrieval Phase 1 is complete at 9,583/10,000
 `good_pdf` on the PDF-expected subset of the 10K Goldie corpus. Use
 `GOAL.md` as the current control file and update it before long handoffs.
 Current PDF measurement gate: see the handoff block above. The accepted full
-gate is `pdf-full10k-after-sorbonne-26d14fc`: 2,401/6,293 `good_pdf`
-(38.15%), gap 3,578 rows, with one `missing_pdf_harvest -> good_pdf`
+gate is `pdf-full10k-after-sseditora-ac692df`: 2,402/6,293 `good_pdf`
+(38.17%), gap 3,577 rows, with one `missing_pdf_harvest -> good_pdf`
 transition and zero good-to-non-good regressions. This is a bounded direct-PDF
 cache/reharvest recovery, not a Taxicab-main production scraping push.
 
 Latest #461 report publish: oxjobs commit `1f38cb40f` publishes the SSS Journal
-provider/gold negative evidence, Taxicab commit `0870c29`, and the refreshed
-residual queue. CI run `27767083440` passed, and the live raw report plus JSON
-summary were verified. Prior `af33e5eec` publishes the ResearchHub
-provider/validator evidence and residual-priority demotion. Older
+provider/gold negative evidence and residual queue; CI run `27767083440`
+passed. Next #461 publish should record SS Editora accepted recovery, full gate
+`pdf-full10k-after-sseditora-ac692df`, and residual refresh
+`residual-clusters-after-sseditora-ac692df`. Prior `af33e5eec` publishes the
+ResearchHub provider/validator evidence and residual-priority demotion. Older
 provider-support snapshot entries
 remain historical context, including
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`.
