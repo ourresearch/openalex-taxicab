@@ -1,38 +1,40 @@
 # OpenAlex Taxicab Agent Guide
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-17 Wulixb Provider-Negative Evidence
+## Current PDF Handoff: 2026-06-17 Worldwidejournals Accepted Gate
 
-Accepted strict full 10K PDF gate `pdf-full10k-after-uppoznan-4d9ce15` is
-still `2,391/6,293 good_pdf` (`37.99%`), up `+554` versus the denominator
-baseline of `1,837/6,293` (`29.19%`). The 95% target is `5,979/6,293`, so the
-current gap is `3,588` rows.
+Accepted strict full 10K PDF gate `pdf-full10k-after-worldwidejournals-f2d5e9c`
+is `2,392/6,293 good_pdf` (`38.01%`), up `+1` versus UP Poznan and `+555`
+versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
+`5,979/6,293`, so the current gap is `3,587` rows.
 
-Wulixb no-storage provider probe
-`unknown-wulixb-current-provider-probe1-c0f4c9c` recovered `0/1`: direct
-PDF-byte strategies returned `supplement_or_preview_pdf`, and `browser_html`
-returned `html_instead_of_pdf`. It is now prior provider/validator evidence,
-not a route-promotion candidate. No Taxicab production scraping-code change, no
-storage write, no accepted KPI movement, and no Taxicab `main` push came from
-this slice.
+Worldwidejournals recovered one `worldwidejournals.com` PDF through no-storage
+Zyte direct PDF-byte evidence, explicit bounded reharvest, read-only
+confirmation, and a strict full 10K read-only no-regression gate. The row-level
+diff versus UP Poznan changed exactly one row from `missing_pdf_harvest` to
+`good_pdf`, with `0` good-to-non-good regressions. Wulixb remains prior
+provider/validator evidence (`0/1`, preview/supplement PDF outcome). No Taxicab
+production scraping-code change and no Taxicab `main` push came from this
+slice; this is a bounded cache/reharvest lift accepted by the full read-only
+gate.
 
-Residual queue after wulixb demotion: top 240 subclusters are all
-`provider_lane_do_not_duplicate`; full 1,418-subcluster export has `1,048`
-provider-lane/do-not-duplicate, `331` one-row `probe_next`, `20`
+Residual queue after worldwidejournals acceptance: top 240 subclusters are all
+`provider_lane_do_not_duplicate`; full 1,417-subcluster export has `1,048`
+provider-lane/do-not-duplicate, `330` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
 subclusters. Next exact low-volume fresh probe, if continuing singleton probes:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-uppoznan-4d9ce15/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-worldwidejournals-f2d5e9c/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host worldwidejournals.com \
+  --host wmpllc.org \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-worldwidejournals-current-provider-probe1-<commit> \
+  --run-id unknown-wmpllc-current-provider-probe1-<commit> \
   --timeout 60
 ```
 
@@ -45,8 +47,8 @@ process substitution for CSV input because `/dev/fd/...` has no `.csv` suffix
 and the harness treats it as plain DOI text. Keep raw row-level artifacts
 local/ignored. Public oxjobs #461 artifacts must be aggregate or scrubbed.
 Browserbase remains evidence/gold only; Zyte remains the production provider
-core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, or UP Poznan metric
-blocks are historical; this block is the current handoff.
+core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, UP Poznan, or
+wulixb metric blocks are historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
 (95.83%). PDF Phase 2 is active and targets >=95% `good_pdf` on the
