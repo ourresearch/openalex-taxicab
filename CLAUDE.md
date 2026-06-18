@@ -1,25 +1,25 @@
 # OpenAlex Taxicab
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-17 JID Gate
+## Current PDF Handoff: 2026-06-17 JID Gate + ESSOAr Negative Evidence
 
-Accepted strict full 10K PDF gate `pdf-full10k-after-jid-03998bf` is now
+Accepted strict full 10K PDF gate `pdf-full10k-after-jid-03998bf` remains
 `2,389/6,293 good_pdf` (`37.96%`), up `+1` versus JTH and `+552`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
 `5,979/6,293`, so the current gap is `3,590` rows.
 
-This slice recovered one `jidonline.org` PDF through no-storage Zyte evidence,
-explicit bounded reharvest, read-only confirmation, and a strict full 10K
-read-only no-regression gate. It made no Taxicab production scraping-code change
-and no Taxicab `main` push. Category counts at the accepted gate: `3,785`
-`missing_pdf_harvest`, `65` `corrupt_or_truncated_pdf`, `4`
-`encrypted_or_unreadable_pdf`, `23` `supplement_or_preview_pdf`, `4`
-`interstitial_or_paywall`, `0` timeout, and `0` `taxicab_error`.
+JID recovered one `jidonline.org` PDF through no-storage Zyte evidence, explicit
+bounded reharvest, read-only confirmation, and a strict full 10K read-only
+no-regression gate. ESSOAr was then tested as the next fresh lane and recovered
+`0/1`: direct PDF-byte strategies returned `empty_response`, and `browser_html`
+returned `download_404`. `essoar.org` is now prior provider-negative evidence.
+No Taxicab production scraping-code change, no Taxicab `main` push, and no
+accepted KPI lift came from ESSOAr.
 
-Residual queue after JID: `1,043` provider-lane/do-not-duplicate subclusters,
-`338` low-volume `probe_next` subclusters, `20` validator/provider lanes, `11`
-inspect-first lanes, and `8` Browserbase/Zyte-gold-first lanes. Next exact
-probe candidate:
+Residual queue after ESSOAr demotion: `1,044` provider-lane/do-not-duplicate
+subclusters, `337` low-volume `probe_next` subclusters, `20` validator/provider
+lanes, `11` inspect-first lanes, and `8` Browserbase/Zyte-gold-first lanes.
+Next exact probe candidate:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
@@ -27,18 +27,18 @@ python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-jid-03998bf/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher wiley \
-  --host essoar.org \
+  --host cochranelibrary.com \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id wiley-essoar-current-provider-probe1-<commit> \
+  --run-id wiley-cochrane-current-provider-probe1-<commit> \
   --timeout 60
 ```
 
 Keep raw row-level artifacts local/ignored. Public oxjobs #461 artifacts must be
 aggregate or scrubbed. Browserbase remains evidence/gold only; Zyte remains the
 production provider core. Any lower OSTI/PLOS, JPS, Tellus, or JTH metric blocks
-are historical; this JID block is the current handoff.
+are historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Academic content harvesting API. Fetches HTML and PDFs from publisher websites via Zyte API, stores in Cloudflare R2 + DynamoDB.
 
