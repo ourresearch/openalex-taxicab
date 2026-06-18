@@ -1,41 +1,40 @@
 # Taxicab Goal State
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 Unisa Press Accepted Gate
+## Current PDF Handoff: 2026-06-18 UKM Accepted Gate
 
-Accepted strict full 10K PDF gate `pdf-full10k-after-unisapress-d66dfc7`
-is `2,396/6,293 good_pdf` (`38.07%`), up `+1` versus Vektornm and `+559`
+Accepted strict full 10K PDF gate `pdf-full10k-after-ukm-bc4d7a7`
+is `2,397/6,293 good_pdf` (`38.09%`), up `+1` versus Unisa Press and `+560`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,583` rows.
+`5,979/6,293`, so the current gap is `3,582` rows.
 
-Unisa Press / `unisapressjournals.co.za` was the next fresh low-volume lane
-after the accepted Vektornm gate. No-storage provider probe
-`unknown-unisapress-current-provider-probe1-d66dfc7` recovered `1/1 good_pdf`:
-`default_body`, `accept_pdf`, and `google_referer` returned valid PDF bytes;
-`browser_html` returned `empty_response` after a Zyte ban-free-response failure.
-Bounded reharvest `unknown-unisapress-reharvest1-d66dfc7` recovered `1/1`;
-read-only confirmation `unknown-unisapress-readonly1-d66dfc7` preserved `1/1`;
-strict full gate `pdf-full10k-after-unisapress-d66dfc7` accepted `+1 good_pdf`
-with `0` good-to-non-good regressions. `missing_pdf_harvest` is now `3,778`.
+UKM / `ukm.my` was the next fresh low-volume lane after the accepted Unisa
+Press gate. No-storage provider probe `unknown-ukm-current-provider-probe1-bc4d7a7`
+recovered `1/1 good_pdf`: `default_body`, `accept_pdf`, and `google_referer`
+returned valid PDF bytes; `browser_html` returned `html_instead_of_pdf`.
+Bounded reharvest `unknown-ukm-reharvest1-bc4d7a7` recovered `1/1`; read-only
+confirmation `unknown-ukm-readonly1-bc4d7a7` preserved `1/1`; strict full gate
+`pdf-full10k-after-ukm-bc4d7a7` accepted `+1 good_pdf` with `0`
+good-to-non-good regressions. `missing_pdf_harvest` is now `3,777`.
 
-Residual queue after the accepted Unisa Press gate: full 1,413-subcluster
-export has `1,051` provider-lane/do-not-duplicate, `323` one-row `probe_next`,
-`20` validator/provider, `8` Browserbase/Zyte-gold-first, and `11`
-inspect-first subclusters. First non-provider lane is a validator-confirmation
+Residual queue after the accepted UKM gate: full 1,412-subcluster export has
+`1,051` provider-lane/do-not-duplicate, `322` one-row `probe_next`, `20`
+validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
+subclusters. First non-provider lane is a validator-confirmation
 `corrupt_or_truncated_pdf` singleton. Next exact low-volume fresh probe, if
 continuing singleton probes:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-unisapress-d66dfc7/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-ukm-bc4d7a7/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host ukm.my \
+  --host ufn.ru \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-ukm-current-provider-probe1-<commit> \
+  --run-id unknown-ufn-current-provider-probe1-<commit> \
   --timeout 60
 ```
 
@@ -49,9 +48,9 @@ and the harness treats it as plain DOI text. Keep raw row-level artifacts
 local/ignored. Public oxjobs #461 artifacts must be aggregate or scrubbed.
 Browserbase remains evidence/gold only; Zyte remains the production provider
 core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, UP Poznan,
-wulixb, worldwidejournals, wmpllc, visnykj, virtus, vetsci, Vestnik Rosnou, or
-Vektornm metric/evidence blocks are historical; this block is the current
-handoff.
+wulixb, worldwidejournals, wmpllc, visnykj, virtus, vetsci, Vestnik Rosnou,
+Vektornm, or Unisa Press metric/evidence blocks are historical; this block is
+the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-17 PDT.
 
