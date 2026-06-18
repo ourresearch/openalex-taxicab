@@ -21,8 +21,10 @@ and `taxicab_error` remain `0`.
 Residual queue after the accepted UFN gate: full 1,411-subcluster export has
 `1,051` provider-lane/do-not-duplicate, `321` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. First fresh low-volume `probe_next` lane is `turkishstudies.net`.
-Next exact low-volume fresh probe, if continuing singleton probes:
+subclusters. `turkishstudies.net` is not fresh: prior evidence already
+recovered one direct-PDF row and left one upstream `download_404`. Skip it
+unless testing that known remaining row. Next exact low-volume fresh probe, if
+continuing singleton probes, is `tidsskrift.dk`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
@@ -30,11 +32,11 @@ python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-ufn-a26f05a/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host turkishstudies.net \
+  --host tidsskrift.dk \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-turkishstudies-current-provider-probe1-a26f05a \
+  --run-id unknown-tidsskrift-current-provider-probe1-bd9565b \
   --timeout 60
 ```
 
@@ -48,9 +50,9 @@ and the harness treats it as plain DOI text. Keep raw row-level artifacts
 local/ignored. Public oxjobs #461 artifacts must be aggregate or scrubbed.
 Browserbase remains evidence/gold only; Zyte remains the production provider
 core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, UP Poznan,
-wulixb, worldwidejournals, wmpllc, visnykj, virtus, vetsci, Vestnik Rosnou,
-Vektornm, Unisa Press, UKM, or UFN metric/evidence blocks are historical; this
-block is the current handoff.
+wulixb, worldwidejournals, wmpllc, visnykj, virtus, vetsci, Turkish Studies,
+Vestnik Rosnou, Vektornm, Unisa Press, UKM, or UFN metric/evidence blocks are
+historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Academic content harvesting API. Fetches HTML and PDFs from publisher websites via Zyte API, stores in Cloudflare R2 + DynamoDB.
 
