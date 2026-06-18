@@ -1,22 +1,23 @@
 # Taxicab Goal State
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-17 Virtus Provider-Negative Evidence
+## Current PDF Handoff: 2026-06-17 Vetsci Accepted Gate
 
-Accepted strict full 10K PDF gate `pdf-full10k-after-visnykj-68b5ebb`
-is `2,393/6,293 good_pdf` (`38.03%`), up `+1` versus Worldwidejournals and `+556`
+Accepted strict full 10K PDF gate `pdf-full10k-after-vetsci-41ddbad`
+is `2,394/6,293 good_pdf` (`38.04%`), up `+1` versus Visnykj and `+557`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,586` rows.
+`5,979/6,293`, so the current gap is `3,585` rows.
 
-Visnykj remains the latest accepted KPI lift. Virtus / `virtusinterpress.org`
-was the next fresh low-volume lane after that gate; no-storage provider probe
-`unknown-virtusinterpress-current-provider-probe1-eb5e728` recovered `0/1
-good_pdf`, with all strategies ending as `empty_response`. Virtus is now prior
-provider/Zyte or gold-sample evidence, not a fresh route-promotion lane.
+Vetsci / `vetsci.org` recovered one PDF through no-storage Zyte direct
+PDF-byte evidence, explicit bounded reharvest, read-only confirmation, and a
+strict full 10K read-only no-regression gate. The row-level diff versus Visnykj
+changed exactly one row from `missing_pdf_harvest` to `good_pdf`, with `0`
+good-to-non-good regressions. Virtus remains prior provider/Zyte or
+gold-sample evidence (`0/1`, all strategies `empty_response`).
 
-Residual queue after virtus demotion: top 240 subclusters are all
-`provider_lane_do_not_duplicate`; full 1,416-subcluster export has `1,050`
-provider-lane/do-not-duplicate, `327` one-row `probe_next`, `20`
+Residual queue after vetsci acceptance: top 240 subclusters are all
+`provider_lane_do_not_duplicate`; full 1,415-subcluster export has `1,050`
+provider-lane/do-not-duplicate, `326` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
 subclusters. First non-provider lane is a validator-confirmation
 `corrupt_or_truncated_pdf` singleton. Next exact low-volume fresh probe, if
@@ -25,14 +26,14 @@ continuing singleton probes:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-visnykj-68b5ebb/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-vetsci-41ddbad/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host vetsci.org \
+  --host vestnik-rosnou.ru \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-vetsci-current-provider-probe1-<commit> \
+  --run-id unknown-vestnikrosnou-current-provider-probe1-<commit> \
   --timeout 60
 ```
 
@@ -46,8 +47,8 @@ and the harness treats it as plain DOI text. Keep raw row-level artifacts
 local/ignored. Public oxjobs #461 artifacts must be aggregate or scrubbed.
 Browserbase remains evidence/gold only; Zyte remains the production provider
 core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, UP Poznan,
-wulixb, worldwidejournals, wmpllc, or visnykj metric blocks are historical;
-this block is the current handoff.
+wulixb, worldwidejournals, wmpllc, visnykj, or virtus metric blocks are
+historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-17 PDT.
 
@@ -127,9 +128,8 @@ Elsevier article-PDF lanes without a narrower or provider-advised recipe. Do
 not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
 accepted metric is `pdf-full10k-after-visnykj-68b5ebb`, 2,393/6,293
-`good_pdf` (38.03%), with a 3,586-row gap to 95%. Latest oxjobs #461 commit
-`117fb75e6` publishes the visnykj accepted gate; current residual planning has
-virtus demoted and next fresh singleton `vetsci.org`.
+`good_pdf` (38.03%), with a 3,586-row gap to 95%. This paragraph is historical;
+the current handoff block above supersedes it after the Vetsci accepted gate.
 Older entries such as OSTI/PLOS, provider snapshots, and DOI.org cleanup are
 historical; prior `5a1254630` publishes the aggregate-only closed
 DOI.org residual-priority cleanup and refreshed queue; prior `3c125878f`
