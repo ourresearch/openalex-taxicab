@@ -41,11 +41,14 @@ python3 scripts/provider_pdf_probe.py \
   --timeout 60
 ```
 
-Oxjobs #461 still needs the SS Editora aggregate/scrubbed report update. Public
-#461 artifacts for this slice must not include raw DOIs, Browserbase session
-IDs, signed URLs, or raw discovered PDF URLs. Browserbase remains evidence/gold
-only; Zyte remains the production provider core. Any lower metric/evidence
-blocks are historical; this block is the current handoff.
+Oxjobs #461 publication is complete for SS Editora: commit `07f8b2044`
+publishes the aggregate recovery summary, full-gate summary, residual refresh,
+graph, learning notes, and next-lane handoff; CI run `27769231317` passed, and
+the live raw report plus JSON asset were verified. Public #461 artifacts for
+this slice are scrubbed: no raw DOIs, Browserbase session IDs, signed URLs, or
+raw discovered PDF URLs. Browserbase remains evidence/gold only; Zyte remains
+the production provider core. Any lower metric/evidence blocks are historical;
+this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-18 UTC.
 
@@ -88,12 +91,14 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `1f38cb40f` publishes the SSS Journal
-provider/gold negative evidence and residual queue; CI run `27767083440`
-passed. Next #461 publish should record SS Editora accepted recovery, full gate
-`pdf-full10k-after-sseditora-ac692df`, and residual refresh
-`residual-clusters-after-sseditora-ac692df`. Prior `af33e5eec` publishes the
-ResearchHub provider/validator evidence and residual-priority demotion. The
+Current publish status: oxjobs #461 commit `07f8b2044` publishes the SS Editora
+accepted recovery, full gate `pdf-full10k-after-sseditora-ac692df`, residual
+refresh `residual-clusters-after-sseditora-ac692df`, and next
+`spandidos-publications.com` handoff; CI run `27769231317` passed and the live
+raw report plus JSON asset were verified. Prior `1f38cb40f` publishes the SSS
+Journal provider/gold negative evidence and residual queue. Prior `af33e5eec`
+publishes the ResearchHub provider/validator evidence and residual-priority
+demotion. The
 accepted full 10K metric is now `pdf-full10k-after-sseditora-ac692df`:
 2,402/6,293 `good_pdf` (38.17%), +1 versus Sorbonne and +565 versus denominator
 baseline, with 3,772 `missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`.
@@ -101,8 +106,8 @@ This is bounded direct-PDF cache/reharvest lift, not a Taxicab-main production
 scraping push. After SS Editora recovery, the residual refresh has 1,060
 provider-lane/do-not-duplicate subclusters and 308 one-row `probe_next`
 subclusters. The next fresh singleton probe is `spandidos-publications.com`.
-Current phase: publish SS Editora aggregate evidence to #461, then run the
-Spandidos no-storage evidence probe before any Taxicab main push.
+Current phase: SS Editora is published to #461; run the Spandidos no-storage
+evidence probe before any Taxicab main push.
 Do not
 promote SAGE, Wiley, ACS, IOP, Elsevier DOI.org, rank-39 DOI.org, ACM,
 bioRxiv/CSHLP, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass,

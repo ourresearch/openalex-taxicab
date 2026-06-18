@@ -41,11 +41,14 @@ python3 scripts/provider_pdf_probe.py \
   --timeout 60
 ```
 
-Oxjobs #461 still needs the SS Editora aggregate/scrubbed report update. Public
-#461 artifacts for this slice must not include raw DOIs, Browserbase session
-IDs, signed URLs, or raw discovered PDF URLs. Browserbase remains evidence/gold
-only; Zyte remains the production provider core. Any lower metric/evidence
-blocks are historical; this block is the current handoff.
+Oxjobs #461 publication is complete for SS Editora: commit `07f8b2044`
+publishes the aggregate recovery summary, full-gate summary, residual refresh,
+graph, learning notes, and next-lane handoff; CI run `27769231317` passed, and
+the live raw report plus JSON asset were verified. Public #461 artifacts for
+this slice are scrubbed: no raw DOIs, Browserbase session IDs, signed URLs, or
+raw discovered PDF URLs. Browserbase remains evidence/gold only; Zyte remains
+the production provider core. Any lower metric/evidence blocks are historical;
+this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Academic content harvesting API. Fetches HTML and PDFs from publisher websites via Zyte API, stores in Cloudflare R2 + DynamoDB.
 
@@ -59,13 +62,14 @@ gate is `pdf-full10k-after-sseditora-ac692df`: 2,402/6,293 `good_pdf`
 transition and zero good-to-non-good regressions. This is a bounded direct-PDF
 cache/reharvest recovery, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `1f38cb40f` publishes the SSS Journal
-provider/gold negative evidence and residual queue; CI run `27767083440`
-passed. Next #461 publish should record SS Editora accepted recovery, full gate
-`pdf-full10k-after-sseditora-ac692df`, and residual refresh
-`residual-clusters-after-sseditora-ac692df`. Prior `af33e5eec` publishes the
-ResearchHub provider/validator evidence and residual-priority demotion. Older
-provider-support snapshot entries
+Latest #461 report publish: oxjobs commit `07f8b2044` publishes the SS Editora
+accepted recovery, full gate `pdf-full10k-after-sseditora-ac692df`, residual
+refresh `residual-clusters-after-sseditora-ac692df`, and next
+`spandidos-publications.com` handoff; CI run `27769231317` passed and the live
+raw report plus JSON asset were verified. Prior `1f38cb40f` publishes the SSS
+Journal provider/gold negative evidence and residual queue. Prior `af33e5eec`
+publishes the ResearchHub provider/validator evidence and residual-priority
+demotion. Older provider-support snapshot entries
 remain historical context, including
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`.
 Prior `5a1254630` publishes the closed DOI.org residual-priority cleanup and refreshed residual queue; prior

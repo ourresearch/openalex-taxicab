@@ -41,11 +41,14 @@ python3 scripts/provider_pdf_probe.py \
   --timeout 60
 ```
 
-Oxjobs #461 still needs the SS Editora aggregate/scrubbed report update. Public
-#461 artifacts for this slice must not include raw DOIs, Browserbase session
-IDs, signed URLs, or raw discovered PDF URLs. Browserbase remains evidence/gold
-only; Zyte remains the production provider core. Any lower metric/evidence
-blocks are historical; this block is the current handoff.
+Oxjobs #461 publication is complete for SS Editora: commit `07f8b2044`
+publishes the aggregate recovery summary, full-gate summary, residual refresh,
+graph, learning notes, and next-lane handoff; CI run `27769231317` passed, and
+the live raw report plus JSON asset were verified. Public #461 artifacts for
+this slice are scrubbed: no raw DOIs, Browserbase session IDs, signed URLs, or
+raw discovered PDF URLs. Browserbase remains evidence/gold only; Zyte remains
+the production provider core. Any lower metric/evidence blocks are historical;
+this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-18 UTC.
 
