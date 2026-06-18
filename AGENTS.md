@@ -1,65 +1,60 @@
 # OpenAlex Taxicab Agent Guide
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 Spandidos Negative Evidence
+## Current PDF Handoff: 2026-06-18 Solen Accepted Recovery
 
-Accepted strict full 10K PDF gate is now `pdf-full10k-after-sseditora-ac692df`:
-`2,402/6,293 good_pdf` (`38.17%`), up `+1` versus Sorbonne and `+565`
+Accepted strict full 10K PDF gate is now `pdf-full10k-after-solen-279302d`:
+`2,403/6,293 good_pdf` (`38.19%`), up `+1` versus SS Editora and `+566`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,577` rows. The full gate changed exactly
+`5,979/6,293`, so the current gap is `3,576` rows. The full gate changed exactly
 one row, `missing_pdf_harvest -> good_pdf`, with `0` good-to-non-good
 regressions, `0` timeouts, and `0` Taxicab errors.
 
-Latest accepted recovery lane: SS Editora / `sseditora.com.br`. The initial
-no-storage provider probe against the DOI target recovered `0/1` because every
-strategy reached a 404 HTML page. Browserbase gold evidence reached the final
-publisher page and found a hidden same-domain PDF link in the rendered download
-/ online-reading tab. A second no-storage provider probe against that embedded
-PDF asset recovered `1/1 good_pdf` through direct PDF-byte strategies. Bounded
-PDF-URL reharvest `unknown-sseditora-pdfurl-reharvest1-ac692df` created a durable
-Taxicab PDF record, and read-only confirmation
-`unknown-sseditora-pdfurl-readonly1-ac692df` stayed `1/1 good_pdf`. The PDF is
-byte-valid at 4,795,636 bytes, 305 pages, `title_overlap=1.0`, with
-`doi_match=false`; keep the DOI/session/raw URL details local only.
+Latest accepted recovery lane: Solen / `solen.cz`. No-storage Zyte provider
+probe `unknown-solen-current-provider-probe1-after-spandidos` recovered `1/1`:
+`default_body`, `accept_pdf`, and `google_referer` all returned valid PDF bytes;
+`browser_html` returned a PDF-viewer shell and is not the preferred strategy.
+Bounded PDF-URL reharvest `unknown-solen-pdfurl-reharvest1-279302d` created a
+durable Taxicab PDF record, and read-only confirmation
+`unknown-solen-pdfurl-readonly1-279302d` stayed `1/1 good_pdf`. The PDF is
+byte-valid at 243,596 bytes, 5 pages, and 15,744 extracted text chars. Keep the
+DOI/raw URL details local only.
 
-Latest evidence-only lane: Spandidos / `spandidos-publications.com`. No-storage
-Zyte provider probe `unknown-spandidos-current-provider-probe1-ac692df`
-recovered `0/1`: all four strategies returned tiny HTTP 402/Tomcat HTML, not
-PDF bytes. Browserbase gold run `unknown-spandidos-browserbase-gold1-0057279`
-also recovered `0/1`: it reached the article page but only exposed citation,
-library recommendation, and `Purchase PDF` paths, with no full-text PDF. No
-Taxicab POST/R2/DynamoDB writes occurred, no route code was promoted, and the
-accepted full-gate metric is unchanged. Residual priority now demotes
-Spandidos to `provider_lane_do_not_duplicate`.
+Latest evidence-only lane: Spandidos / `spandidos-publications.com` remains
+negative and demoted. Zyte recovered `0/1` with tiny HTTP 402/Tomcat HTML, and
+Browserbase recovered `0/1` with citation/library recommendation/`Purchase PDF`
+paths only. No Taxicab POST/R2/DynamoDB writes occurred for Spandidos, no route
+code was promoted, and Spandidos stays `provider_lane_do_not_duplicate`.
 
-Residual refresh `residual-clusters-after-spandidos-0057279` has `1,061`
-provider-lane/do-not-duplicate subclusters, `307` one-row `probe_next`, `20`
+Residual refresh `residual-clusters-after-solen-279302d` has `1,061`
+provider-lane/do-not-duplicate subclusters, `306` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. The next exact low-volume fresh probe is `solen.cz`:
+subclusters. The next exact low-volume fresh probe is `sjns.journals.ekb.eg`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-sseditora-ac692df/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-solen-279302d/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host solen.cz \
+  --host sjns.journals.ekb.eg \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-solen-current-provider-probe1-after-spandidos \
+  --run-id unknown-sjns-current-provider-probe1-after-solen \
   --timeout 60
 ```
 
-Oxjobs #461 publication is complete for Spandidos: commit `e75997d9b`
-publishes the aggregate negative provider/gold evidence, residual demotion,
-report/console update, learning notes, improvement plan, and next Solen
-handoff; CI run `27770207916` passed, and the live raw report plus JSON asset
-were verified. Prior commit `07f8b2044` publishes the SS Editora recovery
-slice. Public #461 artifacts for this slice are scrubbed: no raw DOIs,
-Browserbase session IDs, signed URLs, or raw discovered PDF URLs. Browserbase
-remains evidence/gold only; Zyte remains the production provider core. Any
-lower metric/evidence blocks are historical; this block is the current handoff.
+Oxjobs #461 publication is complete through Spandidos: commit `e75997d9b`
+publishes Spandidos negative provider/gold evidence, residual demotion, and
+next Solen handoff; CI run `27770207916` passed, and the live raw report plus
+JSON asset were verified. Oxjobs #461 still needs the Solen accepted recovery,
+full-gate summary, residual refresh, graph/report update, and next
+`sjns.journals.ekb.eg` handoff. Public #461 artifacts for this slice must be
+scrubbed: no raw DOIs, Browserbase session IDs, signed URLs, or raw discovered
+PDF URLs. Browserbase remains evidence/gold only; Zyte remains the production
+provider core. Any lower metric/evidence blocks are historical; this block is
+the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
 (95.83%). PDF Phase 2 is active and targets >=95% `good_pdf` on the
@@ -67,8 +62,8 @@ PDF-expected portion of the 10K Goldie corpus. Read `GOAL.md` and
 `NEXT_TO_DO.md` before changing code.
 
 Current PDF metric: see the handoff block above. The accepted full gate is
-`pdf-full10k-after-sseditora-ac692df`: 2,402/6,293 `good_pdf` (38.17%),
-gap 3,577 rows, with one `missing_pdf_harvest -> good_pdf` transition and zero
+`pdf-full10k-after-solen-279302d`: 2,403/6,293 `good_pdf` (38.19%),
+gap 3,576 rows, with one `missing_pdf_harvest -> good_pdf` transition and zero
 good-to-non-good regressions. This is a bounded direct-PDF cache/reharvest
 recovery, not a Taxicab-main production scraping push.
 
@@ -76,6 +71,10 @@ Latest #461 report publish: oxjobs commit `e75997d9b` publishes the Spandidos
 0/1 Zyte + 0/1 Browserbase negative evidence, residual demotion, report/console
 update, learning notes, improvement plan, and next `solen.cz` handoff; CI run
 `27770207916` passed and the live raw report plus JSON asset were verified.
+Next #461 publish should record the Solen accepted recovery, full gate
+`pdf-full10k-after-solen-279302d`, residual refresh
+`residual-clusters-after-solen-279302d`, and next
+`sjns.journals.ekb.eg` handoff.
 Prior `07f8b2044` publishes the SS Editora accepted recovery, full gate
 `pdf-full10k-after-sseditora-ac692df`, residual refresh
 `residual-clusters-after-sseditora-ac692df`, and
