@@ -45,16 +45,15 @@ python3 scripts/provider_pdf_probe.py \
   --timeout 60
 ```
 
-Oxjobs #461 publication is complete through Spandidos: commit `e75997d9b`
-publishes Spandidos negative provider/gold evidence, residual demotion, and
-next Solen handoff; CI run `27770207916` passed, and the live raw report plus
-JSON asset were verified. Oxjobs #461 still needs the Solen accepted recovery,
-full-gate summary, residual refresh, graph/report update, and next
-`sjns.journals.ekb.eg` handoff. Public #461 artifacts for this slice must be
-scrubbed: no raw DOIs, Browserbase session IDs, signed URLs, or raw discovered
-PDF URLs. Browserbase remains evidence/gold only; Zyte remains the production
-provider core. Any lower metric/evidence blocks are historical; this block is
-the current handoff.
+Oxjobs #461 publication is complete through Solen: commit `f3c5bb2a6` publishes
+the Solen accepted recovery, strict full gate
+`pdf-full10k-after-solen-279302d`, residual refresh, graph/report update, and
+next `sjns.journals.ekb.eg` handoff. CI run `27784523594` passed, and the live
+raw report plus Solen summary JSON were verified with a cache-busting request.
+Public #461 artifacts for this slice are scrubbed: no raw DOIs, Browserbase
+session IDs, signed URLs, or raw discovered PDF URLs. Browserbase remains
+evidence/gold only; Zyte remains the production provider core. Any lower
+metric/evidence blocks are historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
 (95.83%). PDF Phase 2 is active and targets >=95% `good_pdf` on the
@@ -67,14 +66,12 @@ gap 3,576 rows, with one `missing_pdf_harvest -> good_pdf` transition and zero
 good-to-non-good regressions. This is a bounded direct-PDF cache/reharvest
 recovery, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `e75997d9b` publishes the Spandidos
-0/1 Zyte + 0/1 Browserbase negative evidence, residual demotion, report/console
-update, learning notes, improvement plan, and next `solen.cz` handoff; CI run
-`27770207916` passed and the live raw report plus JSON asset were verified.
-Next #461 publish should record the Solen accepted recovery, full gate
-`pdf-full10k-after-solen-279302d`, residual refresh
-`residual-clusters-after-solen-279302d`, and next
-`sjns.journals.ekb.eg` handoff.
+Latest #461 report publish: oxjobs commit `f3c5bb2a6` publishes the Solen
+accepted recovery, full gate `pdf-full10k-after-solen-279302d`, residual
+refresh `residual-clusters-after-solen-279302d`, graph/report update, learning
+notes, improvement plan, and next `sjns.journals.ekb.eg` handoff. CI run
+`27784523594` passed and the live raw report plus Solen summary JSON were
+verified with a cache-busting request.
 Prior `07f8b2044` publishes the SS Editora accepted recovery, full gate
 `pdf-full10k-after-sseditora-ac692df`, residual refresh
 `residual-clusters-after-sseditora-ac692df`, and
