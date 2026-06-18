@@ -1,25 +1,24 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-17 Wmpllc Provider-Negative Evidence
+## Current PDF Handoff: 2026-06-17 Visnykj Accepted Gate
 
-Accepted strict full 10K PDF gate `pdf-full10k-after-worldwidejournals-f2d5e9c`
-is `2,392/6,293 good_pdf` (`38.01%`), up `+1` versus UP Poznan and `+555`
+Accepted strict full 10K PDF gate `pdf-full10k-after-visnykj-68b5ebb`
+is `2,393/6,293 good_pdf` (`38.03%`), up `+1` versus Worldwidejournals and `+556`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,587` rows.
+`5,979/6,293`, so the current gap is `3,586` rows.
 
-Worldwidejournals remains the latest accepted KPI lift: one
-`worldwidejournals.com` PDF recovered through no-storage Zyte direct PDF-byte
-evidence, explicit bounded reharvest, read-only confirmation, and a strict full
-10K read-only no-regression gate. Wmpllc / `wmpllc.org` was the next fresh
-low-volume lane after that gate; no-storage provider probe
-`unknown-wmpllc-current-provider-probe1-3319e7e` recovered `0/1 good_pdf`, with
-all strategies ending as `js_redirect_unresolved`. Wmpllc is now prior
-provider/Zyte or gold-sample evidence, not a fresh route-promotion lane.
+Visnykj / `visnykj.wunu.edu.ua` recovered one PDF through no-storage Zyte direct
+PDF-byte evidence, explicit bounded reharvest, read-only confirmation, and a
+strict full 10K read-only no-regression gate. The row-level diff versus
+Worldwidejournals changed exactly one row from `missing_pdf_harvest` to
+`good_pdf`, with `0` good-to-non-good regressions. Wmpllc remains prior
+provider/Zyte or gold-sample evidence (`0/1`, all strategies
+`js_redirect_unresolved`).
 
-Residual queue after wmpllc demotion: top 240 subclusters are all
-`provider_lane_do_not_duplicate`; full 1,417-subcluster export has `1,049`
-provider-lane/do-not-duplicate, `329` one-row `probe_next`, `20`
+Residual queue after visnykj acceptance: top 240 subclusters are all
+`provider_lane_do_not_duplicate`; full 1,416-subcluster export has `1,049`
+provider-lane/do-not-duplicate, `328` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
 subclusters. First non-provider lane is a validator-confirmation
 `corrupt_or_truncated_pdf` singleton. Next exact low-volume fresh probe, if
@@ -28,14 +27,14 @@ continuing singleton probes:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-worldwidejournals-f2d5e9c/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-visnykj-68b5ebb/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host visnykj.wunu.edu.ua \
+  --host virtusinterpress.org \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-visnykj-current-provider-probe1-<commit> \
+  --run-id unknown-virtusinterpress-current-provider-probe1-<commit> \
   --timeout 60
 ```
 
@@ -49,8 +48,8 @@ and the harness treats it as plain DOI text. Keep raw row-level artifacts
 local/ignored. Public oxjobs #461 artifacts must be aggregate or scrubbed.
 Browserbase remains evidence/gold only; Zyte remains the production provider
 core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, UP Poznan,
-wulixb, or worldwidejournals metric blocks are historical; this block is the
-current handoff.
+wulixb, worldwidejournals, or wmpllc metric blocks are historical; this block
+is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-17 PDT.
 
@@ -66,16 +65,15 @@ HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
 PDF Phase 2 /goal: active, target >=95% good_pdf on pdf_expected_total.
 
 Current handoff override: accepted strict full 10K PDF gate
-`pdf-full10k-after-worldwidejournals-f2d5e9c` at Taxicab branch commit
-`3319e7e` is 2,392/6,293 `good_pdf` (38.01%), +1 versus UP Poznan and +555
-versus denominator baseline. It has 3,782 `missing_pdf_harvest`, 65
+`pdf-full10k-after-visnykj-68b5ebb` at Taxicab branch commit `68b5ebb` is
+2,393/6,293 `good_pdf` (38.03%), +1 versus Worldwidejournals and +556
+versus denominator baseline. It has 3,781 `missing_pdf_harvest`, 65
 `corrupt_or_truncated_pdf`, 4 `encrypted_or_unreadable_pdf`, 23
 `supplement_or_preview_pdf`, 4 `interstitial_or_paywall`, 0 timeout, and 0
-`taxicab_error`. The gap to 95% is 3,587 rows. Oxjobs #461 commit `37af671ac`
-publishes the worldwidejournals accepted gate, refreshed graph, scrubbed
-aggregate evidence, and next wmpllc/visnykj handoff. Wmpllc is now demoted as
-provider-negative JS-redirect evidence; next fresh singleton is
-`visnykj.wunu.edu.ua`. Older entries including OSTI/PLOS, provider snapshots,
+`taxicab_error`. The gap to 95% is 3,586 rows. Oxjobs #461 commit `1d3a2a2f9`
+records wmpllc provider-negative evidence; next publish should record the
+accepted visnykj gate. Next fresh singleton is `virtusinterpress.org`.
+Older entries including OSTI/PLOS, provider snapshots,
 and DOI.org cleanup are historical; prior `3c125878f`
 publishes the aggregate-only
 Elsevier DOI.org residual-priority correction; prior `77d71e78f` publishes the aggregate-only AMS
