@@ -1,42 +1,44 @@
 # OpenAlex Taxicab
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 UFN Accepted Gate
+## Current PDF Handoff: 2026-06-18 Tidsskrift Accepted Gate
 
-Accepted strict full 10K PDF gate `pdf-full10k-after-ufn-a26f05a`
-is `2,398/6,293 good_pdf` (`38.11%`), up `+1` versus UKM and `+561`
+Accepted strict full 10K PDF gate `pdf-full10k-after-tidsskrift-146f509`
+is `2,399/6,293 good_pdf` (`38.12%`), up `+1` versus UFN and `+562`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,581` rows.
+`5,979/6,293`, so the current gap is `3,580` rows.
 
-UFN / `ufn.ru` was the next fresh low-volume lane after the accepted UKM gate.
-No-storage provider probe `unknown-ufn-current-provider-probe1-a26f05a`
-recovered `1/1 good_pdf`: `default_body`, `accept_pdf`, and `google_referer`
-returned valid PDF bytes; `browser_html` returned `html_instead_of_pdf`.
-Bounded reharvest `unknown-ufn-reharvest1-a26f05a` recovered `1/1`; read-only
-confirmation `unknown-ufn-readonly1-a26f05a` preserved `1/1`; strict full gate
-`pdf-full10k-after-ufn-a26f05a` accepted `+1 good_pdf` with `0`
-good-to-non-good regressions. `missing_pdf_harvest` is now `3,776`; `timeout`
-and `taxicab_error` remain `0`.
+Tidsskrift / `tidsskrift.dk` was the next fresh low-volume lane after the
+accepted UFN gate. No-storage provider probe
+`unknown-tidsskrift-current-provider-probe1-146f509` recovered `1/1 good_pdf`:
+`default_body`, `accept_pdf`, and `google_referer` returned valid 5-page PDF
+bytes; `browser_html` returned `empty_response`. Bounded reharvest
+`unknown-tidsskrift-reharvest1-146f509` recovered `1/1`; read-only
+confirmation `unknown-tidsskrift-readonly1-146f509` preserved `1/1`; strict
+full gate `pdf-full10k-after-tidsskrift-146f509` accepted `+1 good_pdf` with
+`0` good-to-non-good regressions. `missing_pdf_harvest` is now `3,775`;
+`timeout` and `taxicab_error` remain `0`.
 
-Residual queue after the accepted UFN gate: full 1,411-subcluster export has
-`1,051` provider-lane/do-not-duplicate, `321` one-row `probe_next`, `20`
+Residual queue after the accepted Tidsskrift gate: full 1,410-subcluster export
+has `1,051` provider-lane/do-not-duplicate, `320` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
 subclusters. `turkishstudies.net` is not fresh: prior evidence already
 recovered one direct-PDF row and left one upstream `download_404`. Skip it
-unless testing that known remaining row. Next exact low-volume fresh probe, if
-continuing singleton probes, is `tidsskrift.dk`:
+unless testing that known remaining row. Skip the malformed
+`triggered.clockss.orghttps:` residual until it is inspected. Next exact
+low-volume fresh probe, if continuing singleton probes, is `theses.fr`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-ufn-a26f05a/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-tidsskrift-146f509/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host tidsskrift.dk \
+  --host theses.fr \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-tidsskrift-current-provider-probe1-bd9565b \
+  --run-id unknown-theses-current-provider-probe1-146f509 \
   --timeout 60
 ```
 
@@ -51,8 +53,8 @@ local/ignored. Public oxjobs #461 artifacts must be aggregate or scrubbed.
 Browserbase remains evidence/gold only; Zyte remains the production provider
 core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, UP Poznan,
 wulixb, worldwidejournals, wmpllc, visnykj, virtus, vetsci, Turkish Studies,
-Vestnik Rosnou, Vektornm, Unisa Press, UKM, or UFN metric/evidence blocks are
-historical; this block is the current handoff.
+Vestnik Rosnou, Vektornm, Unisa Press, UKM, UFN, or Tidsskrift metric/evidence
+blocks are historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Academic content harvesting API. Fetches HTML and PDFs from publisher websites via Zyte API, stores in Cloudflare R2 + DynamoDB.
 
