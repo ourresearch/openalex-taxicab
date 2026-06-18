@@ -22,7 +22,7 @@ and row-level evidence local only.
 Planning-code update: `openalex_taxicab/residual_clusters.py` now marks
 `storage.prod.researchhub.com` as prior provider/validator evidence so it does
 not remain a duplicate fresh `probe_next` lane. Residual refresh
-`residual-clusters-after-researchhub-demote-657942b` has `1,057`
+`residual-clusters-after-researchhub-demote-d83afa6` has `1,057`
 provider-lane/do-not-duplicate subclusters, `312` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
 subclusters. This changed prioritization only; it did not change Taxicab
@@ -41,7 +41,7 @@ python3 scripts/provider_pdf_probe.py \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-sssjournal-current-provider-probe1-657942b \
+  --run-id unknown-sssjournal-current-provider-probe1-d83afa6 \
   --timeout 60
 ```
 
@@ -92,9 +92,11 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `e82e24155` publishes the accepted
-Sorbonne full gate and refreshed residual queue. The next #461 publish should
-record ResearchHub provider/validator evidence. The accepted full 10K metric
+Current publish status: oxjobs #461 commit `af33e5eec` publishes the
+ResearchHub provider/validator evidence and residual-priority demotion; CI run
+`27766022157` passed. The live raw report endpoint may temporarily show the
+prior Sorbonne-era Next Work section, but `origin/main` has the current #461
+report. The accepted full 10K metric
 is still `pdf-full10k-after-sorbonne-26d14fc`:
 2,401/6,293 `good_pdf` (38.15%), +1 versus Taru/S3 and +564 versus denominator
 baseline, with 3,773 `missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`.
@@ -102,8 +104,7 @@ This is bounded direct-PDF cache/reharvest lift, not a Taxicab-main production
 scraping push. After ResearchHub demotion, the residual refresh has 1,057
 provider-lane/do-not-duplicate subclusters and 312 one-row `probe_next`
 subclusters. The next fresh singleton probe is `sssjournal.com`. Current phase:
-publish ResearchHub provider/validator evidence to #461, then continue with the
-SSS Journal no-storage evidence probe before any Taxicab main push.
+run the SSS Journal no-storage evidence probe before any Taxicab main push.
 Do not
 promote SAGE, Wiley, ACS, IOP, Elsevier DOI.org, rank-39 DOI.org, ACM,
 bioRxiv/CSHLP, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass,

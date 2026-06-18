@@ -22,7 +22,7 @@ and row-level evidence local only.
 Planning-code update: `openalex_taxicab/residual_clusters.py` now marks
 `storage.prod.researchhub.com` as prior provider/validator evidence so it does
 not remain a duplicate fresh `probe_next` lane. Residual refresh
-`residual-clusters-after-researchhub-demote-657942b` has `1,057`
+`residual-clusters-after-researchhub-demote-d83afa6` has `1,057`
 provider-lane/do-not-duplicate subclusters, `312` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
 subclusters. This changed prioritization only; it did not change Taxicab
@@ -41,7 +41,7 @@ python3 scripts/provider_pdf_probe.py \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-sssjournal-current-provider-probe1-657942b \
+  --run-id unknown-sssjournal-current-provider-probe1-d83afa6 \
   --timeout 60
 ```
 
@@ -63,9 +63,10 @@ gate is `pdf-full10k-after-sorbonne-26d14fc`: 2,401/6,293 `good_pdf`
 transition and zero good-to-non-good regressions. This is a bounded direct-PDF
 cache/reharvest recovery, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `e82e24155` publishes the accepted
-Sorbonne gate and refreshed residual queue. Next #461 publish should record
-ResearchHub provider/validator evidence and the residual-priority demotion. Older
+Latest #461 report publish: oxjobs commit `af33e5eec` publishes the
+ResearchHub provider/validator evidence and residual-priority demotion. CI run
+`27766022157` passed. The live raw report endpoint may temporarily show the
+prior Sorbonne-era Next Work section; `origin/main` is current. Older
 provider-support snapshot entries
 remain historical context, including
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`.

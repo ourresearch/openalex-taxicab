@@ -22,7 +22,7 @@ and row-level evidence local only.
 Planning-code update: `openalex_taxicab/residual_clusters.py` now marks
 `storage.prod.researchhub.com` as prior provider/validator evidence so it does
 not remain a duplicate fresh `probe_next` lane. Residual refresh
-`residual-clusters-after-researchhub-demote-657942b` has `1,057`
+`residual-clusters-after-researchhub-demote-d83afa6` has `1,057`
 provider-lane/do-not-duplicate subclusters, `312` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
 subclusters. This changed prioritization only; it did not change Taxicab
@@ -41,7 +41,7 @@ python3 scripts/provider_pdf_probe.py \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-sssjournal-current-provider-probe1-657942b \
+  --run-id unknown-sssjournal-current-provider-probe1-d83afa6 \
   --timeout 60
 ```
 
