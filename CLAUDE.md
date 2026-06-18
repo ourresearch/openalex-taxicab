@@ -27,7 +27,16 @@ continuing singleton probes:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/provider_pdf_probe.py   --input pdf_eval_runs/pdf-full10k-after-unisapress-d66dfc7/rows.ndjson   --category missing_pdf_harvest   --publisher unknown   --host ukm.my   --limit 1   --strategies all   --out /tmp/taxicab-pdf-probes   --run-id unknown-ukm-current-provider-probe1-<commit>   --timeout 60
+python3 scripts/provider_pdf_probe.py \
+  --input pdf_eval_runs/pdf-full10k-after-unisapress-d66dfc7/rows.ndjson \
+  --category missing_pdf_harvest \
+  --publisher unknown \
+  --host ukm.my \
+  --limit 1 \
+  --strategies all \
+  --out /tmp/taxicab-pdf-probes \
+  --run-id unknown-ukm-current-provider-probe1-<commit> \
+  --timeout 60
 ```
 
 If prioritizing larger expected recovery, stop singleton probing and move
