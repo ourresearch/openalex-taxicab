@@ -1,54 +1,53 @@
 # OpenAlex Taxicab
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 Taru/S3 Accepted Recovery
+## Current PDF Handoff: 2026-06-18 Sorbonne Accepted Recovery
 
-Accepted strict full 10K PDF gate `pdf-full10k-after-tarupublication-6555f2c`
-is `2,400/6,293 good_pdf` (`38.14%`), up `+1` versus Tidsskrift and `+563`
+Accepted strict full 10K PDF gate `pdf-full10k-after-sorbonne-26d14fc`
+is `2,401/6,293 good_pdf` (`38.15%`), up `+1` versus Taru/S3 and `+564`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,579` rows. Full-gate delta was exactly
+`5,979/6,293`, so the current gap is `3,578` rows. Full-gate delta was exactly
 one transition, `missing_pdf_harvest -> good_pdf`, with `0` good-to-non-good
 regressions, `0` timeouts, and `0` Taxicab errors.
 
-Taru Publications / `tarupublication.s3.ap-south-1.amazonaws.com` was the next
-clean low-volume lane after Techno-Press. No-storage provider probe
-`unknown-tarupublication-current-provider-probe1-6555f2c` recovered `1/1
-good_pdf` from direct PDF-byte strategies. The recovered PDF validated with PDF
-magic, `592,409` bytes, `9` pages, `8,142` extracted text characters, DOI
-match, and no validation errors. Browser HTML returned an empty/520 provider
+Sorbonne / `sup.sorbonne-universite.fr` was the next clean low-volume lane
+after Taru/S3. No-storage provider probe
+`unknown-sorbonne-current-provider-probe1-26d14fc` recovered `1/1 good_pdf`
+from direct PDF-byte strategies. The recovered PDF validated with PDF magic,
+`3,063,126` bytes, `52` pages, `281` extracted text characters, and no
+validation errors. Caveat: `doi_match=false` and title overlap was `0.0`, so
+record this as byte-valid accepted evidence with a scanned/low-text warning,
+not as a strong text-match example. Browser HTML returned an empty/520 provider
 failure, so this is a direct PDF-byte lane, not a browser-rendering lane.
 
 Bounded production reharvest showed the exact recovery path: DOI-only
-`unknown-tarupublication-reharvest1-6555f2c` stayed `0/1
-missing_pdf_harvest`, but PDF-URL reharvest
-`unknown-tarupublication-pdfurl-reharvest1-6555f2c` recovered `1/1 good_pdf`.
-Read-only confirmation `unknown-tarupublication-pdfurl-readonly1-6555f2c`
+`unknown-sorbonne-reharvest1-26d14fc` stayed `0/1 missing_pdf_harvest`, but
+PDF-URL reharvest `unknown-sorbonne-pdfurl-reharvest1-26d14fc` recovered `1/1
+good_pdf`. Read-only confirmation `unknown-sorbonne-pdfurl-readonly1-26d14fc`
 also returned `1/1 good_pdf`, and the full 10K gate accepted the row. No
 Taxicab production code changed; this was a bounded cache/reharvest recovery.
 
-Residual queue after the accepted Taru/S3 gate: full 1,409-subcluster export
-has `1,056` provider-lane/do-not-duplicate, `314` one-row `probe_next`, `20`
+Residual queue after the accepted Sorbonne gate: full 1,408-subcluster export
+has `1,056` provider-lane/do-not-duplicate, `313` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. `turkishstudies.net` is not fresh: prior evidence already
-recovered one direct-PDF row and left one upstream `download_404`. Skip it
-unless testing that known remaining row. Skip malformed
-`triggered.clockss.orghttps:` until inspected. Also skip the now-demoted or
-resolved `theses.fr`, `thejns.org`, `tesr.journals.ekb.eg`, `techscience.com`,
-`techno-press.org`, and `tarupublication.s3.ap-south-1.amazonaws.com` lanes.
-Next exact low-volume fresh probe, if continuing singleton probes, is
-`sup.sorbonne-universite.fr`:
+subclusters. Skip prior-evidence, demoted, or resolved hosts:
+`turkishstudies.net`, `triggered.clockss.orghttps:`, `theses.fr`,
+`thejns.org`, `tesr.journals.ekb.eg`, `techscience.com`, `techno-press.org`,
+`tarupublication.s3.ap-south-1.amazonaws.com`, and
+`sup.sorbonne-universite.fr`. Next exact low-volume fresh probe, if continuing
+singleton probes, is `storage.prod.researchhub.com`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-tarupublication-6555f2c/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-sorbonne-26d14fc/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host sup.sorbonne-universite.fr \
+  --host storage.prod.researchhub.com \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-sorbonne-current-provider-probe1-6555f2c \
+  --run-id unknown-researchhub-current-provider-probe1-26d14fc \
   --timeout 60
 ```
 
@@ -61,11 +60,8 @@ process substitution for CSV input because `/dev/fd/...` has no `.csv` suffix
 and the harness treats it as plain DOI text. Keep raw row-level artifacts
 local/ignored. Public oxjobs #461 artifacts must be aggregate or scrubbed.
 Browserbase remains evidence/gold only; Zyte remains the production provider
-core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, UP Poznan,
-wulixb, worldwidejournals, wmpllc, visnykj, virtus, vetsci, Turkish Studies,
-Vestnik Rosnou, Vektornm, Unisa Press, UKM, UFN, Tidsskrift, Theses, TheJNS,
-TESR, TechScience, Techno-Press, or Taru/S3 metric/evidence blocks below this
-one are historical; this block is the current handoff.
+core. Any lower metric/evidence blocks below this one are historical; this block
+is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Academic content harvesting API. Fetches HTML and PDFs from publisher websites via Zyte API, stores in Cloudflare R2 + DynamoDB.
 
@@ -74,14 +70,14 @@ Current goal state: HTML retrieval Phase 1 is complete at 9,583/10,000
 `good_pdf` on the PDF-expected subset of the 10K Goldie corpus. Use
 `GOAL.md` as the current control file and update it before long handoffs.
 Current PDF measurement gate: see the handoff block above. The accepted full
-gate is `pdf-full10k-after-tarupublication-6555f2c`: 2,400/6,293 `good_pdf`
-(38.14%), gap 3,579 rows, with one `missing_pdf_harvest -> good_pdf`
+gate is `pdf-full10k-after-sorbonne-26d14fc`: 2,401/6,293 `good_pdf`
+(38.15%), gap 3,578 rows, with one `missing_pdf_harvest -> good_pdf`
 transition and zero good-to-non-good regressions. This is a bounded direct-PDF
 cache/reharvest recovery, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `58ce1920e` records Techno-Press
-provider/route evidence. The next publish should record the accepted Taru/S3
-gate and the refreshed residual queue. Older provider-support snapshot entries
+Latest #461 report publish: oxjobs commit `450fd103d` publishes the accepted
+Taru/S3 gate. The next publish should record the accepted Sorbonne gate and the
+refreshed residual queue. Older provider-support snapshot entries
 remain historical context, including
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`.
 Prior `5a1254630` publishes the closed DOI.org residual-priority cleanup and refreshed residual queue; prior
