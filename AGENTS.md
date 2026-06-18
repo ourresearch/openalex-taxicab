@@ -1,42 +1,33 @@
 # OpenAlex Taxicab Agent Guide
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 Vektornm Accepted Gate
+## Current PDF Handoff: 2026-06-18 Unisa Press Accepted Gate
 
-Accepted strict full 10K PDF gate `pdf-full10k-after-vektornm-46b6291`
-is `2,395/6,293 good_pdf` (`38.06%`), up `+1` versus Vetsci and `+558`
+Accepted strict full 10K PDF gate `pdf-full10k-after-unisapress-d66dfc7`
+is `2,396/6,293 good_pdf` (`38.07%`), up `+1` versus Vektornm and `+559`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,584` rows.
+`5,979/6,293`, so the current gap is `3,583` rows.
 
-Vektornm / `vektornm.ru` was the next fresh low-volume lane after the Vestnik
-Rosnou provider-negative evidence. No-storage provider probe
-`unknown-vektornm-current-provider-probe1-46b6291` recovered `1/1 good_pdf`:
+Unisa Press / `unisapressjournals.co.za` was the next fresh low-volume lane
+after the accepted Vektornm gate. No-storage provider probe
+`unknown-unisapress-current-provider-probe1-d66dfc7` recovered `1/1 good_pdf`:
 `default_body`, `accept_pdf`, and `google_referer` returned valid PDF bytes;
-`browser_html` returned `html_instead_of_pdf`. Bounded reharvest
-`unknown-vektornm-reharvest1-46b6291` recovered `1/1`; read-only confirmation
-`unknown-vektornm-readonly1-46b6291` preserved `1/1`; strict full gate
-`pdf-full10k-after-vektornm-46b6291` accepted `+1 good_pdf` with `0`
-good-to-non-good regressions. `missing_pdf_harvest` is now `3,779`.
+`browser_html` returned `empty_response` after a Zyte ban-free-response failure.
+Bounded reharvest `unknown-unisapress-reharvest1-d66dfc7` recovered `1/1`;
+read-only confirmation `unknown-unisapress-readonly1-d66dfc7` preserved `1/1`;
+strict full gate `pdf-full10k-after-unisapress-d66dfc7` accepted `+1 good_pdf`
+with `0` good-to-non-good regressions. `missing_pdf_harvest` is now `3,778`.
 
-Residual queue after the accepted Vektornm gate: full 1,414-subcluster export
-has `1,051` provider-lane/do-not-duplicate, `324` one-row `probe_next`, `20`
-validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. First non-provider lane is a validator-confirmation
+Residual queue after the accepted Unisa Press gate: full 1,413-subcluster
+export has `1,051` provider-lane/do-not-duplicate, `323` one-row `probe_next`,
+`20` validator/provider, `8` Browserbase/Zyte-gold-first, and `11`
+inspect-first subclusters. First non-provider lane is a validator-confirmation
 `corrupt_or_truncated_pdf` singleton. Next exact low-volume fresh probe, if
 continuing singleton probes:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-vektornm-46b6291/rows.ndjson \
-  --category missing_pdf_harvest \
-  --publisher unknown \
-  --host unisapressjournals.co.za \
-  --limit 1 \
-  --strategies all \
-  --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-unisapress-current-provider-probe1-<commit> \
-  --timeout 60
+python3 scripts/provider_pdf_probe.py   --input pdf_eval_runs/pdf-full10k-after-unisapress-d66dfc7/rows.ndjson   --category missing_pdf_harvest   --publisher unknown   --host ukm.my   --limit 1   --strategies all   --out /tmp/taxicab-pdf-probes   --run-id unknown-ukm-current-provider-probe1-<commit>   --timeout 60
 ```
 
 If prioritizing larger expected recovery, stop singleton probing and move
@@ -49,8 +40,9 @@ and the harness treats it as plain DOI text. Keep raw row-level artifacts
 local/ignored. Public oxjobs #461 artifacts must be aggregate or scrubbed.
 Browserbase remains evidence/gold only; Zyte remains the production provider
 core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, UP Poznan,
-wulixb, worldwidejournals, wmpllc, visnykj, virtus, vetsci, or Vestnik Rosnou
-metric/evidence blocks are historical; this block is the current handoff.
+wulixb, worldwidejournals, wmpllc, visnykj, virtus, vetsci, Vestnik Rosnou, or
+Vektornm metric/evidence blocks are historical; this block is the current
+handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
 (95.83%). PDF Phase 2 is active and targets >=95% `good_pdf` on the
