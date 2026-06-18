@@ -526,6 +526,42 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(band, "provider_lane_do_not_duplicate")
         self.assertIn("provider/Zyte", decision)
 
+    def test_subcluster_priority_demotes_sssjournal_html_shell_evidence(self):
+        status, band, decision = subcluster_priority(
+            "missing_pdf_harvest",
+            "unknown",
+            "sssjournal.com",
+            "sssjournal.com:/makaleler/:file.pdf",
+        )
+
+        self.assertEqual(status, "prior_negative_or_support_evidence")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
+        self.assertIn("provider/Zyte", decision)
+
+    def test_subcluster_priority_demotes_turkishstudies_prior_tail_evidence(self):
+        status, band, decision = subcluster_priority(
+            "missing_pdf_harvest",
+            "unknown",
+            "turkishstudies.net",
+            "turkishstudies.net:/files/turkishstudies/:id.pdf",
+        )
+
+        self.assertEqual(status, "prior_negative_or_support_evidence")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
+        self.assertIn("provider/Zyte", decision)
+
+    def test_subcluster_priority_demotes_malformed_clockss_host(self):
+        status, band, decision = subcluster_priority(
+            "missing_pdf_harvest",
+            "unknown",
+            "triggered.clockss.orghttps:",
+            "triggered.clockss.orghttps::/triggered.stanford.clockss.org/servecontent",
+        )
+
+        self.assertEqual(status, "prior_negative_or_support_evidence")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
+        self.assertIn("provider/Zyte", decision)
+
     def test_subcluster_priority_marks_fresh_probe_candidates(self):
         status, band, decision = subcluster_priority(
             "missing_pdf_harvest",
