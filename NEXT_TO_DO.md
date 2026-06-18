@@ -1,44 +1,45 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-17 JID Gate + Low-Volume Provider-Negative Evidence
+## Current PDF Handoff: 2026-06-17 Zurnalai Accepted Gate
 
-Accepted strict full 10K PDF gate `pdf-full10k-after-jid-03998bf` remains
-`2,389/6,293 good_pdf` (`37.96%`), up `+1` versus JTH and `+552`
+Accepted strict full 10K PDF gate `pdf-full10k-after-zurnalai-225188f` is
+`2,390/6,293 good_pdf` (`37.98%`), up `+1` versus JID and `+553`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,590` rows.
+`5,979/6,293`, so the current gap is `3,589` rows.
 
-JID recovered one `jidonline.org` PDF through no-storage Zyte evidence, explicit
-bounded reharvest, read-only confirmation, and a strict full 10K read-only
-no-regression gate. ESSOAr, Cochrane Library, and CMI were then tested as fresh
-low-volume lanes and all recovered `0/1`. CMI direct PDF-byte strategies returned
-`empty_response` and browser HTML returned `html_instead_of_pdf`. These hosts are
-now prior provider-negative evidence. No Taxicab production scraping-code change,
-no Taxicab `main` push, and no accepted KPI lift came from these checks.
+Zurnalai recovered one `zurnalai.vu.lt` PDF through no-storage Zyte direct
+PDF-byte evidence, explicit bounded reharvest, read-only confirmation, and a
+strict full 10K read-only no-regression gate. ESSOAr, Cochrane Library, and CMI
+remain prior provider-negative evidence (`0/1` each). No Taxicab production
+scraping-code change and no Taxicab `main` push came from this slice; this is a
+bounded cache/reharvest lift accepted by the full read-only gate.
 
-Residual queue after CMI demotion: `1,047` provider-lane/do-not-duplicate
-subclusters, `334` low-volume `probe_next` subclusters, `20` validator/provider
-lanes, `11` inspect-first lanes, and `8` Browserbase/Zyte-gold-first lanes.
-Next exact probe candidate:
+Residual queue after zurnalai acceptance: `425` provider-lane/do-not-duplicate
+subclusters, `55` low-volume `probe_next` subclusters, and `20`
+validator/provider lanes. Next exact probe candidate:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-jid-03998bf/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-zurnalai-225188f/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host zurnalai.vu.lt \
+  --host www1.up.poznan.pl \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-zurnalai-current-provider-probe1-<commit> \
+  --run-id unknown-uppoznan-current-provider-probe1-<commit> \
   --timeout 60
 ```
 
-Keep raw row-level artifacts local/ignored. Public oxjobs #461 artifacts must be
-aggregate or scrubbed. Browserbase remains evidence/gold only; Zyte remains the
-production provider core. Any lower OSTI/PLOS, JPS, Tellus, or JTH metric blocks
-are historical; this block is the current handoff.
+For bounded reharvest DOI-file runs, use a real `/tmp/*.csv` path. Do not use
+process substitution for CSV input because `/dev/fd/...` has no `.csv` suffix
+and the harness treats it as plain DOI text. Keep raw row-level artifacts
+local/ignored. Public oxjobs #461 artifacts must be aggregate or scrubbed.
+Browserbase remains evidence/gold only; Zyte remains the production provider
+core. Any lower OSTI/PLOS, JPS, Tellus, JTH, or JID metric blocks are
+historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-17 PDT.
 
