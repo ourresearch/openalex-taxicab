@@ -10,16 +10,14 @@ versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
 
 JID recovered one `jidonline.org` PDF through no-storage Zyte evidence, explicit
 bounded reharvest, read-only confirmation, and a strict full 10K read-only
-no-regression gate. ESSOAr and Cochrane Library were then tested as fresh
-low-volume lanes and both recovered `0/1`: ESSOAr direct PDF-byte strategies
-returned `empty_response` and browser HTML returned `download_404`; Cochrane
-direct PDF-byte strategies returned `empty_response` and browser HTML returned
-`html_instead_of_pdf`. Both hosts are now prior provider-negative evidence. No
-Taxicab production scraping-code change, no Taxicab `main` push, and no accepted
-KPI lift came from these provider-negative checks.
+no-regression gate. ESSOAr, Cochrane Library, and CMI were then tested as fresh
+low-volume lanes and all recovered `0/1`. CMI direct PDF-byte strategies returned
+`empty_response` and browser HTML returned `html_instead_of_pdf`. These hosts are
+now prior provider-negative evidence. No Taxicab production scraping-code change,
+no Taxicab `main` push, and no accepted KPI lift came from these checks.
 
-Residual queue after Cochrane demotion: `1,046` provider-lane/do-not-duplicate
-subclusters, `335` low-volume `probe_next` subclusters, `20` validator/provider
+Residual queue after CMI demotion: `1,047` provider-lane/do-not-duplicate
+subclusters, `334` low-volume `probe_next` subclusters, `20` validator/provider
 lanes, `11` inspect-first lanes, and `8` Browserbase/Zyte-gold-first lanes.
 Next exact probe candidate:
 
@@ -28,12 +26,12 @@ cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-jid-03998bf/rows.ndjson \
   --category missing_pdf_harvest \
-  --publisher wiley \
-  --host clinicalmicrobiologyandinfection.com \
+  --publisher unknown \
+  --host zurnalai.vu.lt \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id wiley-cmi-current-provider-probe1-<commit> \
+  --run-id unknown-zurnalai-current-provider-probe1-<commit> \
   --timeout 60
 ```
 
