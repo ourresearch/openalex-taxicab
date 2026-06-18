@@ -1,7 +1,7 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 ResearchHub Provider/Validator Evidence
+## Current PDF Handoff: 2026-06-18 SSS Journal Provider/Gold Evidence
 
 Accepted strict full 10K PDF gate remains `pdf-full10k-after-sorbonne-26d14fc`:
 `2,401/6,293 good_pdf` (`38.15%`), up `+1` versus Taru/S3 and `+564`
@@ -10,26 +10,26 @@ versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
 gate changed exactly one row, `missing_pdf_harvest -> good_pdf`, with `0`
 good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
-Latest evidence-only lane: ResearchHub / `storage.prod.researchhub.com`.
-No-storage provider probe `unknown-researchhub-current-provider-probe1-26d14fc`
-returned PDF bytes via `default_body`, `accept_pdf`, and `google_referer`; Zyte
-`browser_html` returned `html_instead_of_pdf`. Do **not** reharvest or count it
-as an accepted recovery: the returned PDF is byte-valid but wrong-content-like
-for this work (`67,285` bytes, `1` page, `638` text chars, `doi_match=false`,
-`title_overlap=0.0`, and an unrelated ebook/ad evidence snippet). Keep raw DOI
-and row-level evidence local only.
+Latest evidence-only lane: SSS Journal / `sssjournal.com`. No-storage provider
+probe `unknown-sssjournal-current-provider-probe1-d83afa6` recovered `0/1`.
+All Zyte strategies returned `html_instead_of_pdf`: small `text/html` mobile
+viewer/download-shell content, not PDF bytes. Browserbase session evidence
+`unknown-sssjournal-browserbase-gold1-d83afa6` also ended `html_not_pdf` on the
+same target URL, and a direct byte sanity probe returned the same 852-byte HTML
+shell with no `%PDF-` magic. Do **not** reharvest or count it as an accepted
+recovery. Keep raw DOI/session details local only.
 
-Planning-code update: `openalex_taxicab/residual_clusters.py` now marks
-`storage.prod.researchhub.com` as prior provider/validator evidence so it does
-not remain a duplicate fresh `probe_next` lane. Residual refresh
-`residual-clusters-after-researchhub-demote-d83afa6` has `1,057`
-provider-lane/do-not-duplicate subclusters, `312` one-row `probe_next`, `20`
+Planning-code update: Taxicab commit `0870c29` marks `sssjournal.com`, the
+previous Turkish Studies residual, and malformed `triggered.clockss.orghttps:`
+as prior provider/gold evidence so they do not remain duplicate fresh
+`probe_next` lanes. Residual refresh
+`residual-clusters-after-sssjournal-demote-0870c29` has `1,060`
+provider-lane/do-not-duplicate subclusters, `309` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
 subclusters. This changed prioritization only; it did not change Taxicab
 production scraping behavior or the accepted KPI.
 
-Next exact low-volume fresh probe, after skipping prior/demoted `turkishstudies.net`,
-malformed `triggered.clockss.orghttps:`, and ResearchHub, is `sssjournal.com`:
+Next exact low-volume fresh probe is `sseditora.com.br`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
@@ -37,11 +37,11 @@ python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-sorbonne-26d14fc/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host sssjournal.com \
+  --host sseditora.com.br \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-sssjournal-current-provider-probe1-d83afa6 \
+  --run-id unknown-sseditora-current-provider-probe1-0870c29 \
   --timeout 60
 ```
 
