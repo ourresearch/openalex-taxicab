@@ -1,24 +1,26 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-17 UP Poznan Accepted Gate
+## Current PDF Handoff: 2026-06-17 Wulixb Provider-Negative Evidence
 
 Accepted strict full 10K PDF gate `pdf-full10k-after-uppoznan-4d9ce15` is
-`2,391/6,293 good_pdf` (`37.99%`), up `+1` versus zurnalai and `+554`
-versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,588` rows.
+still `2,391/6,293 good_pdf` (`37.99%`), up `+554` versus the denominator
+baseline of `1,837/6,293` (`29.19%`). The 95% target is `5,979/6,293`, so the
+current gap is `3,588` rows.
 
-UP Poznan recovered one `www1.up.poznan.pl` PDF through no-storage Zyte direct
-PDF-byte evidence, explicit bounded reharvest, read-only confirmation, and a
-strict full 10K read-only no-regression gate. Zurnalai remains accepted at the
-prior gate; ESSOAr, Cochrane Library, and CMI remain prior provider-negative
-evidence (`0/1` each). No Taxicab production scraping-code change and no
-Taxicab `main` push came from this slice; this is a bounded cache/reharvest
-lift accepted by the full read-only gate.
+Wulixb no-storage provider probe
+`unknown-wulixb-current-provider-probe1-c0f4c9c` recovered `0/1`: direct
+PDF-byte strategies returned `supplement_or_preview_pdf`, and `browser_html`
+returned `html_instead_of_pdf`. It is now prior provider/validator evidence,
+not a route-promotion candidate. No Taxicab production scraping-code change, no
+storage write, no accepted KPI movement, and no Taxicab `main` push came from
+this slice.
 
-Residual queue after UP Poznan acceptance: `425` provider-lane/do-not-duplicate
-subclusters, `55` low-volume `probe_next` subclusters, and `20`
-validator/provider lanes. Next exact probe candidate:
+Residual queue after wulixb demotion: top 240 subclusters are all
+`provider_lane_do_not_duplicate`; full 1,418-subcluster export has `1,048`
+provider-lane/do-not-duplicate, `331` one-row `probe_next`, `20`
+validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
+subclusters. Next exact low-volume fresh probe, if continuing singleton probes:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
@@ -26,21 +28,25 @@ python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-uppoznan-4d9ce15/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host wulixb.iphy.ac.cn \
+  --host worldwidejournals.com \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-wulixb-current-provider-probe1-<commit> \
+  --run-id unknown-worldwidejournals-current-provider-probe1-<commit> \
   --timeout 60
 ```
+
+If prioritizing larger expected recovery, stop singleton probing and move
+Envoy-Zyte to provider-advised recipes/support packets for the large
+do-not-duplicate lanes.
 
 For bounded reharvest DOI-file runs, use a real `/tmp/*.csv` path. Do not use
 process substitution for CSV input because `/dev/fd/...` has no `.csv` suffix
 and the harness treats it as plain DOI text. Keep raw row-level artifacts
 local/ignored. Public oxjobs #461 artifacts must be aggregate or scrubbed.
 Browserbase remains evidence/gold only; Zyte remains the production provider
-core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, or zurnalai metric blocks are
-historical; this block is the current handoff.
+core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, or UP Poznan metric
+blocks are historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-17 PDT.
 
