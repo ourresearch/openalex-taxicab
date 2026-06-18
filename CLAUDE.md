@@ -75,9 +75,10 @@ gate is `pdf-full10k-after-sorbonne-26d14fc`: 2,401/6,293 `good_pdf`
 transition and zero good-to-non-good regressions. This is a bounded direct-PDF
 cache/reharvest recovery, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `450fd103d` publishes the accepted
-Taru/S3 gate. The next publish should record the accepted Sorbonne gate and the
-refreshed residual queue. Older provider-support snapshot entries
+Latest #461 report publish: oxjobs commit `e82e24155` publishes the accepted
+Sorbonne gate and refreshed residual queue. Next execution should start with
+`storage.prod.researchhub.com` no-storage provider evidence. Older
+provider-support snapshot entries
 remain historical context, including
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`.
 Prior `5a1254630` publishes the closed DOI.org residual-priority cleanup and refreshed residual queue; prior

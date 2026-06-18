@@ -104,17 +104,17 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `450fd103d` publishes the accepted
-Taru/S3 full gate; the next publish should record the accepted Sorbonne full
-gate. The accepted full 10K metric is now `pdf-full10k-after-sorbonne-26d14fc`:
+Current publish status: oxjobs #461 commit `e82e24155` publishes the accepted
+Sorbonne full gate and refreshed residual queue. The accepted full 10K metric
+is now `pdf-full10k-after-sorbonne-26d14fc`:
 2,401/6,293 `good_pdf` (38.15%), +1 versus Taru/S3 and +564 versus denominator
 baseline, with 3,773 `missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`.
 This is bounded direct-PDF cache/reharvest lift, not a Taxicab-main production
 scraping push. The residual refresh has 1,056 provider-lane/do-not-duplicate
 subclusters and 313 one-row `probe_next` subclusters; the next fresh singleton
-probe is `storage.prod.researchhub.com`. Current phase: publish the Sorbonne
-accepted gate to #461, then choose the next non-route provider/gold/validator
-lane before any Taxicab main push.
+probe is `storage.prod.researchhub.com`. Current phase: run the ResearchHub
+no-storage evidence probe, then choose reharvest/provider escalation based on
+that result before any Taxicab main push.
 Do not
 promote SAGE, Wiley, ACS, IOP, Elsevier DOI.org, rank-39 DOI.org, ACM,
 bioRxiv/CSHLP, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass,
