@@ -1,7 +1,7 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-17 JID Gate + ESSOAr Negative Evidence
+## Current PDF Handoff: 2026-06-17 JID Gate + Low-Volume Provider-Negative Evidence
 
 Accepted strict full 10K PDF gate `pdf-full10k-after-jid-03998bf` remains
 `2,389/6,293 good_pdf` (`37.96%`), up `+1` versus JTH and `+552`
@@ -10,14 +10,16 @@ versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
 
 JID recovered one `jidonline.org` PDF through no-storage Zyte evidence, explicit
 bounded reharvest, read-only confirmation, and a strict full 10K read-only
-no-regression gate. ESSOAr was then tested as the next fresh lane and recovered
-`0/1`: direct PDF-byte strategies returned `empty_response`, and `browser_html`
-returned `download_404`. `essoar.org` is now prior provider-negative evidence.
-No Taxicab production scraping-code change, no Taxicab `main` push, and no
-accepted KPI lift came from ESSOAr.
+no-regression gate. ESSOAr and Cochrane Library were then tested as fresh
+low-volume lanes and both recovered `0/1`: ESSOAr direct PDF-byte strategies
+returned `empty_response` and browser HTML returned `download_404`; Cochrane
+direct PDF-byte strategies returned `empty_response` and browser HTML returned
+`html_instead_of_pdf`. Both hosts are now prior provider-negative evidence. No
+Taxicab production scraping-code change, no Taxicab `main` push, and no accepted
+KPI lift came from these provider-negative checks.
 
-Residual queue after ESSOAr demotion: `1,044` provider-lane/do-not-duplicate
-subclusters, `337` low-volume `probe_next` subclusters, `20` validator/provider
+Residual queue after Cochrane demotion: `1,046` provider-lane/do-not-duplicate
+subclusters, `335` low-volume `probe_next` subclusters, `20` validator/provider
 lanes, `11` inspect-first lanes, and `8` Browserbase/Zyte-gold-first lanes.
 Next exact probe candidate:
 
@@ -27,11 +29,11 @@ python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-jid-03998bf/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher wiley \
-  --host cochranelibrary.com \
+  --host clinicalmicrobiologyandinfection.com \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id wiley-cochrane-current-provider-probe1-<commit> \
+  --run-id wiley-cmi-current-provider-probe1-<commit> \
   --timeout 60
 ```
 
