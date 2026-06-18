@@ -206,6 +206,7 @@ PRIOR_PROVIDER_HOSTS = {
     "spiedigitallibrary.org",
     "tandfonline.com",
     "tesr.journals.ekb.eg",
+    "techscience.com",
     "thegreenjournal.com",
     "thejns.org",
     "thelancet.com",

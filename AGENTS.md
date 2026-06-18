@@ -1,33 +1,33 @@
 # OpenAlex Taxicab Agent Guide
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 TESR Provider Evidence
+## Current PDF Handoff: 2026-06-18 TechScience Provider Evidence
 
 Accepted strict full 10K PDF gate `pdf-full10k-after-tidsskrift-146f509`
 is `2,399/6,293 good_pdf` (`38.12%`), up `+1` versus UFN and `+562`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
 `5,979/6,293`, so the current gap is `3,580` rows.
 
-TESR / `tesr.journals.ekb.eg` was the next clean low-volume lane after TheJNS.
-No-storage provider probe `unknown-tesr-current-provider-probe1-44bd31c`
-recovered `0/1 good_pdf`: best category was `html_instead_of_pdf`;
-`default_body` and `browser_html` returned `empty_response`, `accept_pdf`
-returned unresolved JS, and `google_referer` returned HTML instead of PDF.
+TechScience / `techscience.com` was the next clean low-volume lane after TESR.
+No-storage provider probe `unknown-techscience-current-provider-probe1-f128df9`
+recovered `0/1 good_pdf`: best category was `interstitial_or_paywall`;
+`default_body`, `accept_pdf`, and `google_referer` returned
+interstitial/paywall HTML, while `browser_html` returned `empty_response`.
 No Taxicab POST/R2/DynamoDB write was issued, no reharvest/full gate was run,
-and the accepted KPI remains the Tidsskrift gate above. Treat `tesr.journals.ekb.eg` as
+and the accepted KPI remains the Tidsskrift gate above. Treat `techscience.com` as
 provider-lane/do-not-duplicate until Zyte supplies a working recipe or a
 separate gold path proves a narrow Taxicab-side recovery.
 
-Residual queue after demoting the TESR lane: full 1,410-subcluster export has
-`1,054` provider-lane/do-not-duplicate, `317` one-row `probe_next`, `20`
+Residual queue after demoting the TechScience lane: full 1,410-subcluster export has
+`1,055` provider-lane/do-not-duplicate, `316` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
 subclusters. `turkishstudies.net` is not fresh: prior evidence already
 recovered one direct-PDF row and left one upstream `download_404`. Skip it
 unless testing that known remaining row. Skip the malformed
 `triggered.clockss.orghttps:` residual until it is inspected. Also skip the
-now-demoted `theses.fr`, `thejns.org`, and `tesr.journals.ekb.eg` lanes. Next
-exact low-volume fresh probe, if continuing singleton probes, is
-`techscience.com`:
+now-demoted `theses.fr`, `thejns.org`, `tesr.journals.ekb.eg`, and
+`techscience.com` lanes. Next exact low-volume fresh probe, if continuing
+singleton probes, is `techno-press.org`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
@@ -35,11 +35,11 @@ python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-tidsskrift-146f509/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host techscience.com \
+  --host techno-press.org \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-techscience-current-provider-probe1-after-tesr \
+  --run-id unknown-technopress-current-provider-probe1-after-techscience \
   --timeout 60
 ```
 
@@ -55,8 +55,8 @@ Browserbase remains evidence/gold only; Zyte remains the production provider
 core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, UP Poznan,
 wulixb, worldwidejournals, wmpllc, visnykj, virtus, vetsci, Turkish Studies,
 Vestnik Rosnou, Vektornm, Unisa Press, UKM, UFN, Tidsskrift, Theses, TheJNS,
-or TESR metric/evidence blocks are historical; this block is the current
-handoff.
+TESR, or TechScience metric/evidence blocks are historical; this block is the
+current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
 (95.83%). PDF Phase 2 is active and targets >=95% `good_pdf` on the
