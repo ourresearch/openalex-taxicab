@@ -1,35 +1,37 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 Solen Accepted Recovery
+## Current PDF Handoff: 2026-06-18 SJNS Provider/Gold Demotion
 
-Accepted strict full 10K PDF gate is now `pdf-full10k-after-solen-279302d`:
+Accepted strict full 10K PDF gate remains `pdf-full10k-after-solen-279302d`:
 `2,403/6,293 good_pdf` (`38.19%`), up `+1` versus SS Editora and `+566`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,576` rows. The full gate changed exactly
-one row, `missing_pdf_harvest -> good_pdf`, with `0` good-to-non-good
-regressions, `0` timeouts, and `0` Taxicab errors.
+`5,979/6,293`, so the current gap is `3,576` rows. The latest accepted full
+gate changed exactly one row, `missing_pdf_harvest -> good_pdf`, with `0`
+good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
-Latest accepted recovery lane: Solen / `solen.cz`. No-storage Zyte provider
-probe `unknown-solen-current-provider-probe1-after-spandidos` recovered `1/1`:
-`default_body`, `accept_pdf`, and `google_referer` all returned valid PDF bytes;
-`browser_html` returned a PDF-viewer shell and is not the preferred strategy.
-Bounded PDF-URL reharvest `unknown-solen-pdfurl-reharvest1-279302d` created a
-durable Taxicab PDF record, and read-only confirmation
-`unknown-solen-pdfurl-readonly1-279302d` stayed `1/1 good_pdf`. The PDF is
-byte-valid at 243,596 bytes, 5 pages, and 15,744 extracted text chars. Keep the
-DOI/raw URL details local only.
+Solen / `solen.cz` is the latest accepted recovery: no-storage Zyte provider
+probing recovered `1/1` through direct PDF-byte strategies, bounded PDF-URL
+reharvest stored the PDF, read-only confirmation preserved it, and full-gate
+checks accepted the +1. Oxjobs #461 Solen publication is complete at commit
+`f3c5bb2a6` with CI run `27784523594`.
 
-Latest evidence-only lane: Spandidos / `spandidos-publications.com` remains
-negative and demoted. Zyte recovered `0/1` with tiny HTTP 402/Tomcat HTML, and
-Browserbase recovered `0/1` with citation/library recommendation/`Purchase PDF`
-paths only. No Taxicab POST/R2/DynamoDB writes occurred for Spandidos, no route
-code was promoted, and Spandidos stays `provider_lane_do_not_duplicate`.
+Latest evidence-only lane: SJNS / `sjns.journals.ekb.eg` is now closed as
+provider/gold evidence with `0` accepted lift. Zyte no-storage provider probing
+recovered `0/1`: direct strategies returned enable-JavaScript/access-restricted
+HTML instead of PDF bytes and `browser_html` returned empty response. Browserbase
+gold reached a same-host PDF final URL but the harness verdict stayed
+`download_started_not_captured`; a follow-up Zyte probe against that
+browser-discovered PDF URL still recovered `0/1`. No Taxicab POST/R2/DynamoDB
+writes occurred, no route code was promoted, and SJNS now stays
+`provider_lane_do_not_duplicate`. Oxjobs #461 SJNS publication is complete at
+commit `eb59cb586`; CI run `27785689884` passed, and the live raw report plus
+SJNS summary JSON were verified with a cache-busting request.
 
-Residual refresh `residual-clusters-after-solen-279302d` has `1,061`
-provider-lane/do-not-duplicate subclusters, `306` one-row `probe_next`, `20`
+Residual refresh `residual-clusters-after-sjns-531101a` has `1,062`
+provider-lane/do-not-duplicate subclusters, `305` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. The next exact low-volume fresh probe is `sjns.journals.ekb.eg`:
+subclusters. The next exact low-volume fresh probe is `sjdem.sljol.info`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
@@ -37,23 +39,19 @@ python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-solen-279302d/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host sjns.journals.ekb.eg \
+  --host sjdem.sljol.info \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-sjns-current-provider-probe1-after-solen \
+  --run-id unknown-sjdem-current-provider-probe1-after-sjns \
   --timeout 60
 ```
 
-Oxjobs #461 publication is complete through Solen: commit `f3c5bb2a6` publishes
-the Solen accepted recovery, strict full gate
-`pdf-full10k-after-solen-279302d`, residual refresh, graph/report update, and
-next `sjns.journals.ekb.eg` handoff. CI run `27784523594` passed, and the live
-raw report plus Solen summary JSON were verified with a cache-busting request.
-Public #461 artifacts for this slice are scrubbed: no raw DOIs, Browserbase
-session IDs, signed URLs, or raw discovered PDF URLs. Browserbase remains
-evidence/gold only; Zyte remains the production provider core. Any lower
-metric/evidence blocks are historical; this block is the current handoff.
+Browserbase remains evidence/gold only; Zyte remains the production provider
+core. Public #461 artifacts for this slice are scrubbed: no raw DOIs,
+Browserbase session IDs, signed URLs, support IDs, screenshots, or raw
+discovered PDF URLs. Any lower metric/evidence blocks are historical; this
+block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-18 UTC.
 

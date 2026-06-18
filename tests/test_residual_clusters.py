@@ -287,6 +287,7 @@ class ResidualClusterTests(unittest.TestCase):
             ("sk.sagepub.com", "sk.sagepub.com:/ency/edvol/download/:id/chpt/:file.pdf"),
             ("www.mattech-journal.org", "www.mattech-journal.org:/articles/mattech/pdf/:num/:n/:id.pdf"),
             ("spandidos-publications.com", "spandidos-publications.com:/:doi/:id/download"),
+            ("sjns.journals.ekb.eg", "sjns.journals.ekb.eg:/:id.pdf"),
         ]
 
         for host, pattern in closed_hosts:

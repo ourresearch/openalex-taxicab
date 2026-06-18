@@ -205,6 +205,7 @@ PRIOR_PROVIDER_HOSTS = {
     "sk.sagepub.com",
     "spandidos-publications.com",
     "spiedigitallibrary.org",
+    "sjns.journals.ekb.eg",
     "storage.prod.researchhub.com",
     "sssjournal.com",
     "tandfonline.com",
