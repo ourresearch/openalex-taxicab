@@ -286,6 +286,7 @@ class ResidualClusterTests(unittest.TestCase):
             ("pubs.rsna.org", "pubs.rsna.org:/doi/epdf/:doi/:id"),
             ("sk.sagepub.com", "sk.sagepub.com:/ency/edvol/download/:id/chpt/:file.pdf"),
             ("www.mattech-journal.org", "www.mattech-journal.org:/articles/mattech/pdf/:num/:n/:id.pdf"),
+            ("sjdem.sljol.info", "sjdem.sljol.info:/articles/:doi/:id/galley/:num/download"),
             ("spandidos-publications.com", "spandidos-publications.com:/:doi/:id/download"),
             ("sjns.journals.ekb.eg", "sjns.journals.ekb.eg:/:id.pdf"),
         ]

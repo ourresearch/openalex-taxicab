@@ -1,7 +1,7 @@
 # OpenAlex Taxicab
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 SJNS Provider/Gold Demotion
+## Current PDF Handoff: 2026-06-18 SJDEM Provider/Gold Demotion
 
 Accepted strict full 10K PDF gate remains `pdf-full10k-after-solen-279302d`:
 `2,403/6,293 good_pdf` (`38.19%`), up `+1` versus SS Editora and `+566`
@@ -16,7 +16,7 @@ reharvest stored the PDF, read-only confirmation preserved it, and full-gate
 checks accepted the +1. Oxjobs #461 Solen publication is complete at commit
 `f3c5bb2a6` with CI run `27784523594`.
 
-Latest evidence-only lane: SJNS / `sjns.journals.ekb.eg` is now closed as
+Recent evidence-only lane: SJNS / `sjns.journals.ekb.eg` is closed as
 provider/gold evidence with `0` accepted lift. Zyte no-storage provider probing
 recovered `0/1`: direct strategies returned enable-JavaScript/access-restricted
 HTML instead of PDF bytes and `browser_html` returned empty response. Browserbase
@@ -28,10 +28,20 @@ writes occurred, no route code was promoted, and SJNS now stays
 commit `eb59cb586`; CI run `27785689884` passed, and the live raw report plus
 SJNS summary JSON were verified with a cache-busting request.
 
-Residual refresh `residual-clusters-after-sjns-531101a` has `1,062`
-provider-lane/do-not-duplicate subclusters, `305` one-row `probe_next`, `20`
+Latest evidence-only lane: SJDEM / `sjdem.sljol.info` is now closed as
+provider/gold evidence with `0` accepted lift. Zyte no-storage provider probing
+recovered `0/1`: every strategy returned bot-block/captcha-like HTML instead of
+PDF bytes. Browserbase gold also recovered `0/1` with verdict `html_not_pdf`.
+No Taxicab POST/R2/DynamoDB writes occurred, no route code was promoted, and
+SJDEM now stays `provider_lane_do_not_duplicate`. Oxjobs #461 SJDEM publication
+is complete at commit `594e7b0c5`; CI run `27786661981` passed, and the live raw
+report plus SJDEM summary JSON were verified with cache-busting requests.
+
+Residual refresh `residual-clusters-after-sjdem-b5a2e5b` has `1,063`
+provider-lane/do-not-duplicate subclusters, `304` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. The next exact low-volume fresh probe is `sjdem.sljol.info`:
+subclusters. The next exact low-volume fresh probe is
+`sistema.editorapasteur.com.br`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
@@ -39,11 +49,11 @@ python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-solen-279302d/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host sjdem.sljol.info \
+  --host sistema.editorapasteur.com.br \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-sjdem-current-provider-probe1-after-sjns \
+  --run-id unknown-editorapasteur-current-provider-probe1-after-sjdem \
   --timeout 60
 ```
 
@@ -65,7 +75,7 @@ gate is `pdf-full10k-after-solen-279302d`: 2,403/6,293 `good_pdf`
 transition and zero good-to-non-good regressions. This is a bounded direct-PDF
 cache/reharvest recovery, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `eb59cb586` publishes the SJNS provider/gold negative evidence, residual demotion `residual-clusters-after-sjns-531101a`, graph/report update, learning notes, improvement plan, and next `sjdem.sljol.info` handoff. CI run `27785689884` passed and the live raw report plus SJNS summary JSON were verified with a cache-busting request.
+Latest #461 report publish: oxjobs commit `594e7b0c5` publishes the SJDEM provider/gold negative evidence, residual demotion `residual-clusters-after-sjdem-b5a2e5b`, graph/report update, learning notes, improvement plan, and next `sistema.editorapasteur.com.br` handoff. CI run `27786661981` passed and the live raw report plus SJDEM summary JSON were verified with cache-busting requests.
 
 Prior `07f8b2044` publishes the SS Editora accepted recovery, full gate
 `pdf-full10k-after-sseditora-ac692df`, residual refresh

@@ -203,6 +203,7 @@ PRIOR_PROVIDER_HOSTS = {
     "scientific.net",
     "shs.cairn.info",
     "sk.sagepub.com",
+    "sjdem.sljol.info",
     "spandidos-publications.com",
     "spiedigitallibrary.org",
     "sjns.journals.ekb.eg",
