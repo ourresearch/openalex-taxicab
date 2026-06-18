@@ -51,15 +51,15 @@ python3 scripts/provider_pdf_probe.py \
   --timeout 60
 ```
 
-Oxjobs #461 publication is complete for SS Editora: commit `07f8b2044`
-publishes the aggregate recovery summary, full-gate summary, residual refresh,
-graph, learning notes, and next-lane handoff; CI run `27769231317` passed, and
-the live raw report plus JSON asset were verified. Oxjobs #461 still needs the
-Spandidos negative provider/gold evidence and residual-demotion update. Public
-#461 artifacts for this slice must be scrubbed: no raw DOIs, Browserbase
-session IDs, signed URLs, or raw discovered PDF URLs. Browserbase remains
-evidence/gold only; Zyte remains the production provider core. Any lower
-metric/evidence blocks are historical; this block is the current handoff.
+Oxjobs #461 publication is complete for Spandidos: commit `e75997d9b`
+publishes the aggregate negative provider/gold evidence, residual demotion,
+report/console update, learning notes, improvement plan, and next Solen
+handoff; CI run `27770207916` passed, and the live raw report plus JSON asset
+were verified. Prior commit `07f8b2044` publishes the SS Editora recovery
+slice. Public #461 artifacts for this slice are scrubbed: no raw DOIs,
+Browserbase session IDs, signed URLs, or raw discovered PDF URLs. Browserbase
+remains evidence/gold only; Zyte remains the production provider core. Any
+lower metric/evidence blocks are historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-18 UTC.
 
@@ -102,13 +102,14 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `07f8b2044` publishes the SS Editora
-accepted recovery, full gate `pdf-full10k-after-sseditora-ac692df`, residual
-refresh `residual-clusters-after-sseditora-ac692df`, and next
-`spandidos-publications.com` handoff; CI run `27769231317` passed and the live
-raw report plus JSON asset were verified. Next #461 publish should record the
-Spandidos 0/1 Zyte + 0/1 Browserbase negative evidence, residual demotion, and
-next `solen.cz` handoff. Prior `1f38cb40f` publishes the SSS Journal
+Current publish status: oxjobs #461 commit `e75997d9b` publishes the Spandidos
+0/1 Zyte + 0/1 Browserbase negative evidence, residual demotion, report/console
+update, learning notes, improvement plan, and next `solen.cz` handoff; CI run
+`27770207916` passed and the live raw report plus JSON asset were verified.
+Prior `07f8b2044` publishes the SS Editora accepted recovery, full gate
+`pdf-full10k-after-sseditora-ac692df`, residual refresh
+`residual-clusters-after-sseditora-ac692df`, and
+`spandidos-publications.com` handoff. Prior `1f38cb40f` publishes the SSS Journal
 provider/gold negative evidence and residual queue. Prior `af33e5eec`
 publishes the ResearchHub provider/validator evidence and residual-priority
 demotion. The
@@ -119,8 +120,8 @@ This is bounded direct-PDF cache/reharvest lift, not a Taxicab-main production
 scraping push. After Spandidos demotion, the residual refresh has 1,061
 provider-lane/do-not-duplicate subclusters and 307 one-row `probe_next`
 subclusters. The next fresh singleton probe is `solen.cz`.
-Current phase: publish Spandidos negative evidence to #461, then run the Solen
-no-storage evidence probe before any Taxicab main push.
+Current phase: Spandidos is published to #461; run the Solen no-storage
+evidence probe before any Taxicab main push.
 Do not
 promote SAGE, Wiley, ACS, IOP, Elsevier DOI.org, rank-39 DOI.org, ACM,
 bioRxiv/CSHLP, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass,
