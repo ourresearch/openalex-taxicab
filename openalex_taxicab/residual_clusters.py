@@ -210,6 +210,7 @@ PRIOR_PROVIDER_HOSTS = {
     "thieme-connect.de",
     "transcript-verlag.de",
     "vestnik.krsu.kg",
+    "vestnik-rosnou.ru",
     "vr-elibrary.de",
     "virtusinterpress.org",
     "www.ajconline.org",

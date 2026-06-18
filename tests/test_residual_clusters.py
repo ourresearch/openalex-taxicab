@@ -502,6 +502,18 @@ class ResidualClusterTests(unittest.TestCase):
         self.assertEqual(band, "provider_lane_do_not_duplicate")
         self.assertIn("provider/Zyte", decision)
 
+    def test_subcluster_priority_demotes_vestnik_rosnou_404_evidence(self):
+        status, band, decision = subcluster_priority(
+            "missing_pdf_harvest",
+            "unknown",
+            "vestnik-rosnou.ru",
+            "vestnik-rosnou.ru:/sites/default/files/:id.pdf",
+        )
+
+        self.assertEqual(status, "prior_negative_or_support_evidence")
+        self.assertEqual(band, "provider_lane_do_not_duplicate")
+        self.assertIn("provider/Zyte", decision)
+
     def test_subcluster_priority_marks_fresh_probe_candidates(self):
         status, band, decision = subcluster_priority(
             "missing_pdf_harvest",
