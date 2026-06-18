@@ -205,6 +205,7 @@ PRIOR_PROVIDER_HOSTS = {
     "sk.sagepub.com",
     "spiedigitallibrary.org",
     "tandfonline.com",
+    "tesr.journals.ekb.eg",
     "thegreenjournal.com",
     "thejns.org",
     "thelancet.com",
