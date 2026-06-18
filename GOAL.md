@@ -1,48 +1,54 @@
 # Taxicab Goal State
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 Techno-Press Provider/Route Evidence
+## Current PDF Handoff: 2026-06-18 Taru/S3 Accepted Recovery
 
-Accepted strict full 10K PDF gate `pdf-full10k-after-tidsskrift-146f509`
-is `2,399/6,293 good_pdf` (`38.12%`), up `+1` versus UFN and `+562`
+Accepted strict full 10K PDF gate `pdf-full10k-after-tarupublication-6555f2c`
+is `2,400/6,293 good_pdf` (`38.14%`), up `+1` versus Tidsskrift and `+563`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,580` rows.
+`5,979/6,293`, so the current gap is `3,579` rows. Full-gate delta was exactly
+one transition, `missing_pdf_harvest -> good_pdf`, with `0` good-to-non-good
+regressions, `0` timeouts, and `0` Taxicab errors.
 
-Techno-Press / `techno-press.org` was the next clean low-volume lane after
-TechScience. No-storage provider probe
-`unknown-technopress-current-provider-probe1-87fcd3e` recovered `1/1 good_pdf`
-from direct PDF-byte strategies, but both bounded production reharvest attempts
-failed: DOI-only and PDF-URL reharvest stored HTML and left the row as
-`missing_pdf_harvest`. A tentative local `http_get` route was also rejected:
-`technopress-http-get-route-current-87fcd3e` recovered `0/1`, returning
-`html_instead_of_pdf`, and preservation had `0` already-good Techno-Press rows
-to test. No Taxicab production route code was kept. Treat `techno-press.org`
-as provider/recipe evidence until Zyte supplies a stable way to reproduce the
-PDF bytes through production `http_get`.
+Taru Publications / `tarupublication.s3.ap-south-1.amazonaws.com` was the next
+clean low-volume lane after Techno-Press. No-storage provider probe
+`unknown-tarupublication-current-provider-probe1-6555f2c` recovered `1/1
+good_pdf` from direct PDF-byte strategies. The recovered PDF validated with PDF
+magic, `592,409` bytes, `9` pages, `8,142` extracted text characters, DOI
+match, and no validation errors. Browser HTML returned an empty/520 provider
+failure, so this is a direct PDF-byte lane, not a browser-rendering lane.
 
-Residual queue after demoting the Techno-Press lane: full 1,410-subcluster export has
-`1,056` provider-lane/do-not-duplicate, `315` one-row `probe_next`, `20`
+Bounded production reharvest showed the exact recovery path: DOI-only
+`unknown-tarupublication-reharvest1-6555f2c` stayed `0/1
+missing_pdf_harvest`, but PDF-URL reharvest
+`unknown-tarupublication-pdfurl-reharvest1-6555f2c` recovered `1/1 good_pdf`.
+Read-only confirmation `unknown-tarupublication-pdfurl-readonly1-6555f2c`
+also returned `1/1 good_pdf`, and the full 10K gate accepted the row. No
+Taxicab production code changed; this was a bounded cache/reharvest recovery.
+
+Residual queue after the accepted Taru/S3 gate: full 1,409-subcluster export
+has `1,056` provider-lane/do-not-duplicate, `314` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
 subclusters. `turkishstudies.net` is not fresh: prior evidence already
 recovered one direct-PDF row and left one upstream `download_404`. Skip it
-unless testing that known remaining row. Skip the malformed
-`triggered.clockss.orghttps:` residual until it is inspected. Also skip the
-now-demoted `theses.fr`, `thejns.org`, `tesr.journals.ekb.eg`,
-`techscience.com`, and `techno-press.org` lanes. Next exact low-volume fresh
-probe, if continuing singleton probes, is
-`tarupublication.s3.ap-south-1.amazonaws.com`:
+unless testing that known remaining row. Skip malformed
+`triggered.clockss.orghttps:` until inspected. Also skip the now-demoted or
+resolved `theses.fr`, `thejns.org`, `tesr.journals.ekb.eg`, `techscience.com`,
+`techno-press.org`, and `tarupublication.s3.ap-south-1.amazonaws.com` lanes.
+Next exact low-volume fresh probe, if continuing singleton probes, is
+`sup.sorbonne-universite.fr`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-tidsskrift-146f509/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-tarupublication-6555f2c/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host tarupublication.s3.ap-south-1.amazonaws.com \
+  --host sup.sorbonne-universite.fr \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-tarupublication-current-provider-probe1-after-technopress \
+  --run-id unknown-sorbonne-current-provider-probe1-6555f2c \
   --timeout 60
 ```
 
@@ -58,8 +64,8 @@ Browserbase remains evidence/gold only; Zyte remains the production provider
 core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, UP Poznan,
 wulixb, worldwidejournals, wmpllc, visnykj, virtus, vetsci, Turkish Studies,
 Vestnik Rosnou, Vektornm, Unisa Press, UKM, UFN, Tidsskrift, Theses, TheJNS,
-TESR, TechScience, or Techno-Press metric/evidence blocks are historical; this
-block is the current handoff.
+TESR, TechScience, Techno-Press, or Taru/S3 metric/evidence blocks below this
+one are historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-18 UTC.
 
@@ -102,35 +108,18 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `1d3a2a2f9` records wmpllc
-provider-negative evidence; the next publish should record the accepted
-visnykj gate. Prior `37af671ac` publishes the worldwidejournals accepted gate,
-refreshed graph, scrubbed aggregate evidence, and wmpllc/visnykj handoff. Prior
-`dfdc4fecc` records wulixb
-provider-negative evidence; prior `3f0c0acf9` publishes UP Poznan. Older
-provider-support snapshot entries remain historical context. The accepted full
-10K metric is now `pdf-full10k-after-visnykj-68b5ebb` from Taxicab branch
-commit `68b5ebb`: 2,393/6,293 `good_pdf` (38.03%), +1 versus Worldwidejournals
-and +556 versus denominator baseline, with 3,781 `missing_pdf_harvest`, 65
-corrupt/truncated, 4 encrypted/unreadable, 23 supplement/preview, 4
-interstitial/paywall, 0 timeout, and 0 `taxicab_error`. This is bounded
-Visnykj cache/reharvest lift, not a Taxicab-main production scraping
-push. The
-AHA/Lippincott one-row lane `www.ahajournals.org:/doi/pdf/:doi/:id` recovered
-0/1 through Zyte no-storage provider probing and 0/1 through Browserbase gold
-evidence; Browserbase reached a 403 challenge and ended
-`download_started_not_captured`. No Taxicab POST/R2/DynamoDB writes occurred,
-no route code was written, and no production behavior changed. Earlier oxjobs
-commit `74a062c6` publishes the aggregate-only Wiley PDF-direct
-validator/provider Zyte recheck from Taxicab commit `9b01df6`; it recovered
-0/10 current corrupt/truncated rows, all direct PDF-byte strategies returned
-`empty_response`, and browser HTML returned HTML/interstitial/JS outcomes. The
-residual refresh keeps 3,910 non-good rows across 655 clusters and 1,426
-subclusters, but top-240 `probe_next` is now 0 and
-`confirm_existing_branch_candidate` is 0 after ACS, ACM, Wiley, IOP,
-bioRxiv/CSHLP, Elsevier DOI.org, and AHA/Lippincott moved out of route
-promotion. Current phase: choose the next non-route provider/gold/validator
-lane before any Taxicab main push.
+Current publish status: oxjobs #461 commit `58ce1920e` records Techno-Press
+provider/route evidence; the next publish should record the accepted Taru/S3
+full gate. The accepted full 10K metric is now
+`pdf-full10k-after-tarupublication-6555f2c`: 2,400/6,293 `good_pdf` (38.14%),
++1 versus Tidsskrift and +563 versus denominator baseline, with 3,774
+`missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`. This is bounded
+direct-PDF cache/reharvest lift, not a Taxicab-main production scraping push.
+The residual refresh has 1,056 provider-lane/do-not-duplicate subclusters and
+314 one-row `probe_next` subclusters; the next fresh singleton probe is
+`sup.sorbonne-universite.fr`. Current phase: publish the Taru/S3 accepted gate
+to #461, then choose the next non-route provider/gold/validator lane before any
+Taxicab main push.
 Do not
 promote SAGE, Wiley, ACS, IOP, Elsevier DOI.org, rank-39 DOI.org, ACM,
 bioRxiv/CSHLP, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass,
@@ -138,9 +127,9 @@ CCCC, Atlantis Press, IWA/AMPP/Sage Knowledge/RSNA/AJOG/Elgar, or broad
 Elsevier article-PDF lanes without a narrower or provider-advised recipe. Do
 not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
-accepted metric is `pdf-full10k-after-visnykj-68b5ebb`, 2,393/6,293
-`good_pdf` (38.03%), with a 3,586-row gap to 95%. This paragraph is historical;
-the current handoff block above supersedes it after the Vetsci accepted gate.
+accepted metric is `pdf-full10k-after-tarupublication-6555f2c`, 2,400/6,293
+`good_pdf` (38.14%), with a 3,579-row gap to 95%. The current handoff block
+above is authoritative; older entries below are historical.
 Older entries such as OSTI/PLOS, provider snapshots, and DOI.org cleanup are
 historical; prior `5a1254630` publishes the aggregate-only closed
 DOI.org residual-priority cleanup and refreshed queue; prior `3c125878f`
