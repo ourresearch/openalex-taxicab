@@ -1,47 +1,44 @@
 # OpenAlex Taxicab Agent Guide
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-17 JTH Gate
+## Current PDF Handoff: 2026-06-17 JID Gate
 
-Accepted strict full 10K PDF gate `pdf-full10k-after-jth-rerun2-dc09dc6` is now
-`2,388/6,293 good_pdf` (`37.95%`), up `+1` versus Tellus and `+551`
+Accepted strict full 10K PDF gate `pdf-full10k-after-jid-03998bf` is now
+`2,389/6,293 good_pdf` (`37.96%`), up `+1` versus JTH and `+552`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,591` rows.
+`5,979/6,293`, so the current gap is `3,590` rows.
 
-This slice recovered one `jthjournal.org` PDF through no-storage Zyte evidence,
+This slice recovered one `jidonline.org` PDF through no-storage Zyte evidence,
 explicit bounded reharvest, read-only confirmation, and a strict full 10K
-read-only no-regression gate. Two earlier JTH full-gate attempts were rejected
-because they introduced transient timeout/taxicab-error regressions; only
-`pdf-full10k-after-jth-rerun2-dc09dc6` is accepted. It made no Taxicab
-production scraping-code change and no Taxicab `main` push. Category counts at
-the accepted gate: `3,786` `missing_pdf_harvest`, `65`
-`corrupt_or_truncated_pdf`, `4` `encrypted_or_unreadable_pdf`, `23`
-`supplement_or_preview_pdf`, `4` `interstitial_or_paywall`, `0` timeout, and
-`0` `taxicab_error`.
+read-only no-regression gate. It made no Taxicab production scraping-code change
+and no Taxicab `main` push. Category counts at the accepted gate: `3,785`
+`missing_pdf_harvest`, `65` `corrupt_or_truncated_pdf`, `4`
+`encrypted_or_unreadable_pdf`, `23` `supplement_or_preview_pdf`, `4`
+`interstitial_or_paywall`, `0` timeout, and `0` `taxicab_error`.
 
-Residual queue after JTH: `1,043` provider-lane/do-not-duplicate subclusters,
-`339` low-volume `probe_next` subclusters, `20` validator/provider lanes, `11`
+Residual queue after JID: `1,043` provider-lane/do-not-duplicate subclusters,
+`338` low-volume `probe_next` subclusters, `20` validator/provider lanes, `11`
 inspect-first lanes, and `8` Browserbase/Zyte-gold-first lanes. Next exact
 probe candidate:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-jth-rerun2-dc09dc6/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-jid-03998bf/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher wiley \
-  --host jidonline.org \
+  --host essoar.org \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id wiley-jid-current-provider-probe1-<commit> \
+  --run-id wiley-essoar-current-provider-probe1-<commit> \
   --timeout 60
 ```
 
 Keep raw row-level artifacts local/ignored. Public oxjobs #461 artifacts must be
 aggregate or scrubbed. Browserbase remains evidence/gold only; Zyte remains the
-production provider core. Any lower OSTI/PLOS, JPS, or Tellus metric blocks are
-historical; this JTH block is the current handoff.
+production provider core. Any lower OSTI/PLOS, JPS, Tellus, or JTH metric blocks
+are historical; this JID block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
 (95.83%). PDF Phase 2 is active and targets >=95% `good_pdf` on the
