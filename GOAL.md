@@ -45,11 +45,12 @@ python3 scripts/provider_pdf_probe.py \
   --timeout 60
 ```
 
-Public #461 artifacts for this slice must be aggregate/scrubbed only. Browserbase
-remains evidence/gold only; Zyte remains the production provider core. Current
-#461 live raw endpoint may lag after pushes; `origin/main` is the source of truth
-when CI is green and the live cache is stale. Any lower metric/evidence blocks
-are historical; this block is the current handoff.
+Oxjobs #461 publication is complete for this slice: commit `1f38cb40f`, CI run
+`27767083440` passed, and the live raw `evidence/report.html` plus scrubbed JSON
+summary show the SSS Journal markers. Public #461 artifacts are aggregate and
+scrubbed only. Browserbase remains evidence/gold only; Zyte remains the
+production provider core. Any lower metric/evidence blocks are historical; this
+block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-18 UTC.
 
@@ -92,21 +93,19 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `af33e5eec` publishes the
-ResearchHub provider/validator evidence and residual-priority demotion; CI run
-`27766022157` passed. Next #461 publish should record SSS Journal provider/gold
-negative evidence, Taxicab commit `0870c29`, and the refreshed residual queue.
-The live raw report endpoint may temporarily show the prior Sorbonne-era Next
-Work section, but `origin/main` has the current #461 report. The accepted full 10K metric
+Current publish status: oxjobs #461 commit `1f38cb40f` publishes the SSS Journal
+provider/gold negative evidence, Taxicab commit `0870c29`, and the refreshed
+residual queue; CI run `27767083440` passed, and the live raw report plus JSON
+summary were verified. Prior `af33e5eec` publishes the ResearchHub
+provider/validator evidence and residual-priority demotion. The accepted full 10K metric
 is still `pdf-full10k-after-sorbonne-26d14fc`:
 2,401/6,293 `good_pdf` (38.15%), +1 versus Taru/S3 and +564 versus denominator
 baseline, with 3,773 `missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`.
 This is bounded direct-PDF cache/reharvest lift, not a Taxicab-main production
-scraping push. After ResearchHub demotion, the residual refresh has 1,057
-provider-lane/do-not-duplicate subclusters and 312 one-row `probe_next`
+scraping push. After SSS Journal demotion, the residual refresh has 1,060
+provider-lane/do-not-duplicate subclusters and 309 one-row `probe_next`
 subclusters. The next fresh singleton probe is `sseditora.com.br`. Current phase:
-publish SSS Journal provider/gold evidence to #461, then run the SS Editora
-no-storage evidence probe before any Taxicab main push.
+run the SS Editora no-storage evidence probe before any Taxicab main push.
 Do not
 promote SAGE, Wiley, ACS, IOP, Elsevier DOI.org, rank-39 DOI.org, ACM,
 bioRxiv/CSHLP, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass,

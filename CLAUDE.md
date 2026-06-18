@@ -45,11 +45,12 @@ python3 scripts/provider_pdf_probe.py \
   --timeout 60
 ```
 
-Public #461 artifacts for this slice must be aggregate/scrubbed only. Browserbase
-remains evidence/gold only; Zyte remains the production provider core. Current
-#461 live raw endpoint may lag after pushes; `origin/main` is the source of truth
-when CI is green and the live cache is stale. Any lower metric/evidence blocks
-are historical; this block is the current handoff.
+Oxjobs #461 publication is complete for this slice: commit `1f38cb40f`, CI run
+`27767083440` passed, and the live raw `evidence/report.html` plus scrubbed JSON
+summary show the SSS Journal markers. Public #461 artifacts are aggregate and
+scrubbed only. Browserbase remains evidence/gold only; Zyte remains the
+production provider core. Any lower metric/evidence blocks are historical; this
+block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Academic content harvesting API. Fetches HTML and PDFs from publisher websites via Zyte API, stores in Cloudflare R2 + DynamoDB.
 
@@ -63,12 +64,11 @@ gate is `pdf-full10k-after-sorbonne-26d14fc`: 2,401/6,293 `good_pdf`
 transition and zero good-to-non-good regressions. This is a bounded direct-PDF
 cache/reharvest recovery, not a Taxicab-main production scraping push.
 
-Latest #461 report publish: oxjobs commit `af33e5eec` publishes the
-ResearchHub provider/validator evidence and residual-priority demotion. CI run
-`27766022157` passed. Next #461 publish should record SSS Journal provider/gold
-negative evidence, Taxicab commit `0870c29`, and the refreshed residual queue.
-The live raw report endpoint may temporarily show the prior Sorbonne-era Next
-Work section; `origin/main` is current. Older
+Latest #461 report publish: oxjobs commit `1f38cb40f` publishes the SSS Journal
+provider/gold negative evidence, Taxicab commit `0870c29`, and the refreshed
+residual queue. CI run `27767083440` passed, and the live raw report plus JSON
+summary were verified. Prior `af33e5eec` publishes the ResearchHub
+provider/validator evidence and residual-priority demotion. Older
 provider-support snapshot entries
 remain historical context, including
 `working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-osti-plos-ee9001b.md`.

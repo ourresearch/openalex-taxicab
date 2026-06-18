@@ -45,11 +45,12 @@ python3 scripts/provider_pdf_probe.py \
   --timeout 60
 ```
 
-Public #461 artifacts for this slice must be aggregate/scrubbed only. Browserbase
-remains evidence/gold only; Zyte remains the production provider core. Current
-#461 live raw endpoint may lag after pushes; `origin/main` is the source of truth
-when CI is green and the live cache is stale. Any lower metric/evidence blocks
-are historical; this block is the current handoff.
+Oxjobs #461 publication is complete for this slice: commit `1f38cb40f`, CI run
+`27767083440` passed, and the live raw `evidence/report.html` plus scrubbed JSON
+summary show the SSS Journal markers. Public #461 artifacts are aggregate and
+scrubbed only. Browserbase remains evidence/gold only; Zyte remains the
+production provider core. Any lower metric/evidence blocks are historical; this
+block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-18 UTC.
 
