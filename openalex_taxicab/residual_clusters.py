@@ -207,6 +207,7 @@ PRIOR_PROVIDER_HOSTS = {
     "tandfonline.com",
     "thegreenjournal.com",
     "thelancet.com",
+    "theses.fr",
     "thieme-connect.de",
     "transcript-verlag.de",
     "vestnik.krsu.kg",

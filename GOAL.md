@@ -1,32 +1,30 @@
 # Taxicab Goal State
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 Tidsskrift Accepted Gate
+## Current PDF Handoff: 2026-06-18 Theses Provider Evidence
 
 Accepted strict full 10K PDF gate `pdf-full10k-after-tidsskrift-146f509`
 is `2,399/6,293 good_pdf` (`38.12%`), up `+1` versus UFN and `+562`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
 `5,979/6,293`, so the current gap is `3,580` rows.
 
-Tidsskrift / `tidsskrift.dk` was the next fresh low-volume lane after the
-accepted UFN gate. No-storage provider probe
-`unknown-tidsskrift-current-provider-probe1-146f509` recovered `1/1 good_pdf`:
-`default_body`, `accept_pdf`, and `google_referer` returned valid 5-page PDF
-bytes; `browser_html` returned `empty_response`. Bounded reharvest
-`unknown-tidsskrift-reharvest1-146f509` recovered `1/1`; read-only
-confirmation `unknown-tidsskrift-readonly1-146f509` preserved `1/1`; strict
-full gate `pdf-full10k-after-tidsskrift-146f509` accepted `+1 good_pdf` with
-`0` good-to-non-good regressions. `missing_pdf_harvest` is now `3,775`;
-`timeout` and `taxicab_error` remain `0`.
+Theses / `theses.fr` was the next fresh low-volume lane after Tidsskrift.
+No-storage provider probe `unknown-theses-current-provider-probe1-eb97721`
+recovered `0/1 good_pdf`: `default_body`, `accept_pdf`, and `google_referer`
+returned JS-required HTML; `browser_html` returned login/interstitial HTML. No
+Taxicab POST/R2/DynamoDB write was issued, no reharvest/full gate was run, and
+the accepted KPI remains the Tidsskrift gate above. Treat `theses.fr` as
+provider-lane/do-not-duplicate until Zyte supplies a working recipe or a
+separate gold path proves a narrow Taxicab-side recovery.
 
-Residual queue after the accepted Tidsskrift gate: full 1,410-subcluster export
-has `1,051` provider-lane/do-not-duplicate, `320` one-row `probe_next`, `20`
+Residual queue after demoting the Theses lane: full 1,410-subcluster export has
+`1,052` provider-lane/do-not-duplicate, `319` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
 subclusters. `turkishstudies.net` is not fresh: prior evidence already
 recovered one direct-PDF row and left one upstream `download_404`. Skip it
 unless testing that known remaining row. Skip the malformed
 `triggered.clockss.orghttps:` residual until it is inspected. Next exact
-low-volume fresh probe, if continuing singleton probes, is `theses.fr`:
+low-volume fresh probe, if continuing singleton probes, is `thejns.org`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
@@ -34,11 +32,11 @@ python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-tidsskrift-146f509/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host theses.fr \
+  --host thejns.org \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-theses-current-provider-probe1-146f509 \
+  --run-id unknown-thejns-current-provider-probe1-after-theses \
   --timeout 60
 ```
 
@@ -53,8 +51,8 @@ local/ignored. Public oxjobs #461 artifacts must be aggregate or scrubbed.
 Browserbase remains evidence/gold only; Zyte remains the production provider
 core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, UP Poznan,
 wulixb, worldwidejournals, wmpllc, visnykj, virtus, vetsci, Turkish Studies,
-Vestnik Rosnou, Vektornm, Unisa Press, UKM, UFN, or Tidsskrift metric/evidence
-blocks are historical; this block is the current handoff.
+Vestnik Rosnou, Vektornm, Unisa Press, UKM, UFN, Tidsskrift, or Theses
+metric/evidence blocks are historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-18 UTC.
 
