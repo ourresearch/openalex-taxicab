@@ -1,23 +1,25 @@
 # Taxicab Goal State
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-17 Vestnik Rosnou Provider-Negative Evidence
+## Current PDF Handoff: 2026-06-18 Vektornm Accepted Gate
 
-Accepted strict full 10K PDF gate `pdf-full10k-after-vetsci-41ddbad`
-is `2,394/6,293 good_pdf` (`38.04%`), up `+1` versus Visnykj and `+557`
+Accepted strict full 10K PDF gate `pdf-full10k-after-vektornm-46b6291`
+is `2,395/6,293 good_pdf` (`38.06%`), up `+1` versus Vetsci and `+558`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,585` rows.
+`5,979/6,293`, so the current gap is `3,584` rows.
 
-Vetsci remains the latest accepted KPI lift. Vestnik Rosnou /
-`vestnik-rosnou.ru` was the next fresh low-volume lane after that gate;
-no-storage provider probe `unknown-vestnikrosnou-current-provider-probe1-30f248f`
-recovered `0/1 good_pdf`, with all strategies ending as `download_404`.
-Vestnik Rosnou is now prior provider/Zyte or gold-sample evidence, not a fresh
-route-promotion lane.
+Vektornm / `vektornm.ru` was the next fresh low-volume lane after the Vestnik
+Rosnou provider-negative evidence. No-storage provider probe
+`unknown-vektornm-current-provider-probe1-46b6291` recovered `1/1 good_pdf`:
+`default_body`, `accept_pdf`, and `google_referer` returned valid PDF bytes;
+`browser_html` returned `html_instead_of_pdf`. Bounded reharvest
+`unknown-vektornm-reharvest1-46b6291` recovered `1/1`; read-only confirmation
+`unknown-vektornm-readonly1-46b6291` preserved `1/1`; strict full gate
+`pdf-full10k-after-vektornm-46b6291` accepted `+1 good_pdf` with `0`
+good-to-non-good regressions. `missing_pdf_harvest` is now `3,779`.
 
-Residual queue after vestnik-rosnou demotion: top 240 subclusters are all
-`provider_lane_do_not_duplicate`; full 1,415-subcluster export has `1,051`
-provider-lane/do-not-duplicate, `325` one-row `probe_next`, `20`
+Residual queue after the accepted Vektornm gate: full 1,414-subcluster export
+has `1,051` provider-lane/do-not-duplicate, `324` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
 subclusters. First non-provider lane is a validator-confirmation
 `corrupt_or_truncated_pdf` singleton. Next exact low-volume fresh probe, if
@@ -26,14 +28,14 @@ continuing singleton probes:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-vetsci-41ddbad/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-vektornm-46b6291/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host vektornm.ru \
+  --host unisapressjournals.co.za \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-vektornm-current-provider-probe1-<commit> \
+  --run-id unknown-unisapress-current-provider-probe1-<commit> \
   --timeout 60
 ```
 
@@ -47,8 +49,8 @@ and the harness treats it as plain DOI text. Keep raw row-level artifacts
 local/ignored. Public oxjobs #461 artifacts must be aggregate or scrubbed.
 Browserbase remains evidence/gold only; Zyte remains the production provider
 core. Any lower OSTI/PLOS, JPS, Tellus, JTH, JID, zurnalai, UP Poznan,
-wulixb, worldwidejournals, wmpllc, visnykj, virtus, or vetsci metric blocks are
-historical; this block is the current handoff.
+wulixb, worldwidejournals, wmpllc, visnykj, virtus, vetsci, or Vestnik Rosnou
+metric/evidence blocks are historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-17 PDT.
 
