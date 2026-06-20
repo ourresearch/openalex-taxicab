@@ -1,28 +1,27 @@
 # Taxicab Goal State
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-20 SER Accepted Recovery + 0-100 Graph
+## Current PDF Handoff: 2026-06-20 SCS Europe Accepted Recovery + 0-100 Graph
 
-Accepted strict full 10K PDF gate is `pdf-full10k-after-ser-net-ua-d3667b9`:
-`2,408/6,293 good_pdf` (`38.26%`), up `+1` versus IBFD and `+571`
+Accepted strict full 10K PDF gate is `pdf-full10k-after-scs-europe-a83f26c`:
+`2,409/6,293 good_pdf` (`38.28%`), up `+1` versus SER and `+572`
 versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,571` rows. The accepted gate changed
+`5,979/6,293`, so the current gap is `3,570` rows. The accepted gate changed
 exactly one row from `missing_pdf_harvest -> good_pdf`, with `0`
 good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
-SER / `ser.net.ua` is the latest accepted recovery: no-storage Zyte provider
-probing recovered `1/1` through direct PDF-byte strategies (`default_body`,
-`accept_pdf`, `google_referer`). `browser_html` returned an empty response and
-is not the preferred strategy. The first candidate-url queue attempt posted
-article HTML and was rejected; corrected PDF-URL reharvest recovered `1/1`, and
-read-only confirmation preserved `1/1`. Identity caveat: DOI/title text
-matching is weak, so keep this as an accepted one-row cache/reharvest recovery,
-not a broad route recipe. No broad route code was promoted and no Taxicab main
-push occurred for this slice.
+SCS Europe / `scs-europe.net` is the latest accepted recovery: no-storage Zyte
+provider probing recovered `1/1` through direct PDF-byte strategies
+(`default_body`, `accept_pdf`, `google_referer`). `browser_html` returned HTML
+instead of PDF and is not the preferred strategy. Corrected PDF-URL reharvest
+recovered `1/1`, and read-only confirmation preserved `1/1`. Identity caveat:
+DOI/title text matching is weak, so keep this as an accepted one-row
+cache/reharvest recovery, not a broad route recipe. No broad route code was
+promoted and no Taxicab main push occurred for this slice.
 
-Latest #461 report publish: oxjobs commit `b69d48d13` publishes the SER
+Latest #461 report publish: oxjobs commit `06d7888e4` publishes the SCS Europe
 accepted recovery, full gate, residual refresh, learning notes, improvement
-plan, and graph update. CI run `27858386644` passed. The live raw report was
+plan, and graph update. CI run `27859307575` passed. The live raw report was
 verified with cache-busting requests. Jason's report guidance is now a hard
 rule: the PDF progress chart is a bar chart with a fixed `0-100%` y-axis so
 gains are anchored against the whole PDF-expected corpus and the 95% goal, not
@@ -32,22 +31,22 @@ Recent evidence-only lanes remain closed: SJNS / `sjns.journals.ekb.eg` and
 SJDEM / `sjdem.sljol.info` both recovered `0` accepted lift and stay
 `provider_lane_do_not_duplicate`.
 
-Residual refresh `residual-clusters-after-ser-net-ua-d3667b9` has `1,062`
-provider-lane/do-not-duplicate subclusters, `301` one-row `probe_next`, `20`
+Residual refresh `residual-clusters-after-scs-europe-a83f26c` has `1,062`
+provider-lane/do-not-duplicate subclusters, `300` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. The next exact low-volume fresh probe is `scs-europe.net`:
+subclusters. The next exact low-volume fresh probe is `sciencepubco.com`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-ser-net-ua-d3667b9/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-scs-europe-a83f26c/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host scs-europe.net \
+  --host sciencepubco.com \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-scs-europe-current-provider-probe1-after-ser-net-ua \
+  --run-id unknown-sciencepubco-current-provider-probe1-after-scs-europe \
   --timeout 60
 ```
 
@@ -98,10 +97,10 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `b69d48d13` publishes the SER
+Current publish status: oxjobs #461 commit `06d7888e4` publishes the SCS Europe
 accepted recovery, full gate, residual refresh
-`residual-clusters-after-ser-net-ua-d3667b9`, learning notes, improvement plan,
-0-100 anchored bar chart, and next `scs-europe.net` handoff. CI run `27858386644`
+`residual-clusters-after-scs-europe-a83f26c`, learning notes, improvement plan,
+0-100 anchored bar chart, and next `sciencepubco.com` handoff. CI run `27859307575`
 passed and the live raw report was verified with cache-busting requests.
 
 Prior `07f8b2044` publishes the SS Editora accepted recovery, full gate
@@ -112,15 +111,15 @@ provider/gold negative evidence and residual queue. Prior `af33e5eec`
 publishes the ResearchHub provider/validator evidence and residual-priority
 demotion. The
 accepted full 10K metric is now
-`pdf-full10k-after-ser-net-ua-d3667b9`: 2,408/6,293 `good_pdf` (38.26%), +1
-versus IBFD and +571 versus denominator baseline, with 3,766
+`pdf-full10k-after-scs-europe-a83f26c`: 2,409/6,293 `good_pdf` (38.28%), +1
+versus SER and +572 versus denominator baseline, with 3,765
 `missing_pdf_harvest`, 0 timeout, and 0 `taxicab_error`.
 This is bounded direct-PDF cache/reharvest plus retry-corrected read-only
-measurement, not a Taxicab-main production scraping push. After IBFD acceptance,
+measurement, not a Taxicab-main production scraping push. After SCS Europe acceptance,
 the residual refresh has 1,062 provider-lane/do-not-duplicate subclusters and
-301 one-row `probe_next` subclusters. The next fresh singleton probe is
-`scs-europe.net`.
-Current phase: run the `scs-europe.net` no-storage evidence probe before any
+300 one-row `probe_next` subclusters. The next fresh singleton probe is
+`sciencepubco.com`.
+Current phase: run the `sciencepubco.com` no-storage evidence probe before any
 Taxicab main push.
 Do not
 promote SAGE, Wiley, ACS, IOP, Elsevier DOI.org, rank-39 DOI.org, ACM,
@@ -129,8 +128,8 @@ CCCC, Atlantis Press, IWA/AMPP/Sage Knowledge/RSNA/AJOG/Elgar, or broad
 Elsevier article-PDF lanes without a narrower or provider-advised recipe. Do
 not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
-accepted metric is `pdf-full10k-after-ser-net-ua-d3667b9`,
-2,408/6,293 `good_pdf` (38.26%), with a 3,571-row gap to 95%. The current
+accepted metric is `pdf-full10k-after-scs-europe-a83f26c`,
+2,409/6,293 `good_pdf` (38.28%), with a 3,570-row gap to 95%. The current
 handoff block above is authoritative; older entries below are historical.
 Older entries such as OSTI/PLOS, provider snapshots, and DOI.org cleanup are
 historical; prior `5a1254630` publishes the aggregate-only closed
