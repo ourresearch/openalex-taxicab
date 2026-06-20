@@ -1,54 +1,52 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-20 Editorapasteur Accepted Recovery + 0-100 Graph
+## Current PDF Handoff: 2026-06-20 IBFD Accepted Recovery + 0-100 Graph
 
-Accepted retry-corrected full 10K PDF gate is
-`pdf-full10k-after-editorapasteur-retry-723ec9b`: `2,405/6,293 good_pdf`
-(`38.22%`), up `+2` versus Solen and `+568` versus the denominator baseline of
-`1,837/6,293` (`29.19%`). The 95% target is `5,979/6,293`, so the current gap is
-`3,574` rows. The accepted gate changed exactly two rows from
-`missing_pdf_harvest -> good_pdf`, with `0` good-to-non-good regressions, `0`
-timeouts, and `0` Taxicab errors. The first Editorapasteur full run was rejected
-as transient service noise; retry correction removed the Taxicab errors before
-acceptance.
+Accepted strict full 10K PDF gate is `pdf-full10k-after-shop-ibfd-d743417`:
+`2,407/6,293 good_pdf` (`38.25%`), up `+2` versus Editorapasteur and `+570`
+versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
+`5,979/6,293`, so the current gap is `3,572` rows. The accepted gate changed
+exactly two rows from `missing_pdf_harvest -> good_pdf`, with `0`
+good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
-Editorapasteur / `sistema.editorapasteur.com.br` is the latest accepted recovery:
-no-storage Zyte provider probing recovered `1/1` through direct PDF-byte
-strategies (`default_body`, `accept_pdf`, `google_referer`). `browser_html`
-failed and is not the preferred strategy. DOI-only reharvest resolved to an HTML
-chapter page and was rejected; bounded PDF-URL reharvest recovered `1/1`, and
-read-only confirmation preserved `1/1`. No broad route code was promoted and no
-Taxicab main push occurred for this slice.
+IBFD / `shop.ibfd.org` is the latest accepted recovery: no-storage Zyte provider
+probing recovered `1/1` through direct PDF-byte strategies (`default_body`,
+`accept_pdf`, `google_referer`). `browser_html` returned HTML and is not the
+preferred strategy. Bounded PDF-URL reharvest recovered `1/1`, and read-only
+confirmation preserved `1/1`. Identity caveat: the corpus title is absent and
+the PDF is book-length, so DOI/title text matching is weak even though the DOI
+resolver and PDF path land on the same IBFD book host. No broad route code was
+promoted and no Taxicab main push occurred for this slice.
 
-Latest #461 report publish: oxjobs commit `21f2ad13d` publishes the
-Editorapasteur accepted recovery, retry-corrected full gate, residual refresh,
-learning notes, improvement plan, and graph update. CI run `27856369292` passed.
-The live raw report and public summary JSON were verified with cache-busting
-requests. Jason's report guidance is now a hard rule: the PDF progress chart is
-a bar chart with a fixed `0-100%` y-axis so gains are anchored against the whole
-PDF-expected corpus and the 95% goal, not visually overstated by a zoomed axis.
+Latest #461 report publish: oxjobs commit `fad6d2a58` publishes the IBFD
+accepted recovery, full gate, residual refresh, learning notes, improvement
+plan, and graph update. CI run `27857437910` passed. The live raw report was
+verified with cache-busting requests. Jason's report guidance is now a hard
+rule: the PDF progress chart is a bar chart with a fixed `0-100%` y-axis so
+gains are anchored against the whole PDF-expected corpus and the 95% goal, not
+visually overstated by a zoomed axis.
 
 Recent evidence-only lanes remain closed: SJNS / `sjns.journals.ekb.eg` and
 SJDEM / `sjdem.sljol.info` both recovered `0` accepted lift and stay
 `provider_lane_do_not_duplicate`.
 
-Residual refresh `residual-clusters-after-editorapasteur-723ec9b` has `1,063`
-provider-lane/do-not-duplicate subclusters, `303` one-row `probe_next`, `20`
+Residual refresh `residual-clusters-after-shop-ibfd-d743417` has `1,062`
+provider-lane/do-not-duplicate subclusters, `302` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. The next exact low-volume fresh probe is `shop.ibfd.org`:
+subclusters. The next exact low-volume fresh probe is `ser.net.ua`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-editorapasteur-retry-723ec9b/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-shop-ibfd-d743417/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host shop.ibfd.org \
+  --host ser.net.ua \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-shop-ibfd-current-provider-probe1-after-editorapasteur \
+  --run-id unknown-ser-net-ua-current-provider-probe1-after-shop-ibfd \
   --timeout 60
 ```
 
@@ -71,9 +69,9 @@ expanded operational context.
 HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
 PDF Phase 2 /goal: active, target >=95% good_pdf on pdf_expected_total.
 
-Current handoff override: accepted retry-corrected full 10K PDF gate
-`pdf-full10k-after-editorapasteur-retry-723ec9b` is 2,405/6,293 `good_pdf`
-(38.22%), +2 versus Solen and +568 versus denominator baseline. It has 3,769
+Current handoff override: accepted strict full 10K PDF gate
+`pdf-full10k-after-shop-ibfd-d743417` is 2,407/6,293 `good_pdf` (38.25%), +2
+versus Editorapasteur and +570 versus denominator baseline. It has 3,767
 `missing_pdf_harvest`, 0 timeout, 0 `taxicab_error`, and 0 good-to-non-good
 regressions. The current handoff block above is authoritative; older entries
 below are historical.
