@@ -1,59 +1,54 @@
 # OpenAlex Taxicab Agent Guide
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-18 SJDEM Provider/Gold Demotion
+## Current PDF Handoff: 2026-06-20 Editorapasteur Accepted Recovery + 0-100 Graph
 
-Accepted strict full 10K PDF gate remains `pdf-full10k-after-solen-279302d`:
-`2,403/6,293 good_pdf` (`38.19%`), up `+1` versus SS Editora and `+566`
-versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,576` rows. The latest accepted full
-gate changed exactly one row, `missing_pdf_harvest -> good_pdf`, with `0`
-good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
+Accepted retry-corrected full 10K PDF gate is
+`pdf-full10k-after-editorapasteur-retry-723ec9b`: `2,405/6,293 good_pdf`
+(`38.22%`), up `+2` versus Solen and `+568` versus the denominator baseline of
+`1,837/6,293` (`29.19%`). The 95% target is `5,979/6,293`, so the current gap is
+`3,574` rows. The accepted gate changed exactly two rows from
+`missing_pdf_harvest -> good_pdf`, with `0` good-to-non-good regressions, `0`
+timeouts, and `0` Taxicab errors. The first Editorapasteur full run was rejected
+as transient service noise; retry correction removed the Taxicab errors before
+acceptance.
 
-Solen / `solen.cz` is the latest accepted recovery: no-storage Zyte provider
-probing recovered `1/1` through direct PDF-byte strategies, bounded PDF-URL
-reharvest stored the PDF, read-only confirmation preserved it, and full-gate
-checks accepted the +1. Oxjobs #461 Solen publication is complete at commit
-`f3c5bb2a6` with CI run `27784523594`.
+Editorapasteur / `sistema.editorapasteur.com.br` is the latest accepted recovery:
+no-storage Zyte provider probing recovered `1/1` through direct PDF-byte
+strategies (`default_body`, `accept_pdf`, `google_referer`). `browser_html`
+failed and is not the preferred strategy. DOI-only reharvest resolved to an HTML
+chapter page and was rejected; bounded PDF-URL reharvest recovered `1/1`, and
+read-only confirmation preserved `1/1`. No broad route code was promoted and no
+Taxicab main push occurred for this slice.
 
-Recent evidence-only lane: SJNS / `sjns.journals.ekb.eg` is closed as
-provider/gold evidence with `0` accepted lift. Zyte no-storage provider probing
-recovered `0/1`: direct strategies returned enable-JavaScript/access-restricted
-HTML instead of PDF bytes and `browser_html` returned empty response. Browserbase
-gold reached a same-host PDF final URL but the harness verdict stayed
-`download_started_not_captured`; a follow-up Zyte probe against that
-browser-discovered PDF URL still recovered `0/1`. No Taxicab POST/R2/DynamoDB
-writes occurred, no route code was promoted, and SJNS now stays
-`provider_lane_do_not_duplicate`. Oxjobs #461 SJNS publication is complete at
-commit `eb59cb586`; CI run `27785689884` passed, and the live raw report plus
-SJNS summary JSON were verified with a cache-busting request.
+Latest #461 report publish: oxjobs commit `21f2ad13d` publishes the
+Editorapasteur accepted recovery, retry-corrected full gate, residual refresh,
+learning notes, improvement plan, and graph update. CI run `27856369292` passed.
+The live raw report and public summary JSON were verified with cache-busting
+requests. Jason's report guidance is now a hard rule: the PDF progress chart is
+a bar chart with a fixed `0-100%` y-axis so gains are anchored against the whole
+PDF-expected corpus and the 95% goal, not visually overstated by a zoomed axis.
 
-Latest evidence-only lane: SJDEM / `sjdem.sljol.info` is now closed as
-provider/gold evidence with `0` accepted lift. Zyte no-storage provider probing
-recovered `0/1`: every strategy returned bot-block/captcha-like HTML instead of
-PDF bytes. Browserbase gold also recovered `0/1` with verdict `html_not_pdf`.
-No Taxicab POST/R2/DynamoDB writes occurred, no route code was promoted, and
-SJDEM now stays `provider_lane_do_not_duplicate`. Oxjobs #461 SJDEM publication
-is complete at commit `594e7b0c5`; CI run `27786661981` passed, and the live raw
-report plus SJDEM summary JSON were verified with cache-busting requests.
+Recent evidence-only lanes remain closed: SJNS / `sjns.journals.ekb.eg` and
+SJDEM / `sjdem.sljol.info` both recovered `0` accepted lift and stay
+`provider_lane_do_not_duplicate`.
 
-Residual refresh `residual-clusters-after-sjdem-b5a2e5b` has `1,063`
-provider-lane/do-not-duplicate subclusters, `304` one-row `probe_next`, `20`
+Residual refresh `residual-clusters-after-editorapasteur-723ec9b` has `1,063`
+provider-lane/do-not-duplicate subclusters, `303` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. The next exact low-volume fresh probe is
-`sistema.editorapasteur.com.br`:
+subclusters. The next exact low-volume fresh probe is `shop.ibfd.org`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-solen-279302d/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-editorapasteur-retry-723ec9b/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host sistema.editorapasteur.com.br \
+  --host shop.ibfd.org \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-editorapasteur-current-provider-probe1-after-sjdem \
+  --run-id unknown-shop-ibfd-current-provider-probe1-after-editorapasteur \
   --timeout 60
 ```
 
@@ -69,12 +64,18 @@ PDF-expected portion of the 10K Goldie corpus. Read `GOAL.md` and
 `NEXT_TO_DO.md` before changing code.
 
 Current PDF metric: see the handoff block above. The accepted full gate is
-`pdf-full10k-after-solen-279302d`: 2,403/6,293 `good_pdf` (38.19%),
-gap 3,576 rows, with one `missing_pdf_harvest -> good_pdf` transition and zero
-good-to-non-good regressions. This is a bounded direct-PDF cache/reharvest
-recovery, not a Taxicab-main production scraping push.
+`pdf-full10k-after-editorapasteur-retry-723ec9b`: 2,405/6,293 `good_pdf`
+(38.22%), gap 3,574 rows, with two `missing_pdf_harvest -> good_pdf`
+transitions and zero good-to-non-good regressions. This is bounded direct-PDF
+cache/reharvest plus retry-corrected read-only measurement, not a Taxicab-main
+production scraping push.
 
-Latest #461 report publish: oxjobs commit `594e7b0c5` publishes the SJDEM provider/gold negative evidence, residual demotion `residual-clusters-after-sjdem-b5a2e5b`, graph/report update, learning notes, improvement plan, and next `sistema.editorapasteur.com.br` handoff. CI run `27786661981` passed and the live raw report plus SJDEM summary JSON were verified with cache-busting requests.
+Latest #461 report publish: oxjobs commit `21f2ad13d` publishes the
+Editorapasteur accepted recovery, retry-corrected full gate, residual refresh
+`residual-clusters-after-editorapasteur-723ec9b`, 0-100 anchored bar chart,
+learning notes, improvement plan, and next `shop.ibfd.org` handoff. CI run
+`27856369292` passed and the live raw report plus summary JSON were verified
+with cache-busting requests.
 
 Prior `07f8b2044` publishes the SS Editora accepted recovery, full gate
 `pdf-full10k-after-sseditora-ac692df`, residual refresh
