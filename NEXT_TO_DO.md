@@ -27,14 +27,18 @@ rule: the PDF progress chart is a bar chart with a fixed `0-100%` y-axis so
 gains are anchored against the whole PDF-expected corpus and the 95% goal, not
 visually overstated by a zoomed axis.
 
-Recent evidence-only lanes remain closed: SJNS / `sjns.journals.ekb.eg` and
-SJDEM / `sjdem.sljol.info` both recovered `0` accepted lift and stay
+Recent evidence-only lanes remain closed: sciencepubco.com recovered `0/1`
+from all no-storage Zyte strategies as `download_404` and is now
+`provider_lane_do_not_duplicate`; SJNS / `sjns.journals.ekb.eg` and SJDEM /
+`sjdem.sljol.info` also recovered `0` accepted lift and stay
 `provider_lane_do_not_duplicate`.
 
 Residual refresh `residual-clusters-after-scs-europe-a83f26c` has `1,062`
 provider-lane/do-not-duplicate subclusters, `300` one-row `probe_next`, `20`
 validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. The next exact low-volume fresh probe is `sciencepubco.com`:
+subclusters. After the sciencepubco.com demotion refresh, the active queue is
+`1,063` provider-lane/do-not-duplicate and `299` one-row `probe_next`; the next
+exact low-volume fresh probe is `scienceopen.com`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
@@ -42,11 +46,11 @@ python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-scs-europe-a83f26c/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host sciencepubco.com \
+  --host scienceopen.com \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-sciencepubco-current-provider-probe1-after-scs-europe \
+  --run-id unknown-scienceopen-current-provider-probe1-after-sciencepubco-demote \
   --timeout 60
 ```
 
