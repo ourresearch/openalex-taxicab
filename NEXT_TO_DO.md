@@ -1,7 +1,7 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-21 Scholarhub Route Candidate Evidence
+## Current PDF Handoff: 2026-06-21 SBA Provider Evidence
 
 Accepted strict full 10K PDF gate is still `pdf-full10k-after-scs-europe-a83f26c`:
 `2,409/6,293 good_pdf` (`38.28%`), up `+1` versus SER and `+572`
@@ -20,36 +20,44 @@ Latest Taxicab route-code push: `2a88c86` on `codex/taxicab-pdf-phase2` adds a
 narrow Scholarhub PDF-byte route candidate for `scholarhub.ui.ac.id` path
 `/cgi/viewcontent.cgi` and fixes `scripts/http_get_route_probe.py` so local
 route validation preserves original query parameters while keeping public
-artifacts sanitized.
+artifacts sanitized. Latest Taxicab handoff-only push is `6b253b9`.
 
-Latest evidence update: Scholarhub / `scholarhub.ui.ac.id` is a branch route
-candidate, not an accepted 10K production lift yet. No-storage Zyte provider
-probe `unknown-scholarhub-current-provider-probe2-route-recheck` recovered
-`1/1 good_pdf`: `default_body` and `google_referer` returned valid PDF bytes,
-`accept_pdf` returned `empty_response`, and `browser_html` returned
-`html_instead_of_pdf`. The valid PDF evidence is aggregate-only in public:
-status 200, `application/pdf`, PDF magic, 5 pages, 351,651 bytes, 6,640 text
-characters, and DOI match true.
-
-Pre-route live Taxicab PDF-URL reharvest
-`pdf-scholarhub-pdfurl-reharvest1-f3f6a12` recovered `0/1` and stayed
-`missing_pdf_harvest`: POST returned status 200 but stored no PDF record. After
-branch commit `2a88c86`, no-storage local route validation
-`scholarhub-http-get-route-candidate-2a88c86` recovered `1/1` as
-`missing_pdf_harvest -> good_pdf` with `0` already-good regressions. This probe
+Latest evidence update: `sba.org.br` is closed as provider-negative evidence,
+not an accepted 10K production lift. No-storage Zyte provider probe `unknown-sba-current-provider-probe1-after-scholarhub-route-candidate`
+recovered `0/1 good_pdf`; all four strategies classified as `empty_response`.
+`accept_pdf` and `google_referer` returned Zyte 520 ban-free-response failures;
+`default_body` and `browser_html` timed out with zero PDF bytes. The probe
 issued no POST, R2, or DynamoDB writes and does not change the accepted KPI.
+Public #461 artifact `evidence/report461-sba-provider-demotion-summary-6b253b9.json` is aggregate-only: no raw DOI, raw URL,
+signed URL, cookie, Browserbase session, or secret value.
+
+Carry-forward evidence: Scholarhub / `scholarhub.ui.ac.id` remains a branch
+route candidate, not an accepted 10K lift. No-storage Zyte provider recheck
+recovered `1/1 good_pdf`; pre-route live PDF-URL reharvest recovered `0/1` and
+stored no PDF record; branch local route validation recovered `1/1` as
+`missing_pdf_harvest -> good_pdf` with `0` already-good regressions.
 
 Next exact work: either keep Scholarhub as a branch candidate until a deployment
 and full-gate proof are allowed, or continue the low-volume queue with the next
-fresh singleton `sba.org.br`. Do not push Taxicab PDF production changes to
-`main` before the final >=95% PDF gate unless the user explicitly changes that
-rule.
+fresh singleton `ruslang.ru:81`:
 
-Browserbase remains evidence/gold only; Zyte remains the production provider
-core. Public #461 artifacts for this slice are scrubbed: no raw DOIs,
-Browserbase session IDs, signed URLs, support IDs, screenshots, or raw
-discovered PDF URLs. Any lower metric/evidence blocks are historical; this
-block is the current handoff.
+```bash
+python3 scripts/provider_pdf_probe.py \
+  --input pdf_eval_runs/pdf-full10k-after-scs-europe-a83f26c/rows.ndjson \
+  --category missing_pdf_harvest \
+  --publisher unknown \
+  --host ruslang.ru:81 \
+  --limit 1 \
+  --strategies all \
+  --out /tmp/taxicab-pdf-probes \
+  --run-id unknown-ruslang-current-provider-probe1-after-sba-demote \
+  --timeout 60
+```
+
+Do not push Taxicab PDF production changes to `main` before the final >=95% PDF
+gate unless the user explicitly changes that rule. Browserbase remains
+evidence/gold only; Zyte remains the production provider core. Any lower
+metric/evidence blocks are historical; this block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-21 UTC.
 
