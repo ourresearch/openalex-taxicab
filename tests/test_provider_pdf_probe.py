@@ -8,6 +8,7 @@ from scripts.provider_pdf_probe import (
     decode_zyte_body,
     filter_records,
     load_recipe_strategies,
+    normalize_fetch_url,
     read_input_records,
     sanitize_url,
     strategy_list,
@@ -25,6 +26,12 @@ class ProviderPdfProbeTests(unittest.TestCase):
         self.assertEqual(
             sanitize_url("https://example.org/full.pdf?download=1&token=secret#page=2"),
             "https://example.org/full.pdf",
+        )
+
+    def test_normalize_fetch_url_preserves_query_for_protocol_relative_url(self):
+        self.assertEqual(
+            normalize_fetch_url("//rieoei.org/RIE/article/view/983/1868?download=1"),
+            "https://rieoei.org/RIE/article/view/983/1868?download=1",
         )
 
     def test_strategy_params_are_expected_zyte_shapes(self):
@@ -250,6 +257,28 @@ class ProviderPdfProbeTests(unittest.TestCase):
                 records[0].fetch_url,
                 "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.example&type=printable",
             )
+
+    def test_reads_protocol_relative_pdf_urls_with_valid_fetch_url(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "rows.ndjson"
+            path.write_text(
+                json.dumps(
+                    {
+                        "doi": "10.35362/rie260983",
+                        "category": "missing_pdf_harvest",
+                        "publisher": "unknown",
+                        "candidate_url": "//rieoei.org/RIE/article/view/983/1868",
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            records = read_input_records(path)
+
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0].candidate_url, "https://rieoei.org/RIE/article/view/983/1868")
+            self.assertEqual(records[0].fetch_url, "https://rieoei.org/RIE/article/view/983/1868")
 
     def test_limit_zero_returns_no_records(self):
         with tempfile.TemporaryDirectory() as tmp:

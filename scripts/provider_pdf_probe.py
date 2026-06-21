@@ -99,6 +99,19 @@ def sanitize_url(url: str) -> str:
     return urlunsplit((parts.scheme or "https", parts.netloc, parts.path or "/", "", ""))
 
 
+def normalize_fetch_url(url: str) -> str:
+    """Return a Zyte-acceptable URL while preserving query parameters."""
+    if not url:
+        return ""
+    stripped = url.strip()
+    if stripped.startswith("//"):
+        stripped = f"https:{stripped}"
+    parts = urlsplit(stripped)
+    if parts.scheme and parts.netloc:
+        return stripped
+    return ""
+
+
 def _first_value(row: dict[str, Any], keys: tuple[str, ...]) -> str:
     for key in keys:
         value = row.get(key)
@@ -140,7 +153,7 @@ def record_from_row(row: dict[str, Any]) -> ProbeRecord:
         publisher=publisher,
         host=host,
         input_url=sanitize_url(input_url) or input_url,
-        fetch_url=candidate_url,
+        fetch_url=normalize_fetch_url(candidate_url),
         candidate_url=sanitized_candidate,
         candidate_source=_first_value(row, ("candidate_source", "baseline_candidate_source")) or "provider_probe_input",
         baseline_category=_first_value(row, ("category", "baseline_category")),
