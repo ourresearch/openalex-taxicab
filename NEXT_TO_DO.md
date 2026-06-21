@@ -1,44 +1,34 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-20 SCS Europe Accepted Recovery + 0-100 Graph
+## Current PDF Handoff: 2026-06-21 Sciencepubco Demotion + Zero-Origin Report Graph
 
-Accepted strict full 10K PDF gate is `pdf-full10k-after-scs-europe-a83f26c`:
+Accepted strict full 10K PDF gate is still `pdf-full10k-after-scs-europe-a83f26c`:
 `2,409/6,293 good_pdf` (`38.28%`), up `+1` versus SER and `+572`
-versus the denominator baseline of `1,837/6,293` (`29.19%`). The 95% target is
-`5,979/6,293`, so the current gap is `3,570` rows. The accepted gate changed
-exactly one row from `missing_pdf_harvest -> good_pdf`, with `0`
-good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
+versus the first measured denominator baseline of `1,837/6,293` (`29.19%`).
+The 95% target is `5,979/6,293`, so the current gap remains `3,570` rows. The
+accepted gate changed exactly one row from `missing_pdf_harvest -> good_pdf`,
+with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
-SCS Europe / `scs-europe.net` is the latest accepted recovery: no-storage Zyte
-provider probing recovered `1/1` through direct PDF-byte strategies
-(`default_body`, `accept_pdf`, `google_referer`). `browser_html` returned HTML
-instead of PDF and is not the preferred strategy. Corrected PDF-URL reharvest
-recovered `1/1`, and read-only confirmation preserved `1/1`. Identity caveat:
-DOI/title text matching is weak, so keep this as an accepted one-row
-cache/reharvest recovery, not a broad route recipe. No broad route code was
-promoted and no Taxicab main push occurred for this slice.
+Latest #461 report publish: oxjobs commit `7fb80b2f0` publishes the Sciencepubco
+provider demotion and the corrected zero-origin graph. CI run `27919469027`
+passed. Live raw report and live raw `curve-latest.svg` were verified. The chart
+is now an unboxed fixed `0-100%` bar chart with an explicit `0 good_pdf` visual
+origin before the first measured denominator baseline. Do not restore a zoomed
+29-38% y-axis or a graph that starts visually at the measured baseline.
 
-Latest #461 report publish: oxjobs commit `06d7888e4` publishes the SCS Europe
-accepted recovery, full gate, residual refresh, learning notes, improvement
-plan, and graph update. CI run `27859307575` passed. The live raw report was
-verified with cache-busting requests. Jason's report guidance is now a hard
-rule: the PDF progress chart is a bar chart with a fixed `0-100%` y-axis so
-gains are anchored against the whole PDF-expected corpus and the 95% goal, not
-visually overstated by a zoomed axis.
+Latest evidence update: Sciencepubco / `sciencepubco.com` is not a recovery
+candidate right now. No-storage Zyte provider probe
+`unknown-sciencepubco-current-provider-probe1-after-scs-europe` recovered `0/1`:
+`default_body`, `accept_pdf`, `google_referer`, and `browser_html` all returned
+`download_404` text/html rather than valid PDF bytes. No Taxicab writes were
+issued, no reharvest candidate was promoted, and no accepted KPI changed.
 
-Recent evidence-only lanes remain closed: sciencepubco.com recovered `0/1`
-from all no-storage Zyte strategies as `download_404` and is now
-`provider_lane_do_not_duplicate`; SJNS / `sjns.journals.ekb.eg` and SJDEM /
-`sjdem.sljol.info` also recovered `0` accepted lift and stay
-`provider_lane_do_not_duplicate`.
-
-Residual refresh `residual-clusters-after-scs-europe-a83f26c` has `1,062`
-provider-lane/do-not-duplicate subclusters, `300` one-row `probe_next`, `20`
-validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. After the sciencepubco.com demotion refresh, the active queue is
-`1,063` provider-lane/do-not-duplicate and `299` one-row `probe_next`; the next
-exact low-volume fresh probe is `scienceopen.com`:
+Residual refresh `residual-clusters-after-sciencepubco-demote-efbe19f` has
+`1,063` provider-lane/do-not-duplicate subclusters, `299` one-row `probe_next`,
+`20` validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
+subclusters. Sciencepubco is now provider/do-not-duplicate. The next exact
+low-volume fresh probe is `scienceopen.com`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
@@ -60,7 +50,7 @@ Browserbase session IDs, signed URLs, support IDs, screenshots, or raw
 discovered PDF URLs. Any lower metric/evidence blocks are historical; this
 block is the current handoff.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
-Last updated: 2026-06-20 UTC.
+Last updated: 2026-06-21 UTC.
 
 This file is the handoff contract for Taxicab retrieval-quality work. Read it
 before doing new work. Keep it current before ending a long session. For the
