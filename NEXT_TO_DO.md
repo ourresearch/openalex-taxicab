@@ -1,69 +1,52 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-21 Scienceopen + Scholarworks Provider Evidence
+## Current PDF Handoff: 2026-06-21 Scholarhub Route Candidate Evidence
 
 Accepted strict full 10K PDF gate is still `pdf-full10k-after-scs-europe-a83f26c`:
 `2,409/6,293 good_pdf` (`38.28%`), up `+1` versus SER and `+572`
-versus the first measured denominator baseline of `1,837/6,293` (`29.19%`).
+versus the first measured denominator checkpoint of `1,837/6,293` (`29.19%`).
 The 95% target is `5,979/6,293`, so the current gap remains `3,570` rows. The
 accepted gate changed exactly one row from `missing_pdf_harvest -> good_pdf`,
 with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
 Graph/report rule: the #461 chart must stay anchored at reality. Use an
-unboxed fixed `0-100%` bar/progress chart with an explicit `0 good_pdf` visual
-origin before the first measured denominator baseline and a visible `95%`
-target. Do not restore a zoomed 29-38% y-axis or any graph that starts visually
-at the measured baseline.
+unboxed fixed `0-100%` bar/progress chart whose visual baseline is `0 good_pdf`
+and whose top scale is `100%`; the first measured denominator gate is only a
+reference checkpoint, not the graph baseline. Keep the visible `95%` target and
+do not restore any zoomed 29-38% y-axis.
 
-Latest #461 report publish: oxjobs commit `7fb80b2f0` publishes the
-Sciencepubco provider demotion and the corrected zero-origin graph. CI run
-`27919469027` passed, and the live raw report plus live raw `curve-latest.svg`
-were verified. A follow-up oxjobs publish is now needed for Scienceopen and
-Scholarworks provider evidence.
+Latest Taxicab branch push: `2a88c86` on `codex/taxicab-pdf-phase2` adds a
+narrow Scholarhub PDF-byte route candidate for `scholarhub.ui.ac.id` path
+`/cgi/viewcontent.cgi` and fixes `scripts/http_get_route_probe.py` so local
+route validation preserves original query parameters while keeping public
+artifacts sanitized.
 
-Latest evidence update: Scienceopen / `scienceopen.com` is not a recovery
-candidate right now. No-storage Zyte provider probe
-`unknown-scienceopen-current-provider-probe1-after-sciencepubco-demote`
-recovered `0/1`: `default_body`, `accept_pdf`, `google_referer`, and
-`browser_html` all returned `html_instead_of_pdf` / tiny non-PDF bodies.
-Browserbase session evidence `scienceopen-browserbase-gold1-f753a28` also did
-not prove recoverability: it detected a download flow but captured no valid PDF
-bytes (`download_started_not_captured`, blocked/canceled). No Taxicab writes
-were issued, no reharvest candidate was promoted, and no accepted KPI changed.
+Latest evidence update: Scholarhub / `scholarhub.ui.ac.id` is a branch route
+candidate, not an accepted 10K production lift yet. No-storage Zyte provider
+probe `unknown-scholarhub-current-provider-probe2-route-recheck` recovered
+`1/1 good_pdf`: `default_body` and `google_referer` returned valid PDF bytes,
+`accept_pdf` returned `empty_response`, and `browser_html` returned
+`html_instead_of_pdf`. The valid PDF evidence is aggregate-only in public:
+status 200, `application/pdf`, PDF magic, 5 pages, 351,651 bytes, 6,640 text
+characters, and DOI match true.
 
-Latest evidence update: Scholarworks / `scholarworks.iu.edu` is also provider
-or support evidence, not a route fix. No-storage Zyte provider probe
-`unknown-scholarworks-current-provider-probe1-after-scienceopen-demote`
-recovered `0/1`: all four strategies returned `empty_response` with Zyte 520
-ban-free-response failures. Browserbase session evidence
-`scholarworks-browserbase-gold1-f753a28` saw an uncaptured/canceled download
-start, but did not capture valid PDF bytes. No Taxicab writes were issued, no
-reharvest candidate was promoted, and no accepted KPI changed.
+Pre-route live Taxicab PDF-URL reharvest
+`pdf-scholarhub-pdfurl-reharvest1-f3f6a12` recovered `0/1` and stayed
+`missing_pdf_harvest`: POST returned status 200 but stored no PDF record. After
+branch commit `2a88c86`, no-storage local route validation
+`scholarhub-http-get-route-candidate-2a88c86` recovered `1/1` as
+`missing_pdf_harvest -> good_pdf` with `0` already-good regressions. This probe
+issued no POST, R2, or DynamoDB writes and does not change the accepted KPI.
 
-Residual refresh `residual-clusters-after-scholarworks-demote-f753a28` has
-`1,065` provider-lane/do-not-duplicate subclusters, `297` one-row `probe_next`,
-`20` validator/provider, `8` Browserbase/Zyte-gold-first, and `11`
-inspect-first subclusters. Scienceopen and Scholarworks are now
-provider/do-not-duplicate. The next exact low-volume fresh probe is
-`scholarhub.ui.ac.id`:
-
-```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-scs-europe-a83f26c/rows.ndjson \
-  --category missing_pdf_harvest \
-  --publisher unknown \
-  --host scholarhub.ui.ac.id \
-  --limit 1 \
-  --strategies all \
-  --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-scholarhub-current-provider-probe1-after-scholarworks-demote \
-  --timeout 60
-```
+Next exact work: either keep Scholarhub as a branch candidate until a deployment
+and full-gate proof are allowed, or continue the low-volume queue with the next
+fresh singleton `sba.org.br`. Do not push Taxicab PDF production changes to
+`main` before the final >=95% PDF gate unless the user explicitly changes that
+rule.
 
 Browserbase remains evidence/gold only; Zyte remains the production provider
-core. Public #461 artifacts for this slice must be scrubbed: no raw DOIs,
+core. Public #461 artifacts for this slice are scrubbed: no raw DOIs,
 Browserbase session IDs, signed URLs, support IDs, screenshots, or raw
 discovered PDF URLs. Any lower metric/evidence blocks are historical; this
 block is the current handoff.
