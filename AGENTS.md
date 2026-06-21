@@ -50,7 +50,16 @@ provider/do-not-duplicate. The next exact low-volume fresh probe is
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/provider_pdf_probe.py   --input pdf_eval_runs/pdf-full10k-after-scs-europe-a83f26c/rows.ndjson   --category missing_pdf_harvest   --publisher unknown   --host scholarhub.ui.ac.id   --limit 1   --strategies all   --out /tmp/taxicab-pdf-probes   --run-id unknown-scholarhub-current-provider-probe1-after-scholarworks-demote   --timeout 60
+python3 scripts/provider_pdf_probe.py \
+  --input pdf_eval_runs/pdf-full10k-after-scs-europe-a83f26c/rows.ndjson \
+  --category missing_pdf_harvest \
+  --publisher unknown \
+  --host scholarhub.ui.ac.id \
+  --limit 1 \
+  --strategies all \
+  --out /tmp/taxicab-pdf-probes \
+  --run-id unknown-scholarhub-current-provider-probe1-after-scholarworks-demote \
+  --timeout 60
 ```
 
 Browserbase remains evidence/gold only; Zyte remains the production provider
