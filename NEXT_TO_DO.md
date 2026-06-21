@@ -1,7 +1,7 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-21 RIEOEI Provider Evidence
+## Current PDF Handoff: 2026-06-21 RFC Editor Provider Evidence
 
 Accepted strict full 10K PDF gate is still `pdf-full10k-after-scs-europe-a83f26c`:
 `2,409/6,293 good_pdf` (`38.28%`), up `+1` versus SER and `+572`
@@ -16,41 +16,40 @@ and whose top scale is `100%`; the first measured denominator gate is only a
 reference checkpoint, not the graph baseline. Keep the visible `95%` target and
 do not restore any zoomed 29-38% y-axis.
 
-Latest Taxicab branch push: `8c76392` on `codex/taxicab-pdf-phase2` fixes the
-provider-probe harness so protocol-relative PDF URLs such as `//host/path` are
-normalized to Zyte-acceptable `https://host/path` fetch URLs while public
-artifact URLs remain sanitized. This corrected a false `url invalid` result for
-`rieoei.org`. Earlier route-code push `2a88c86` remains the Scholarhub branch
+Latest Taxicab branch push: `c406e80` on `codex/taxicab-pdf-phase2` is a
+handoff/report context update after the provider-probe harness fix `8c76392`.
+`8c76392` normalized protocol-relative PDF probe URLs and corrected the RIEOEI
+verdict. Earlier route-code push `2a88c86` remains the Scholarhub branch
 candidate.
 
-Latest evidence update: `rieoei.org` is closed as provider-negative evidence,
-not an accepted 10K production lift. After the protocol-relative URL fix,
-no-storage Zyte provider probe `unknown-rieoei-current-provider-probe2-normalized-url` recovered `0/1 good_pdf`; all four
-strategies classified as `html_instead_of_pdf` with status 200 `text/html`, not
-PDF bytes. The probe issued no POST, R2, or DynamoDB writes and does not change
-the accepted KPI. Public artifact `evidence/report461-rieoei-provider-demotion-summary-8c76392.json` is aggregate-only: no raw DOI,
-raw URL, signed URL, cookie, Browserbase session, or secret value.
+Latest evidence update: `rfc-editor.org` is closed as provider-negative
+evidence, not an accepted 10K production lift. No-storage Zyte provider probe
+`unknown-rfceditor-current-provider-probe1-after-rieoei-demote` recovered `0/1 good_pdf`; all four strategies classified as
+`download_404`. The three body strategies returned status 404 `text/plain` and
+`browser_html` returned status 404 `text/html`, not PDF bytes. The probe issued
+no POST, R2, or DynamoDB writes and does not change the accepted KPI. Public
+artifact `evidence/report461-rfceditor-provider-demotion-summary-c406e80.json` is aggregate-only: no raw DOI, raw URL, signed URL,
+cookie, Browserbase session, or secret value.
 
-Recent carry-forward evidence: `sba.org.br` is provider-negative (`0/1`, all
-strategies `empty_response`); `ruslang.ru:81` is provider-negative (`0/1`, all
-strategies `download_404` HTML); Scholarhub remains a branch route candidate
-with provider `1/1`, pre-route live reharvest `0/1`, and branch route probe
-`1/1` but no accepted full-gate lift yet.
+Recent carry-forward evidence: `sba.org.br`, `ruslang.ru:81`, `rieoei.org`, and
+`rfc-editor.org` are provider-negative low-volume lanes. Scholarhub remains a
+branch route candidate with provider `1/1`, pre-route live reharvest `0/1`, and
+branch route probe `1/1` but no accepted full-gate lift yet.
 
 Next exact work: either keep Scholarhub as a branch candidate until deployment
 and full-gate proof are allowed, or continue the low-volume queue with the next
-fresh singleton `rfc-editor.org`:
+fresh singleton `revmed.ch`:
 
 ```bash
 python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-scs-europe-a83f26c/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host rfc-editor.org \
+  --host revmed.ch \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-rfceditor-current-provider-probe1-after-rieoei-demote \
+  --run-id unknown-revmed-current-provider-probe1-after-rfceditor-demote \
   --timeout 60
 ```
 
