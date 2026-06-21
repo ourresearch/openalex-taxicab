@@ -1,7 +1,7 @@
 # Taxicab Goal State
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-21 SBA Provider Evidence
+## Current PDF Handoff: 2026-06-21 Ruslang Provider Evidence
 
 Accepted strict full 10K PDF gate is still `pdf-full10k-after-scs-europe-a83f26c`:
 `2,409/6,293 good_pdf` (`38.28%`), up `+1` versus SER and `+572`
@@ -20,37 +20,35 @@ Latest Taxicab route-code push: `2a88c86` on `codex/taxicab-pdf-phase2` adds a
 narrow Scholarhub PDF-byte route candidate for `scholarhub.ui.ac.id` path
 `/cgi/viewcontent.cgi` and fixes `scripts/http_get_route_probe.py` so local
 route validation preserves original query parameters while keeping public
-artifacts sanitized. Latest Taxicab handoff-only push is `6b253b9`.
+artifacts sanitized. Latest Taxicab handoff-only push is `3e730c3`.
 
-Latest evidence update: `sba.org.br` is closed as provider-negative evidence,
-not an accepted 10K production lift. No-storage Zyte provider probe `unknown-sba-current-provider-probe1-after-scholarhub-route-candidate`
-recovered `0/1 good_pdf`; all four strategies classified as `empty_response`.
-`accept_pdf` and `google_referer` returned Zyte 520 ban-free-response failures;
-`default_body` and `browser_html` timed out with zero PDF bytes. The probe
+Latest evidence update: `ruslang.ru:81` is closed as provider-negative evidence,
+not an accepted 10K production lift. No-storage Zyte provider probe `unknown-ruslang-current-provider-probe1-after-sba-demote`
+recovered `0/1 good_pdf`; all four strategies classified as `download_404`.
+Each strategy returned status 404 with `text/html`, not PDF bytes. The probe
 issued no POST, R2, or DynamoDB writes and does not change the accepted KPI.
-Public #461 artifact `evidence/report461-sba-provider-demotion-summary-6b253b9.json` is aggregate-only: no raw DOI, raw URL,
-signed URL, cookie, Browserbase session, or secret value.
+Public artifact `evidence/report461-ruslang-provider-demotion-summary-3e730c3.json` is aggregate-only: no raw DOI, raw URL, signed
+URL, cookie, Browserbase session, or secret value.
 
-Carry-forward evidence: Scholarhub / `scholarhub.ui.ac.id` remains a branch
-route candidate, not an accepted 10K lift. No-storage Zyte provider recheck
-recovered `1/1 good_pdf`; pre-route live PDF-URL reharvest recovered `0/1` and
-stored no PDF record; branch local route validation recovered `1/1` as
-`missing_pdf_harvest -> good_pdf` with `0` already-good regressions.
+Recent carry-forward evidence: `sba.org.br` is also provider-negative (`0/1`,
+all four strategies `empty_response`). Scholarhub / `scholarhub.ui.ac.id`
+remains a branch route candidate: provider recheck `1/1`, pre-route live
+reharvest `0/1`, branch local route validation `1/1`, accepted KPI unchanged.
 
-Next exact work: either keep Scholarhub as a branch candidate until a deployment
+Next exact work: either keep Scholarhub as a branch candidate until deployment
 and full-gate proof are allowed, or continue the low-volume queue with the next
-fresh singleton `ruslang.ru:81`:
+fresh singleton `rieoei.org`:
 
 ```bash
 python3 scripts/provider_pdf_probe.py \
   --input pdf_eval_runs/pdf-full10k-after-scs-europe-a83f26c/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher unknown \
-  --host ruslang.ru:81 \
+  --host rieoei.org \
   --limit 1 \
   --strategies all \
   --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-ruslang-current-provider-probe1-after-sba-demote \
+  --run-id unknown-rieoei-current-provider-probe1-after-ruslang-demote \
   --timeout 60
 ```
 
