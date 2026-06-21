@@ -1,7 +1,7 @@
 # Taxicab Goal State
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-21 Sciencepubco Demotion + Zero-Origin Report Graph
+## Current PDF Handoff: 2026-06-21 Scienceopen + Scholarworks Provider Evidence
 
 Accepted strict full 10K PDF gate is still `pdf-full10k-after-scs-europe-a83f26c`:
 `2,409/6,293 good_pdf` (`38.28%`), up `+1` versus SER and `+572`
@@ -10,42 +10,51 @@ The 95% target is `5,979/6,293`, so the current gap remains `3,570` rows. The
 accepted gate changed exactly one row from `missing_pdf_harvest -> good_pdf`,
 with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
-Latest #461 report publish: oxjobs commit `7fb80b2f0` publishes the Sciencepubco
-provider demotion and the corrected zero-origin graph. CI run `27919469027`
-passed. Live raw report and live raw `curve-latest.svg` were verified. The chart
-is now an unboxed fixed `0-100%` bar chart with an explicit `0 good_pdf` visual
-origin before the first measured denominator baseline. Do not restore a zoomed
-29-38% y-axis or a graph that starts visually at the measured baseline.
+Graph/report rule: the #461 chart must stay anchored at reality. Use an
+unboxed fixed `0-100%` bar/progress chart with an explicit `0 good_pdf` visual
+origin before the first measured denominator baseline and a visible `95%`
+target. Do not restore a zoomed 29-38% y-axis or any graph that starts visually
+at the measured baseline.
 
-Latest evidence update: Sciencepubco / `sciencepubco.com` is not a recovery
+Latest #461 report publish: oxjobs commit `7fb80b2f0` publishes the
+Sciencepubco provider demotion and the corrected zero-origin graph. CI run
+`27919469027` passed, and the live raw report plus live raw `curve-latest.svg`
+were verified. A follow-up oxjobs publish is now needed for Scienceopen and
+Scholarworks provider evidence.
+
+Latest evidence update: Scienceopen / `scienceopen.com` is not a recovery
 candidate right now. No-storage Zyte provider probe
-`unknown-sciencepubco-current-provider-probe1-after-scs-europe` recovered `0/1`:
-`default_body`, `accept_pdf`, `google_referer`, and `browser_html` all returned
-`download_404` text/html rather than valid PDF bytes. No Taxicab writes were
-issued, no reharvest candidate was promoted, and no accepted KPI changed.
+`unknown-scienceopen-current-provider-probe1-after-sciencepubco-demote`
+recovered `0/1`: `default_body`, `accept_pdf`, `google_referer`, and
+`browser_html` all returned `html_instead_of_pdf` / tiny non-PDF bodies.
+Browserbase session evidence `scienceopen-browserbase-gold1-f753a28` also did
+not prove recoverability: it detected a download flow but captured no valid PDF
+bytes (`download_started_not_captured`, blocked/canceled). No Taxicab writes
+were issued, no reharvest candidate was promoted, and no accepted KPI changed.
 
-Residual refresh `residual-clusters-after-sciencepubco-demote-efbe19f` has
-`1,063` provider-lane/do-not-duplicate subclusters, `299` one-row `probe_next`,
-`20` validator/provider, `8` Browserbase/Zyte-gold-first, and `11` inspect-first
-subclusters. Sciencepubco is now provider/do-not-duplicate. The next exact
-low-volume fresh probe is `scienceopen.com`:
+Latest evidence update: Scholarworks / `scholarworks.iu.edu` is also provider
+or support evidence, not a route fix. No-storage Zyte provider probe
+`unknown-scholarworks-current-provider-probe1-after-scienceopen-demote`
+recovered `0/1`: all four strategies returned `empty_response` with Zyte 520
+ban-free-response failures. Browserbase session evidence
+`scholarworks-browserbase-gold1-f753a28` saw an uncaptured/canceled download
+start, but did not capture valid PDF bytes. No Taxicab writes were issued, no
+reharvest candidate was promoted, and no accepted KPI changed.
+
+Residual refresh `residual-clusters-after-scholarworks-demote-f753a28` has
+`1,065` provider-lane/do-not-duplicate subclusters, `297` one-row `probe_next`,
+`20` validator/provider, `8` Browserbase/Zyte-gold-first, and `11`
+inspect-first subclusters. Scienceopen and Scholarworks are now
+provider/do-not-duplicate. The next exact low-volume fresh probe is
+`scholarhub.ui.ac.id`:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-scs-europe-a83f26c/rows.ndjson \
-  --category missing_pdf_harvest \
-  --publisher unknown \
-  --host scienceopen.com \
-  --limit 1 \
-  --strategies all \
-  --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-scienceopen-current-provider-probe1-after-sciencepubco-demote \
-  --timeout 60
+python3 scripts/provider_pdf_probe.py   --input pdf_eval_runs/pdf-full10k-after-scs-europe-a83f26c/rows.ndjson   --category missing_pdf_harvest   --publisher unknown   --host scholarhub.ui.ac.id   --limit 1   --strategies all   --out /tmp/taxicab-pdf-probes   --run-id unknown-scholarhub-current-provider-probe1-after-scholarworks-demote   --timeout 60
 ```
 
 Browserbase remains evidence/gold only; Zyte remains the production provider
-core. Public #461 artifacts for this slice are scrubbed: no raw DOIs,
+core. Public #461 artifacts for this slice must be scrubbed: no raw DOIs,
 Browserbase session IDs, signed URLs, support IDs, screenshots, or raw
 discovered PDF URLs. Any lower metric/evidence blocks are historical; this
 block is the current handoff.
