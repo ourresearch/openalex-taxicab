@@ -16,7 +16,7 @@ and whose top scale is `100%`; the first measured denominator gate is only a
 reference checkpoint, not the graph baseline. Keep the visible `95%` target and
 do not restore any zoomed 29-38% y-axis.
 
-Latest Taxicab branch push: `2a88c86` on `codex/taxicab-pdf-phase2` adds a
+Latest Taxicab route-code push: `2a88c86` on `codex/taxicab-pdf-phase2` adds a
 narrow Scholarhub PDF-byte route candidate for `scholarhub.ui.ac.id` path
 `/cgi/viewcontent.cgi` and fixes `scripts/http_get_route_probe.py` so local
 route validation preserves original query parameters while keeping public
