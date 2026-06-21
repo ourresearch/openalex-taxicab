@@ -221,10 +221,11 @@ def run_probe(args: argparse.Namespace) -> int:
     rows: list[dict[str, Any]] = []
     for index, record in enumerate(records, start=1):
         print(f"{index}/{len(records)} {record.doi} {record.publisher} {record.host}", flush=True)
+        target_url = record.fetch_url or record.candidate_url
         started = time.monotonic()
         try:
             response = http_get(
-                record.candidate_url,
+                target_url,
                 doi=record.doi,
                 read_timeout=args.read_timeout,
                 connect_timeout=args.connect_timeout,

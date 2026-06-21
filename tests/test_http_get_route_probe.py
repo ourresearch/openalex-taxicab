@@ -91,14 +91,15 @@ class HttpGetRouteProbeTests(unittest.TestCase):
     def test_run_probe_calls_http_get_and_writes_summary(self):
         with tempfile.TemporaryDirectory() as tmp:
             rows_path = Path(tmp) / "rows.ndjson"
+            fetch_url = "https://scholarhub.ui.ac.id/cgi/viewcontent.cgi?article=1201&context=journal"
             rows_path.write_text(
                 json.dumps(
                     {
-                        "doi": "10.1145/example",
+                        "doi": "10.7454/example",
                         "category": "missing_pdf_harvest",
-                        "publisher": "acm",
-                        "host": "dl.acm.org",
-                        "candidate_url": "https://dl.acm.org/doi/pdf/10.1145/example",
+                        "publisher": "unknown",
+                        "host": "scholarhub.ui.ac.id",
+                        "candidate_url": fetch_url,
                     }
                 )
                 + "\n",
@@ -108,8 +109,8 @@ class HttpGetRouteProbeTests(unittest.TestCase):
             args = argparse.Namespace(
                 input=str(rows_path),
                 category="missing_pdf_harvest",
-                publisher="acm",
-                host="dl.acm.org",
+                publisher="unknown",
+                host="scholarhub.ui.ac.id",
                 limit=1,
                 out=str(out),
                 run_id="unit-http-get-route",
@@ -129,6 +130,8 @@ class HttpGetRouteProbeTests(unittest.TestCase):
                 self.assertEqual(run_probe(args), 0)
 
             mocked.assert_called_once()
+            self.assertEqual(mocked.call_args.args[0], fetch_url)
+            self.assertIn("article=1201", mocked.call_args.args[0])
             summary = json.loads((out / "unit-http-get-route" / "summary.json").read_text(encoding="utf-8"))
             self.assertEqual(summary["category_counts"], {"good_pdf": 1})
             self.assertEqual(summary["prior_non_good_recovered"], 1)

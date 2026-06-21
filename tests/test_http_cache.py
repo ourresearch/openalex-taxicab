@@ -90,6 +90,109 @@ class ScienceDirectUrlTests(unittest.TestCase):
         )
         self.assertTrue(response.content.startswith(b"%PDF-"))
 
+    def test_http_get_uses_pdf_body_strategy_for_scholarhub_viewcontent(self):
+        pdf_url = "https://scholarhub.ui.ac.id/cgi/viewcontent.cgi?article=1201&context=journal"
+        captured = []
+
+        class FakeResponse:
+            def json(self):
+                return {
+                    "statusCode": 200,
+                    "url": pdf_url,
+                    "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                    "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+                }
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse()
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url)
+
+        self.assertEqual(len(captured), 1)
+        self.assertTrue(captured[0]["httpResponseBody"])
+        self.assertTrue(captured[0]["httpResponseHeaders"])
+        self.assertNotIn("browserHtml", captured[0])
+        self.assertEqual(response.url, pdf_url)
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_http_get_falls_back_for_scholarhub_viewcontent_strategies(self):
+        pdf_url = "https://scholarhub.ui.ac.id/cgi/viewcontent.cgi?article=1201&context=journal"
+        captured = []
+        responses = [
+            {
+                "statusCode": 202,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "httpResponseBody": base64.b64encode(b"<script>window.location='download'</script>").decode(),
+            },
+            {
+                "statusCode": 200,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "httpResponseBody": "",
+            },
+            {
+                "statusCode": 200,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+            },
+        ]
+
+        class FakeResponse:
+            def __init__(self, data):
+                self._data = data
+
+            def json(self):
+                return self._data
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse(responses[len(captured) - 1])
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url)
+
+        self.assertEqual(len(captured), 3)
+        self.assertNotIn("customHttpRequestHeaders", captured[0])
+        self.assertEqual(
+            captured[1]["customHttpRequestHeaders"],
+            [{"name": "Accept", "value": "application/pdf,*/*"}],
+        )
+        self.assertEqual(
+            captured[2]["customHttpRequestHeaders"],
+            [
+                {"name": "Accept", "value": "application/pdf,*/*"},
+                {"name": "Referer", "value": "https://www.google.com/"},
+            ],
+        )
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_http_get_does_not_scholarhub_route_non_viewcontent(self):
+        article_url = "https://scholarhub.ui.ac.id/article/view/1201"
+        captured = {}
+
+        def fake_call_with_zyte_api(url, params=None):
+            captured["url"] = url
+            captured["params"] = params
+            return {
+                "statusCode": 200,
+                "url": article_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "httpResponseBody": base64.b64encode(b"<html>Scholarhub article shell</html>").decode(),
+            }
+
+        with patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=fake_call_with_zyte_api):
+            response = http_get(article_url)
+
+        self.assertEqual(captured["url"], article_url)
+        self.assertEqual(captured["params"]["url"], article_url)
+        self.assertNotIn("customHttpRequestHeaders", captured["params"])
+        self.assertIsInstance(response.content, str)
+        self.assertIn("Scholarhub article shell", response.content)
+
     def test_http_get_uses_pdf_body_strategy_for_iop_article_pdf(self):
         pdf_url = "https://iopscience.iop.org/article/10.1088/0951-7715/7/1/008/pdf"
         captured = []

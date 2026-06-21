@@ -486,6 +486,9 @@ def http_get(url,
         if not attempt_n and _is_acs_pdf_url(url):
             return _fetch_acs_pdf(url, connect_timeout, read_timeout)
 
+        if not attempt_n and _is_scholarhub_pdf_url(url):
+            return _fetch_scholarhub_pdf(url, connect_timeout, read_timeout)
+
         if not attempt_n and _is_peerj_pdf_url(url):
             return _fetch_peerj_pdf(url, connect_timeout, read_timeout)
 
@@ -762,6 +765,10 @@ PEERJ_PDF_HOSTS = [
     "peerj.com",
 ]
 
+SCHOLARHUB_PDF_HOSTS = [
+    "scholarhub.ui.ac.id",
+]
+
 
 # Hosts that hide direct PDF URLs behind Cloudflare-style fingerprint checks.
 # Direct httpResponseBody calls to the PDF URL get banned (Zyte 520), but
@@ -860,6 +867,19 @@ def _is_peerj_pdf_url(url):
         return False
     return any(host == peerj_host or host.endswith(f".{peerj_host}")
                for peerj_host in PEERJ_PDF_HOSTS)
+
+
+def _is_scholarhub_pdf_url(url):
+    try:
+        split_url = urlsplit(url)
+    except ValueError:
+        return False
+    host = split_url.netloc.lower()
+    path = split_url.path.lower()
+    if path != "/cgi/viewcontent.cgi":
+        return False
+    return any(host == scholarhub_host or host.endswith(f".{scholarhub_host}")
+               for scholarhub_host in SCHOLARHUB_PDF_HOSTS)
 
 
 def _should_use_landing_page_rewrite(url):
@@ -1084,6 +1104,34 @@ def _fetch_acs_pdf(url, connect_timeout=5, read_timeout=60):
             )
         except requests.exceptions.RequestException as exc:
             logger.warning(f"ACS PDF fetch failed using {strategy_name}: {exc}")
+            continue
+        data = response.json()
+        current = _response_from_zyte_body(data, url)
+        last_response = current
+        if isinstance(current.content, bytes) and current.content[:5] == b"%PDF-":
+            return current
+
+    return last_response
+
+
+def _fetch_scholarhub_pdf(url, connect_timeout=5, read_timeout=60):
+    """Fetch Scholarhub viewcontent URLs as PDF bytes with narrow fallback headers."""
+    zyte_api_url = "https://api.zyte.com/v1/extract"
+    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    last_response = ResponseObject(content=b"", headers=[], status_code=520, url=url)
+
+    for strategy_name, params in _wiley_pdfdirect_strategy_params(url):
+        logger.info(f"Scholarhub PDF fetch using {strategy_name}: {url}")
+        try:
+            response = requests.post(
+                zyte_api_url,
+                auth=(zyte_api_key, ''),
+                json=params,
+                verify=False,
+                timeout=(connect_timeout, read_timeout),
+            )
+        except requests.exceptions.RequestException as exc:
+            logger.warning(f"Scholarhub PDF fetch failed using {strategy_name}: {exc}")
             continue
         data = response.json()
         current = _response_from_zyte_body(data, url)
