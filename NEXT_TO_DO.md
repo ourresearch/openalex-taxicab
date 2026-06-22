@@ -1,7 +1,7 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-22 Karazin/UFMS/UFPB Accepted Recovery
+## Current PDF Handoff: 2026-06-22 ScholarHub Branch-Candidate Evidence
 
 Accepted strict full 10K PDF gate is now `pdf-full10k-after-karazin-ufms-ufpb-4cecf13`:
 `2,434/6,293 good_pdf` (`38.68%`), up `+3` versus Philology/Periodicos and `+597`
@@ -30,15 +30,29 @@ with `0` regressions. Negative evidence in the same selection batch:
 PDF. Oxjobs commit `391846b51 #461 taxicab-pdf: accept karazin ufms ufpb recovery`
 records the report and 0-100 anchored graph update.
 
+Latest evidence-only branch candidate: refreshed residual clusters from
+`pdf-full10k-after-karazin-ufms-ufpb-4cecf13`, then no-storage provider probe
+`unknown-singleton-fresh-provider-probe5-after-karazin` recovered `1/5` fresh
+singleton hosts. `scholarhub.ui.ac.id` produced a valid 351,651-byte, 5-page
+PDF with DOI match through a Google-referer PDF-byte strategy. Deployed Taxicab
+reharvest `pdf-scholarhub-pdfurl-reharvest1-after-karazin` still stayed
+`missing_pdf_harvest` because production resolved to article HTML, while local
+branch route probe `scholarhub-http-get-route-local-after-karazin` recovered
+`1/1 good_pdf` with no storage writes. Treat ScholarHub as branch-candidate
+evidence only; accepted KPI and `kpi-history.csv` remain unchanged. Oxjobs
+commit `71889e813 #461 taxicab-pdf: publish scholarhub branch evidence` records
+the public aggregate summary
+`evidence/report461-scholarhub-branch-candidate-summary-bd12a96.json`.
+
 Next exact command for the next agent:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-karazin-ufms-ufpb-4cecf13/rows.ndjson --out pdf_eval_runs/residual-clusters-after-karazin-ufms-ufpb-4cecf13 --run-id residual-clusters-after-karazin-ufms-ufpb-4cecf13 --sample-size 5 --top-n 500
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/queues/unknown-singleton-fresh-provider-probe-next5-after-scholarhub.csv --category missing_pdf_harvest --limit 5 --strategies all --timeout 90 --sleep 0.2 --run-id unknown-singleton-fresh-provider-probe-next5-after-scholarhub --out pdf_eval_runs
 ```
 
 Current blocker: no global blocker, but high-volume residual lanes remain provider/access-flow dominated. Do not repeat provider-negative or already-demoted lanes without new provider guidance.
 
-Latest commit/push status: update these Taxicab handoff docs, run `python3 -m unittest discover -s tests`, run `python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke`, run `git diff --check -- AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md`, secret-scan the edited docs, commit, pull --rebase, and push `codex/taxicab-pdf-phase2`.
+Latest commit/push status: update these Taxicab handoff docs with ScholarHub branch-candidate evidence, run `python3 -m unittest discover -s tests`, run `python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke`, run `git diff --check -- AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md`, secret-scan the edited docs, commit, pull --rebase, and push `codex/taxicab-pdf-phase2`.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Last updated: 2026-06-22 UTC.
 
