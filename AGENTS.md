@@ -1,14 +1,18 @@
 # OpenAlex Taxicab Agent Guide
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-22 Museu Ciencies Accepted Recovery
+## Current PDF Handoff: 2026-06-22 Academ Studies / Copernicus Accepted Recovery
 
-Accepted strict full 10K PDF gate is now `pdf-full10k-after-museuciencies-7a122d2`:
-`2,436/6,293 good_pdf` (`38.71%`), up `+1` versus IJLTEMAS and `+599`
+Accepted strict full 10K PDF gate is now
+`pdf-full10k-after-academstudies-copernicus-rerun-9e738d2`:
+`2,438/6,293 good_pdf` (`38.74%`), up `+2` versus Museu Ciencies and `+601`
 versus the first measured denominator reference of `1,837/6,293` (`29.19%`).
-The 95% target is `5,979/6,293`, so the current gap is `3,543` rows. The
-accepted gate changed exactly one row, `missing_pdf_harvest -> good_pdf`, with
-`0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
+The 95% target is `5,979/6,293`, so the current gap is `3,541` rows. The clean
+accepted rerun changed exactly two rows, `missing_pdf_harvest -> good_pdf`, with
+`0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors. The
+first full gate for this lane had one transient Atlantis prior-good timeout, was
+rejected, and was replaced by the clean rerun after a targeted Atlantis retry
+returned `good_pdf`.
 
 Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single
 unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose
@@ -21,23 +25,24 @@ Green marks accepted improvement, red marks regression or stricter reclassificat
 and the graph must remain at the top of the report before explanatory text.
 
 Latest accepted evidence update: low-count no-storage Zyte provider probe
-`lowcount-fresh-provider-probe-next5-after-ijltemas` recovered `1/5` candidate
-hosts. The winner was `museucienciesjournals.cat`, which returned a valid
-205,446-byte, 4-page PDF with 13,688 extracted text characters. The DOI string
-is not printed in the PDF text, so acceptance rests on corpus candidate URL,
-article-text validation, bounded reharvest, read-only confirmation, and
-full-gate proof. Candidate-url reharvest recovered `1/1`, read-only
-confirmation preserved `1/1`, and full gate
-`pdf-full10k-after-museuciencies-7a122d2` accepted `+1 good_pdf` with `0`
-regressions. Oxjobs commit `4998bda49 #461 taxicab-pdf: accept museuciencies
+`lowcount-fresh-provider-probe-next5-after-negative-museuciencies` recovered
+`2/5` candidate hosts. The winners were `academstudies.volyn.ua` and
+`acp.copernicus.org`; both returned valid PDF bytes through direct provider
+strategies. Bounded reharvest recovered `2/2`, read-only confirmation preserved
+`2/2`, and the clean full gate accepted `+2 good_pdf` with `0` regressions.
+Oxjobs commit `500809c52 #461 taxicab-pdf: accept academstudies copernicus
 recovery` records the report, latest summary, residual clusters, public
-Museu Ciencies summary, and 0-100 anchored bar chart.
+Academ Studies / Copernicus summary, and 0-origin fixed `0-100%` bar chart.
+GitHub CI run `27973491282` passed.
 
 Latest negative/evidence-only context: the same five-host provider probe did
-not recover `icmai-rnj.in`, `erudit.org`, `esmoopen.com`, or
-`epubs.siam.org`. ScholarHub remains branch-candidate evidence only; accepted
-KPI comes from IJLTEMAS and Museu Ciencies bounded recoveries after the
-Karazin/UFMS/UFPB gate.
+not recover `aapt.scitation.org`, `abmproceedings.com.br`, or
+`acsess.onlinelibrary.wiley.com`. The prior post-Museu probe recovered 0/5
+across `publish.csiro.au`, `pulmonarychronicles.com`,
+`pubsonline.informs.org`, `qu.edu.iq`, and `radab.uomosul.edu.iq`.
+ScholarHub remains branch-candidate evidence only; accepted KPI comes from
+bounded direct-PDF cache/reharvest plus clean read-only full-gate proof, not a
+Taxicab-main production scraping push.
 
 ScholarHub remains branch-candidate evidence only. It recovered locally through
 branch route logic but production reharvest stayed `missing_pdf_harvest`, so it
@@ -46,12 +51,12 @@ is not part of the accepted KPI.
 Next exact command for the next agent:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/queues/lowcount-fresh-provider-probe-next5-after-museuciencies.csv --category missing_pdf_harvest --limit 5 --strategies all --timeout 90 --sleep 0.2 --run-id lowcount-fresh-provider-probe-next5-after-museuciencies --out pdf_eval_runs
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/queues/lowcount-fresh-provider-probe-next5-after-academstudies-copernicus.csv --category missing_pdf_harvest --limit 5 --strategies all --timeout 90 --sleep 0.2 --run-id lowcount-fresh-provider-probe-next5-after-academstudies-copernicus --out pdf_eval_runs
 ```
 
 Current blocker: no global blocker, but high-volume residual lanes remain provider/access-flow dominated. Do not repeat provider-negative or already-demoted lanes without new provider guidance.
 
-Latest commit/push status: oxjobs main is pushed at `4998bda49` and GitHub CI passed. The oxjobs.org raw report endpoint may lag behind GitHub main cache briefly; GitHub main is the verified source. Update these Taxicab handoff docs, run `python3 -m unittest discover -s tests`, run `python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke`, run `git diff --check -- AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md`, secret-scan the edited docs, commit, pull --rebase, and push `codex/taxicab-pdf-phase2`.
+Latest commit/push status: oxjobs main is pushed at `500809c52` and GitHub CI passed. GitHub main has the new report; the oxjobs.org raw report endpoint may lag behind cache briefly. Update these Taxicab handoff docs, run `python3 -m unittest discover -s tests`, run `python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke`, run `git diff --check -- AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md`, secret-scan the edited docs, commit, pull --rebase, and push `codex/taxicab-pdf-phase2`.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
 Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
@@ -60,18 +65,18 @@ PDF-expected portion of the 10K Goldie corpus. Read `GOAL.md` and
 `NEXT_TO_DO.md` before changing code.
 
 Current PDF metric: see the handoff block above. The accepted full gate is
-`pdf-full10k-after-museuciencies-7a122d2`: 2,436/6,293 `good_pdf` (38.71%),
-gap 3,543 rows, with one `missing_pdf_harvest -> good_pdf` transition and
-zero good-to-non-good regressions. This is bounded direct-PDF cache/reharvest
-plus read-only full-gate measurement, not a Taxicab-main production scraping
-push.
+`pdf-full10k-after-academstudies-copernicus-rerun-9e738d2`: 2,438/6,293
+`good_pdf` (38.74%), gap 3,541 rows, with two
+`missing_pdf_harvest -> good_pdf` transitions and zero good-to-non-good
+regressions. This is bounded direct-PDF cache/reharvest plus clean read-only
+full-gate measurement, not a Taxicab-main production scraping push.
 
-Latest #461 report publish is oxjobs commit `4998bda49`, which accepts
-`pdf-full10k-after-museuciencies-7a122d2`, publishes Museu Ciencies as accepted
-KPI work, keeps ScholarHub as evidence-only branch-candidate work, and keeps the
-0-100 anchored bar chart with visual baseline at `0 good_pdf`. The current
-handoff block above is authoritative; older Philology/Revistas/PLOS/SCS/
-Scienceopen queue entries below are historical.
+Latest #461 report publish is oxjobs commit `500809c52`, which accepts
+`pdf-full10k-after-academstudies-copernicus-rerun-9e738d2`, publishes Academ
+Studies / Copernicus as accepted KPI work, keeps ScholarHub as evidence-only
+branch-candidate work, and keeps the 0-origin fixed 0-100 bar chart with visual
+baseline at `0 good_pdf`. The current handoff block above is authoritative;
+older Philology/Revistas/PLOS/SCS/Scienceopen queue entries below are historical.
 
 Prior `07f8b2044` publishes the SS Editora accepted recovery, full gate
 `pdf-full10k-after-sseditora-ac692df`, residual refresh
