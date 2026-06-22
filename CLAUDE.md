@@ -1,14 +1,15 @@
 # OpenAlex Taxicab
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-22 RIAF/Reumatologia/WVU Accepted Recovery
+## Current PDF Handoff: 2026-06-22 Repozytorium/HKUST/RedCPS Accepted Recovery
 
-Accepted strict full 10K PDF gate is now `pdf-full10k-after-revistainvestigacion-reumatologia-wvu-4ed9cf4`:
-`2,418/6,293 good_pdf` (`38.42%`), up `+3` versus Revistas UM/UDEA and `+581`
-versus the first measured denominator reference of `1,837/6,293` (`29.19%`).
-The 95% target is `5,979/6,293`, so the current gap is `3,561` rows. The
-accepted gate changed exactly three rows, all `missing_pdf_harvest -> good_pdf`,
-with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
+Accepted strict full 10K PDF gate is now `pdf-full10k-after-repozytorium-hkust-redcps-6d83b7a`:
+`2,421/6,293 good_pdf` (`38.47%`), up `+3` versus RIAF/Reumatologia/WVU and
+`+584` versus the first measured denominator reference of `1,837/6,293`
+(`29.19%`). The 95% target is `5,979/6,293`, so the current gap is `3,558`
+rows. The accepted gate changed exactly three rows, all
+`missing_pdf_harvest -> good_pdf`, with `0` good-to-non-good regressions, `0`
+timeouts, and `0` Taxicab errors.
 
 Graph/report rule: the #461 chart must stay anchored at reality. Use a single
 unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose
@@ -16,23 +17,23 @@ top scale is `100%`, and whose `95%` target line remains visible. The first
 measured denominator gate is only the first measured checkpoint, not the graph
 baseline. Do not restore any zoomed 29-38% y-axis.
 
-Latest accepted evidence update: RIAF / `revistainvestigacionacademicasinfrontera.unison.mx`,
-Reumatologia / `reumatologia.org.br`, and WVU / `researchrepository.wvu.edu` recovered `3/3` in
-no-storage Zyte provider probing through direct PDF-byte strategies. Bounded
-PDF-URL reharvest `pdf-revistainvestigacion-reumatologia-wvu-pdfurl-reharvest3-after-revistas-um-udea` recovered `3/3`, read-only confirmation
-`pdf-revistainvestigacion-reumatologia-wvu-pdfurl-readonly3-after-revistas-um-udea` preserved `3/3`, and full gate `pdf-full10k-after-revistainvestigacion-reumatologia-wvu-4ed9cf4` accepted `+3 good_pdf`
+Latest accepted evidence update: Repozytorium / `repozytorium.ur.edu.pl`,
+HKUST / `repository.hkust.edu.hk`, and RedCPS / `redcps.com.br` recovered `3/3`
+in no-storage Zyte provider probing through direct PDF-byte strategies. Bounded
+PDF-URL reharvest `pdf-repozytorium-hkust-redcps-pdfurl-reharvest3-after-riaf-reum-wvu` recovered `3/3`, read-only confirmation
+`pdf-repozytorium-hkust-redcps-pdfurl-readonly3-after-riaf-reum-wvu` preserved `3/3`, and full gate `pdf-full10k-after-repozytorium-hkust-redcps-6d83b7a` accepted `+3 good_pdf`
 with `0` regressions. Public oxjobs artifact
-`evidence/report461-revistainvestigacion-reumatologia-wvu-recovery-summary-4ed9cf4.json` is aggregate-only:
+`evidence/report461-repozytorium-hkust-redcps-recovery-summary-6d83b7a.json` is aggregate-only:
 no raw DOI, raw URL, signed URL, cookie, Browserbase session, or secret value.
 
-Latest evidence-only negative in the same batch: `revistaeclesiasticabrasileira.itf.edu.br`
-recovered `0/1` and remains evidence-only. Do not reharvest it without new
-provider evidence.
+Latest evidence-only negative in the same batch: `research.aota.org` recovered
+`0/1` and remains evidence-only. Do not reharvest it without new provider
+evidence.
 
 Next exact command for the next agent:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-revistainvestigacion-reumatologia-wvu-4ed9cf4/rows.ndjson --out pdf_eval_runs/residual-clusters-after-revistainvestigacion-reumatologia-wvu-4ed9cf4 --run-id residual-clusters-after-revistainvestigacion-reumatologia-wvu-4ed9cf4 --sample-size 5 --top-n 500
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-repozytorium-hkust-redcps-6d83b7a/rows.ndjson --out pdf_eval_runs/residual-clusters-after-repozytorium-hkust-redcps-6d83b7a --run-id residual-clusters-after-repozytorium-hkust-redcps-6d83b7a --sample-size 5 --top-n 500
 ```
 
 Then select the next fresh `probe_next` low-volume lane, run no-storage Zyte
