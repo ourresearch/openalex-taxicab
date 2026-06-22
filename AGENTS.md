@@ -1,14 +1,14 @@
 # OpenAlex Taxicab Agent Guide
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-22 ScholarHub Branch-Candidate Evidence
+## Current PDF Handoff: 2026-06-22 IJLTEMAS Accepted Recovery
 
-Accepted strict full 10K PDF gate is now `pdf-full10k-after-karazin-ufms-ufpb-4cecf13`:
-`2,434/6,293 good_pdf` (`38.68%`), up `+3` versus Philology/Periodicos and `+597`
+Accepted strict full 10K PDF gate is now `pdf-full10k-after-ijltemas-5c76258`:
+`2,435/6,293 good_pdf` (`38.69%`), up `+1` versus Karazin/UFMS/UFPB and `+598`
 versus the first measured denominator reference of `1,837/6,293` (`29.19%`).
-The 95% target is `5,979/6,293`, so the current gap is `3,545` rows. The
-accepted gate changed exactly three rows, all `missing_pdf_harvest -> good_pdf`,
-with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
+The 95% target is `5,979/6,293`, so the current gap is `3,544` rows. The
+accepted gate changed exactly one row, `missing_pdf_harvest -> good_pdf`, with
+`0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
 Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single
 unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose
@@ -20,56 +20,51 @@ checkpoint, not the graph baseline. Do not restore any zoomed 29-38% y-axis.
 Green marks accepted improvement, red marks regression or stricter reclassification,
 and the graph must remain at the top of the report before explanatory text.
 
-Latest accepted evidence update: Karazin / `periodicals.karazin.ua`, UFMS /
-`periodicos.ufms.br`, and UFPB / `periodicos.ufpb.br` recovered `3/5` in
-no-storage Zyte provider probing through direct PDF-byte strategies. Bounded
-PDF-URL reharvest recovered `3/3`, read-only confirmation preserved `3/3`, and
-full gate `pdf-full10k-after-karazin-ufms-ufpb-4cecf13` accepted `+3 good_pdf`
-with `0` regressions. Negative evidence in the same selection batch:
-`research.aota.org` interstitial/paywall and `periodicos.uem.br` HTML instead of
-PDF. Oxjobs commit `391846b51 #461 taxicab-pdf: accept karazin ufms ufpb recovery`
-records the report and 0-100 anchored graph update.
+Latest accepted evidence update: a low-count no-storage Zyte provider probe
+recovered `1/5` candidate hosts. The winner was `ijltemas.in`, which returned a
+valid 1,265,170-byte, 16-page PDF with DOI match through direct PDF-byte
+strategy. The prior five-host probe recovered `0/5` across `recordsofzsi.com`,
+`revistaeclesiasticabrasileira.itf.edu.br`, `revistas.unisucre.edu.co`,
+`revistas.usp.br`, and `revistas.uva.es`. Taxicab commit `5c76258` fixed the
+PDF eval harness so provider-probe `candidate_url` values are used during
+bounded reharvest. Candidate-url reharvest recovered `1/1`, read-only
+confirmation preserved `1/1`, and full gate `pdf-full10k-after-ijltemas-5c76258`
+accepted `+1 good_pdf` with `0` regressions. Oxjobs commit
+`473fc6348 #461 taxicab-pdf: accept ijltemas recovery` records the report,
+latest summary, residual clusters, public IJLTEMAS summary, and 0-100 anchored
+bar chart.
 
-Latest evidence-only branch candidate: refreshed residual clusters from
-`pdf-full10k-after-karazin-ufms-ufpb-4cecf13`, then no-storage provider probe
-`unknown-singleton-fresh-provider-probe5-after-karazin` recovered `1/5` fresh
-singleton hosts. `scholarhub.ui.ac.id` produced a valid 351,651-byte, 5-page
-PDF with DOI match through a Google-referer PDF-byte strategy. Deployed Taxicab
-reharvest `pdf-scholarhub-pdfurl-reharvest1-after-karazin` still stayed
-`missing_pdf_harvest` because production resolved to article HTML, while local
-branch route probe `scholarhub-http-get-route-local-after-karazin` recovered
-`1/1 good_pdf` with no storage writes. Treat ScholarHub as branch-candidate
-evidence only; accepted KPI and `kpi-history.csv` remain unchanged. Oxjobs
-commit `71889e813 #461 taxicab-pdf: publish scholarhub branch evidence` records
-the public aggregate summary
-`evidence/report461-scholarhub-branch-candidate-summary-bd12a96.json`.
+ScholarHub remains branch-candidate evidence only. It recovered locally through
+branch route logic but production reharvest stayed `missing_pdf_harvest`, so it
+is not part of the accepted KPI.
 
 Next exact command for the next agent:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/queues/unknown-singleton-fresh-provider-probe-next5-after-scholarhub.csv --category missing_pdf_harvest --limit 5 --strategies all --timeout 90 --sleep 0.2 --run-id unknown-singleton-fresh-provider-probe-next5-after-scholarhub --out pdf_eval_runs
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/queues/lowcount-fresh-provider-probe-next5-after-ijltemas.csv --category missing_pdf_harvest --limit 5 --strategies all --timeout 90 --sleep 0.2 --run-id lowcount-fresh-provider-probe-next5-after-ijltemas --out pdf_eval_runs
 ```
 
 Current blocker: no global blocker, but high-volume residual lanes remain provider/access-flow dominated. Do not repeat provider-negative or already-demoted lanes without new provider guidance.
 
-Latest commit/push status: update these Taxicab handoff docs with ScholarHub branch-candidate evidence, run `python3 -m unittest discover -s tests`, run `python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke`, run `git diff --check -- AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md`, secret-scan the edited docs, commit, pull --rebase, and push `codex/taxicab-pdf-phase2`.
+Latest commit/push status: oxjobs main is pushed at `473fc6348` and GitHub CI passed. The oxjobs.org raw report endpoint may lag behind GitHub main cache briefly; GitHub main is the verified source. Update these Taxicab handoff docs, run `python3 -m unittest discover -s tests`, run `python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke`, run `git diff --check -- AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md`, secret-scan the edited docs, commit, pull --rebase, and push `codex/taxicab-pdf-phase2`.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
+
 Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
 (95.83%). PDF Phase 2 is active and targets >=95% `good_pdf` on the
 PDF-expected portion of the 10K Goldie corpus. Read `GOAL.md` and
 `NEXT_TO_DO.md` before changing code.
 
 Current PDF metric: see the handoff block above. The accepted full gate is
-`pdf-full10k-after-karazin-ufms-ufpb-4cecf13`: 2,434/6,293 `good_pdf` (38.68%),
-gap 3,545 rows, with three `missing_pdf_harvest -> good_pdf` transitions and
+`pdf-full10k-after-ijltemas-5c76258`: 2,435/6,293 `good_pdf` (38.69%),
+gap 3,544 rows, with one `missing_pdf_harvest -> good_pdf` transition and
 zero good-to-non-good regressions. This is bounded direct-PDF cache/reharvest
 plus read-only full-gate measurement, not a Taxicab-main production scraping
 push.
 
-Latest #461 report publish is oxjobs commit `71889e813`, which keeps the
-accepted full gate at `pdf-full10k-after-karazin-ufms-ufpb-4cecf13`, publishes
-ScholarHub as evidence-only branch-candidate work, and keeps the 0-100 anchored
-bar chart with visual baseline at `0 good_pdf`. The current handoff block above
+Latest #461 report publish is oxjobs commit `473fc6348`, which accepts
+`pdf-full10k-after-ijltemas-5c76258`, publishes IJLTEMAS as accepted KPI work,
+keeps ScholarHub as evidence-only branch-candidate work, and keeps the 0-100
+anchored bar chart with visual baseline at `0 good_pdf`. The current handoff block above
 is authoritative; older Philology/Revistas/PLOS/SCS/Scienceopen queue entries
 below are historical.
 
@@ -94,10 +89,10 @@ DOI.org numeric JS-redirect gold check, `03560e2a` publishes the
 unknown-attribution DOI.org JS-redirect duo gold check, `1727a6ac` publishes the
 BCSJ/Oxford Academic DOI.org JS-redirect gold check, `5c29deb5` publishes the
 AAAS Science.org gold check, `0e59e67f` publishes the PeerJ branch evidence, and
-`4984229f` made the PDF report graph-first and minimalist. The current accepted
-metric is `pdf-full10k-after-osti-plos-ee9001b`: 2,385/6,293 `good_pdf`
-(37.90%), +2 rows versus Atlantis, +548 rows versus denominator baseline, and a
-3,594-row gap to 95%. The AHA/Lippincott one-row lane
+`4984229f` made the PDF report graph-first and minimalist. At that historical
+point the accepted metric was `pdf-full10k-after-osti-plos-ee9001b`:
+2,385/6,293 `good_pdf` (37.90%), +2 rows versus Atlantis, +548 rows versus
+denominator baseline, and a 3,594-row gap to 95%. The AHA/Lippincott one-row lane
 `www.ahajournals.org:/doi/pdf/:doi/:id` recovered 0/1 through Zyte no-storage
 provider probing and 0/1 through Browserbase gold evidence; Browserbase reached
 a 403 challenge and ended `download_started_not_captured`. No Taxicab
