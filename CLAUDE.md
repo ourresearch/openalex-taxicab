@@ -30,16 +30,30 @@ Recent carry-forward evidence: `sba.org.br`, `ruslang.ru:81`, `rieoei.org`, and
 branch route candidate with provider `1/1`, pre-route live reharvest `0/1`, and
 branch route probe `1/1` but no accepted full-gate lift yet.
 
-Next exact work: refresh residual clusters from the new accepted full gate, then
-choose the next non-duplicative `probe_next` lane:
+Residual refresh is complete: `residual-clusters-after-revmed-5bd8157` found
+all top-240 subclusters in `provider_lane_do_not_duplicate`, covering `2,723`
+residual rows. Private ignored-local Zyte packet
+`pdf_eval_runs/zyte-support/zyte-provider-ticket-after-revmed-5bd8157/` groups
+`3,882` non-good expected rows into `1,399` provider lanes. Public aggregate
+snapshot is
+`working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-revmed-5bd8157.md`
+in oxjobs.
+
+Next exact work is provider-recipe follow-through, not another blind route
+probe. When Zyte provides a supported recipe, test it with:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/taxicab_cluster_residuals.py \
-  --rows pdf_eval_runs/pdf-full10k-after-revmed-5bd8157/rows.ndjson \
-  --out /tmp/taxicab-pdf-residual-revmed \
-  --run-id residual-clusters-after-revmed-5bd8157 \
-  --top-n 240
+python3 scripts/provider_pdf_probe.py \
+  --input pdf_eval_runs/pdf-full10k-after-revmed-5bd8157/rows.ndjson \
+  --category missing_pdf_harvest \
+  --publisher springer \
+  --host link.springer.com \
+  --limit 3 \
+  --recipe-file <ignored-zyte-recipe.json> \
+  --strategies <zyte_supported_recipe> \
+  --out /tmp/taxicab-pdf-probes \
+  --run-id springer-zyte-advised-probe3-after-revmed
 ```
 
 Do not push Taxicab PDF production changes to `main` before the final >=95% PDF
