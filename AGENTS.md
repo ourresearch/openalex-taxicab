@@ -1,50 +1,38 @@
 # OpenAlex Taxicab Agent Guide
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-22 Repozytorium/HKUST/RedCPS Accepted Recovery
+## Current PDF Handoff: 2026-06-22 RAC/DRDO/Przeglad/Project Euclid Accepted Recovery
 
-Accepted strict full 10K PDF gate is now `pdf-full10k-after-repozytorium-hkust-redcps-6d83b7a`:
-`2,421/6,293 good_pdf` (`38.47%`), up `+3` versus RIAF/Reumatologia/WVU and
-`+584` versus the first measured denominator reference of `1,837/6,293`
-(`29.19%`). The 95% target is `5,979/6,293`, so the current gap is `3,558`
-rows. The accepted gate changed exactly three rows, all
-`missing_pdf_harvest -> good_pdf`, with `0` good-to-non-good regressions, `0`
-timeouts, and `0` Taxicab errors.
+Accepted strict full 10K PDF gate is now `pdf-full10k-after-rac-drdo-przeglad-projecteuclid-retry-97f66d5`:
+`2,425/6,293 good_pdf` (`38.53%`), up `+4` versus Repozytorium/HKUST/RedCPS and `+588`
+versus the first measured denominator reference of `1,837/6,293` (`29.19%`).
+The 95% target is `5,979/6,293`, so the current gap is `3,554` rows. The
+accepted gate changed exactly four rows, all `missing_pdf_harvest -> good_pdf`,
+with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
-Graph/report rule: the #461 chart must stay anchored at reality. Use a single
+Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single
 unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose
-top scale is `100%`, and whose `95%` target line remains visible. The first
-measured denominator gate is only the first measured checkpoint, not the graph
-baseline. Do not restore any zoomed 29-38% y-axis.
+top scale is `100%`, and whose `95%` target line remains visible. Plot only
+accepted 6,293-denominator full gates after the zero origin; fixture, smoke,
+limit, raw all-10K, provider-probe, and bounded reharvest rows are not visual
+progress gates. The first measured denominator gate is only the first measured
+checkpoint, not the graph baseline. Do not restore any zoomed 29-38% y-axis.
 
-Latest accepted evidence update: Repozytorium / `repozytorium.ur.edu.pl`,
-HKUST / `repository.hkust.edu.hk`, and RedCPS / `redcps.com.br` recovered `3/3`
-in no-storage Zyte provider probing through direct PDF-byte strategies. Bounded
-PDF-URL reharvest `pdf-repozytorium-hkust-redcps-pdfurl-reharvest3-after-riaf-reum-wvu` recovered `3/3`, read-only confirmation
-`pdf-repozytorium-hkust-redcps-pdfurl-readonly3-after-riaf-reum-wvu` preserved `3/3`, and full gate `pdf-full10k-after-repozytorium-hkust-redcps-6d83b7a` accepted `+3 good_pdf`
-with `0` regressions. Public oxjobs artifact
-`evidence/report461-repozytorium-hkust-redcps-recovery-summary-6d83b7a.json` is aggregate-only:
-no raw DOI, raw URL, signed URL, cookie, Browserbase session, or secret value.
-
-Latest evidence-only negative in the same batch: `research.aota.org` recovered
-`0/1` and remains evidence-only. Do not reharvest it without new provider
-evidence.
+Latest accepted evidence update: RAC / `rac.sac.org.ar`, DRDO / `publicationsdrdo.in`,
+Przeglad Organizacji / `przegladorganizacji.pl`, and Project Euclid / `projecteuclid.org`
+recovered `4/4` in no-storage Zyte provider probing through direct PDF-byte strategies.
+Bounded PDF-URL reharvest recovered `4/4`, read-only confirmation preserved `4/4`, and
+full gate `pdf-full10k-after-rac-drdo-przeglad-projecteuclid-retry-97f66d5` accepted `+4 good_pdf` with `0` regressions. Oxjobs commit `03956a834 #461 taxicab-pdf: accept RAC DRDO Przeglad Project Euclid recovery` records the report and zero-origin graph update.
 
 Next exact command for the next agent:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-repozytorium-hkust-redcps-6d83b7a/rows.ndjson --out pdf_eval_runs/residual-clusters-after-repozytorium-hkust-redcps-6d83b7a --run-id residual-clusters-after-repozytorium-hkust-redcps-6d83b7a --sample-size 5 --top-n 500
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-rac-drdo-przeglad-projecteuclid-retry-97f66d5/rows.ndjson --out pdf_eval_runs/residual-clusters-after-rac-drdo-przeglad-projecteuclid-97f66d5 --run-id residual-clusters-after-rac-drdo-przeglad-projecteuclid-97f66d5 --sample-size 5 --top-n 500
 ```
 
-Then select the next fresh `probe_next` low-volume lane, run no-storage Zyte
-provider probes first, and use bounded reharvest only after valid PDF bytes are
-proven. Do not repeat provider-negative or already-demoted lanes without new
-provider guidance.
+Current blocker: no global blocker, but high-volume residual lanes remain provider/access-flow dominated. Do not repeat provider-negative or already-demoted lanes without new provider guidance.
 
-Do not push Taxicab PDF production changes to `main` before the final >=95% PDF
-gate unless the user explicitly changes that rule. Browserbase remains
-evidence/gold only; Zyte remains the production provider core. Any lower
-metric/evidence blocks are historical; this block is the current handoff.
+Latest commit/push status: update these Taxicab handoff docs, run `python3 -m unittest discover -s tests`, run `python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke`, run `git diff --check -- AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md`, secret-scan the edited docs, commit, pull --rebase, and push `codex/taxicab-pdf-phase2`.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
 (95.83%). PDF Phase 2 is active and targets >=95% `good_pdf` on the
