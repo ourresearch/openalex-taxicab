@@ -1,13 +1,13 @@
 # Taxicab Goal State
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-21 RFC Editor Provider Evidence
+## Current PDF Handoff: 2026-06-21 Revmed Accepted Recovery
 
-Accepted strict full 10K PDF gate is still `pdf-full10k-after-scs-europe-a83f26c`:
-`2,409/6,293 good_pdf` (`38.28%`), up `+1` versus SER and `+572`
-versus the first measured denominator checkpoint of `1,837/6,293` (`29.19%`).
-The 95% target is `5,979/6,293`, so the current gap remains `3,570` rows. The
-accepted gate changed exactly one row from `missing_pdf_harvest -> good_pdf`,
+Accepted strict full 10K PDF gate is now `pdf-full10k-after-revmed-5bd8157`:
+`2,411/6,293 good_pdf` (`38.31%`), up `+2` versus SCS Europe and `+574`
+versus the first measured denominator reference of `1,837/6,293` (`29.19%`).
+The 95% target is `5,979/6,293`, so the current gap is `3,568` rows. The
+accepted gate changed exactly two rows, both `missing_pdf_harvest -> good_pdf`,
 with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
 Graph/report rule: the #461 chart must stay anchored at reality. Use an
@@ -16,41 +16,30 @@ and whose top scale is `100%`; the first measured denominator gate is only a
 reference checkpoint, not the graph baseline. Keep the visible `95%` target and
 do not restore any zoomed 29-38% y-axis.
 
-Latest Taxicab branch push: `c406e80` on `codex/taxicab-pdf-phase2` is a
-handoff/report context update after the provider-probe harness fix `8c76392`.
-`8c76392` normalized protocol-relative PDF probe URLs and corrected the RIEOEI
-verdict. Earlier route-code push `2a88c86` remains the Scholarhub branch
-candidate.
-
-Latest evidence update: `rfc-editor.org` is closed as provider-negative
-evidence, not an accepted 10K production lift. No-storage Zyte provider probe
-`unknown-rfceditor-current-provider-probe1-after-rieoei-demote` recovered `0/1 good_pdf`; all four strategies classified as
-`download_404`. The three body strategies returned status 404 `text/plain` and
-`browser_html` returned status 404 `text/html`, not PDF bytes. The probe issued
-no POST, R2, or DynamoDB writes and does not change the accepted KPI. Public
-artifact `evidence/report461-rfceditor-provider-demotion-summary-c406e80.json` is aggregate-only: no raw DOI, raw URL, signed URL,
-cookie, Browserbase session, or secret value.
+Latest accepted evidence update: Revmed / `revmed.ch` recovered `1/1` in
+no-storage Zyte provider probing through direct PDF-byte strategies. Bounded
+PDF-URL reharvest `pdf-revmed-pdfurl-reharvest1-8c76392` recovered `1/1`,
+read-only confirmation `pdf-revmed-pdfurl-readonly1-8c76392` preserved `1/1`,
+and full gate `pdf-full10k-after-revmed-5bd8157` accepted `+2 good_pdf` with
+`0` regressions. Public artifact
+`evidence/report461-revmed-recovery-summary-5bd8157.json` is aggregate-only: no
+raw DOI, raw URL, signed URL, cookie, Browserbase session, or secret value.
 
 Recent carry-forward evidence: `sba.org.br`, `ruslang.ru:81`, `rieoei.org`, and
 `rfc-editor.org` are provider-negative low-volume lanes. Scholarhub remains a
 branch route candidate with provider `1/1`, pre-route live reharvest `0/1`, and
 branch route probe `1/1` but no accepted full-gate lift yet.
 
-Next exact work: either keep Scholarhub as a branch candidate until deployment
-and full-gate proof are allowed, or continue the low-volume queue with the next
-fresh singleton `revmed.ch`:
+Next exact work: refresh residual clusters from the new accepted full gate, then
+choose the next non-duplicative `probe_next` lane:
 
 ```bash
-python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-scs-europe-a83f26c/rows.ndjson \
-  --category missing_pdf_harvest \
-  --publisher unknown \
-  --host revmed.ch \
-  --limit 1 \
-  --strategies all \
-  --out /tmp/taxicab-pdf-probes \
-  --run-id unknown-revmed-current-provider-probe1-after-rfceditor-demote \
-  --timeout 60
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
+python3 scripts/taxicab_cluster_residuals.py \
+  --rows pdf_eval_runs/pdf-full10k-after-revmed-5bd8157/rows.ndjson \
+  --out /tmp/taxicab-pdf-residual-revmed \
+  --run-id residual-clusters-after-revmed-5bd8157 \
+  --top-n 240
 ```
 
 Do not push Taxicab PDF production changes to `main` before the final >=95% PDF
