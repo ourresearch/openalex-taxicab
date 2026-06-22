@@ -1,29 +1,40 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-21 Revmed Accepted Recovery
+## Current PDF Handoff: 2026-06-22 PLOS Accepted Recovery
 
-Accepted strict full 10K PDF gate is now `pdf-full10k-after-revmed-5bd8157`:
-`2,411/6,293 good_pdf` (`38.31%`), up `+2` versus SCS Europe and `+574`
+Accepted strict full 10K PDF gate is now `pdf-full10k-after-plos-fresh-file`:
+`2,412/6,293 good_pdf` (`38.33%`), up `+1` versus Revmed and `+575`
 versus the first measured denominator reference of `1,837/6,293` (`29.19%`).
-The 95% target is `5,979/6,293`, so the current gap is `3,568` rows. The
-accepted gate changed exactly two rows, both `missing_pdf_harvest -> good_pdf`,
+The 95% target is `5,979/6,293`, so the current gap is `3,567` rows. The
+accepted gate changed exactly one row, `corrupt_or_truncated_pdf -> good_pdf`,
 with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
-Graph/report rule: the #461 chart must stay anchored at reality. Use an
-unboxed fixed `0-100%` bar/progress chart whose visual baseline is `0 good_pdf`
-and whose top scale is `100%`; the first measured denominator gate is only a
-reference checkpoint, not the graph baseline. Keep the visible `95%` target and
-do not restore any zoomed 29-38% y-axis.
+Graph/report rule: the #461 chart must stay anchored at reality. Use a single
+unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose
+top scale is `100%`, and whose `95%` target line remains visible. The first
+measured denominator gate is only a gray reference checkpoint, not the graph
+baseline. Do not restore any zoomed 29-38% y-axis.
 
-Latest accepted evidence update: Revmed / `revmed.ch` recovered `1/1` in
+Latest accepted evidence update: PLOS / `journals.plos.org` recovered `1/1` in
 no-storage Zyte provider probing through direct PDF-byte strategies. Bounded
-PDF-URL reharvest `pdf-revmed-pdfurl-reharvest1-8c76392` recovered `1/1`,
-read-only confirmation `pdf-revmed-pdfurl-readonly1-8c76392` preserved `1/1`,
-and full gate `pdf-full10k-after-revmed-5bd8157` accepted `+2 good_pdf` with
-`0` regressions. Public artifact
-`evidence/report461-revmed-recovery-summary-5bd8157.json` is aggregate-only: no
-raw DOI, raw URL, signed URL, cookie, Browserbase session, or secret value.
+PDF-URL reharvest `pdf-plos-fresh-file-reharvest1-after-revmed` recovered `1/1`,
+read-only confirmation `pdf-plos-fresh-file-readonly1-after-revmed` preserved
+`1/1`, and full gate `pdf-full10k-after-plos-fresh-file` accepted `+1 good_pdf`
+with `0` regressions. Public artifact
+`evidence/report461-plos-fresh-file-recovery-summary-e99fa7c.json` is
+aggregate-only: no raw DOI, raw URL, signed URL, cookie, Browserbase session,
+or secret value.
+
+Latest evidence-only follow-up: CUP/Cambridge run
+`cup-network-capture-token-wait-probe3-after-revmed` tested three current
+`cup` / `cambridge.org` `missing_pdf_harvest` rows with the Zyte browser
+network-capture token-wait recipe and recovered `0/3`. All sampled rows
+returned status-200 `text/html` bodies around 944-996 KB and classified as
+`js_redirect_unresolved`, not valid PDF bytes. Public aggregate summary:
+`evidence/report461-cup-network-capture-token-wait-summary-after-revmed.json`.
+This issued no Taxicab POST/R2/DynamoDB writes and produced no accepted KPI
+lift; keep CUP in the Zyte provider PDF-byte/access-flow lane.
 
 Recent carry-forward evidence: `sba.org.br`, `ruslang.ru:81`, `rieoei.org`, and
 `rfc-editor.org` are provider-negative low-volume lanes. Scholarhub remains a
@@ -36,16 +47,16 @@ residual rows. Private ignored-local Zyte packet
 `pdf_eval_runs/zyte-support/zyte-provider-ticket-after-revmed-5bd8157/` groups
 `3,882` non-good expected rows into `1,399` provider lanes. Public aggregate
 snapshot is
-`working/taxicab-pdf/evidence/zyte-support/pdf-provider-lanes-after-revmed-5bd8157.md`
-in oxjobs.
+`evidence/zyte-support/pdf-provider-lanes-after-revmed-5bd8157.md` in oxjobs.
 
 Next exact work is provider-recipe follow-through, not another blind route
-probe. When Zyte provides a supported recipe, test it with:
+probe. Do not repeat the CUP token-wait recipe unless Zyte changes the recipe.
+When Zyte provides a supported recipe, test it with:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/provider_pdf_probe.py \
-  --input pdf_eval_runs/pdf-full10k-after-revmed-5bd8157/rows.ndjson \
+  --input pdf_eval_runs/pdf-full10k-after-plos-fresh-file/rows.ndjson \
   --category missing_pdf_harvest \
   --publisher springer \
   --host link.springer.com \
@@ -53,7 +64,7 @@ python3 scripts/provider_pdf_probe.py \
   --recipe-file <ignored-zyte-recipe.json> \
   --strategies <zyte_supported_recipe> \
   --out /tmp/taxicab-pdf-probes \
-  --run-id springer-zyte-advised-probe3-after-revmed
+  --run-id springer-zyte-advised-probe3-after-plos
 ```
 
 Do not push Taxicab PDF production changes to `main` before the final >=95% PDF
@@ -75,9 +86,9 @@ HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
 PDF Phase 2 /goal: active, target >=95% good_pdf on pdf_expected_total.
 
 Current handoff override: accepted strict full 10K PDF gate
-`pdf-full10k-after-scs-europe-a83f26c` is 2,409/6,293 `good_pdf` (38.28%), +1
-versus SER and +572 versus denominator baseline. It has 3,765
-`missing_pdf_harvest`, 0 timeout, 0 `taxicab_error`, and 0 good-to-non-good
+`pdf-full10k-after-plos-fresh-file` is 2,412/6,293 `good_pdf` (38.33%), +1
+versus Revmed and +575 versus denominator baseline. It has 64
+`corrupt_or_truncated_pdf`, 0 timeout, 0 `taxicab_error`, and 0 good-to-non-good
 regressions. The current handoff block above is authoritative; older entries
 below are historical.
 Older entries including OSTI/PLOS, provider snapshots,
