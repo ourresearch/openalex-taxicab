@@ -1,13 +1,13 @@
 # OpenAlex Taxicab
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-22 RAC/DRDO/Przeglad/Project Euclid Accepted Recovery
+## Current PDF Handoff: 2026-06-22 Revistas Unilibre/PSMB Accepted Recovery
 
-Accepted strict full 10K PDF gate is now `pdf-full10k-after-rac-drdo-przeglad-projecteuclid-retry-97f66d5`:
-`2,425/6,293 good_pdf` (`38.53%`), up `+4` versus Repozytorium/HKUST/RedCPS and `+588`
+Accepted strict full 10K PDF gate is now `pdf-full10k-after-revistasunilibre-psmbneos-8dd76b9`:
+`2,427/6,293 good_pdf` (`38.57%`), up `+2` versus RAC/DRDO/Przeglad/Project Euclid and `+590`
 versus the first measured denominator reference of `1,837/6,293` (`29.19%`).
-The 95% target is `5,979/6,293`, so the current gap is `3,554` rows. The
-accepted gate changed exactly four rows, all `missing_pdf_harvest -> good_pdf`,
+The 95% target is `5,979/6,293`, so the current gap is `3,552` rows. The
+accepted gate changed exactly two rows, both `missing_pdf_harvest -> good_pdf`,
 with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
 Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single
@@ -17,17 +17,27 @@ accepted 6,293-denominator full gates after the zero origin; fixture, smoke,
 limit, raw all-10K, provider-probe, and bounded reharvest rows are not visual
 progress gates. The first measured denominator gate is only the first measured
 checkpoint, not the graph baseline. Do not restore any zoomed 29-38% y-axis.
+Green marks accepted improvement, red marks regression or stricter reclassification,
+and the graph must remain at the top of the report before explanatory text.
 
-Latest accepted evidence update: RAC / `rac.sac.org.ar`, DRDO / `publicationsdrdo.in`,
-Przeglad Organizacji / `przegladorganizacji.pl`, and Project Euclid / `projecteuclid.org`
-recovered `4/4` in no-storage Zyte provider probing through direct PDF-byte strategies.
-Bounded PDF-URL reharvest recovered `4/4`, read-only confirmation preserved `4/4`, and
-full gate `pdf-full10k-after-rac-drdo-przeglad-projecteuclid-retry-97f66d5` accepted `+4 good_pdf` with `0` regressions. Oxjobs commit `03956a834 #461 taxicab-pdf: accept RAC DRDO Przeglad Project Euclid recovery` records the report and zero-origin graph update.
+Latest accepted evidence update: Revistas Unilibre / `revistas.unilibre.edu.co`
+and PSMB / `psmb-neos-resources.hb.bizmrg.com` recovered `2/2` in no-storage
+Zyte provider probing through direct PDF-byte strategies. Bounded PDF-URL
+reharvest recovered `2/2`, read-only confirmation preserved `2/2`, and full gate
+`pdf-full10k-after-revistasunilibre-psmbneos-8dd76b9` accepted `+2 good_pdf`
+with `0` regressions. Negative evidence in the same selection batch:
+`revistas.uva.es` download 404, `revistas.unisucre.edu.co` HTML instead of PDF,
+`revistaeclesiasticabrasileira.itf.edu.br` interstitial/paywall,
+`pubsonline.informs.org` bot block, `publish.csiro.au` bot block,
+`publications.ersnet.org` empty response, `press.religacion.com` download 404,
+and `portlandpress.com` bot block. Oxjobs commit `c46ffc778 #461 taxicab-pdf:
+accept Revistas Unilibre PSMB recovery` records the report and zero-origin
+graph update.
 
 Next exact command for the next agent:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-rac-drdo-przeglad-projecteuclid-retry-97f66d5/rows.ndjson --out pdf_eval_runs/residual-clusters-after-rac-drdo-przeglad-projecteuclid-97f66d5 --run-id residual-clusters-after-rac-drdo-przeglad-projecteuclid-97f66d5 --sample-size 5 --top-n 500
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-revistasunilibre-psmbneos-8dd76b9/rows.ndjson --out pdf_eval_runs/residual-clusters-after-revistasunilibre-psmbneos-8dd76b9 --run-id residual-clusters-after-revistasunilibre-psmbneos-8dd76b9 --sample-size 5 --top-n 500
 ```
 
 Current blocker: no global blocker, but high-volume residual lanes remain provider/access-flow dominated. Do not repeat provider-negative or already-demoted lanes without new provider guidance.
@@ -41,18 +51,17 @@ Current goal state: HTML retrieval Phase 1 is complete at 9,583/10,000
 `good_pdf` on the PDF-expected subset of the 10K Goldie corpus. Use
 `GOAL.md` as the current control file and update it before long handoffs.
 Current PDF measurement gate: see the handoff block above. The accepted full
-gate is `pdf-full10k-after-plos-fresh-file`: 2,412/6,293 `good_pdf`
-(38.33%), gap 3,567 rows, with one `corrupt_or_truncated_pdf -> good_pdf`
-transition and zero good-to-non-good regressions. This is bounded direct-PDF
-cache/reharvest plus read-only full-gate measurement, not a Taxicab-main
-production scraping push.
+gate is `pdf-full10k-after-revistasunilibre-psmbneos-8dd76b9`: 2,427/6,293
+`good_pdf` (38.57%), gap 3,552 rows, with two
+`missing_pdf_harvest -> good_pdf` transitions and zero good-to-non-good
+regressions. This is bounded direct-PDF cache/reharvest plus read-only
+full-gate measurement, not a Taxicab-main production scraping push.
 
 Latest #461 report publish should be checked from oxjobs `main`; current
-handoff publishes the PLOS accepted recovery, full gate
-`pdf-full10k-after-plos-fresh-file`, 0-100 anchored bar chart, learning
-notes, improvement plan, and provider-recipe follow-through handoff.
-Follow-up local residual-priority commit demotes sciencepubco.com after 0/1
-404-only provider evidence; next local probe is `scienceopen.com`.
+handoff publishes the Revistas Unilibre/PSMB accepted recovery, full gate
+`pdf-full10k-after-revistasunilibre-psmbneos-8dd76b9`, 0-100 anchored bar chart,
+learning notes, improvement plan, and next residual-clustering command.
+Older PLOS/SCS/Scienceopen queue entries below are historical.
 
 Prior `07f8b2044` publishes the SS Editora accepted recovery, full gate
 `pdf-full10k-after-sseditora-ac692df`, residual refresh
