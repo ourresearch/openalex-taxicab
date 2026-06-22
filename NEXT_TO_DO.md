@@ -1,13 +1,13 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-22 Philology/Philippine Pathology/Periodicos Accepted Recovery
+## Current PDF Handoff: 2026-06-22 Karazin/UFMS/UFPB Accepted Recovery
 
-Accepted strict full 10K PDF gate is now `pdf-full10k-after-philology-philippinepath-periodicos-d850c19`:
-`2,431/6,293 good_pdf` (`38.63%`), up `+4` versus Revistas Unilibre/PSMB and `+594`
+Accepted strict full 10K PDF gate is now `pdf-full10k-after-karazin-ufms-ufpb-4cecf13`:
+`2,434/6,293 good_pdf` (`38.68%`), up `+3` versus Philology/Periodicos and `+597`
 versus the first measured denominator reference of `1,837/6,293` (`29.19%`).
-The 95% target is `5,979/6,293`, so the current gap is `3,548` rows. The
-accepted gate changed exactly four rows, all `missing_pdf_harvest -> good_pdf`,
+The 95% target is `5,979/6,293`, so the current gap is `3,545` rows. The
+accepted gate changed exactly three rows, all `missing_pdf_harvest -> good_pdf`,
 with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
 Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single
@@ -20,22 +20,20 @@ checkpoint, not the graph baseline. Do not restore any zoomed 29-38% y-axis.
 Green marks accepted improvement, red marks regression or stricter reclassification,
 and the graph must remain at the top of the report before explanatory text.
 
-Latest accepted evidence update: Philology Journal / `philology-journal.ru`,
-Philippine Journal of Pathology / `philippinejournalofpathology.org`, Periodicos
-UNEAL / `periodicosuneal.emnuvens.com.br`, and UFPEL / `periodicos.ufpel.edu.br`
-recovered `4/7` in no-storage Zyte provider probing through direct PDF-byte
-strategies. Bounded PDF-URL reharvest recovered `4/4`, read-only confirmation
-preserved `4/4`, and full gate `pdf-full10k-after-philology-philippinepath-periodicos-d850c19`
-accepted `+4 good_pdf` with `0` regressions. Negative evidence in the same
-selection batch: `poj.peeters-leuven.be` JS redirect HTML, `www.pnas.org` JS
-redirect/html, and `platform.almanhal.com` JS/empty/404 responses. Oxjobs commit
-`45b61e1c6 #461 taxicab-pdf: accept philology periodicos recovery` records the
-report and zero-origin graph update.
+Latest accepted evidence update: Karazin / `periodicals.karazin.ua`, UFMS /
+`periodicos.ufms.br`, and UFPB / `periodicos.ufpb.br` recovered `3/5` in
+no-storage Zyte provider probing through direct PDF-byte strategies. Bounded
+PDF-URL reharvest recovered `3/3`, read-only confirmation preserved `3/3`, and
+full gate `pdf-full10k-after-karazin-ufms-ufpb-4cecf13` accepted `+3 good_pdf`
+with `0` regressions. Negative evidence in the same selection batch:
+`research.aota.org` interstitial/paywall and `periodicos.uem.br` HTML instead of
+PDF. Oxjobs commit `391846b51 #461 taxicab-pdf: accept karazin ufms ufpb recovery`
+records the report and 0-100 anchored graph update.
 
 Next exact command for the next agent:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-philology-philippinepath-periodicos-d850c19/rows.ndjson --out pdf_eval_runs/residual-clusters-after-philology-philippinepath-periodicos-d850c19 --run-id residual-clusters-after-philology-philippinepath-periodicos-d850c19 --sample-size 5 --top-n 500
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_cluster_residuals.py --rows pdf_eval_runs/pdf-full10k-after-karazin-ufms-ufpb-4cecf13/rows.ndjson --out pdf_eval_runs/residual-clusters-after-karazin-ufms-ufpb-4cecf13 --run-id residual-clusters-after-karazin-ufms-ufpb-4cecf13 --sample-size 5 --top-n 500
 ```
 
 Current blocker: no global blocker, but high-volume residual lanes remain provider/access-flow dominated. Do not repeat provider-negative or already-demoted lanes without new provider guidance.
@@ -56,8 +54,8 @@ HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
 PDF Phase 2 /goal: active, target >=95% good_pdf on pdf_expected_total.
 
 Current handoff override: accepted strict full 10K PDF gate
-`pdf-full10k-after-philology-philippinepath-periodicos-d850c19` is 2,431/6,293
-`good_pdf` (38.63%), +4 versus Revistas Unilibre/PSMB and +594
+`pdf-full10k-after-karazin-ufms-ufpb-4cecf13` is 2,434/6,293
+`good_pdf` (38.68%), +3 versus Philology/Periodicos and +597
 versus the first measured denominator reference. It has 0 timeout,
 0 `taxicab_error`, and 0 good-to-non-good regressions. The current handoff block
 above is authoritative; older entries below are historical.
