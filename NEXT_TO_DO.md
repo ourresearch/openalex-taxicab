@@ -1,12 +1,12 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-22 IJLTEMAS Accepted Recovery
+## Current PDF Handoff: 2026-06-22 Museu Ciencies Accepted Recovery
 
-Accepted strict full 10K PDF gate is now `pdf-full10k-after-ijltemas-5c76258`:
-`2,435/6,293 good_pdf` (`38.69%`), up `+1` versus Karazin/UFMS/UFPB and `+598`
+Accepted strict full 10K PDF gate is now `pdf-full10k-after-museuciencies-7a122d2`:
+`2,436/6,293 good_pdf` (`38.71%`), up `+1` versus IJLTEMAS and `+599`
 versus the first measured denominator reference of `1,837/6,293` (`29.19%`).
-The 95% target is `5,979/6,293`, so the current gap is `3,544` rows. The
+The 95% target is `5,979/6,293`, so the current gap is `3,543` rows. The
 accepted gate changed exactly one row, `missing_pdf_harvest -> good_pdf`, with
 `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
@@ -20,19 +20,24 @@ checkpoint, not the graph baseline. Do not restore any zoomed 29-38% y-axis.
 Green marks accepted improvement, red marks regression or stricter reclassification,
 and the graph must remain at the top of the report before explanatory text.
 
-Latest accepted evidence update: a low-count no-storage Zyte provider probe
-recovered `1/5` candidate hosts. The winner was `ijltemas.in`, which returned a
-valid 1,265,170-byte, 16-page PDF with DOI match through direct PDF-byte
-strategy. The prior five-host probe recovered `0/5` across `recordsofzsi.com`,
-`revistaeclesiasticabrasileira.itf.edu.br`, `revistas.unisucre.edu.co`,
-`revistas.usp.br`, and `revistas.uva.es`. Taxicab commit `5c76258` fixed the
-PDF eval harness so provider-probe `candidate_url` values are used during
-bounded reharvest. Candidate-url reharvest recovered `1/1`, read-only
-confirmation preserved `1/1`, and full gate `pdf-full10k-after-ijltemas-5c76258`
-accepted `+1 good_pdf` with `0` regressions. Oxjobs commit
-`473fc6348 #461 taxicab-pdf: accept ijltemas recovery` records the report,
-latest summary, residual clusters, public IJLTEMAS summary, and 0-100 anchored
-bar chart.
+Latest accepted evidence update: low-count no-storage Zyte provider probe
+`lowcount-fresh-provider-probe-next5-after-ijltemas` recovered `1/5` candidate
+hosts. The winner was `museucienciesjournals.cat`, which returned a valid
+205,446-byte, 4-page PDF with 13,688 extracted text characters. The DOI string
+is not printed in the PDF text, so acceptance rests on corpus candidate URL,
+article-text validation, bounded reharvest, read-only confirmation, and
+full-gate proof. Candidate-url reharvest recovered `1/1`, read-only
+confirmation preserved `1/1`, and full gate
+`pdf-full10k-after-museuciencies-7a122d2` accepted `+1 good_pdf` with `0`
+regressions. Oxjobs commit `4998bda49 #461 taxicab-pdf: accept museuciencies
+recovery` records the report, latest summary, residual clusters, public
+Museu Ciencies summary, and 0-100 anchored bar chart.
+
+Latest negative/evidence-only context: the same five-host provider probe did
+not recover `icmai-rnj.in`, `erudit.org`, `esmoopen.com`, or
+`epubs.siam.org`. ScholarHub remains branch-candidate evidence only; accepted
+KPI comes from IJLTEMAS and Museu Ciencies bounded recoveries after the
+Karazin/UFMS/UFPB gate.
 
 ScholarHub remains branch-candidate evidence only. It recovered locally through
 branch route logic but production reharvest stayed `missing_pdf_harvest`, so it
@@ -41,12 +46,12 @@ is not part of the accepted KPI.
 Next exact command for the next agent:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/queues/lowcount-fresh-provider-probe-next5-after-ijltemas.csv --category missing_pdf_harvest --limit 5 --strategies all --timeout 90 --sleep 0.2 --run-id lowcount-fresh-provider-probe-next5-after-ijltemas --out pdf_eval_runs
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/queues/lowcount-fresh-provider-probe-next5-after-museuciencies.csv --category missing_pdf_harvest --limit 5 --strategies all --timeout 90 --sleep 0.2 --run-id lowcount-fresh-provider-probe-next5-after-museuciencies --out pdf_eval_runs
 ```
 
 Current blocker: no global blocker, but high-volume residual lanes remain provider/access-flow dominated. Do not repeat provider-negative or already-demoted lanes without new provider guidance.
 
-Latest commit/push status: oxjobs main is pushed at `473fc6348` and GitHub CI passed. The oxjobs.org raw report endpoint may lag behind GitHub main cache briefly; GitHub main is the verified source. Update these Taxicab handoff docs, run `python3 -m unittest discover -s tests`, run `python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke`, run `git diff --check -- AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md`, secret-scan the edited docs, commit, pull --rebase, and push `codex/taxicab-pdf-phase2`.
+Latest commit/push status: oxjobs main is pushed at `4998bda49` and GitHub CI passed. The oxjobs.org raw report endpoint may lag behind GitHub main cache briefly; GitHub main is the verified source. Update these Taxicab handoff docs, run `python3 -m unittest discover -s tests`, run `python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke`, run `git diff --check -- AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md`, secret-scan the edited docs, commit, pull --rebase, and push `codex/taxicab-pdf-phase2`.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
 Last updated: 2026-06-22 UTC.
@@ -63,8 +68,8 @@ HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
 PDF Phase 2 /goal: active, target >=95% good_pdf on pdf_expected_total.
 
 Current handoff override: accepted strict full 10K PDF gate
-`pdf-full10k-after-ijltemas-5c76258` is 2,435/6,293
-`good_pdf` (38.69%), +1 versus Karazin/UFMS/UFPB and +598
+`pdf-full10k-after-museuciencies-7a122d2` is 2,436/6,293
+`good_pdf` (38.71%), +1 versus IJLTEMAS and +599
 versus the first measured denominator reference. It has 0 timeout,
 0 `taxicab_error`, and 0 good-to-non-good regressions. The current handoff block
 above is authoritative; older entries below are historical.
