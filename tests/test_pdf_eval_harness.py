@@ -408,6 +408,8 @@ class PdfEvalHarnessTests(unittest.TestCase):
         self.assertFalse(row_pdf_expected({"pdf_expected": "false", "PDF URL": "https://example.org/full.pdf"}))
         self.assertTrue(row_pdf_expected({"DOI": "10.5555/no-column"}))
         self.assertEqual(row_pdf_url({"PDF URL": "https://example.org/full.pdf"}), "https://example.org/full.pdf")
+        self.assertTrue(row_pdf_expected({"candidate_url": "https://example.org/from-probe.pdf"}))
+        self.assertEqual(row_pdf_url({"candidate_url": "https://example.org/from-probe.pdf"}), "https://example.org/from-probe.pdf")
 
     def test_html_without_specific_interstitial_is_html_instead_of_pdf(self):
         row = classify_pdf_content(
@@ -699,6 +701,50 @@ class PdfEvalHarnessTests(unittest.TestCase):
                 self.assertEqual(PdfLookupHandler.post_count, 1)
                 self.assertEqual(PdfLookupHandler.last_post_payload["url"], "https://example.org/fulltext.pdf")
                 summary = json.loads((Path(tmp) / "pdf-reharvest-test" / "summary.json").read_text())
+                self.assertEqual(summary["mode"], "reharvest")
+                self.assertEqual(summary["category_counts"][PDF_CATEGORY_GOOD_PDF], 1)
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
+
+    def test_pdf_cli_reharvest_posts_candidate_url_from_provider_probe_queue(self):
+        PdfLookupHandler.post_count = 0
+        PdfLookupHandler.last_post_payload = {}
+        server = DaemonThreadingHTTPServer(("127.0.0.1", 0), PdfLookupHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                doi_file = Path(tmp) / "sample.csv"
+                doi_file.write_text(
+                    "doi,link,candidate_url,title\n"
+                    "10.5555/goodpdf,https://doi.org/10.5555/goodpdf,https://example.org/from-provider-probe.pdf,Example Full Text Article\n",
+                    encoding="utf-8",
+                )
+                code = main(
+                    [
+                        "--base-url",
+                        f"http://127.0.0.1:{server.server_port}",
+                        "--doi-file",
+                        str(doi_file),
+                        "--run-id",
+                        "pdf-candidate-url-reharvest-test",
+                        "--out",
+                        tmp,
+                        "--workers",
+                        "1",
+                        "--timeout",
+                        "2",
+                        "--retries",
+                        "0",
+                        "--reharvest",
+                    ]
+                )
+                self.assertEqual(code, 0)
+                self.assertEqual(PdfLookupHandler.post_count, 1)
+                self.assertEqual(PdfLookupHandler.last_post_payload["url"], "https://example.org/from-provider-probe.pdf")
+                summary = json.loads((Path(tmp) / "pdf-candidate-url-reharvest-test" / "summary.json").read_text())
                 self.assertEqual(summary["mode"], "reharvest")
                 self.assertEqual(summary["category_counts"][PDF_CATEGORY_GOOD_PDF], 1)
         finally:

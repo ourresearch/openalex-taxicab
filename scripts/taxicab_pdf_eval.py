@@ -163,7 +163,7 @@ def row_pdf_expected(row: dict[str, str]) -> bool:
             return False
         if value in {"1", "true", "yes", "y"}:
             return True
-    pdf_url_columns = ("PDF URL", "pdf_url", "pdf", "fulltext_pdf_url")
+    pdf_url_columns = ("PDF URL", "pdf_url", "pdf", "fulltext_pdf_url", "candidate_url")
     if any(key in row for key in pdf_url_columns):
         if any((row.get(key) or "").strip() for key in pdf_url_columns):
             return True
@@ -173,7 +173,7 @@ def row_pdf_expected(row: dict[str, str]) -> bool:
 
 
 def row_pdf_url(row: dict[str, str]) -> str:
-    for key in ("PDF URL", "pdf_url", "pdf", "fulltext_pdf_url"):
+    for key in ("PDF URL", "pdf_url", "pdf", "fulltext_pdf_url", "candidate_url"):
         value = (row.get(key) or "").strip()
         if value:
             return value
