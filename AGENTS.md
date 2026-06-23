@@ -9,19 +9,19 @@ Important denominator update: the `6,293` denominator is a legacy guessed-PDF-ca
 
 Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose top scale is `100%`, and whose `95%` target line remains visible. Plot only accepted 6,293-denominator full gates after the zero origin. Do not restore any zoomed 29-39% y-axis.
 
-Latest oxjobs #461 report state: `12123f1ea #461 taxicab-pdf: close acs public-true target` is pushed to `origin/main`, CI passed, and the live raw report plus the public aggregate JSON have been verified. It shows the raw legacy metric, denominator audit, `Where The PDF Gap Is`, the draft public TRUE failure targets, Wiley support evidence, and ACS targeted recovery.
+Latest oxjobs #461 report state: `882ea0d8e #461 taxicab-pdf: publish sage public-true evidence` is pushed to `origin/main` and CI passed. The live raw route can lag the git push; the repo artifact shows the raw legacy metric, denominator audit, `Where The PDF Gap Is`, the draft public TRUE failure targets, Wiley support evidence, ACS targeted recovery, and SAGE partial targeted recovery.
 
-Where the next safe retrieval work is: draft public TRUE non-good rows total `69` in the exported pre-recovery queue. Wiley / `onlinelibrary.wiley.com` recovered `0/5` in no-storage provider probing and stays an Envoy-Zyte support lane. ACS / `pubs.acs.org` recovered `5/5` in provider probing, then bounded reharvest recovered all `8/8`, and final read-only confirmation preserved `8/8`; treat ACS as targeted-complete pending the next full 10K gate. The next non-duplicate public TRUE target is SAGE-hosted `journals.sagepub.com` (`7` corrupt_or_truncated rows), then J-STAGE (`5`).
+Where the next safe retrieval work is: draft public TRUE non-good rows total `69` in the exported pre-recovery queue. Wiley / `onlinelibrary.wiley.com` recovered `0/5` in no-storage provider probing and stays an Envoy-Zyte support lane. ACS / `pubs.acs.org` recovered `5/5` in provider probing, then bounded reharvest recovered all `8/8`, and final read-only confirmation preserved `8/8`. SAGE-hosted / `journals.sagepub.com` recovered `2/7` in provider probing; bounded reharvest and read-only confirmation preserved the `2/2` recoverable subset, while the other `5/7` rows remain provider-support evidence. Treat ACS and SAGE as targeted-complete pending the next full 10K gate. The next non-duplicate public TRUE target is J-STAGE / `jstage.jst.go.jp` (`5` encrypted_or_unreadable rows).
 
 Next exact command:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input /tmp/taxicab-pdf-public-true-failures.csv --category '' --host journals.sagepub.com --limit 5 --strategies default_body,accept_pdf,google_referer,browser_html --out /tmp/taxicab-pdf-probes --run-id sage-publictrue-corrupt-probe5-4096081 --env-file .env
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input /tmp/taxicab-pdf-public-true-failures.csv --category '' --host jstage.jst.go.jp --limit 5 --strategies default_body,accept_pdf,google_referer,browser_html --out /tmp/taxicab-pdf-probes --run-id jstage-publictrue-encrypted-probe5-b98c9d7 --env-file .env
 ```
 
 Current blocker: denominator review, not Taxicab runtime. Continue retrieval work only for `pdf_gold_include_in_public_denominator=TRUE AND latest_taxicab_category != good_pdf`; keep public FALSE and REVIEW rows separate.
 
-Latest commit/push status: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar tooling branch `codex/taxicab-pdf-gold-availability` is pushed at `4096081`; oxjobs `main` is pushed at `12123f1ea`. This current docs slice records ACS targeted completion and sets SAGE as the next public TRUE evidence command.
+Latest commit/push status: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar tooling branch `codex/taxicab-pdf-gold-availability` is pushed at `b98c9d7`; oxjobs `main` is pushed at `882ea0d8e`. This current docs slice records SAGE partial targeted completion and sets J-STAGE as the next public TRUE evidence command.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
 Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
