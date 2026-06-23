@@ -17,6 +17,7 @@ from openalex_taxicab.pdf_availability_gold import (
     classify_review_note,
     generate_availability_rows,
     label_pdf_availability,
+    overlay_availability_sidecar,
     read_evidence_rows,
     read_sidecar,
     sanitize_url_for_artifact,
@@ -235,6 +236,59 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
         self.assertEqual(label.DOI, "10.5555/seed")
         self.assertEqual(label.pdf_gold_status, "html_full_text_only")
         self.assertEqual(label.pdf_gold_source, "seed_sidecar")
+
+    def test_overlay_sidecar_updates_only_evidence_rows(self):
+        sidecar_rows = [
+            {
+                "DOI": "10.5555/review",
+                "pdf_gold_status": "unclear_needs_review",
+                "pdf_gold_url": "https://example.org/review.pdf",
+                "pdf_gold_access_type": "unknown",
+                "pdf_gold_include_in_public_denominator": DENOM_REVIEW,
+                "pdf_gold_include_in_all_known_pdf_denominator": DENOM_REVIEW,
+                "pdf_gold_confidence": "0.42",
+                "pdf_gold_evidence": "raw miss",
+                "pdf_gold_review_needed": "TRUE",
+                "pdf_gold_review_reason": "needs review",
+                "pdf_gold_source": "automation",
+                "pdf_gold_checked_at": "2026-06-23T00:00:00+00:00",
+            },
+            {
+                "DOI": "10.5555/other",
+                "pdf_gold_status": "unclear_needs_review",
+                "pdf_gold_url": "https://example.org/other.pdf",
+                "pdf_gold_access_type": "unknown",
+                "pdf_gold_include_in_public_denominator": DENOM_REVIEW,
+                "pdf_gold_include_in_all_known_pdf_denominator": DENOM_REVIEW,
+                "pdf_gold_confidence": "0.42",
+                "pdf_gold_evidence": "raw miss",
+                "pdf_gold_review_needed": "TRUE",
+                "pdf_gold_review_reason": "needs review",
+                "pdf_gold_source": "automation",
+                "pdf_gold_checked_at": "2026-06-23T00:00:00+00:00",
+            },
+        ]
+        updated, summary = overlay_availability_sidecar(
+            sidecar_rows,
+            source_rows_by_doi={
+                "10.5555/review": {"DOI": "10.5555/review", "PDF URL": "https://example.org/review.pdf"},
+            },
+            evidence_rows_by_doi={
+                "10.5555/review": {
+                    "doi": "10.5555/review",
+                    "category": "good_pdf",
+                    "candidate_url": "https://example.org/review.pdf",
+                }
+            },
+            checked_at="2026-06-23T00:00:00+00:00",
+        )
+        by_doi = {row["DOI"]: row for row in updated}
+        self.assertEqual(by_doi["10.5555/review"]["pdf_gold_status"], "open_full_text_pdf_available")
+        self.assertEqual(by_doi["10.5555/review"]["pdf_gold_include_in_public_denominator"], DENOM_TRUE)
+        self.assertEqual(by_doi["10.5555/other"]["pdf_gold_include_in_public_denominator"], DENOM_REVIEW)
+        self.assertEqual(summary["evidence_rows_joined"], 1)
+        self.assertEqual(summary["changed_total"], 1)
+        self.assertEqual(summary["public_denominator_transitions"]["REVIEW->TRUE"], 1)
 
     def test_summary_reports_raw_public_and_all_known_metrics(self):
         rows = [
@@ -601,6 +655,83 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
             summary_data = json.loads(review_pack_summary.read_text())
             self.assertEqual(summary_data["review_queue_total"], 2)
             self.assertEqual(summary_data["total"], 2)
+
+    def test_sidecar_cli_can_overlay_evidence_without_rebuilding_all_rows(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            corpus = tmp_path / "merged-FINAL.csv"
+            sidecar = tmp_path / "sidecar.csv"
+            evidence = tmp_path / "evidence.ndjson"
+            overlay = tmp_path / "overlay.csv"
+            summary = tmp_path / "overlay-summary.json"
+            with corpus.open("w", newline="", encoding="utf-8") as handle:
+                writer = csv.DictWriter(handle, fieldnames=["DOI", "PDF URL"])
+                writer.writeheader()
+                writer.writerow({"DOI": "10.5555/review", "PDF URL": "https://example.org/review.pdf"})
+                writer.writerow({"DOI": "10.5555/other", "PDF URL": "https://example.org/other.pdf"})
+            write_csv_rows(
+                sidecar,
+                [
+                    {
+                        "DOI": "10.5555/review",
+                        "pdf_gold_status": "unclear_needs_review",
+                        "pdf_gold_url": "https://example.org/review.pdf",
+                        "pdf_gold_access_type": "unknown",
+                        "pdf_gold_include_in_public_denominator": DENOM_REVIEW,
+                        "pdf_gold_include_in_all_known_pdf_denominator": DENOM_REVIEW,
+                        "pdf_gold_confidence": "0.42",
+                        "pdf_gold_evidence": "raw miss",
+                        "pdf_gold_review_needed": "TRUE",
+                        "pdf_gold_review_reason": "needs review",
+                        "pdf_gold_source": "automation",
+                        "pdf_gold_checked_at": "2026-06-23T00:00:00+00:00",
+                    },
+                    {
+                        "DOI": "10.5555/other",
+                        "pdf_gold_status": "unclear_needs_review",
+                        "pdf_gold_url": "https://example.org/other.pdf",
+                        "pdf_gold_access_type": "unknown",
+                        "pdf_gold_include_in_public_denominator": DENOM_REVIEW,
+                        "pdf_gold_include_in_all_known_pdf_denominator": DENOM_REVIEW,
+                        "pdf_gold_confidence": "0.42",
+                        "pdf_gold_evidence": "raw miss",
+                        "pdf_gold_review_needed": "TRUE",
+                        "pdf_gold_review_reason": "needs review",
+                        "pdf_gold_source": "automation",
+                        "pdf_gold_checked_at": "2026-06-23T00:00:00+00:00",
+                    },
+                ],
+                PDF_AVAILABILITY_FIELDS,
+            )
+            evidence.write_text(
+                json.dumps({"doi": "10.5555/review", "category": "interstitial_or_paywall", "candidate_url": "https://example.org/review.pdf"})
+                + "\n",
+                encoding="utf-8",
+            )
+            with contextlib.redirect_stdout(io.StringIO()):
+                code = sidecar_main(
+                    [
+                        "--input",
+                        str(corpus),
+                        "--overlay-sidecar",
+                        str(sidecar),
+                        "--overlay-out",
+                        str(overlay),
+                        "--overlay-summary-json",
+                        str(summary),
+                        "--evidence-rows",
+                        str(evidence),
+                    ]
+                )
+            self.assertEqual(code, 0)
+            rows = read_sidecar(overlay)
+            self.assertEqual(rows["10.5555/review"]["pdf_gold_status"], "paywalled_or_login_pdf_available")
+            self.assertEqual(rows["10.5555/review"]["pdf_gold_include_in_public_denominator"], DENOM_FALSE)
+            self.assertEqual(rows["10.5555/review"]["pdf_gold_include_in_all_known_pdf_denominator"], DENOM_TRUE)
+            self.assertEqual(rows["10.5555/other"]["pdf_gold_include_in_public_denominator"], DENOM_REVIEW)
+            summary_data = json.loads(summary.read_text())
+            self.assertEqual(summary_data["changed_total"], 1)
+            self.assertEqual(summary_data["public_denominator_transitions"]["REVIEW->FALSE"], 1)
 
     def test_csv_writer_sanitizes_control_bytes(self):
         with tempfile.TemporaryDirectory() as tmp:

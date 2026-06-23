@@ -832,6 +832,113 @@ def generate_availability_rows(
     return labels
 
 
+def _sidecar_counts(rows: Iterable[dict[str, Any]]) -> dict[str, Any]:
+    row_list = list(rows)
+    status_counts = Counter(str(row.get("pdf_gold_status") or "unknown") for row in row_list)
+    public_counts = Counter(str(row.get("pdf_gold_include_in_public_denominator") or "unknown") for row in row_list)
+    all_counts = Counter(str(row.get("pdf_gold_include_in_all_known_pdf_denominator") or "unknown") for row in row_list)
+    return {
+        "total": len(row_list),
+        "status_counts": dict(sorted(status_counts.items())),
+        "public_denominator_counts": dict(sorted(public_counts.items())),
+        "all_known_pdf_denominator_counts": dict(sorted(all_counts.items())),
+        "review_needed_total": sum(
+            1
+            for row in row_list
+            if str(row.get("pdf_gold_review_needed") or "").strip().upper() == DENOM_TRUE
+            or str(row.get("pdf_gold_include_in_public_denominator") or "").strip().upper() == DENOM_REVIEW
+        ),
+    }
+
+
+def _overlay_fallback_source(existing: dict[str, Any], doi: str) -> dict[str, Any]:
+    return {
+        "DOI": doi,
+        "PDF URL": existing.get("pdf_gold_url", ""),
+        "Notes": existing.get("pdf_gold_evidence", ""),
+    }
+
+
+def overlay_availability_sidecar(
+    sidecar_rows: Iterable[dict[str, Any]],
+    *,
+    source_rows_by_doi: dict[str, dict[str, Any]] | None = None,
+    eval_rows_by_doi: dict[str, dict[str, Any]] | None = None,
+    evidence_rows_by_doi: dict[str, dict[str, Any]] | None = None,
+    checked_at: str | None = None,
+) -> tuple[list[dict[str, str]], dict[str, Any]]:
+    """Apply provider/gold evidence to an existing sidecar by DOI only.
+
+    This avoids rebuilding all 10K labels when the accepted sidecar already has
+    hand-reviewed or overlay state. Only DOIs with evidence rows are relabeled.
+    The summary is aggregate-only so it can be safely published.
+    """
+    source_rows_by_doi = source_rows_by_doi or {}
+    eval_rows_by_doi = eval_rows_by_doi or {}
+    evidence_rows_by_doi = evidence_rows_by_doi or {}
+    checked = checked_at or utc_now()
+    evidence_dois = {normalize_doi(doi) for doi in evidence_rows_by_doi if normalize_doi(doi)}
+    input_rows = [
+        {field: str(row.get(field, "")) for field in PDF_AVAILABILITY_FIELDS}
+        for row in sidecar_rows
+        if normalize_doi(row.get("DOI"))
+    ]
+
+    updated_rows: list[dict[str, str]] = []
+    status_transitions: Counter[str] = Counter()
+    public_transitions: Counter[str] = Counter()
+    all_known_transitions: Counter[str] = Counter()
+    changed_total = 0
+    overlay_attempted = 0
+    for existing in input_rows:
+        doi = normalize_doi(existing.get("DOI"))
+        if doi not in evidence_dois:
+            updated_rows.append({field: csv_cell(existing.get(field, "")) for field in PDF_AVAILABILITY_FIELDS})
+            continue
+
+        overlay_attempted += 1
+        source = source_rows_by_doi.get(doi) or _overlay_fallback_source(existing, doi)
+        label = label_pdf_availability(
+            source,
+            eval_row=eval_rows_by_doi.get(doi),
+            evidence_row=evidence_rows_by_doi.get(doi),
+            checked_at=checked,
+        )
+        updated = label.to_dict()
+        before_status = existing.get("pdf_gold_status", "")
+        after_status = updated.get("pdf_gold_status", "")
+        before_public = existing.get("pdf_gold_include_in_public_denominator", "")
+        after_public = updated.get("pdf_gold_include_in_public_denominator", "")
+        before_all = existing.get("pdf_gold_include_in_all_known_pdf_denominator", "")
+        after_all = updated.get("pdf_gold_include_in_all_known_pdf_denominator", "")
+        if any(
+            [
+                before_status != after_status,
+                before_public != after_public,
+                before_all != after_all,
+            ]
+        ):
+            changed_total += 1
+            status_transitions[f"{before_status}->{after_status}"] += 1
+            public_transitions[f"{before_public}->{after_public}"] += 1
+            all_known_transitions[f"{before_all}->{after_all}"] += 1
+        updated_rows.append(updated)
+
+    missing_evidence_dois = sorted(evidence_dois - {normalize_doi(row.get("DOI")) for row in input_rows})
+    summary = {
+        "input": _sidecar_counts(input_rows),
+        "output": _sidecar_counts(updated_rows),
+        "evidence_rows_joined": len(evidence_dois),
+        "overlay_attempted": overlay_attempted,
+        "changed_total": changed_total,
+        "missing_evidence_doi_total": len(missing_evidence_dois),
+        "status_transitions": dict(sorted(status_transitions.items())),
+        "public_denominator_transitions": dict(sorted(public_transitions.items())),
+        "all_known_pdf_denominator_transitions": dict(sorted(all_known_transitions.items())),
+    }
+    return updated_rows, summary
+
+
 def review_priority(label: PdfAvailabilityLabel, host_counts: Counter[str], host: str) -> tuple[int, int, str]:
     public = label.pdf_gold_include_in_public_denominator
     status = label.pdf_gold_status
@@ -1273,6 +1380,7 @@ __all__ = [
     "classify_review_note",
     "label_pdf_availability",
     "normalize_doi",
+    "overlay_availability_sidecar",
     "read_csv_rows",
     "read_eval_rows",
     "read_evidence_rows",

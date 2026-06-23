@@ -1,7 +1,7 @@
 # OpenAlex Taxicab
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-23 REVIEW Pack And Denominator Audit
+## Current PDF Handoff: 2026-06-23 REVIEW Pack, Overlay Mode, And Denominator Audit
 
 Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab <code>main</code> at <code>8b36486</code>. The active sidecar/evidence branch is <code>codex/taxicab-pdf-gold-availability</code>. This branch is for PDF availability/gold-denominator tooling and evidence artifacts only; it does not change production scraping, R2, DynamoDB, or Taxicab storage behavior.
 
@@ -9,7 +9,21 @@ Latest accepted full 10K read-only gate remains <code>taxicab-pdf-after-cambridg
 
 Important denominator state: the <code>6,293</code> denominator is a legacy guessed-PDF-candidate denominator, not proof that every row has a public full-text PDF. Phase A labels <code>/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie.csv</code> as the 100-row seed. Phase B labels the full 10K <code>/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv</code>. Accepted current counts remain public TRUE <code>2,514</code>, public FALSE <code>4,407</code>, REVIEW <code>3,079</code>, and all-known TRUE <code>3,185</code>. The draft public TRUE metric is <code>2,464/2,514</code> (<code>98.01%</code>), but this is provisional and does not complete the goal until the <code>3,079</code> REVIEW rows are resolved or explicitly scoped.
 
-Current code slice: <code>openalex_taxicab/pdf_availability_gold.py</code> and <code>scripts/pdf_availability_gold.py</code> now support a bounded human REVIEW pack. Use <code>--review-pack-from-queue</code> to sample the already-accepted review queue without regenerating the sidecar, which avoids accidentally drifting counts from <code>3,079</code> to a raw-rebuild count. The pack stratifies by host, existing note class, and latest Taxicab category.
+Current code slice: <code>openalex_taxicab/pdf_availability_gold.py</code> and <code>scripts/pdf_availability_gold.py</code> now support two safe denominator tools. Use <code>--review-pack-from-queue</code> to sample the already-accepted review queue without regenerating the sidecar, which avoids accidentally drifting counts from <code>3,079</code> to a raw-rebuild count. Use <code>--overlay-sidecar</code> to apply provider/gold evidence to an existing accepted sidecar by DOI only; it relabels only evidence rows, preserves all other accepted labels, and emits an aggregate-only transition summary.
+
+Exact overlay command shape:
+
+```bash
+python3 scripts/pdf_availability_gold.py \
+  --input /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv \
+  --overlay-sidecar /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv \
+  --evidence-rows <private-provider-or-browserbase-evidence.ndjson> \
+  --eval-rows pdf_eval_runs/taxicab-pdf-after-cambridge-cache-6386430/rows.ndjson \
+  --overlay-out /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.overlay.csv \
+  --overlay-summary-json /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability-overlay-summary.json
+```
+
+Review the aggregate transition summary before replacing the accepted draft sidecar. Do not publish the overlay CSV or row-level evidence files.
 
 Private local review pack generated from the accepted queue: <code>/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-review-pack-top250.csv</code>. It has <code>250</code> rows sampled from <code>3,079</code> REVIEW rows, max <code>5</code> rows per host. Do not publish this CSV: it contains raw DOI and URL rows. The aggregate-only companion is <code>/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-review-pack-top250-summary.json</code> and is safe to summarize in oxjobs after scrubbing local paths.
 
@@ -22,10 +36,10 @@ Next exact verification command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 -m unittest discover -s tests
-python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-review-pack
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-overlay
 ```
 
-Next reporting action after branch push: publish only an aggregate review-pack summary into oxjobs #461, update the report to point humans at the private local CSV path, and keep raw DOI rows, raw URLs, Browserbase JSON, session IDs, screenshots, signed URLs, and HTML out of public artifacts.
+Next reporting action after branch push: update oxjobs #461 to document the aggregate-safe overlay mode and exact private commands. Publish only aggregate summaries; keep raw DOI rows, raw URLs, Browserbase JSON, session IDs, screenshots, signed URLs, and HTML out of public artifacts.
 
 Current blocker: denominator review. The provisional public TRUE metric is above 95%, but the <code>/goal</code> is not complete while <code>3,079</code> REVIEW rows remain.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->

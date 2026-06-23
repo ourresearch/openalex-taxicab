@@ -21,6 +21,7 @@ from openalex_taxicab.pdf_availability_gold import (  # noqa: E402
     build_review_queue,
     generate_availability_rows,
     normalize_doi,
+    overlay_availability_sidecar,
     read_csv_rows,
     read_evidence_rows,
     read_eval_rows,
@@ -56,6 +57,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--review-pack-summary-json", help="Optional aggregate-only review-pack summary JSON output")
     parser.add_argument("--review-pack-size", type=int, default=250, help="Maximum rows in --review-pack-out")
     parser.add_argument("--review-pack-per-host", type=int, default=5, help="Maximum rows sampled per host in review pack")
+    parser.add_argument("--overlay-sidecar", help="Existing accepted availability sidecar to update by evidence DOI only")
+    parser.add_argument("--overlay-out", help="Updated sidecar CSV output for --overlay-sidecar")
+    parser.add_argument("--overlay-summary-json", help="Optional aggregate-only overlay summary JSON output")
     parser.add_argument(
         "--public-true-failures-out",
         help="Optional CSV work queue of public-denominator TRUE rows that are not latest good_pdf",
@@ -101,6 +105,49 @@ def main(argv: list[str] | None = None) -> int:
         if args.summary_json:
             Path(args.summary_json).write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         print(json.dumps(summary, indent=2, sort_keys=True))
+        return 0
+
+    if args.overlay_sidecar:
+        if not args.input:
+            raise SystemExit("--input is required with --overlay-sidecar for source row context")
+        if not args.overlay_out:
+            raise SystemExit("--overlay-out is required with --overlay-sidecar")
+        if not args.evidence_rows:
+            raise SystemExit("--evidence-rows is required with --overlay-sidecar")
+        corpus_rows = read_csv_rows(Path(args.input))
+        eval_rows = read_eval_rows(Path(args.eval_rows)) if args.eval_rows else {}
+        evidence_rows = read_evidence_rows(Path(path) for path in args.evidence_rows)
+        source_by_doi = {
+            normalize_doi(row.get("DOI") or row.get("doi")): row
+            for row in corpus_rows
+            if normalize_doi(row.get("DOI") or row.get("doi"))
+        }
+        sidecar_rows = read_csv_rows(Path(args.overlay_sidecar))
+        updated_rows, overlay_summary = overlay_availability_sidecar(
+            sidecar_rows,
+            source_rows_by_doi=source_by_doi,
+            eval_rows_by_doi=eval_rows,
+            evidence_rows_by_doi=evidence_rows,
+        )
+        write_csv_rows(Path(args.overlay_out), updated_rows, PDF_AVAILABILITY_FIELDS)
+        overlay_summary.update(
+            {
+                "input": {
+                    **overlay_summary["input"],
+                    "corpus": str(args.input),
+                    "sidecar": str(args.overlay_sidecar),
+                },
+                "overlay_out": str(args.overlay_out),
+                "eval_rows": str(args.eval_rows or ""),
+                "evidence_rows": [str(path) for path in args.evidence_rows],
+            }
+        )
+        if args.overlay_summary_json:
+            Path(args.overlay_summary_json).write_text(
+                json.dumps(overlay_summary, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+        print(json.dumps(overlay_summary, indent=2, sort_keys=True))
         return 0
 
     if not args.input or not args.out or not args.review_queue:
