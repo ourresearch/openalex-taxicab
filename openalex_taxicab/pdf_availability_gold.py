@@ -90,6 +90,24 @@ PDF_AVAILABILITY_FIELDS = (
     "pdf_gold_checked_at",
 )
 
+REVIEW_QUEUE_FIELDS = (
+    *PDF_AVAILABILITY_FIELDS,
+    "pdf_gold_priority_host_count",
+    "pdf_gold_host",
+    "latest_taxicab_category",
+    "Link",
+    "PDF URL",
+    "Notes",
+)
+
+REVIEW_PACK_FIELDS = (
+    "review_pack_rank",
+    "review_pack_reason",
+    "review_pack_next_action",
+    "review_note_class",
+    *REVIEW_QUEUE_FIELDS,
+)
+
 PUBLIC_TRUE_FAILURE_FIELDS = (
     "rank",
     "DOI",
@@ -959,6 +977,151 @@ def summarize_review_queue(rows: Iterable[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _review_pack_sort_key(row: dict[str, Any]) -> tuple[int, int, str, str, str]:
+    return (
+        -int(str(row.get("pdf_gold_priority_host_count") or "0") or 0),
+        -len(str(row.get("PDF URL") or row.get("pdf_gold_url") or "")),
+        classify_review_note(row.get("Notes")),
+        str(row.get("latest_taxicab_category") or ""),
+        str(row.get("DOI") or ""),
+    )
+
+
+def _review_pack_reason(row: dict[str, Any], host_total: int) -> str:
+    host = str(row.get("pdf_gold_host") or "unknown")
+    category = str(row.get("latest_taxicab_category") or "unknown")
+    note_class = classify_review_note(row.get("Notes"))
+    return f"top_host={host_total}; host={host}; category={category}; note_class={note_class}"
+
+
+def build_review_pack(
+    review_rows: Iterable[dict[str, Any]],
+    *,
+    max_rows: int = 250,
+    per_host: int = 5,
+) -> list[dict[str, Any]]:
+    """Return a bounded, host-stratified subset of REVIEW rows for humans.
+
+    The full REVIEW queue is intentionally conservative. This pack picks a
+    small number of examples per high-volume host, stratified by existing note
+    class and latest Taxicab category, so human review resolves the denominator
+    policy with the fewest duplicated checks.
+    """
+    if max_rows < 1:
+        raise ValueError("max_rows must be >= 1")
+    if per_host < 1:
+        raise ValueError("per_host must be >= 1")
+
+    rows = [dict(row) for row in review_rows]
+    host_counts = Counter(str(row.get("pdf_gold_host") or "unknown") for row in rows)
+    by_host: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        by_host.setdefault(str(row.get("pdf_gold_host") or "unknown"), []).append(row)
+
+    selected: list[dict[str, Any]] = []
+    selected_ids: set[str] = set()
+    hosts = sorted(host_counts, key=lambda host: (-host_counts[host], host))
+    for host in hosts:
+        if len(selected) >= max_rows:
+            break
+        candidates = sorted(by_host.get(host, []), key=_review_pack_sort_key)
+        chosen_for_host: list[dict[str, Any]] = []
+        seen_note_classes: set[str] = set()
+        seen_strata: set[tuple[str, str]] = set()
+        for row in candidates:
+            if len(chosen_for_host) >= per_host:
+                break
+            note_class = classify_review_note(row.get("Notes"))
+            if note_class in seen_note_classes:
+                continue
+            chosen_for_host.append(row)
+            seen_note_classes.add(note_class)
+            seen_strata.add((note_class, str(row.get("latest_taxicab_category") or "unknown")))
+        if len(chosen_for_host) < per_host:
+            for row in candidates:
+                if len(chosen_for_host) >= per_host:
+                    break
+                stratum = (classify_review_note(row.get("Notes")), str(row.get("latest_taxicab_category") or "unknown"))
+                if stratum in seen_strata:
+                    continue
+                if any(str(row.get("DOI") or "") == str(chosen.get("DOI") or "") for chosen in chosen_for_host):
+                    continue
+                chosen_for_host.append(row)
+                seen_strata.add(stratum)
+        if len(chosen_for_host) < per_host:
+            for row in candidates:
+                if len(chosen_for_host) >= per_host:
+                    break
+                if any(str(row.get("DOI") or "") == str(chosen.get("DOI") or "") for chosen in chosen_for_host):
+                    continue
+                chosen_for_host.append(row)
+
+        for row in chosen_for_host:
+            if len(selected) >= max_rows:
+                break
+            doi = str(row.get("DOI") or "")
+            if doi in selected_ids:
+                continue
+            note_class = classify_review_note(row.get("Notes"))
+            category = str(row.get("latest_taxicab_category") or "unknown")
+            packed = dict(row)
+            packed.update(
+                {
+                    "review_pack_rank": len(selected) + 1,
+                    "review_pack_reason": _review_pack_reason(row, host_counts.get(host, 0)),
+                    "review_pack_next_action": _review_next_action(category, note_class),
+                    "review_note_class": note_class,
+                }
+            )
+            selected.append(packed)
+            selected_ids.add(doi)
+
+    return selected
+
+
+def summarize_review_pack(rows: Iterable[dict[str, Any]]) -> dict[str, Any]:
+    """Return aggregate-only review-pack metrics safe for public reports."""
+    row_list = list(rows)
+    host_counts = Counter(str(row.get("pdf_gold_host") or "unknown") for row in row_list)
+    category_counts = Counter(str(row.get("latest_taxicab_category") or "unknown") for row in row_list)
+    note_class_counts = Counter(str(row.get("review_note_class") or classify_review_note(row.get("Notes"))) for row in row_list)
+    host_category_counts: dict[str, Counter[str]] = {}
+    host_note_counts: dict[str, Counter[str]] = {}
+    for row in row_list:
+        host = str(row.get("pdf_gold_host") or "unknown")
+        host_category_counts.setdefault(host, Counter())[str(row.get("latest_taxicab_category") or "unknown")] += 1
+        host_note_counts.setdefault(host, Counter())[
+            str(row.get("review_note_class") or classify_review_note(row.get("Notes")))
+        ] += 1
+
+    top_hosts = []
+    for host, count in host_counts.most_common(25):
+        dominant_category = host_category_counts.get(host, Counter()).most_common(1)
+        dominant_note_class = host_note_counts.get(host, Counter()).most_common(1)
+        category = dominant_category[0][0] if dominant_category else "unknown"
+        note_class = dominant_note_class[0][0] if dominant_note_class else "other_note"
+        top_hosts.append(
+            {
+                "host": host,
+                "sampled_rows": count,
+                "dominant_category": category,
+                "dominant_note_class": note_class,
+                "why_not_recovered_yet": REVIEW_NOTE_CLASS_INTERPRETATIONS.get(
+                    note_class,
+                    REVIEW_NOTE_CLASS_INTERPRETATIONS["other_note"],
+                ),
+                "next_action": _review_next_action(category, note_class),
+            }
+        )
+
+    return {
+        "total": len(row_list),
+        "latest_taxicab_category_counts": dict(sorted(category_counts.items(), key=lambda item: (-item[1], item[0]))),
+        "note_class_counts": dict(sorted(note_class_counts.items(), key=lambda item: (-item[1], item[0]))),
+        "top_hosts": top_hosts,
+    }
+
+
 def _label_dict(label: PdfAvailabilityLabel | dict[str, Any]) -> dict[str, str]:
     if isinstance(label, PdfAvailabilityLabel):
         return label.to_dict()
@@ -1100,7 +1263,10 @@ __all__ = [
     "PDF_AVAILABILITY_FIELDS",
     "PDF_GOLD_STATUSES",
     "PUBLIC_TRUE_FAILURE_FIELDS",
+    "REVIEW_PACK_FIELDS",
+    "REVIEW_QUEUE_FIELDS",
     "PdfAvailabilityLabel",
+    "build_review_pack",
     "build_review_queue",
     "build_public_true_failure_queue",
     "generate_availability_rows",
@@ -1112,6 +1278,7 @@ __all__ = [
     "read_evidence_rows",
     "read_sidecar",
     "summarize_availability_sidecar",
+    "summarize_review_pack",
     "summarize_public_true_failures",
     "summarize_review_queue",
     "sanitize_text_for_artifact",

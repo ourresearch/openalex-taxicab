@@ -12,6 +12,7 @@ from openalex_taxicab.pdf_availability_gold import (
     DENOM_TRUE,
     PDF_AVAILABILITY_FIELDS,
     build_public_true_failure_queue,
+    build_review_pack,
     build_review_queue,
     classify_review_note,
     generate_availability_rows,
@@ -20,6 +21,7 @@ from openalex_taxicab.pdf_availability_gold import (
     read_sidecar,
     sanitize_url_for_artifact,
     summarize_public_true_failures,
+    summarize_review_pack,
     summarize_review_queue,
     write_csv_rows,
 )
@@ -359,6 +361,57 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
         self.assertIn("does not prove", summary["top_hosts"][0]["why_not_recovered_yet"])
         self.assertEqual(classify_review_note("closed_at=tier_a_reharvest;verdict=approved"), "goldie_content_approved_not_pdf_availability")
 
+    def test_review_pack_stratifies_top_hosts_without_relabeling(self):
+        rows = [
+            {
+                "DOI": "10.5555/springer-a",
+                "pdf_gold_host": "link.springer.com",
+                "pdf_gold_priority_host_count": "4",
+                "latest_taxicab_category": "missing_pdf_harvest",
+                "Notes": "",
+            },
+            {
+                "DOI": "10.5555/springer-b",
+                "pdf_gold_host": "link.springer.com",
+                "pdf_gold_priority_host_count": "4",
+                "latest_taxicab_category": "missing_pdf_harvest",
+                "Notes": "closed_at=tier_a_reharvest;verdict=approved",
+            },
+            {
+                "DOI": "10.5555/springer-c",
+                "pdf_gold_host": "link.springer.com",
+                "pdf_gold_priority_host_count": "4",
+                "latest_taxicab_category": "html_instead_of_pdf",
+                "Notes": "closed_at=tier_a_reharvest;verdict=approved",
+            },
+            {
+                "DOI": "10.5555/wiley-a",
+                "pdf_gold_host": "onlinelibrary.wiley.com",
+                "pdf_gold_priority_host_count": "2",
+                "latest_taxicab_category": "missing_pdf_harvest",
+                "Notes": "",
+            },
+            {
+                "DOI": "10.5555/wiley-b",
+                "pdf_gold_host": "onlinelibrary.wiley.com",
+                "pdf_gold_priority_host_count": "2",
+                "latest_taxicab_category": "missing_pdf_harvest",
+                "Notes": "closed_at=terminal;verdict=needs_live_fetch",
+            },
+        ]
+        pack = build_review_pack(rows, max_rows=3, per_host=2)
+        self.assertEqual(len(pack), 3)
+        self.assertEqual([row["review_pack_rank"] for row in pack], [1, 2, 3])
+        self.assertEqual([row["pdf_gold_host"] for row in pack[:2]], ["link.springer.com", "link.springer.com"])
+        self.assertIn("review_pack_next_action", pack[0])
+        self.assertEqual(
+            {row["review_note_class"] for row in pack[:2]},
+            {"no_existing_note", "goldie_content_approved_not_pdf_availability"},
+        )
+        summary = summarize_review_pack(pack)
+        self.assertEqual(summary["total"], 3)
+        self.assertEqual(summary["top_hosts"][0]["host"], "link.springer.com")
+
     def test_sidecar_cli_writes_draft_and_review_queue(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -368,6 +421,8 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
             review = tmp_path / "human-goldie-pdf-review-queue.csv"
             summary = tmp_path / "summary.json"
             review_summary = tmp_path / "review-summary.json"
+            review_pack = tmp_path / "review-pack.csv"
+            review_pack_summary = tmp_path / "review-pack-summary.json"
             public_true_failures = tmp_path / "public-true-failures.csv"
             public_true_summary = tmp_path / "public-true-failures-summary.json"
             with input_csv.open("w", newline="", encoding="utf-8") as handle:
@@ -441,6 +496,14 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
                         str(summary),
                         "--review-summary-json",
                         str(review_summary),
+                        "--review-pack-out",
+                        str(review_pack),
+                        "--review-pack-summary-json",
+                        str(review_pack_summary),
+                        "--review-pack-size",
+                        "10",
+                        "--review-pack-per-host",
+                        "2",
                         "--public-true-failures-out",
                         str(public_true_failures),
                         "--public-true-failures-summary-json",
@@ -451,6 +514,8 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
             self.assertTrue(draft.exists())
             self.assertTrue(review.exists())
             self.assertTrue(review_summary.exists())
+            self.assertTrue(review_pack.exists())
+            self.assertTrue(review_pack_summary.exists())
             self.assertTrue(public_true_failures.exists())
             self.assertTrue(public_true_summary.exists())
             self.assertEqual(len(read_sidecar(draft)), 3)
@@ -465,9 +530,77 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
             self.assertEqual(summary_data["review_queue_summary"]["total"], 1)
             review_summary_data = json.loads(review_summary.read_text())
             self.assertEqual(review_summary_data["total"], 1)
+            with review_pack.open(encoding="utf-8") as handle:
+                pack_rows = list(csv.DictReader(handle))
+            self.assertEqual(len(pack_rows), 1)
+            self.assertEqual(pack_rows[0]["review_pack_rank"], "1")
+            review_pack_summary_data = json.loads(review_pack_summary.read_text())
+            self.assertEqual(review_pack_summary_data["total"], 1)
+            self.assertEqual(summary_data["review_pack_total"], 1)
             self.assertEqual(summary_data["public_true_failure_total"], 1)
             public_summary_data = json.loads(public_true_summary.read_text())
             self.assertEqual(public_summary_data["total"], 1)
+
+    def test_sidecar_cli_can_build_review_pack_from_existing_queue(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            review_queue = tmp_path / "review-queue.csv"
+            review_pack = tmp_path / "review-pack.csv"
+            review_pack_summary = tmp_path / "review-pack-summary.json"
+            with review_queue.open("w", newline="", encoding="utf-8") as handle:
+                writer = csv.DictWriter(
+                    handle,
+                    fieldnames=[
+                        *PDF_AVAILABILITY_FIELDS,
+                        "pdf_gold_priority_host_count",
+                        "pdf_gold_host",
+                        "latest_taxicab_category",
+                        "Link",
+                        "PDF URL",
+                        "Notes",
+                    ],
+                )
+                writer.writeheader()
+                writer.writerow(
+                    {
+                        "DOI": "10.5555/review-a",
+                        "pdf_gold_status": "unclear_needs_review",
+                        "pdf_gold_host": "link.springer.com",
+                        "latest_taxicab_category": "missing_pdf_harvest",
+                        "Notes": "",
+                    }
+                )
+                writer.writerow(
+                    {
+                        "DOI": "10.5555/review-b",
+                        "pdf_gold_status": "unclear_needs_review",
+                        "pdf_gold_host": "link.springer.com",
+                        "latest_taxicab_category": "missing_pdf_harvest",
+                        "Notes": "closed_at=tier_a_reharvest;verdict=approved",
+                    }
+                )
+            with contextlib.redirect_stdout(io.StringIO()):
+                code = sidecar_main(
+                    [
+                        "--review-pack-from-queue",
+                        str(review_queue),
+                        "--review-pack-out",
+                        str(review_pack),
+                        "--review-pack-summary-json",
+                        str(review_pack_summary),
+                        "--review-pack-size",
+                        "10",
+                        "--review-pack-per-host",
+                        "2",
+                    ]
+                )
+            self.assertEqual(code, 0)
+            with review_pack.open(encoding="utf-8") as handle:
+                pack_rows = list(csv.DictReader(handle))
+            self.assertEqual(len(pack_rows), 2)
+            summary_data = json.loads(review_pack_summary.read_text())
+            self.assertEqual(summary_data["review_queue_total"], 2)
+            self.assertEqual(summary_data["total"], 2)
 
     def test_csv_writer_sanitizes_control_bytes(self):
         with tempfile.TemporaryDirectory() as tmp:
