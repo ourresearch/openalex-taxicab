@@ -3,34 +3,41 @@
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
 ## Current PDF Handoff: 2026-06-23 Provider Evidence Overlay
 
-Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab <code>main</code> at <code>8b36486</code>. The active sidecar/evidence branch is <code>codex/taxicab-pdf-gold-availability</code> and now has code commit <code>6386430</code> for provider/gold evidence overlays after prior denominator commits <code>c164408</code>, <code>a4070a3</code>, and <code>d468bf4</code>. The latest accepted full 10K read-only gate remains <code>taxicab-pdf-after-journaluniga-cache-fc0be25</code>: <code>2,463/6,293 good_pdf</code> (<code>39.14%</code>) on the legacy guessed-PDF denominator, <code>+2</code> versus the prior accepted BMC Microbiology gate and <code>+626</code> versus the first measured denominator reference of <code>1,837/6,293</code> (<code>29.19%</code>). The legacy raw 95% target is <code>5,979/6,293</code>, so the raw-denominator gap is <code>3,516</code> rows. The accepted gate had <code>0</code> good-to-non-good regressions, <code>0</code> timeouts, and <code>0</code> Taxicab errors.
+Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab <code>main</code> at <code>8b36486</code>. The active sidecar/evidence branch is <code>codex/taxicab-pdf-gold-availability</code> and has code commit <code>6386430</code> for provider/gold evidence overlays after prior denominator commits <code>c164408</code>, <code>a4070a3</code>, and <code>d468bf4</code>. The latest accepted full 10K read-only gate is <code>taxicab-pdf-after-cambridge-cache-6386430</code>: <code>2,464/6,293 good_pdf</code> (<code>39.15%</code>) on the legacy guessed-PDF denominator, <code>+1</code> versus the prior JournalUniga gate and <code>+627</code> versus the first measured denominator reference of <code>1,837/6,293</code> (<code>29.19%</code>). The legacy raw 95% target is <code>5,979/6,293</code>, so the raw-denominator gap is <code>3,515</code> rows. The accepted gate had <code>0</code> good-to-non-good regressions, <code>0</code> timeouts, and <code>0</code> Taxicab errors.
 
-Important denominator update: the <code>6,293</code> denominator is a legacy guessed-PDF-candidate denominator, not proof that every row has a public full-text PDF. Phase A sidecars label <code>/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie.csv</code> as a 100-row seed; regenerated counts remain public TRUE <code>12</code>, public FALSE <code>23</code>, REVIEW <code>65</code>, and all-known TRUE <code>23</code>. Phase B sidecars label <code>/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv</code> for the full 10K; after applying the 10-row Springer provider-evidence overlay, counts are public TRUE <code>2,513</code>, public FALSE <code>4,407</code>, REVIEW <code>3,080</code>, and all-known TRUE <code>3,184</code>. The draft public TRUE metric is still <code>2,463/2,513</code> (<code>98.01%</code>), but this is provisional and does not complete the goal until the <code>3,080</code> REVIEW rows are resolved or explicitly scoped.
+Important denominator update: the <code>6,293</code> denominator is a legacy guessed-PDF-candidate denominator, not proof that every row has a public full-text PDF. Phase A sidecars label <code>/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie.csv</code> as a 100-row seed; regenerated counts remain public TRUE <code>12</code>, public FALSE <code>23</code>, REVIEW <code>65</code>, and all-known TRUE <code>23</code>. Phase B sidecars label <code>/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv</code> for the full 10K; after applying provider/gold overlays through Cambridge, counts are public TRUE <code>2,514</code>, public FALSE <code>4,407</code>, REVIEW <code>3,079</code>, and all-known TRUE <code>3,185</code>. The draft public TRUE metric is now <code>2,464/2,514</code> (<code>98.01%</code>), but this is provisional and does not complete the goal until the <code>3,079</code> REVIEW rows are resolved or explicitly scoped.
 
 Sidecar artifact safety: commit <code>c164408</code> sanitizes PDF gold sidecar URLs before CSV artifact writes; commit <code>a4070a3</code> classifies source notes such as <code>auth_wall_confirmed</code> and <code>paywalled=&lt;publisher&gt;</code>; commit <code>d468bf4</code> classifies <code>no_pdf_expected</code> rows with no concrete PDF URL as public FALSE/all-known FALSE before bot-check REVIEW logic; commit <code>6386430</code> adds <code>--evidence-rows</code> so bounded provider/Browserbase/gold probes can relabel only the proven DOI rows without host-wide assumptions. Phase A and Phase B sidecars were regenerated after these fixes and passed signed-query/secret scans. The generated sidecars are untracked in <code>/Users/shubh-trips/Documents/OpenAlex/parseland-eval</code>, which already has unrelated dirty work; do not stage or commit that repo without explicit coordination. <code>human-goldie.csv</code> remains unmodified by the sidecar generator.
 
 Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single unboxed fixed <code>0-100%</code> bar chart whose visual baseline is <code>0 good_pdf</code>, whose top scale is <code>100%</code>, and whose <code>95%</code> target line remains visible. Plot only accepted 6,293-denominator full gates after the zero origin. Do not restore any zoomed 29-39% y-axis.
 
-Latest oxjobs #461 report state: <code>7da674dd3 #461 taxicab-pdf: publish no-pdf gold snapshot</code> is pushed to <code>origin/main</code>, CI run <code>28043951856</code> passed, and the live raw report plus <code>report461-pdf-gold-nopdf-expected-summary-d468bf4.json</code> were verified. Oxjobs still needs a follow-up report-only update for the <code>6386430</code> provider-evidence overlay, which reduces REVIEW from <code>3,090</code> to <code>3,080</code> by moving 10 sampled Springer rows to public FALSE/all-known TRUE.
+Latest oxjobs #461 report state: <code>f1cfd2790 #461 taxicab-pdf: accept cambridge full gate</code> is pushed to <code>origin/main</code>, CI run <code>28049928235</code> passed, and the live raw report plus <code>report461-full10k-after-cambridge-summary-6386430.json</code> were verified. The report shows the zero-origin 0-100 graph, raw <code>2,464/6,293</code>, public TRUE <code>2,514</code>, REVIEW <code>3,079</code>, and the Cambridge one-row sidecar movement.
 
 Provider evidence just collected: no-storage Zyte run <code>springer-review-availability-probe10-23bdedf</code> tested 10 <code>link.springer.com/content/pdf/...</code> REVIEW rows with <code>default_body</code>, <code>accept_pdf</code>, and <code>browser_html</code>. Result: <code>0/10 good_pdf</code>; all <code>30/30</code> strategy attempts returned HTML classified as <code>interstitial_or_paywall</code>, typically resolving to Springer chapter/protocol pages with login/interstitial text. This is evidence to label only those 10 sampled DOIs as <code>paywalled_or_login_pdf_available</code>, public FALSE, all-known TRUE. It is not evidence to blanket-exclude all Springer rows.
 
 Where the next safe retrieval work is: draft public TRUE non-good rows are still <code>50</code>: <code>corrupt_or_truncated_pdf=45</code>, <code>encrypted_or_unreadable_pdf=4</code>, and <code>missing_pdf_harvest=1</code>. Top residual hosts are <code>onlinelibrary.wiley.com</code> 18, <code>jstage.jst.go.jp</code> 5, <code>journals.sagepub.com</code> 4, and <code>link.springer.com</code> 2, plus a long single-host tail. Top residual publishers are <code>wiley</code> 18, <code>unknown</code> 15, <code>springer</code> 4, <code>elsevier</code> 3, and <code>sage</code> 3. Do not reharvest Wiley, Hindawi, Springer, BMC, or other exhausted provider lanes unless Zyte gives a concrete provider recipe or new residual evidence exists.
 
-Post-overlay REVIEW concentration: <code>3,080</code> rows remain. Top hosts are <code>link.springer.com</code> (584), <code>onlinelibrary.wiley.com</code> (417), <code>degruyterbrill.com</code> (195), <code>sciencedirect.com</code> (139), <code>journals.lww.com</code> (139), <code>cambridge.org</code> (123), <code>academic.oup.com</code> (96), <code>papers.ssrn.com</code> (73), <code>jstor.org</code> (60), <code>api.taylorfrancis.com</code> (52), and <code>pubs.acs.org</code> (45). The remaining rows are not proven Taxicab failures until the gold availability layer separates public-retrievable PDFs from paywalled/login/no-PDF cases.
+Post-overlay REVIEW concentration: <code>3,079</code> rows remain. Top hosts are <code>link.springer.com</code> (584), <code>onlinelibrary.wiley.com</code> (417), <code>degruyterbrill.com</code> (195), <code>sciencedirect.com</code> (139), <code>journals.lww.com</code> (139), <code>cambridge.org</code> (122), <code>academic.oup.com</code> (96), <code>papers.ssrn.com</code> (73), <code>jstor.org</code> (60), <code>api.taylorfrancis.com</code> (52), and <code>pubs.acs.org</code> (45). The remaining rows are not proven Taxicab failures until the gold availability layer separates public-retrievable PDFs from paywalled/login/no-PDF cases.
 
 Next exact command:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
-python3 scripts/publish-report.py 461 && git diff --check -- working/taxicab-pdf
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-docsync
 ```
 
-After the oxjobs report-only update for <code>6386430</code>, continue Goldsmith-PDF by running another bounded evidence sample on the next high-impact REVIEW lane. Do not browse every DOI initially. Good next candidates are Wiley REVIEW sample, De Gruyter/Brill REVIEW sample, or Springer sample #2 if the team wants stronger Springer denominator evidence. Promote only sampled/proven rows via <code>--evidence-rows</code>; do not create broad host rules without stronger policy approval.
+After this handoff-doc update is pushed, continue Goldsmith-PDF by running a
+bounded evidence sample on the next high-impact REVIEW lane. Do not browse
+every DOI initially. The recommended next lane is Oxford Academic
+(<code>academic.oup.com</code>, 96 REVIEW rows) because the higher-volume
+Springer, Wiley, De Gruyter/Brill, ScienceDirect, LWW, and Cambridge lanes
+already have recent aggregate evidence. Promote only sampled/proven rows via
+<code>--evidence-rows</code>; do not create broad host rules without stronger
+policy approval.
 
-Current blocker: denominator review. The remaining public TRUE residuals are mostly exhausted provider/validator tails, not a broad Taxicab runtime failure. Continue retrieval work only for <code>pdf_gold_include_in_public_denominator=TRUE AND latest_taxicab_category != good_pdf</code>; keep public FALSE and REVIEW rows separate. The provisional public TRUE metric is above 95%, but the <code>/goal</code> is not complete while <code>3,080</code> REVIEW rows remain.
+Current blocker: denominator review. The remaining public TRUE residuals are mostly exhausted provider/validator tails, not a broad Taxicab runtime failure. Continue retrieval work only for <code>pdf_gold_include_in_public_denominator=TRUE AND latest_taxicab_category != good_pdf</code>; keep public FALSE and REVIEW rows separate. The provisional public TRUE metric is above 95%, but the <code>/goal</code> is not complete while <code>3,079</code> REVIEW rows remain.
 
-Latest verification for <code>6386430</code>: <code>python3 -m unittest discover -s tests</code> passed 185 tests; <code>python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke</code> passed; <code>git diff --check</code> passed; tracked-file secret/signed-query scan had no matches. Branch push target is <code>codex/taxicab-pdf-gold-availability</code>; after pushing this handoff update, oxjobs #461 still needs the report-only provider-overlay follow-up.
+Latest verification for <code>6386430</code>: <code>python3 -m unittest discover -s tests</code> passed 185 tests; <code>python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke</code> passed; <code>git diff --check</code> passed; tracked-file secret/signed-query scan had no matches. Branch push target is <code>codex/taxicab-pdf-gold-availability</code>. Oxjobs #461 is already updated and live at <code>f1cfd2790</code>.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
 Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
@@ -39,18 +46,18 @@ PDF-expected portion of the 10K Goldie corpus. Read `GOAL.md` and
 `NEXT_TO_DO.md` before changing code.
 
 Current PDF metric: see the handoff block above. The accepted full gate is
-`taxicab-pdf-after-journaluniga-cache-fc0be25`: 2,463/6,293
-`good_pdf` (39.14%), gap 3,516 rows on the legacy raw denominator, with two
-non-good-to-good transitions and zero good-to-non-good regressions, zero
+`taxicab-pdf-after-cambridge-cache-6386430`: 2,464/6,293
+`good_pdf` (39.15%), gap 3,515 rows on the legacy raw denominator, with one
+non-good-to-good transition and zero good-to-non-good regressions, zero
 timeouts, and zero Taxicab errors.
 
-Latest #461 report publish is oxjobs commit `e511d26aa`, which records the
-post-JournalUniga 0/8 singleton/tail provider probes. It keeps the 0-origin
-fixed 0-100 chart, reports draft public TRUE as 2,463/2,513 (98.01%), and
-records no new KPI lift from the 0/8 tail batch. CI run `28041494483` passed;
-the live raw report and new JSON asset were verified after retry. The current
-handoff block above is authoritative; older BMC Microbiology and post-Wiley
-queue entries below are historical.
+Latest #461 report publish is oxjobs commit `f1cfd2790`, which records the
+Cambridge bounded recovery and full 10K gate. It keeps the 0-origin fixed
+0-100 chart, reports draft public TRUE as 2,464/2,514 (98.01%), and records
+the remaining 3,079 REVIEW rows. CI run `28049928235` passed; the live raw
+report and new JSON asset were verified after retry. The current handoff block
+above is authoritative; older BMC Microbiology and post-Wiley queue entries
+below are historical.
 
 Prior `07f8b2044` publishes the SS Editora accepted recovery, full gate
 `pdf-full10k-after-sseditora-ac692df`, residual refresh
