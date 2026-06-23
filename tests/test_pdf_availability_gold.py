@@ -50,6 +50,49 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
         self.assertEqual(label.pdf_gold_include_in_all_known_pdf_denominator, DENOM_TRUE)
         self.assertIn(label.pdf_gold_access_type, {"institution_login", "purchase_page"})
 
+    def test_auth_wall_notes_are_all_known_but_not_public(self):
+        label = label_pdf_availability(
+            {
+                "DOI": "10.5555/authwall",
+                "PDF URL": "https://link.springer.com/content/pdf/10.5555/authwall.pdf",
+                "Notes": "closed_at=tier_a_reharvest;verdict=auth_wall_confirmed",
+            },
+            checked_at="2026-06-23T00:00:00+00:00",
+        )
+        self.assertEqual(label.pdf_gold_status, "paywalled_or_login_pdf_available")
+        self.assertEqual(label.pdf_gold_access_type, "institution_login")
+        self.assertEqual(label.pdf_gold_include_in_public_denominator, DENOM_FALSE)
+        self.assertEqual(label.pdf_gold_include_in_all_known_pdf_denominator, DENOM_TRUE)
+        self.assertEqual(label.pdf_gold_review_needed, "FALSE")
+
+    def test_paywalled_notes_are_all_known_but_not_public(self):
+        label = label_pdf_availability(
+            {
+                "DOI": "10.5555/paywalled",
+                "PDF URL": "https://onlinelibrary.wiley.com/doi/pdf/10.5555/paywalled",
+                "Notes": "iter-R:paywalled=wiley",
+            },
+            checked_at="2026-06-23T00:00:00+00:00",
+        )
+        self.assertEqual(label.pdf_gold_status, "paywalled_or_login_pdf_available")
+        self.assertEqual(label.pdf_gold_include_in_public_denominator, DENOM_FALSE)
+        self.assertEqual(label.pdf_gold_include_in_all_known_pdf_denominator, DENOM_TRUE)
+        self.assertEqual(label.pdf_gold_review_needed, "FALSE")
+
+    def test_auth_wall_without_pdf_url_is_not_all_known_pdf(self):
+        label = label_pdf_availability(
+            {
+                "DOI": "10.5555/authwall-no-url",
+                "Link": "https://doi.org/10.5555/authwall-no-url",
+                "Notes": "closed_at=tier_a_reharvest;verdict=auth_wall_confirmed",
+            },
+            checked_at="2026-06-23T00:00:00+00:00",
+        )
+        self.assertEqual(label.pdf_gold_status, "no_full_text_pdf_found")
+        self.assertEqual(label.pdf_gold_include_in_public_denominator, DENOM_FALSE)
+        self.assertEqual(label.pdf_gold_include_in_all_known_pdf_denominator, DENOM_FALSE)
+        self.assertEqual(label.pdf_gold_review_needed, "FALSE")
+
     def test_bot_check_goes_to_review(self):
         label = label_pdf_availability(
             {

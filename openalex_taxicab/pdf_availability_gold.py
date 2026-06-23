@@ -96,8 +96,9 @@ PUBLIC_TRUE_FAILURE_FIELDS = (
 
 PAYWALL_RE = re.compile(
     r"\b("
-    r"paywall|subscription|subscribe|purchase|buy now|get access|institution(?:al)? login|"
-    r"log in(?: to your institution)?|login required|sign in|rent this article|purchase access"
+    r"paywall(?:ed)?|subscription|subscribe|purchase|buy now|get access|auth[_ -]?wall(?:[_ -]?confirmed)?|"
+    r"institution(?:al)? login|log in(?: to your institution)?|login required|sign in|"
+    r"rent this article|purchase access"
     r")\b",
     re.IGNORECASE,
 )
@@ -396,9 +397,27 @@ def label_pdf_availability(
         )
 
     if PAYWALL_RE.search(text) or category == "interstitial_or_paywall":
-        access = ACCESS_INSTITUTION_LOGIN if re.search(r"institution|login|sign in", text, re.I) else ACCESS_PAYWALL
+        access = (
+            ACCESS_INSTITUTION_LOGIN
+            if re.search(r"institution|login|sign in|auth[_ -]?wall", text, re.I)
+            else ACCESS_PAYWALL
+        )
         if re.search(r"buy now|purchase|rent", text, re.I):
             access = ACCESS_PURCHASE_PAGE
+        if not url:
+            return make_label(
+                doi=doi,
+                status=STATUS_NO_FULL_TEXT_PDF,
+                url="",
+                access_type=access,
+                public=DENOM_FALSE,
+                all_known=DENOM_FALSE,
+                confidence=0.74,
+                evidence="; ".join(source_bits + ["paywall/login evidence but no concrete PDF URL"]),
+                review_needed=False,
+                source=source,
+                checked_at=checked,
+            )
         return make_label(
             doi=doi,
             status=STATUS_PAYWALLED_OR_LOGIN,
@@ -408,8 +427,7 @@ def label_pdf_availability(
             all_known=DENOM_TRUE,
             confidence=0.82 if url else 0.66,
             evidence="; ".join(source_bits + ["paywall/login/purchase evidence"]),
-            review_needed=not bool(url),
-            review_reason="" if url else "paywall evidence but no concrete PDF URL",
+            review_needed=False,
             source=source,
             checked_at=checked,
         )
