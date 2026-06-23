@@ -1,17 +1,19 @@
 # OpenAlex Taxicab
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-23 BMC Microbiology Full Gate Accepted
+## Current PDF Handoff: 2026-06-23 JournalUniga Full Gate Accepted
 
-Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab `main` at `8b36486`. The sidecar/evidence branch is `codex/taxicab-pdf-gold-availability` at `338d437` before this docs update. The latest accepted full 10K read-only gate is `taxicab-pdf-after-bmcmicrobiol-cache-b0db1fb`: `2,461/6,293 good_pdf` (`39.11%`) on the legacy guessed-PDF denominator, `+3` versus the prior accepted gate and `+624` versus the first measured denominator reference of `1,837/6,293` (`29.19%`). The legacy raw 95% target is `5,979/6,293`, so the raw-denominator gap is `3,518` rows. The accepted gate had `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors. Category movement versus the prior accepted full gate was `missing_pdf_harvest -2`, `corrupt_or_truncated_pdf -1`, and `good_pdf +3`.
+Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab `main` at `8b36486`. The active sidecar/evidence branch is `codex/taxicab-pdf-gold-availability`. The latest accepted full 10K read-only gate is `taxicab-pdf-after-journaluniga-cache-fc0be25`: `2,463/6,293 good_pdf` (`39.14%`) on the legacy guessed-PDF denominator, `+2` versus the prior accepted BMC Microbiology gate and `+626` versus the first measured denominator reference of `1,837/6,293` (`29.19%`). The legacy raw 95% target is `5,979/6,293`, so the raw-denominator gap is `3,516` rows. The accepted gate had `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors. Category movement versus the prior accepted full gate was `corrupt_or_truncated_pdf -1`, `missing_pdf_harvest -1`, and `good_pdf +2`.
 
-Important denominator update: the `6,293` denominator is a legacy guessed-PDF-candidate denominator, not proof that every row has a public full-text PDF. Phase A sidecars label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie.csv` as a 100-row seed; Phase B sidecars label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv` for the full 10K. The refreshed draft full-corpus sidecar counts are public TRUE `2,518`, public FALSE `3,680`, REVIEW `3,802`, and all-known TRUE `2,524`. The draft public TRUE metric is now `2,461/2,518` (`97.74%`), but this is provisional and does not complete the goal until the `3,802` REVIEW rows are resolved or explicitly scoped.
+Important denominator update: the `6,293` denominator is a legacy guessed-PDF-candidate denominator, not proof that every row has a public full-text PDF. Phase A sidecars label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie.csv` as a 100-row seed; Phase B sidecars label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv` for the full 10K. The refreshed draft full-corpus sidecar counts are public TRUE `2,519`, public FALSE `3,680`, REVIEW `3,801`, and all-known TRUE `2,525`. The draft public TRUE metric is now `2,463/2,519` (`97.78%`), but this is provisional and does not complete the goal until the `3,801` REVIEW rows are resolved or explicitly scoped.
 
 Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose top scale is `100%`, and whose `95%` target line remains visible. Plot only accepted 6,293-denominator full gates after the zero origin. Do not restore any zoomed 29-39% y-axis.
 
-Latest oxjobs #461 report state: `842202b5d #461 taxicab-pdf: record live queue report verification` is pushed to `origin/main`, CI run `28034588894` passed, and the live raw report was verified at `a82c4e5f0` with the refreshed public TRUE queue counts (`2,518` TRUE, `3,802` REVIEW, `2,461/2,518`). The report includes `evidence/report461-full10k-after-bmcmicrobiol-summary-b0db1fb.json`, `evidence/report461-publictrue-queue-after-bmcmicrobiol-summary-338d437.json`, and prior scrubbed provider evidence.
+Latest oxjobs #461 report state: `b003cdede #461 taxicab-pdf: accept journaluniga gate` is pushed to `origin/main`, CI run `28039910912` passed, and the live raw report was verified after retry with JournalUniga markers (`2,463/6,293`, `39.14%`, `3,516`, `2,519`, `3,801`, `2,463/2,519`, `taxicab-pdf-after-journaluniga-cache`, and `<svg class="curve"`). Raw JSON and SVG artifacts also serve successfully. The public report includes aggregate-only JournalUniga provider/reharvest/read-only summaries plus the full-gate summary; raw DOI rows, raw URLs, UUIDs, sessions, cookies, and secret values stay out of oxjobs.
 
-Where the next safe retrieval work is: draft public TRUE non-good rows are now `57`: `corrupt_or_truncated_pdf=52`, `encrypted_or_unreadable_pdf=4`, and `missing_pdf_harvest=1`. Top residual hosts are `onlinelibrary.wiley.com` 21, `journals.sagepub.com` 5, `jstage.jst.go.jp` 5, `downloads.hindawi.com` 2, and `link.springer.com` 2, plus singletons. Do not reharvest Wiley, Science Advances, Biodiversity Library, BMC Gastroenterology, or BMC Microbiology again until Zyte gives a concrete provider recipe or new residual evidence exists.
+Where the next safe retrieval work is: draft public TRUE non-good rows are now `56`: `corrupt_or_truncated_pdf=51`, `encrypted_or_unreadable_pdf=4`, and `missing_pdf_harvest=1`. Top residual hosts are `onlinelibrary.wiley.com` 21, `journals.sagepub.com` 5, `jstage.jst.go.jp` 5, `downloads.hindawi.com` 2, and `link.springer.com` 2, plus a 21-row single-host tail. Top residual publishers are `wiley` 21, `unknown` 15, `sage` 4, `springer` 4, `elsevier` 3, and `hindawi` 2. Do not reharvest Wiley, Hindawi, Springer, BMC, or other exhausted provider lanes unless Zyte gives a concrete provider recipe or new residual evidence exists.
+
+JournalUniga evidence accepted in this gate: no-storage provider probe `journaluniga-publictrue-residual1-after-bmcmicrobiol-fc0be25` recovered `1/1 good_pdf`; bounded reharvest `journaluniga-publictrue-reharvest1-fc0be25` returned `1/1 good_pdf`; read-only confirmation `journaluniga-publictrue-readonly1-fc0be25` returned `1/1 good_pdf`; full 10K gate `taxicab-pdf-after-journaluniga-cache-fc0be25` accepted `+2` raw good rows because the intended JournalUniga row and one incidental Wiley cache/read-path row moved to `good_pdf`.
 
 Next exact command:
 
@@ -19,7 +21,7 @@ Next exact command:
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 - <<'PY'
 import json
 from pathlib import Path
-p = Path('/tmp/taxicab-pdf-public-true-failures-after-bmcmicrobiol-cache-summary.json')
+p = Path('/tmp/taxicab-pdf-public-true-failures-after-journaluniga-cache-summary.json')
 d = json.loads(p.read_text())
 print(json.dumps({
   'total': d['total'],
@@ -30,11 +32,11 @@ print(json.dumps({
 PY
 ```
 
-The post-BMC public TRUE queue has been refreshed successfully with the command above. Inspect `/tmp/taxicab-pdf-public-true-failures-after-bmcmicrobiol-cache-summary.json` before choosing the next lane. Use no-storage provider probes first. Only run bounded reharvest if a lane returns valid PDF bytes and the targeted read-only proof says it is still a Taxicab-side recoverable residual.
+Inspect `/tmp/taxicab-pdf-public-true-failures-after-journaluniga-cache-summary.json` before choosing the next lane. Use no-storage provider probes first. Only run bounded reharvest if a lane returns valid PDF bytes and the targeted read-only proof says it is still a Taxicab-side recoverable residual.
 
-Current blocker: denominator review plus remaining public TRUE provider/validator tails, not a broad Taxicab runtime failure. Continue retrieval work only for `pdf_gold_include_in_public_denominator=TRUE AND latest_taxicab_category != good_pdf`; keep public FALSE and REVIEW rows separate.
+Current blocker: denominator review plus remaining public TRUE provider/validator tails, not a broad Taxicab runtime failure. Continue retrieval work only for `pdf_gold_include_in_public_denominator=TRUE AND latest_taxicab_category != good_pdf`; keep public FALSE and REVIEW rows separate. The provisional public TRUE metric is above 95%, but the `/goal` is not complete while 3,801 REVIEW rows remain.
 
-Latest commit/push status before this handoff update: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar branch is pushed at `338d437`; oxjobs `main` is pushed at `842202b5d`, CI run `28034588894` passed, and the live raw report was verified at `a82c4e5f0` with refreshed public TRUE queue counts. This docs slice records the latest oxjobs verification and sets residual-lane inspection as the next command.
+Latest commit/push status before this handoff update: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar branch is at `fc0be25` before this docs commit; oxjobs `main` is pushed at `b003cdede`, CI run `28039910912` passed, and the live raw report was verified with JournalUniga markers. This docs slice records the latest oxjobs verification and sets residual-lane inspection as the next command.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
 Academic content harvesting API. Fetches HTML and PDFs from publisher websites via Zyte API, stores in Cloudflare R2 + DynamoDB.
@@ -44,18 +46,18 @@ Current goal state: HTML retrieval Phase 1 is complete at 9,583/10,000
 `good_pdf` on the PDF-expected subset of the 10K Goldie corpus. Use
 `GOAL.md` as the current control file and update it before long handoffs.
 Current PDF measurement gate: see the handoff block above. The accepted full
-gate is `taxicab-pdf-after-bmcmicrobiol-cache-b0db1fb`: 2,461/6,293
-`good_pdf` (39.11%), gap 3,518 rows on the legacy raw denominator, with three
+gate is `taxicab-pdf-after-journaluniga-cache-fc0be25`: 2,463/6,293
+`good_pdf` (39.14%), gap 3,516 rows on the legacy raw denominator, with two
 non-good-to-good transitions and zero good-to-non-good regressions, zero
 timeouts, and zero Taxicab errors.
 
-Latest #461 report publish is oxjobs commit `842202b5d`, which records the live
-queue-report verification after `a82c4e5f0` refreshed the public TRUE queue
-report. It keeps the 0-origin fixed 0-100 chart, reports draft public TRUE as
-2,461/2,518 (97.74%), and records the +3 accepted lift with 0 regressions,
-0 timeouts, and 0 Taxicab errors. The current handoff block above is
-authoritative; older BMC Gastroenterology and post-Wiley queue entries below are
-historical.
+Latest #461 report publish is oxjobs commit `b003cdede`, which records the
+JournalUniga accepted gate. It keeps the 0-origin fixed 0-100 chart, reports
+draft public TRUE as 2,463/2,519 (97.78%), and records the +2 accepted lift
+with 0 regressions, 0 timeouts, and 0 Taxicab errors. CI run `28039910912`
+passed and the live raw report was verified after retry. The current handoff
+block above is authoritative; older BMC Microbiology and post-Wiley queue
+entries below are historical.
 
 Prior `07f8b2044` publishes the SS Editora accepted recovery, full gate
 `pdf-full10k-after-sseditora-ac692df`, residual refresh
