@@ -57,6 +57,24 @@ DENOM_TRUE = "TRUE"
 DENOM_FALSE = "FALSE"
 DENOM_REVIEW = "REVIEW"
 
+EVIDENCE_CATEGORY_RANK = {
+    "good_pdf": 0,
+    "wrong_content_pdf": 10,
+    "supplement_or_preview_pdf": 20,
+    "corrupt_or_truncated_pdf": 30,
+    "encrypted_or_unreadable_pdf": 40,
+    "html_instead_of_pdf": 50,
+    "js_redirect_unresolved": 60,
+    "interstitial_or_paywall": 70,
+    "bot_block_403": 80,
+    "empty_response": 90,
+    "timeout": 100,
+    "provider_error": 110,
+    "taxicab_error": 120,
+    "missing_pdf_harvest": 130,
+    "no_pdf_expected": 140,
+}
+
 PDF_AVAILABILITY_FIELDS = (
     "DOI",
     "pdf_gold_status",
@@ -304,6 +322,7 @@ def label_pdf_availability(
     row: dict[str, Any],
     *,
     eval_row: dict[str, Any] | None = None,
+    evidence_row: dict[str, Any] | None = None,
     seed_label: dict[str, Any] | None = None,
     checked_at: str | None = None,
 ) -> PdfAvailabilityLabel:
@@ -318,8 +337,10 @@ def label_pdf_availability(
         return PdfAvailabilityLabel(**data)
 
     eval_row = eval_row or {}
+    evidence_row = evidence_row or {}
     category = str(eval_row.get("category") or "").strip()
-    url = row_pdf_url(eval_row) or row_pdf_url(row)
+    evidence_category = str(evidence_row.get("category") or "").strip()
+    url = row_pdf_url(evidence_row) or row_pdf_url(eval_row) or row_pdf_url(row)
     source_text = merged_text(row)
     text = source_text + " " + merged_text(eval_row)
     has_bot = truthy(row.get("Has Bot Check") or row.get("has_bot_check")) or category == "bot_block_403"
@@ -333,7 +354,102 @@ def label_pdf_availability(
         source_bits.append("pdf_url_present")
     if resolves_pdf:
         source_bits.append("resolves_to_pdf=true")
+    if evidence_category:
+        source_bits.append(f"provider_evidence_category={evidence_category}")
     source = "automation"
+
+    if evidence_category == "good_pdf":
+        return make_label(
+            doi=doi,
+            status=STATUS_OPEN_FULL_TEXT_PDF,
+            url=url,
+            access_type=ACCESS_NONE,
+            public=DENOM_TRUE,
+            all_known=DENOM_TRUE,
+            confidence=0.96,
+            evidence="; ".join(source_bits + ["provider/gold evidence validated PDF bytes/pages"]),
+            review_needed=False,
+            source=source,
+            checked_at=checked,
+        )
+
+    if evidence_category == "interstitial_or_paywall":
+        if not url:
+            return make_label(
+                doi=doi,
+                status=STATUS_NO_FULL_TEXT_PDF,
+                url="",
+                access_type=ACCESS_PAYWALL,
+                public=DENOM_FALSE,
+                all_known=DENOM_FALSE,
+                confidence=0.72,
+                evidence="; ".join(source_bits + ["provider/gold evidence saw paywall/interstitial but no concrete PDF URL"]),
+                review_needed=False,
+                source=source,
+                checked_at=checked,
+            )
+        return make_label(
+            doi=doi,
+            status=STATUS_PAYWALLED_OR_LOGIN,
+            url=url,
+            access_type=ACCESS_PAYWALL,
+            public=DENOM_FALSE,
+            all_known=DENOM_TRUE,
+            confidence=0.88,
+            evidence="; ".join(source_bits + ["provider/gold evidence saw HTML paywall/interstitial for candidate PDF URL"]),
+            review_needed=False,
+            source=source,
+            checked_at=checked,
+        )
+
+    if evidence_category in {"corrupt_or_truncated_pdf", "encrypted_or_unreadable_pdf", "wrong_pdf_content"}:
+        return make_label(
+            doi=doi,
+            status=STATUS_OPEN_FULL_TEXT_PDF,
+            url=url,
+            access_type=ACCESS_NONE,
+            public=DENOM_TRUE,
+            all_known=DENOM_TRUE,
+            confidence=0.76,
+            evidence="; ".join(source_bits + ["provider/gold evidence received PDF-like content but validation failed"]),
+            review_needed=False,
+            source=source,
+            checked_at=checked,
+        )
+
+    if evidence_category == "supplement_or_preview_pdf":
+        return make_label(
+            doi=doi,
+            status=STATUS_SUPPLEMENT_OR_PREVIEW,
+            url=url,
+            access_type=ACCESS_NONE,
+            public=DENOM_FALSE,
+            all_known=DENOM_FALSE,
+            confidence=0.88,
+            evidence="; ".join(source_bits + ["provider/gold evidence classified supplement or preview PDF"]),
+            review_needed=False,
+            source=source,
+            checked_at=checked,
+        )
+
+    if evidence_category in {"bot_block_403", "js_redirect_unresolved", "html_instead_of_pdf"}:
+        access = ACCESS_BOT_CHECK if evidence_category == "bot_block_403" else (
+            ACCESS_JS_REQUIRED if evidence_category == "js_redirect_unresolved" else ACCESS_UNKNOWN
+        )
+        return make_label(
+            doi=doi,
+            status=STATUS_UNCLEAR_REVIEW,
+            url=url,
+            access_type=access,
+            public=DENOM_REVIEW,
+            all_known=DENOM_REVIEW,
+            confidence=0.56,
+            evidence="; ".join(source_bits + ["provider/gold evidence still cannot prove public PDF availability"]),
+            review_needed=True,
+            review_reason="provider/gold evidence is still ambiguous for PDF availability",
+            source=source,
+            checked_at=checked,
+        )
 
     if category == "good_pdf":
         return make_label(
@@ -629,14 +745,44 @@ def read_eval_rows(path: Path) -> dict[str, dict[str, Any]]:
     return rows
 
 
+def read_evidence_rows(paths: Iterable[Path]) -> dict[str, dict[str, Any]]:
+    """Read provider/gold evidence rows and keep the best row per DOI.
+
+    Probe outputs usually contain multiple strategy rows for one DOI. The
+    evidence overlay should use the best observed category, not whichever line
+    happened to appear last in rows.ndjson.
+    """
+    rows: dict[str, dict[str, Any]] = {}
+    for path in paths:
+        if not path or not path.exists():
+            continue
+        if path.suffix.lower() == ".csv":
+            source_rows = read_csv_rows(path)
+        else:
+            with path.open(encoding="utf-8") as handle:
+                source_rows = [json.loads(line) for line in handle if line.strip()]
+        for row in source_rows:
+            doi = normalize_doi(row.get("doi") or row.get("DOI"))
+            if not doi:
+                continue
+            current = rows.get(doi)
+            category = str(row.get("category") or "")
+            current_category = str((current or {}).get("category") or "")
+            if current is None or EVIDENCE_CATEGORY_RANK.get(category, 999) < EVIDENCE_CATEGORY_RANK.get(current_category, 999):
+                rows[doi] = row
+    return rows
+
+
 def generate_availability_rows(
     corpus_rows: Iterable[dict[str, Any]],
     *,
     eval_rows_by_doi: dict[str, dict[str, Any]] | None = None,
+    evidence_rows_by_doi: dict[str, dict[str, Any]] | None = None,
     seed_by_doi: dict[str, dict[str, Any]] | None = None,
     checked_at: str | None = None,
 ) -> list[PdfAvailabilityLabel]:
     eval_rows_by_doi = eval_rows_by_doi or {}
+    evidence_rows_by_doi = evidence_rows_by_doi or {}
     seed_by_doi = seed_by_doi or {}
     checked = checked_at or utc_now()
     labels: list[PdfAvailabilityLabel] = []
@@ -648,6 +794,7 @@ def generate_availability_rows(
             label_pdf_availability(
                 row,
                 eval_row=eval_rows_by_doi.get(doi),
+                evidence_row=evidence_rows_by_doi.get(doi),
                 seed_label=seed_by_doi.get(doi),
                 checked_at=checked,
             )
@@ -863,6 +1010,7 @@ __all__ = [
     "normalize_doi",
     "read_csv_rows",
     "read_eval_rows",
+    "read_evidence_rows",
     "read_sidecar",
     "summarize_availability_sidecar",
     "summarize_public_true_failures",

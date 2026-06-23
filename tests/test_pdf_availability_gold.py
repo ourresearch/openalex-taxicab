@@ -15,6 +15,7 @@ from openalex_taxicab.pdf_availability_gold import (
     build_review_queue,
     generate_availability_rows,
     label_pdf_availability,
+    read_evidence_rows,
     read_sidecar,
     sanitize_url_for_artifact,
     summarize_public_true_failures,
@@ -145,6 +146,69 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
         self.assertEqual(label.pdf_gold_status, "unclear_needs_review")
         self.assertEqual(label.pdf_gold_include_in_public_denominator, DENOM_REVIEW)
         self.assertIn("raw expected PDF miss", label.pdf_gold_review_reason)
+
+    def test_provider_paywall_evidence_moves_missing_row_out_of_review(self):
+        label = label_pdf_availability(
+            {
+                "DOI": "10.5555/provider-paywall",
+                "PDF URL": "https://link.springer.com/content/pdf/10.5555/provider-paywall.pdf",
+            },
+            eval_row={
+                "doi": "10.5555/provider-paywall",
+                "category": "missing_pdf_harvest",
+            },
+            evidence_row={
+                "doi": "10.5555/provider-paywall",
+                "category": "interstitial_or_paywall",
+                "candidate_url": "https://link.springer.com/content/pdf/10.5555/provider-paywall.pdf",
+            },
+            checked_at="2026-06-23T00:00:00+00:00",
+        )
+        self.assertEqual(label.pdf_gold_status, "paywalled_or_login_pdf_available")
+        self.assertEqual(label.pdf_gold_include_in_public_denominator, DENOM_FALSE)
+        self.assertEqual(label.pdf_gold_include_in_all_known_pdf_denominator, DENOM_TRUE)
+        self.assertEqual(label.pdf_gold_review_needed, "FALSE")
+        self.assertIn("provider_evidence_category=interstitial_or_paywall", label.pdf_gold_evidence)
+
+    def test_provider_good_pdf_evidence_beats_raw_missing_row(self):
+        label = label_pdf_availability(
+            {
+                "DOI": "10.5555/provider-good",
+                "PDF URL": "https://example.org/full.pdf",
+            },
+            eval_row={
+                "doi": "10.5555/provider-good",
+                "category": "missing_pdf_harvest",
+            },
+            evidence_row={
+                "doi": "10.5555/provider-good",
+                "category": "good_pdf",
+                "candidate_url": "https://example.org/full.pdf",
+            },
+            checked_at="2026-06-23T00:00:00+00:00",
+        )
+        self.assertEqual(label.pdf_gold_status, "open_full_text_pdf_available")
+        self.assertEqual(label.pdf_gold_include_in_public_denominator, DENOM_TRUE)
+        self.assertEqual(label.pdf_gold_include_in_all_known_pdf_denominator, DENOM_TRUE)
+        self.assertEqual(label.pdf_gold_review_needed, "FALSE")
+
+    def test_read_evidence_rows_keeps_best_strategy_row_per_doi(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "rows.ndjson"
+            path.write_text(
+                "\n".join(
+                    [
+                        json.dumps({"doi": "10.5555/evidence", "category": "interstitial_or_paywall"}),
+                        json.dumps({"doi": "10.5555/evidence", "category": "good_pdf"}),
+                        json.dumps({"doi": "10.5555/other", "category": "bot_block_403"}),
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            rows = read_evidence_rows([path])
+        self.assertEqual(rows["10.5555/evidence"]["category"], "good_pdf")
+        self.assertEqual(rows["10.5555/other"]["category"], "bot_block_403")
 
     def test_seed_sidecar_label_is_reused(self):
         seed = {
