@@ -29,17 +29,28 @@ Private local review pack generated from the accepted queue: <code>/Users/shubh-
 
 Review-pack aggregate: <code>missing_pdf_harvest=246</code>, <code>html_instead_of_pdf=2</code>, <code>js_redirect_unresolved=1</code>, <code>bot_block_403=1</code>. Note classes in the pack are <code>goldie_content_approved_not_pdf_availability=133</code>, <code>no_existing_note=88</code>, <code>parseland_extraction_miss=14</code>, <code>needs_live_fetch=5</code>, <code>taxicab_html_harvest_missing=5</code>, <code>taxicab_download_error=4</code>, and <code>bot_check=1</code>. Top sampled hosts include <code>link.springer.com</code>, <code>onlinelibrary.wiley.com</code>, <code>degruyterbrill.com</code>, <code>journals.lww.com</code>, <code>sciencedirect.com</code>, <code>cambridge.org</code>, <code>academic.oup.com</code>, <code>papers.ssrn.com</code>, <code>jstor.org</code>, and <code>api.taylorfrancis.com</code>.
 
+Latest REVIEW evidence slice: private no-storage Zyte run <code>taylor-review-pack-provider5b-5e3e7f2</code> sampled <code>5</code> <code>api.taylorfrancis.com</code> rows from the private top-250 REVIEW pack. It recovered <code>0/5</code> valid PDFs; best category was <code>interstitial_or_paywall=5</code>. Private overlay output would move <code>5</code> rows from public REVIEW to FALSE and all-known REVIEW to TRUE, with <code>0</code> missing evidence DOI joins. Public aggregate asset <code>evidence/report461-taylor-review-provider-overlay-summary-5e3e7f2.json</code> is published in oxjobs #461 at commit <code>6d37af33f</code>, and the live raw report/asset were verified. Accepted sidecar counts remain unchanged until the private overlay is adopted.
+
 Denominator interpretation rule: <code>verdict=approved</code> remains REVIEW because it proves prior Goldie content extraction acceptance, not public PDF availability. Those rows need bounded provider/browser availability checks before becoming public TRUE, public FALSE, all-known TRUE, or out-of-scope.
 
-Next exact verification command:
+Next exact evidence command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 -m unittest discover -s tests
-python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-overlay
+python3 scripts/provider_pdf_probe.py \
+  --input /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-review-pack-top250.csv \
+  --category '' \
+  --host <next-review-pack-host> \
+  --limit 5 \
+  --strategies all \
+  --out /tmp/taxicab-pdf-review-provider-probes \
+  --run-id <host>-review-pack-provider5-<taxicab-sha> \
+  --env-file .env \
+  --timeout 45 \
+  --sleep 0.5
 ```
 
-Next reporting action after branch push: update oxjobs #461 to document the aggregate-safe overlay mode and exact private commands. Publish only aggregate summaries; keep raw DOI rows, raw URLs, Browserbase JSON, session IDs, screenshots, signed URLs, and HTML out of public artifacts.
+After the provider run, use the overlay command above, inspect aggregate transitions, and publish only aggregate summaries. Keep raw DOI rows, raw URLs, Browserbase JSON, session IDs, screenshots, signed URLs, and HTML out of public artifacts. Verification before any Taxicab commit remains <code>python3 -m unittest discover -s tests</code>, PDF fixture smoke, <code>git diff --check</code>, and tracked-file secret scan.
 
 Current blocker: denominator review. The provisional public TRUE metric is above 95%, but the <code>/goal</code> is not complete while <code>3,079</code> REVIEW rows remain.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
@@ -55,13 +66,14 @@ Current PDF metric: see the handoff block above. The accepted full gate is
 non-good-to-good transition and zero good-to-non-good regressions, zero
 timeouts, and zero Taxicab errors.
 
-Latest #461 report publish is oxjobs commit `f1cfd2790`, which records the
-Cambridge bounded recovery and full 10K gate. It keeps the 0-origin fixed
-0-100 chart, reports draft public TRUE as 2,464/2,514 (98.01%), and records
-the remaining 3,079 REVIEW rows. CI run `28049928235` passed; the live raw
-report and new JSON asset were verified after retry. The current handoff block
-above is authoritative; older BMC Microbiology and post-Wiley queue entries
-below are historical.
+Latest #461 report publish is oxjobs commit `6d37af33f`, which records the
+Taylor & Francis five-row REVIEW evidence slice as aggregate-only denominator
+evidence. It keeps the Cambridge full gate as the accepted metric, keeps the
+0-origin fixed 0-100 chart, reports draft public TRUE as 2,464/2,514 (98.01%),
+and records the remaining 3,079 REVIEW rows. CI run `28059075293` passed; the
+live raw report and new aggregate JSON asset were verified after cache retry.
+The current handoff block above is authoritative; older BMC Microbiology and
+post-Wiley queue entries below are historical.
 
 Prior `07f8b2044` publishes the SS Editora accepted recovery, full gate
 `pdf-full10k-after-sseditora-ac692df`, residual refresh
