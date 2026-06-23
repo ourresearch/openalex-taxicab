@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import html
 import json
+import math
 import re
 from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass
@@ -17,6 +18,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 from urllib.parse import urlparse
+
+from openalex_taxicab.pdf_availability_gold import DENOM_FALSE, DENOM_REVIEW, DENOM_TRUE, normalize_doi
 
 
 PDF_CATEGORY_GOOD_PDF = "good_pdf"
@@ -817,6 +820,8 @@ def summarize_pdf_rows(
     corpus_path: str = "",
     corpus_sha1: str = "",
     git_sha: str = "",
+    pdf_availability_by_doi: dict[str, dict[str, Any]] | None = None,
+    pdf_availability_source: str = "",
 ) -> dict[str, Any]:
     row_list = list(rows)
     total = len(row_list)
@@ -827,11 +832,50 @@ def summarize_pdf_rows(
     pdf_expected_total = total - category_counts.get(PDF_CATEGORY_NO_PDF_EXPECTED, 0)
     good = category_counts.get(PDF_CATEGORY_GOOD_PDF, 0)
     non_good_expected = max(0, pdf_expected_total - good)
+    raw_good_pdf_rate = round(good / pdf_expected_total, 6) if pdf_expected_total else 0
+    availability_by_doi = pdf_availability_by_doi or {}
+    availability_matched = 0
+    public_denominator_total = 0
+    public_good = 0
+    all_known_denominator_total = 0
+    all_known_good = 0
+    pdf_gold_false_total = 0
+    pdf_gold_review_total = 0
+    excluded_by_pdf_gold_status: Counter[str] = Counter()
+    availability_public_counts: Counter[str] = Counter()
+    availability_all_known_counts: Counter[str] = Counter()
     publisher_matrix: dict[str, Counter] = defaultdict(Counter)
     host_matrix: dict[str, Counter] = defaultdict(Counter)
     for row in row_list:
         publisher_matrix[row.publisher or "unknown"][row.category] += 1
         host_matrix[row.host or "unknown"][row.category] += 1
+        label = availability_by_doi.get(normalize_doi(row.doi))
+        if not label:
+            continue
+        availability_matched += 1
+        public_decision = str(label.get("pdf_gold_include_in_public_denominator") or "").strip().upper()
+        all_known_decision = str(label.get("pdf_gold_include_in_all_known_pdf_denominator") or "").strip().upper()
+        status = str(label.get("pdf_gold_status") or "unknown")
+        availability_public_counts[public_decision or "missing"] += 1
+        availability_all_known_counts[all_known_decision or "missing"] += 1
+        if public_decision == DENOM_TRUE:
+            public_denominator_total += 1
+            if row.category == PDF_CATEGORY_GOOD_PDF:
+                public_good += 1
+        elif public_decision == DENOM_FALSE:
+            pdf_gold_false_total += 1
+            excluded_by_pdf_gold_status[status] += 1
+        elif public_decision == DENOM_REVIEW:
+            pdf_gold_review_total += 1
+        if all_known_decision == DENOM_TRUE:
+            all_known_denominator_total += 1
+            if row.category == PDF_CATEGORY_GOOD_PDF:
+                all_known_good += 1
+    public_good_pdf_rate = round(public_good / public_denominator_total, 6) if public_denominator_total else None
+    all_known_good_pdf_rate = round(all_known_good / all_known_denominator_total, 6) if all_known_denominator_total else None
+    gap_to_95_public = (
+        max(0, math.ceil(0.95 * public_denominator_total) - public_good) if public_denominator_total else None
+    )
     return {
         "run_id": run_id,
         "timestamp_utc": utc_now(),
@@ -844,7 +888,27 @@ def summarize_pdf_rows(
         "pdf_expected_total": pdf_expected_total,
         "good_pdf": good,
         "non_good_expected": non_good_expected,
-        "good_pdf_rate": round(good / pdf_expected_total, 6) if pdf_expected_total else 0,
+        "good_pdf_rate": raw_good_pdf_rate,
+        "raw_pdf_candidate_total": pdf_expected_total,
+        "raw_good_pdf": good,
+        "raw_good_pdf_rate": raw_good_pdf_rate,
+        "public_pdf_denominator_total": public_denominator_total if availability_by_doi else None,
+        "public_good_pdf": public_good if availability_by_doi else None,
+        "public_good_pdf_rate": public_good_pdf_rate,
+        "all_known_pdf_denominator_total": all_known_denominator_total if availability_by_doi else None,
+        "all_known_good_pdf": all_known_good if availability_by_doi else None,
+        "all_known_good_pdf_rate": all_known_good_pdf_rate,
+        "pdf_gold_false_total": pdf_gold_false_total if availability_by_doi else None,
+        "pdf_gold_review_total": pdf_gold_review_total if availability_by_doi else None,
+        "excluded_by_pdf_gold_status": dict(sorted(excluded_by_pdf_gold_status.items())) if availability_by_doi else {},
+        "pdf_gold_public_decision_counts": dict(sorted(availability_public_counts.items())) if availability_by_doi else {},
+        "pdf_gold_all_known_decision_counts": dict(sorted(availability_all_known_counts.items()))
+        if availability_by_doi
+        else {},
+        "pdf_gold_sidecar_source": pdf_availability_source,
+        "pdf_gold_sidecar_total": len(availability_by_doi),
+        "pdf_gold_matched_total": availability_matched if availability_by_doi else 0,
+        "gap_to_95_public_rows": gap_to_95_public,
         "target_good_pdf_rate": 0.95,
         "stretch_good_pdf_rate": 0.98,
         "gap_to_95_rows": max(0, int((0.95 * pdf_expected_total + 0.999999) // 1) - good)
@@ -903,21 +967,49 @@ def render_pdf_html_report(summary: dict[str, Any], hardness: dict[str, Any]) ->
     rate = summary.get("good_pdf_rate", 0) * 100
     gap = summary.get("gap_to_95_rows", 0)
     categories = summary.get("category_counts", {})
+    public_total = summary.get("public_pdf_denominator_total")
+    public_good = summary.get("public_good_pdf")
+    public_rate = summary.get("public_good_pdf_rate")
+    public_gap = summary.get("gap_to_95_public_rows")
+
+    def clean(value: Any) -> str:
+        text = str(value or "")
+        text = "".join(ch if ch == "\n" or ch == "\t" or ord(ch) >= 32 else " " for ch in text)
+        return html.escape(re.sub(r"\s+", " ", text).strip())
 
     category_rows = "\n".join(
-        f"<tr><td><code>{html.escape(category)}</code></td><td>{count}</td></tr>"
+        f"<tr><td><code>{clean(category)}</code></td><td>{count}</td></tr>"
         for category, count in sorted(categories.items(), key=lambda item: (-item[1], item[0]))
     )
+    gold_block = ""
+    if public_total is not None:
+        excluded_rows = "\n".join(
+            f"<tr><td><code>{clean(status)}</code></td><td>{count}</td></tr>"
+            for status, count in sorted(
+                summary.get("excluded_by_pdf_gold_status", {}).items(), key=lambda item: (-item[1], item[0])
+            )
+        )
+        public_rate_text = f"{public_rate * 100:.2f}%" if public_rate is not None else "n/a"
+        gold_block = f"""
+<h2>Gold Denominator</h2>
+<p>The raw metric is still reported, but the primary PDF target should use the reviewed public-retrievable denominator when the sidecar is supplied.</p>
+<div class="metric"><span>public_pdf_denominator_total</span><strong>{public_total}</strong></div>
+<div class="metric"><span>public_good_pdf</span><strong>{public_good}</strong></div>
+<div class="metric"><span>public_good_pdf_rate</span><strong>{public_rate_text}</strong></div>
+<div class="metric"><span>gap_to_95_public_rows</span><strong>{public_gap}</strong></div>
+<h3>Excluded By Gold Status</h3>
+<table><thead><tr><th>Status</th><th>Rows</th></tr></thead><tbody>{excluded_rows}</tbody></table>
+"""
     example_rows = []
     for category, examples in hardness.get("categories", {}).items():
         for example in examples[:5]:
             example_rows.append(
                 "<tr>"
-                f"<td><code>{html.escape(category)}</code></td>"
-                f"<td>{html.escape(example.get('publisher') or '')}</td>"
-                f"<td>{html.escape(example.get('host') or '')}</td>"
-                f"<td>{html.escape(example.get('doi') or '')}</td>"
-                f"<td>{html.escape(example.get('evidence_snippet') or '')}</td>"
+                f"<td><code>{clean(category)}</code></td>"
+                f"<td>{clean(example.get('publisher'))}</td>"
+                f"<td>{clean(example.get('host'))}</td>"
+                f"<td>{clean(example.get('doi'))}</td>"
+                f"<td>{clean(example.get('evidence_snippet'))}</td>"
                 "</tr>"
             )
     return f"""<!doctype html>
@@ -940,6 +1032,7 @@ th{{background:#f1f5f9}}code{{font-size:12px}}.metric{{display:inline-block;marg
 <div class="metric"><span>good_pdf</span><strong>{good}</strong></div>
 <div class="metric"><span>good_pdf_rate</span><strong>{rate:.2f}%</strong></div>
 <div class="metric"><span>gap_to_95_rows</span><strong>{gap}</strong></div>
+{gold_block}
 <h2>Category Counts</h2>
 <table><thead><tr><th>Category</th><th>Rows</th></tr></thead><tbody>{category_rows}</tbody></table>
 <h2>Hardness Examples</h2>
@@ -959,6 +1052,8 @@ def write_pdf_artifacts(
     corpus_path: str = "",
     corpus_sha1: str = "",
     git_sha: str = "",
+    pdf_availability_by_doi: dict[str, dict[str, Any]] | None = None,
+    pdf_availability_source: str = "",
 ) -> dict[str, Path]:
     run_dir.mkdir(parents=True, exist_ok=True)
     row_list = list(rows)
@@ -974,6 +1069,8 @@ def write_pdf_artifacts(
         corpus_path=corpus_path,
         corpus_sha1=corpus_sha1,
         git_sha=git_sha,
+        pdf_availability_by_doi=pdf_availability_by_doi,
+        pdf_availability_source=pdf_availability_source,
     )
     hardness = build_pdf_hardness(row_list)
     summary_path = run_dir / "summary.json"

@@ -42,6 +42,7 @@ from openalex_taxicab.pdf_eval_harness import (  # noqa: E402
     read_pdf_rows_ndjson,
     write_pdf_artifacts,
 )
+from openalex_taxicab.pdf_availability_gold import read_sidecar  # noqa: E402
 from openalex_taxicab.publisher_index import classify_row as classify_publisher  # noqa: E402
 from scripts.taxicab_eval import TaxicabClient, create_browserbase_session, release_browserbase_session  # noqa: E402
 
@@ -991,6 +992,7 @@ def run_live(args: argparse.Namespace, run_id: str) -> int:
                         print(f"{idx}/{len(rows_to_run)} {result.category} {result.doi}")
 
     final_rows = list(latest_pdf_row_by_doi(completed).values())
+    pdf_availability_by_doi = read_sidecar(Path(args.pdf_availability_sidecar)) if args.pdf_availability_sidecar else None
     write_pdf_artifacts(
         final_rows,
         run_dir,
@@ -1000,6 +1002,8 @@ def run_live(args: argparse.Namespace, run_id: str) -> int:
         corpus_path=corpus_label,
         corpus_sha1=corpus_sha,
         git_sha=git_sha(),
+        pdf_availability_by_doi=pdf_availability_by_doi,
+        pdf_availability_source=str(args.pdf_availability_sidecar or ""),
     )
     print(f"wrote {len(final_rows)} rows to {run_dir}")
     return 0
@@ -1026,6 +1030,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--browserbase-mode", choices=["fetch", "session"], default="session")
     parser.add_argument("--browserbase-timeout", type=float, default=60)
     parser.add_argument("--env-file", help="Optional env file for Browserbase credentials; defaults to repo .env when --with-browserbase is set")
+    parser.add_argument("--pdf-availability-sidecar", help="Optional PDF availability sidecar CSV for gold-denominator summary metrics")
     parser.add_argument("--reharvest", action="store_true")
     parser.add_argument("--progress-every", type=int, default=25)
     return parser
