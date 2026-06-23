@@ -1,29 +1,29 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-23 BMC Gastroenterology Evidence Published
+## Current PDF Handoff: 2026-06-23 BMC Microbiology Full Gate Accepted
 
-Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab `main` at `8b36486`. The sidecar/evidence branch is `codex/taxicab-pdf-gold-availability` at `b893332` before this docs update. The latest accepted full 10K read-only gate is still `taxicab-pdf-after-wiley-row1-cache-clean-3b2933f`: `2,458/6,293 good_pdf` (`39.06%`) on the legacy guessed-PDF denominator, `+1` versus the prior accepted gate and `+621` versus the first measured denominator reference of `1,837/6,293` (`29.19%`). The legacy raw 95% target is `5,979/6,293`, so the raw-denominator gap is `3,521` rows. The accepted gate had `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors. Category movement was `corrupt_or_truncated_pdf -1` and `good_pdf +1`. The first attempted full gate after Wiley row1 was rejected because one prior good row transiently timed out; the clean rerun is the accepted gate.
+Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab `main` at `8b36486`. The sidecar/evidence branch is `codex/taxicab-pdf-gold-availability` at `b0db1fb` before this docs update. The latest accepted full 10K read-only gate is `taxicab-pdf-after-bmcmicrobiol-cache-b0db1fb`: `2,461/6,293 good_pdf` (`39.11%`) on the legacy guessed-PDF denominator, `+3` versus the prior accepted gate and `+624` versus the first measured denominator reference of `1,837/6,293` (`29.19%`). The legacy raw 95% target is `5,979/6,293`, so the raw-denominator gap is `3,518` rows. The accepted gate had `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors. Category movement versus the prior accepted full gate was `missing_pdf_harvest -2`, `corrupt_or_truncated_pdf -1`, and `good_pdf +3`.
 
-Important denominator update: the `6,293` denominator is a legacy guessed-PDF-candidate denominator, not proof that every row has a public full-text PDF. Phase A sidecars label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie.csv` as a 100-row seed; Phase B sidecars label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv` for the full 10K. The refreshed draft full-corpus sidecar counts are public TRUE `2,516`, public FALSE `3,680`, REVIEW `3,804`, and all-known TRUE `2,522`. The draft public TRUE metric is now `2,458/2,516` (`97.69%`), but this is provisional and does not complete the goal until the `3,804` REVIEW rows are resolved or explicitly scoped.
+Important denominator update: the `6,293` denominator is a legacy guessed-PDF-candidate denominator, not proof that every row has a public full-text PDF. Phase A sidecars label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie.csv` as a 100-row seed; Phase B sidecars label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv` for the full 10K. The refreshed draft full-corpus sidecar counts are public TRUE `2,514`, public FALSE `3,680`, REVIEW `3,806`, and all-known TRUE `2,520`. The draft public TRUE metric is now `2,457/2,514` (`97.73%`), but this is provisional and does not complete the goal until the `3,806` REVIEW rows are resolved or explicitly scoped.
 
 Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose top scale is `100%`, and whose `95%` target line remains visible. Plot only accepted 6,293-denominator full gates after the zero origin. Do not restore any zoomed 29-39% y-axis.
 
-Latest oxjobs #461 report state: `5c9c0f275 #461 taxicab-pdf: publish bmcgastroenterol evidence` is pushed to `origin/main`, CI run `28025517290` passed, and the live raw report was verified. The report includes the prior scrubbed Wiley provider/production mismatch packet, `evidence/report461-publictrue-smallbatch-after-wiley-summary-f64ca35.json`, `evidence/report461-biodiversitylibrary-publictrue-summary-fa4d7b8.json`, and `evidence/report461-bmcgastroenterol-publictrue-summary-b893332.json`.
+Latest oxjobs #461 report state: `6df204001 #461 taxicab-pdf: accept bmc microbiology gate` is pushed to `origin/main`, CI run `28033501276` passed, and the live raw report was verified. The report includes `evidence/report461-full10k-after-bmcmicrobiol-summary-b0db1fb.json` plus the prior scrubbed Wiley provider/production mismatch packet, Biodiversity Library, and BMC Gastroenterology evidence.
 
-Where the next safe retrieval work is: draft public TRUE non-good rows are still `58`; no accepted KPI movement came from the latest evidence. Wiley remains blocked on provider recipe: no-storage `5/22`, bounded production reharvest `0/5`. The post-Wiley non-Wiley batch showed Hindawi `0/2`, Springer `0/2`, OUP `0/1`, Science Advances `1/1` no-storage but `0/1` durable reharvest, `ios.is.pcz.pl` `0/1`, Biodiversity Library `0/1`, and BioMed Central/BMC Gastroenterology `0/1` with HTML instead of PDF. This is provider/production-path evidence, not route-code promotion.
+Where the next safe retrieval work is: draft public TRUE non-good rows are now `57`: `corrupt_or_truncated_pdf=52`, `encrypted_or_unreadable_pdf=4`, and `missing_pdf_harvest=1`. Top residual hosts are `onlinelibrary.wiley.com` 18, `unknown` 10, `jstage.jst.go.jp` 5, `journals.sagepub.com` 4, `downloads.hindawi.com` 2, plus singletons. Do not reharvest Wiley, Science Advances, Biodiversity Library, BMC Gastroenterology, or BMC Microbiology again until Zyte gives a concrete provider recipe or new residual evidence exists.
 
 Next exact command:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input /tmp/taxicab-pdf-public-true-failures-after-wiley-row1-cache.csv --category '' --host bmcmicrobiol.biomedcentral.com --limit 1 --strategies default_body,accept_pdf,google_referer,browser_html --out /tmp/taxicab-pdf-probes --run-id bmcmicrobiol-publictrue-residual1-after-bmcgastro-$(git rev-parse --short HEAD) --env-file .env --timeout 60 --sleep 0.5
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/pdf_availability_gold.py --corpus /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv --out /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv --review-queue /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-review-queue.csv --eval-rows /tmp/taxicab-pdf-after-bmcmicrobiol-cache-gate/taxicab-pdf-after-bmcmicrobiol-cache-b0db1fb/rows.ndjson --summary-json /tmp/taxicab-pdf-availability-after-bmcmicrobiol-summary.json --public-true-failures-out /tmp/taxicab-pdf-public-true-failures-after-bmcmicrobiol-cache.csv --public-true-failures-summary-json /tmp/taxicab-pdf-public-true-failures-after-bmcmicrobiol-cache-summary.json
 ```
 
-Use no-storage provider probes first. Only run bounded reharvest if a lane returns valid PDF bytes; do not reharvest Wiley, Science Advances, Biodiversity Library, or BMC Gastroenterology again until Zyte gives a concrete recipe or provider guidance.
+Refresh the post-BMC public TRUE queue before choosing another lane. Use no-storage provider probes first. Only run bounded reharvest if a lane returns valid PDF bytes and the targeted read-only proof says it is still a Taxicab-side recoverable residual.
 
 Current blocker: denominator review plus remaining public TRUE provider/validator tails, not a broad Taxicab runtime failure. Continue retrieval work only for `pdf_gold_include_in_public_denominator=TRUE AND latest_taxicab_category != good_pdf`; keep public FALSE and REVIEW rows separate.
 
-Latest commit/push status before this handoff update: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar branch is pushed at `b893332`; oxjobs `main` is pushed at `5c9c0f275` and live-verified. This docs slice records the BMC Gastroenterology provider-negative evidence and sets `bmcmicrobiol.biomedcentral.com` as the next one-row provider probe.
+Latest commit/push status before this handoff update: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar branch is pushed at `b0db1fb`; oxjobs `main` is pushed at `6df204001` and live-verified. This docs slice records the BMC Microbiology accepted full gate and sets the post-BMC public TRUE queue refresh as the next command.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
 Last updated: 2026-06-23 UTC.
@@ -40,11 +40,11 @@ HTML Phase 1: complete, target hit at 9,583/10,000 good_html (95.83%).
 PDF Phase 2 /goal: active, target >=95% good_pdf on pdf_expected_total.
 
 Current handoff override: accepted full 10K PDF gate
-`taxicab-pdf-after-wiley-row1-cache-clean-3b2933f` is 2,458/6,293
-`good_pdf` (39.06%), +1 versus the prior accepted public TRUE cache gate and
-+621 versus the first measured denominator reference. It has 0 timeout,
+`taxicab-pdf-after-bmcmicrobiol-cache-b0db1fb` is 2,461/6,293
+`good_pdf` (39.11%), +3 versus the prior accepted public TRUE cache gate and
++624 versus the first measured denominator reference. It has 0 timeout,
 0 `taxicab_error`, and 0 good-to-non-good regressions. Draft public TRUE is
-2,458/2,516 (97.69%) but provisional until 3,804 REVIEW rows are resolved. The
+2,457/2,514 (97.73%) but provisional until 3,806 REVIEW rows are resolved. The
 current handoff block above is authoritative; older entries below are
 historical.
 Older entries including Revistas, Revmed/PLOS, OSTI/PLOS, provider snapshots,
