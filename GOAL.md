@@ -9,19 +9,19 @@ Important denominator update: the `6,293` denominator is a legacy guessed-PDF-ca
 
 Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose top scale is `100%`, and whose `95%` target line remains visible. Plot only accepted 6,293-denominator full gates after the zero origin. Do not restore any zoomed 29-39% y-axis.
 
-Latest oxjobs #461 report state: `882ea0d8e #461 taxicab-pdf: publish sage public-true evidence` is pushed to `origin/main` and CI passed. The live raw route can lag the git push; the repo artifact shows the raw legacy metric, denominator audit, `Where The PDF Gap Is`, the draft public TRUE failure targets, Wiley support evidence, ACS targeted recovery, and SAGE partial targeted recovery.
+Latest oxjobs #461 report state: `6814e8253 #461 taxicab-pdf: publish jstage public-true evidence` is pushed to `origin/main`; CI was queued at handoff time. The repo artifact shows the raw legacy metric, denominator audit, `Where The PDF Gap Is`, the draft public TRUE failure targets, Wiley support evidence, ACS targeted recovery, SAGE partial targeted recovery, and J-STAGE encrypted-PDF validation evidence.
 
-Where the next safe retrieval work is: draft public TRUE non-good rows total `69` in the exported pre-recovery queue. Wiley / `onlinelibrary.wiley.com` recovered `0/5` in no-storage provider probing and stays an Envoy-Zyte support lane. ACS / `pubs.acs.org` recovered `5/5` in provider probing, then bounded reharvest recovered all `8/8`, and final read-only confirmation preserved `8/8`. SAGE-hosted / `journals.sagepub.com` recovered `2/7` in provider probing; bounded reharvest and read-only confirmation preserved the `2/2` recoverable subset, while the other `5/7` rows remain provider-support evidence. Treat ACS and SAGE as targeted-complete pending the next full 10K gate. The next non-duplicate public TRUE target is J-STAGE / `jstage.jst.go.jp` (`5` encrypted_or_unreadable rows).
+Where the next safe retrieval work is: draft public TRUE non-good rows total `69` in the exported pre-recovery queue. Wiley / `onlinelibrary.wiley.com` recovered `0/5` in no-storage provider probing and stays an Envoy-Zyte support lane. ACS / `pubs.acs.org` recovered `5/5`; bounded reharvest/read-only preserved `8/8`. SAGE-hosted / `journals.sagepub.com` recovered `2/7`; bounded reharvest/read-only preserved the `2/2` recoverable subset, while the other `5/7` rows remain provider-support evidence. J-STAGE / `jstage.jst.go.jp` recovered `0/5`; four rows remain encrypted/unreadable with page counts and one is HTML-not-PDF. Treat ACS and SAGE as targeted-complete pending the next full 10K gate; treat Wiley/J-STAGE residuals as support/policy lanes.
 
 Next exact command:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input /tmp/taxicab-pdf-public-true-failures.csv --category '' --host jstage.jst.go.jp --limit 5 --strategies default_body,accept_pdf,google_referer,browser_html --out /tmp/taxicab-pdf-probes --run-id jstage-publictrue-encrypted-probe5-b98c9d7 --env-file .env
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --out /tmp/taxicab-pdf-after-publictrue-cache-gate --run-id taxicab-pdf-after-publictrue-cache-3c77bdf
 ```
 
 Current blocker: denominator review, not Taxicab runtime. Continue retrieval work only for `pdf_gold_include_in_public_denominator=TRUE AND latest_taxicab_category != good_pdf`; keep public FALSE and REVIEW rows separate.
 
-Latest commit/push status: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar tooling branch `codex/taxicab-pdf-gold-availability` is pushed at `b98c9d7`; oxjobs `main` is pushed at `882ea0d8e`. This current docs slice records SAGE partial targeted completion and sets J-STAGE as the next public TRUE evidence command.
+Latest commit/push status: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar tooling branch `codex/taxicab-pdf-gold-availability` is pushed at `3c77bdf`; oxjobs `main` is pushed at `6814e8253`. This current docs slice records J-STAGE provider/validator evidence and sets the full 10K gate as the next command.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
 Last updated: 2026-06-23 UTC.
