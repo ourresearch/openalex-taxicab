@@ -3,7 +3,7 @@
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
 ## Current PDF Handoff: 2026-06-23 REVIEW Pack, Overlay Mode, And Denominator Audit
 
-Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab <code>main</code> at <code>8b36486</code>. The active sidecar/evidence branch is <code>codex/taxicab-pdf-gold-availability</code>, currently pushed at <code>c14dd0c</code> before this LWW handoff refresh. This branch is for PDF availability/gold-denominator tooling and evidence artifacts only; it does not change production scraping, R2, DynamoDB, or Taxicab storage behavior.
+Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab <code>main</code> at <code>8b36486</code>. The active sidecar/evidence branch is <code>codex/taxicab-pdf-gold-availability</code>, currently pushed at <code>b1c0a0b</code> before this SPIE handoff refresh. This branch is for PDF availability/gold-denominator tooling and evidence artifacts only; it does not change production scraping, R2, DynamoDB, or Taxicab storage behavior.
 
 Latest accepted full 10K read-only gate remains <code>taxicab-pdf-after-cambridge-cache-6386430</code>: <code>2,464/6,293 good_pdf</code> (<code>39.15%</code>) on the legacy guessed-PDF denominator, <code>+1</code> versus the prior JournalUniga gate and <code>+627</code> versus the first measured denominator reference of <code>1,837/6,293</code> (<code>29.19%</code>). The legacy raw 95% target is <code>5,979/6,293</code>, so the raw-denominator gap is <code>3,515</code> rows. The accepted gate had <code>0</code> good-to-non-good regressions, <code>0</code> timeouts, and <code>0</code> Taxicab errors.
 
@@ -37,7 +37,9 @@ Latest positive REVIEW evidence slice: private no-storage Zyte run <code>acs-rev
 
 Prior no-movement REVIEW evidence slice: private no-storage Zyte run <code>degruyter-review-pack-provider5-3aad3d4</code> sampled <code>5</code> <code>degruyterbrill.com</code> rows from the private top-250 REVIEW pack. It recovered <code>0/5</code> valid PDFs; best category was <code>js_redirect_unresolved=5</code>. Private overlay joined all five rows but made <code>0</code> status or denominator changes, so these rows stay REVIEW. Public aggregate asset <code>evidence/report461-degruyter-review-provider-overlay-summary-3aad3d4.json</code> is published in oxjobs #461 at commit <code>9f6e08ec6</code>, and the live raw report/asset were verified after cache retry.
 
-Latest no-movement REVIEW evidence slice: private no-storage Zyte run <code>lww-review-pack-provider5-c14dd0c</code> sampled <code>5</code> <code>journals.lww.com</code> rows from the private top-250 REVIEW pack. It recovered <code>0/5</code> valid PDFs; best category was <code>js_redirect_unresolved=5</code>, with PDF-byte strategies mostly returning <code>bot_block_403</code>. Private overlay joined all five rows but made <code>0</code> status or denominator changes, so these rows stay REVIEW. Public aggregate asset <code>evidence/report461-lww-review-provider-overlay-summary-c14dd0c.json</code> is published in oxjobs #461 at commit <code>56010bb68</code>, and the live raw report/asset were verified after cache retry.
+Prior no-movement REVIEW evidence slice: private no-storage Zyte run <code>lww-review-pack-provider5-c14dd0c</code> sampled <code>5</code> <code>journals.lww.com</code> rows from the private top-250 REVIEW pack. It recovered <code>0/5</code> valid PDFs; best category was <code>js_redirect_unresolved=5</code>, with PDF-byte strategies mostly returning <code>bot_block_403</code>. Private overlay joined all five rows but made <code>0</code> status or denominator changes, so these rows stay REVIEW. Public aggregate asset <code>evidence/report461-lww-review-provider-overlay-summary-c14dd0c.json</code> is published in oxjobs #461 at commit <code>56010bb68</code>, and the live raw report/asset were verified after cache retry.
+
+Latest no-movement REVIEW evidence slice: private no-storage Zyte run <code>spie-review-pack-provider5-b1c0a0b</code> sampled <code>5</code> <code>spiedigitallibrary.org</code> rows from the private top-250 REVIEW pack. It recovered <code>0/5</code> valid PDFs; best categories were <code>empty_response=3</code> and <code>js_redirect_unresolved=2</code>. Private overlay joined all five rows but made <code>0</code> status or denominator changes, so these rows stay REVIEW. Public aggregate asset <code>evidence/report461-spie-review-provider-overlay-summary-b1c0a0b.json</code> is published in oxjobs #461 at commit <code>b8005f79f</code>, and the live raw report/asset were verified after cache retry.
 
 Denominator interpretation rule: <code>verdict=approved</code> remains REVIEW because it proves prior Goldie content extraction acceptance, not public PDF availability. Those rows need bounded provider/browser availability checks before becoming public TRUE, public FALSE, all-known TRUE, or out-of-scope.
 
@@ -75,11 +77,11 @@ gate is `taxicab-pdf-after-cambridge-cache-6386430`: 2,464/6,293
 non-good-to-good transitions and zero good-to-non-good regressions, zero
 timeouts, and zero Taxicab errors.
 
-Latest #461 report publish is oxjobs commit `56010bb68`, which records the
-Lippincott/Wolters Kluwer five-row REVIEW evidence slice as aggregate-only no-movement
+Latest #461 report publish is oxjobs commit `b8005f79f`, which records the
+SPIE five-row REVIEW evidence slice as aggregate-only no-movement
 denominator evidence. It keeps the Cambridge full gate as the accepted metric, keeps the
 0-origin fixed 0-100 chart, reports draft public TRUE as 2,464/2,514 (98.01%),
-and records the remaining 3,079 REVIEW rows. CI run `28061142819` passed; the
+and records the remaining 3,079 REVIEW rows. CI run `28061779011` passed; the
 live raw report and new aggregate JSON asset were verified after cache retry.
 The current handoff block above is authoritative; older BMC Microbiology and
 post-Wiley queue entries below are historical.
