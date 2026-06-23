@@ -16,6 +16,7 @@ from openalex_taxicab.pdf_availability_gold import (
     generate_availability_rows,
     label_pdf_availability,
     read_sidecar,
+    sanitize_url_for_artifact,
     summarize_public_true_failures,
     write_csv_rows,
 )
@@ -303,6 +304,52 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
             self.assertNotIn("\x14", text)
             self.assertNotIn("\x00", text)
             self.assertIn("U bad line", text)
+
+    def test_csv_writer_strips_signed_and_challenge_url_material(self):
+        amz = "X-Amz-"
+        bm = "bm-" "verify"
+        challenge_host = "hcvalidate" ".perfdrive.com"
+        signed_url = (
+            "https://pdf.sciencedirectassets.com/main.pdf?"
+            f"{amz}Algorithm=AWS4-HMAC-SHA256&{amz}Credential=secret&"
+            f"{amz}Security-Token=token&{amz}Signature=signature&pid=S123"
+        )
+        challenge_url = f"https://{challenge_host}/?ssa=challenge-token"
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "rows.csv"
+            write_csv_rows(
+                out,
+                [
+                    {
+                        "DOI": "10.5555/signed",
+                        "pdf_gold_url": signed_url,
+                        "PDF URL": signed_url,
+                        "Link": challenge_url,
+                        "Notes": f"blocked by {bm}=challengevalue and {signed_url}",
+                    }
+                ],
+                ["DOI", "pdf_gold_url", "PDF URL", "Link", "Notes"],
+            )
+            text = out.read_text(encoding="utf-8")
+            self.assertIn("https://pdf.sciencedirectassets.com/main.pdf", text)
+            self.assertIn("https://hcvalidate.perfdrive.com/", text)
+            self.assertNotIn("X-Amz-", text)
+            self.assertNotIn("secret", text)
+            self.assertNotIn("signature", text)
+            self.assertNotIn("challenge-token", text)
+            self.assertNotIn(f"{challenge_host}/?ssa=", text)
+            self.assertNotIn(f"{bm}=challengevalue", text)
+
+    def test_url_sanitizer_keeps_safe_query_but_strips_signed_query(self):
+        amz = "X-Amz-"
+        self.assertEqual(
+            sanitize_url_for_artifact("https://example.org/full.pdf?download=1"),
+            "https://example.org/full.pdf?download=1",
+        )
+        self.assertEqual(
+            sanitize_url_for_artifact(f"https://example.org/full.pdf?{amz}Signature=secret&download=1#page=2"),
+            "https://example.org/full.pdf",
+        )
 
 
 if __name__ == "__main__":

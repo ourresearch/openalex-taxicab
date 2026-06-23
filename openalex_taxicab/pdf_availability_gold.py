@@ -19,7 +19,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlparse, urlsplit, urlunsplit
 
 
 STATUS_OPEN_FULL_TEXT_PDF = "open_full_text_pdf_available"
@@ -115,6 +115,73 @@ NON_ARTICLE_RE = re.compile(
 )
 BROKEN_RE = re.compile(r"\b(broken|404|not found|bad doi|invalid doi|dead link|malformed)\b", re.IGNORECASE)
 JS_RE = re.compile(r"\b(enable javascript|javascript required|js redirect|window\.location)\b", re.IGNORECASE)
+URL_RE = re.compile(r"https?://[^\s\"'<>]+")
+SENSITIVE_QUERY_PREFIXES = ("x-amz-",)
+SENSITIVE_QUERY_KEYS = {
+    "access_token",
+    "api_key",
+    "auth",
+    "authorization",
+    "bm-verify",
+    "credential",
+    "cookie",
+    "key",
+    "security-token",
+    "session",
+    "signature",
+    "sig",
+    "ssa",
+    "token",
+}
+SENSITIVE_QUERY_KEY_PARTS = ("token", "signature", "credential", "secret", "session", "cookie")
+
+
+def _is_sensitive_query_key(key: str) -> bool:
+    lowered = key.strip().lower()
+    return (
+        lowered in SENSITIVE_QUERY_KEYS
+        or any(lowered.startswith(prefix) for prefix in SENSITIVE_QUERY_PREFIXES)
+        or any(part in lowered for part in SENSITIVE_QUERY_KEY_PARTS)
+    )
+
+
+def sanitize_url_for_artifact(value: str) -> str:
+    """Return a URL safe for public CSV/report artifacts.
+
+    We keep scheme/host/path because those are needed for clustering, but drop
+    query/fragment material whenever signed URLs, challenge parameters, cookies,
+    or auth-like query keys appear.
+    """
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    trailing = ""
+    while text and text[-1] in ".,);]":
+        trailing = text[-1] + trailing
+        text = text[:-1]
+    parts = urlsplit(text)
+    if not parts.scheme or not parts.netloc:
+        return value
+    query = parts.query or ""
+    sensitive = "x-amz-" in query.lower() or (
+        parts.netloc.lower() == "hcvalidate.perfdrive.com" and bool(query)
+    )
+    if not sensitive:
+        for key, _value in parse_qsl(query, keep_blank_values=True):
+            if _is_sensitive_query_key(key):
+                sensitive = True
+                break
+    if sensitive:
+        return urlunsplit((parts.scheme, parts.netloc, parts.path, "", "")) + trailing
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, parts.query, parts.fragment)) + trailing
+
+
+def sanitize_text_for_artifact(value: Any) -> str:
+    text = "" if value is None else str(value)
+    text = re.sub(r"(bm-verify=)[A-Za-z0-9_-]+", r"\1REDACTED", text)
+    text = re.sub(r"(X-Amz-[A-Za-z-]+=)[^\s&\"'<>]+", r"\1REDACTED", text)
+    text = re.sub(r"(hcvalidate\.perfdrive\.com/\?ssa=)[^\s\"'<>]+", r"\1REDACTED", text)
+    return URL_RE.sub(lambda match: sanitize_url_for_artifact(match.group(0)), text)
 
 
 @dataclass(frozen=True)
@@ -133,7 +200,7 @@ class PdfAvailabilityLabel:
     pdf_gold_checked_at: str
 
     def to_dict(self) -> dict[str, str]:
-        return {field: str(asdict(self).get(field, "")) for field in PDF_AVAILABILITY_FIELDS}
+        return {field: csv_cell(asdict(self).get(field, "")) for field in PDF_AVAILABILITY_FIELDS}
 
 
 def utc_now() -> str:
@@ -496,7 +563,7 @@ def read_csv_rows(path: Path) -> list[dict[str, str]]:
 def csv_cell(value: Any) -> str:
     if value is None:
         return ""
-    text = str(value)
+    text = sanitize_text_for_artifact(value)
     return re.sub(r"[\x00-\x1f\x7f]+", " ", text).strip()
 
 
@@ -766,5 +833,7 @@ __all__ = [
     "read_sidecar",
     "summarize_availability_sidecar",
     "summarize_public_true_failures",
+    "sanitize_text_for_artifact",
+    "sanitize_url_for_artifact",
     "write_csv_rows",
 ]
