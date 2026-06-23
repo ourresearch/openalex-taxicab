@@ -1,7 +1,7 @@
 # OpenAlex Taxicab
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-23 Probe Log Redaction And REVIEW Reduction
+## Current PDF Handoff: 2026-06-23 REVIEW Queue Summary And Denominator Audit
 
 Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab <code>main</code> at <code>8b36486</code>. The active sidecar/evidence branch is <code>codex/taxicab-pdf-gold-availability</code>; this branch now includes evidence-only Browserbase PDF capture work and a probe-log safety patch: <code>scripts/provider_pdf_probe.py</code> and <code>scripts/http_get_route_probe.py</code> redact DOI progress labels by default, with <code>--show-dois</code> reserved for local debugging. This does not change Taxicab production scraping or storage behavior.
 
@@ -15,21 +15,23 @@ Latest SSRN evidence: first aggregate SSRN Browserbase/rendered-delivery evidenc
 
 Where the next safe retrieval work is: draft public TRUE non-good rows remain <code>50</code>: <code>corrupt_or_truncated_pdf=45</code>, <code>encrypted_or_unreadable_pdf=4</code>, and <code>missing_pdf_harvest=1</code>. Top residual hosts are <code>onlinelibrary.wiley.com</code> 18, <code>jstage.jst.go.jp</code> 5, <code>journals.sagepub.com</code> 4, and <code>link.springer.com</code> 2, plus a long single-host tail. Do not reharvest Wiley, Hindawi, Springer, BMC, SSRN, or other exhausted provider lanes unless Zyte gives a concrete provider recipe or new residual evidence exists.
 
-Post-overlay REVIEW concentration: <code>3,079</code> rows remain. Top hosts include <code>link.springer.com</code> (584), <code>onlinelibrary.wiley.com</code> (417), <code>degruyterbrill.com</code> (195), <code>sciencedirect.com</code> (139), <code>journals.lww.com</code> (139), <code>cambridge.org</code> (122), <code>academic.oup.com</code> (96), <code>papers.ssrn.com</code> (73), <code>jstor.org</code> (60), <code>api.taylorfrancis.com</code> (52), and <code>pubs.acs.org</code> (45). The remaining rows are not proven Taxicab failures until the gold availability layer separates public-retrievable PDFs from paywalled/login/no-PDF cases.
+Post-overlay REVIEW concentration: <code>3,079</code> rows remain. Top hosts include <code>link.springer.com</code> (584), <code>onlinelibrary.wiley.com</code> (417), <code>degruyterbrill.com</code> (195), <code>sciencedirect.com</code> (139), <code>journals.lww.com</code> (139), <code>cambridge.org</code> (122), <code>academic.oup.com</code> (96), <code>papers.ssrn.com</code> (73), <code>jstor.org</code> (60), <code>api.taylorfrancis.com</code> (52), and <code>pubs.acs.org</code> (45). The remaining rows are not proven Taxicab failures until the gold availability layer separates public-retrievable PDFs from paywalled/login/no-PDF cases. The review-note audit classifies <code>1,231</code> REVIEW rows with <code>verdict=approved</code> as Goldie content approval, not PDF availability evidence; these rows must stay REVIEW unless a separate browser/provider check proves public PDF, paywall/login PDF, or no full-text PDF.
+
+Current code slice: <code>scripts/pdf_availability_gold.py</code> can now emit <code>--review-summary-json</code>, an aggregate-only JSON summary of REVIEW reasons, host concentration, dominant existing-note class, why each cluster is unresolved, and the next responsible agent lane. It writes no raw DOI rows or raw URLs and is safe for oxjobs reporting.
 
 Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 -m unittest discover -s tests
-python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-redacted-probes
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-review-summary
 ```
 
-After this branch is pushed, the next technical choice is either an Envoy-Zyte support packet/index for high-volume REVIEW lanes already backed by aggregate evidence, or a bounded denominator-review probe for a non-duplicate host. Future probe commands should rely on the default redacted progress logs and should not pass <code>--show-dois</code> when stdout/stderr might be shared. Do not publish raw Browserbase JSON, session IDs, raw DOI rows, raw URLs, SSRN delivery URLs, screenshots, or HTML.
+After this branch is pushed, the next technical choice is to publish the aggregate REVIEW summary into oxjobs #461 and then pick a bounded denominator-review probe for a non-duplicate high-volume host. Future probe commands should rely on the default redacted progress logs and should not pass <code>--show-dois</code> when stdout/stderr might be shared. Do not publish raw Browserbase JSON, session IDs, raw DOI rows, raw URLs, SSRN delivery URLs, screenshots, or HTML.
 
 Current blocker: denominator review. The provisional public TRUE metric is above 95%, but the <code>/goal</code> is not complete while <code>3,079</code> REVIEW rows remain.
 
-Latest local verification for this probe-log redaction patch: <code>python3 -m unittest discover -s tests</code> passed 189 tests; <code>python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-redacted-probes</code> passed with 15 fixtures and 15 categories. <code>git diff --check</code> passed; tracked-file secret scan had no matches. Branch push target is <code>codex/taxicab-pdf-gold-availability</code>.
+Latest local verification for this REVIEW-summary patch: <code>python3 -m unittest discover -s tests</code> passed 190 tests; <code>python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-review-summary</code> passed with 15 fixtures and 15 categories. <code>git diff --check</code> passed; tracked-file secret scan had no matches. Branch push target is <code>codex/taxicab-pdf-gold-availability</code>.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
 Academic content harvesting API. Fetches HTML and PDFs from publisher websites via Zyte API, stores in Cloudflare R2 + DynamoDB.

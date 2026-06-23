@@ -112,6 +112,18 @@ PUBLIC_TRUE_FAILURE_FIELDS = (
     "next_action",
 )
 
+REVIEW_NOTE_CLASS_INTERPRETATIONS = {
+    "no_existing_note": "No existing Goldie/Taxicab note proves PDF availability; check browser/provider evidence before denominator change.",
+    "goldie_content_approved_not_pdf_availability": "Prior Goldie content extraction was approved, but that does not prove a public full-text PDF exists.",
+    "needs_live_fetch": "Prior Goldie review said live fetching was needed; collect Browserbase/Zyte evidence before denominator change.",
+    "auth_wall_confirmed": "Prior Goldie evidence found an auth wall; keep public denominator FALSE only when a concrete PDF URL exists.",
+    "taxicab_download_error": "Prior Taxicab read/download failed; distinguish transient service failure from PDF availability.",
+    "taxicab_html_harvest_missing": "Taxicab had no harvested HTML/PDF context; collect landing-page evidence before denominator change.",
+    "parseland_extraction_miss": "Parseland extraction miss is not PDF availability evidence; inspect page/PDF evidence.",
+    "bot_check": "Bot check hides availability; use provider support or Browserbase evidence.",
+    "other_note": "Existing note is not a deterministic PDF availability label.",
+}
+
 PAYWALL_RE = re.compile(
     r"\b("
     r"paywall(?:ed)?|subscription|subscribe|purchase|buy now|get access|auth[_ -]?wall(?:[_ -]?confirmed)?|"
@@ -861,6 +873,92 @@ def build_review_queue(
     return rows
 
 
+def classify_review_note(notes: Any) -> str:
+    text = str(notes or "").strip().lower()
+    if not text:
+        return "no_existing_note"
+    if "auth_wall_confirmed" in text:
+        return "auth_wall_confirmed"
+    if "verdict=approved" in text:
+        return "goldie_content_approved_not_pdf_availability"
+    if "needs_live_fetch" in text:
+        return "needs_live_fetch"
+    if "download error" in text:
+        return "taxicab_download_error"
+    if "taxicab: no harvested html" in text:
+        return "taxicab_html_harvest_missing"
+    if "iter-r:bot-check" in text or "bot check" in text:
+        return "bot_check"
+    if "iter-r:extraction-miss" in text:
+        return "parseland_extraction_miss"
+    return "other_note"
+
+
+def _review_next_action(category: str, note_class: str) -> str:
+    if category == "js_redirect_unresolved":
+        return "Lens-PDF: capture browser/network evidence for the JS redirect before denominator change."
+    if category == "bot_block_403" or note_class == "bot_check":
+        return "Envoy-Zyte: provider support packet; Lens-PDF only for gold evidence."
+    if note_class == "goldie_content_approved_not_pdf_availability":
+        return "Goldsmith-PDF: do not exclude from denominator from approved alone; sample availability with provider/browser evidence."
+    if note_class == "needs_live_fetch":
+        return "Lens-PDF: run bounded Browserbase evidence, then classify public PDF, paywall, or no-PDF."
+    if note_class == "taxicab_download_error":
+        return "Sentinel-PDF/Meter-PDF: rerun read-only sample to separate transient Taxicab error from availability."
+    if note_class == "taxicab_html_harvest_missing":
+        return "Quarry-PDF: collect landing-page evidence before deciding whether PDF should exist."
+    if category == "html_instead_of_pdf":
+        return "Lens-PDF + Envoy-Zyte: determine whether HTML is paywall/interstitial or a resolvable PDF flow."
+    return "Goldsmith-PDF: prioritize by host volume and collect bounded availability evidence."
+
+
+def summarize_review_queue(rows: Iterable[dict[str, Any]]) -> dict[str, Any]:
+    """Return aggregate-only REVIEW queue metrics safe for public reports."""
+    row_list = list(rows)
+    reason_counts = Counter(str(row.get("pdf_gold_review_reason") or "unknown") for row in row_list)
+    status_counts = Counter(str(row.get("pdf_gold_status") or "unknown") for row in row_list)
+    access_counts = Counter(str(row.get("pdf_gold_access_type") or "unknown") for row in row_list)
+    category_counts = Counter(str(row.get("latest_taxicab_category") or "unknown") for row in row_list)
+    host_counts = Counter(str(row.get("pdf_gold_host") or "unknown") for row in row_list)
+    note_class_counts = Counter(classify_review_note(row.get("Notes")) for row in row_list)
+    host_category_counts: dict[str, Counter[str]] = {}
+    host_note_counts: dict[str, Counter[str]] = {}
+    for row in row_list:
+        host = str(row.get("pdf_gold_host") or "unknown")
+        host_category_counts.setdefault(host, Counter())[str(row.get("latest_taxicab_category") or "unknown")] += 1
+        host_note_counts.setdefault(host, Counter())[classify_review_note(row.get("Notes"))] += 1
+
+    top_hosts = []
+    for host, count in host_counts.most_common(25):
+        category = host_category_counts.get(host, Counter()).most_common(1)
+        note_class = host_note_counts.get(host, Counter()).most_common(1)
+        dominant_category = category[0][0] if category else "unknown"
+        dominant_note_class = note_class[0][0] if note_class else "other_note"
+        top_hosts.append(
+            {
+                "host": host,
+                "rows": count,
+                "dominant_category": dominant_category,
+                "dominant_note_class": dominant_note_class,
+                "why_not_recovered_yet": REVIEW_NOTE_CLASS_INTERPRETATIONS.get(
+                    dominant_note_class,
+                    REVIEW_NOTE_CLASS_INTERPRETATIONS["other_note"],
+                ),
+                "next_action": _review_next_action(dominant_category, dominant_note_class),
+            }
+        )
+
+    return {
+        "total": len(row_list),
+        "review_reason_counts": dict(sorted(reason_counts.items(), key=lambda item: (-item[1], item[0]))),
+        "status_counts": dict(sorted(status_counts.items())),
+        "access_type_counts": dict(sorted(access_counts.items())),
+        "latest_taxicab_category_counts": dict(sorted(category_counts.items(), key=lambda item: (-item[1], item[0]))),
+        "note_class_counts": dict(sorted(note_class_counts.items(), key=lambda item: (-item[1], item[0]))),
+        "top_hosts": top_hosts,
+    }
+
+
 def _label_dict(label: PdfAvailabilityLabel | dict[str, Any]) -> dict[str, str]:
     if isinstance(label, PdfAvailabilityLabel):
         return label.to_dict()
@@ -1006,6 +1104,7 @@ __all__ = [
     "build_review_queue",
     "build_public_true_failure_queue",
     "generate_availability_rows",
+    "classify_review_note",
     "label_pdf_availability",
     "normalize_doi",
     "read_csv_rows",
@@ -1014,6 +1113,7 @@ __all__ = [
     "read_sidecar",
     "summarize_availability_sidecar",
     "summarize_public_true_failures",
+    "summarize_review_queue",
     "sanitize_text_for_artifact",
     "sanitize_url_for_artifact",
     "write_csv_rows",

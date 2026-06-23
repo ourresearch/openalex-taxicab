@@ -24,6 +24,7 @@ from openalex_taxicab.pdf_availability_gold import (  # noqa: E402
     read_sidecar,
     summarize_availability_sidecar,
     summarize_public_true_failures,
+    summarize_review_queue,
     write_csv_rows,
 )
 
@@ -53,6 +54,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--seed-sidecar", help="Optional reviewed/seed sidecar to copy labels by DOI")
     parser.add_argument("--summary-json", help="Optional availability summary JSON output")
+    parser.add_argument("--review-summary-json", help="Optional aggregate-only REVIEW queue summary JSON output")
     parser.add_argument(
         "--public-true-failures-out",
         help="Optional CSV work queue of public-denominator TRUE rows that are not latest good_pdf",
@@ -103,6 +105,14 @@ def main(argv: list[str] | None = None) -> int:
             "review_queue_total": len(review_rows),
         }
     )
+    review_summary = summarize_review_queue(review_rows)
+    summary["review_queue_summary"] = review_summary
+    if args.review_summary_json:
+        Path(args.review_summary_json).write_text(
+            json.dumps(review_summary, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        summary["review_summary_json"] = str(args.review_summary_json)
     if args.public_true_failures_out or args.public_true_failures_summary_json:
         public_true_failures = build_public_true_failure_queue(
             labels,

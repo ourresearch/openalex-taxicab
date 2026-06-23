@@ -13,12 +13,14 @@ from openalex_taxicab.pdf_availability_gold import (
     PDF_AVAILABILITY_FIELDS,
     build_public_true_failure_queue,
     build_review_queue,
+    classify_review_note,
     generate_availability_rows,
     label_pdf_availability,
     read_evidence_rows,
     read_sidecar,
     sanitize_url_for_artifact,
     summarize_public_true_failures,
+    summarize_review_queue,
     write_csv_rows,
 )
 from openalex_taxicab.pdf_eval_harness import make_pdf_transport_row, summarize_pdf_rows
@@ -319,6 +321,44 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
         self.assertEqual(summary["category_counts"]["corrupt_or_truncated_pdf"], 1)
         self.assertEqual(summary["top_hosts"][0]["host"], "onlinelibrary.wiley.com")
 
+    def test_review_queue_summary_explains_goldie_approved_notes_without_relabeling(self):
+        rows = [
+            {
+                "pdf_gold_status": "unclear_needs_review",
+                "pdf_gold_access_type": "unknown",
+                "pdf_gold_review_reason": "raw expected PDF miss needs gold availability review before denominator exclusion",
+                "pdf_gold_host": "link.springer.com",
+                "latest_taxicab_category": "missing_pdf_harvest",
+                "Notes": "closed_at=tier_a_reharvest;verdict=approved",
+            },
+            {
+                "pdf_gold_status": "unclear_needs_review",
+                "pdf_gold_access_type": "unknown",
+                "pdf_gold_review_reason": "raw expected PDF miss needs gold availability review before denominator exclusion",
+                "pdf_gold_host": "link.springer.com",
+                "latest_taxicab_category": "missing_pdf_harvest",
+                "Notes": "",
+            },
+            {
+                "pdf_gold_status": "unclear_needs_review",
+                "pdf_gold_access_type": "js_required",
+                "pdf_gold_review_reason": "JS flow needs browser/gold evidence before denominator decision",
+                "pdf_gold_host": "europepmc.org",
+                "latest_taxicab_category": "js_redirect_unresolved",
+                "Notes": "closed_at=terminal;verdict=needs_live_fetch",
+            },
+        ]
+        summary = summarize_review_queue(rows)
+        self.assertEqual(summary["total"], 3)
+        self.assertEqual(
+            summary["note_class_counts"]["goldie_content_approved_not_pdf_availability"],
+            1,
+        )
+        self.assertEqual(summary["note_class_counts"]["no_existing_note"], 1)
+        self.assertEqual(summary["top_hosts"][0]["host"], "link.springer.com")
+        self.assertIn("does not prove", summary["top_hosts"][0]["why_not_recovered_yet"])
+        self.assertEqual(classify_review_note("closed_at=tier_a_reharvest;verdict=approved"), "goldie_content_approved_not_pdf_availability")
+
     def test_sidecar_cli_writes_draft_and_review_queue(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -327,6 +367,7 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
             draft = tmp_path / "human-goldie-pdf-availability.draft.csv"
             review = tmp_path / "human-goldie-pdf-review-queue.csv"
             summary = tmp_path / "summary.json"
+            review_summary = tmp_path / "review-summary.json"
             public_true_failures = tmp_path / "public-true-failures.csv"
             public_true_summary = tmp_path / "public-true-failures-summary.json"
             with input_csv.open("w", newline="", encoding="utf-8") as handle:
@@ -398,6 +439,8 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
                         str(eval_rows),
                         "--summary-json",
                         str(summary),
+                        "--review-summary-json",
+                        str(review_summary),
                         "--public-true-failures-out",
                         str(public_true_failures),
                         "--public-true-failures-summary-json",
@@ -407,6 +450,7 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
             self.assertEqual(code, 0)
             self.assertTrue(draft.exists())
             self.assertTrue(review.exists())
+            self.assertTrue(review_summary.exists())
             self.assertTrue(public_true_failures.exists())
             self.assertTrue(public_true_summary.exists())
             self.assertEqual(len(read_sidecar(draft)), 3)
@@ -418,6 +462,9 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
             self.assertEqual(failure_rows[0]["DOI"], "10.5555/corrupt")
             summary_data = json.loads(summary.read_text())
             self.assertEqual(summary_data["review_queue_total"], 1)
+            self.assertEqual(summary_data["review_queue_summary"]["total"], 1)
+            review_summary_data = json.loads(review_summary.read_text())
+            self.assertEqual(review_summary_data["total"], 1)
             self.assertEqual(summary_data["public_true_failure_total"], 1)
             public_summary_data = json.loads(public_true_summary.read_text())
             self.assertEqual(public_summary_data["total"], 1)
