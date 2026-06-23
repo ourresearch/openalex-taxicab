@@ -1,7 +1,7 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-23 Main-Merged PDF Eval + Public Denominator Failure Queue
+## Current PDF Handoff: 2026-06-23 Main-Merged PDF Eval + Public TRUE Evidence Loop
 
 Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab `main` at `8b36486`. The full main-merge gate is `taxicab-pdf-20260623T063217Z`: `2,445/6,293 good_pdf` (`38.85%`), `+1` versus the prior accepted gate and `+608` versus the first measured denominator reference of `1,837/6,293` (`29.19%`). The legacy raw 95% target is `5,979/6,293`, so the raw-denominator gap is `3,534` rows. The main-merge gate had `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
@@ -9,22 +9,22 @@ Important denominator update: the `6,293` denominator is a legacy guessed-PDF-ca
 
 Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose top scale is `100%`, and whose `95%` target line remains visible. Plot only accepted 6,293-denominator full gates after the zero origin. Do not restore any zoomed 29-39% y-axis.
 
-Latest oxjobs #461 report state: `c9362a8e9 #461 taxicab-pdf: add public true failure targets` is pushed to `origin/main`, and the live raw report has been verified. It shows the raw legacy metric, denominator audit, `Where The PDF Gap Is`, and the draft public TRUE failure targets.
+Latest oxjobs #461 report state: `65fcea32b #461 taxicab-pdf: publish wiley public-true evidence` is pushed to `origin/main`, CI passed, and the live raw report plus the public aggregate JSON have been verified. It shows the raw legacy metric, denominator audit, `Where The PDF Gap Is`, the draft public TRUE failure targets, and the first public TRUE probe result.
 
-Where the next safe retrieval work is: draft public TRUE non-good rows total `69`, split as `corrupt_or_truncated_pdf=64`, `encrypted_or_unreadable_pdf=4`, and `missing_pdf_harvest=1`. The top public TRUE failure hosts are `onlinelibrary.wiley.com` (22), `pubs.acs.org` (8), `journals.sagepub.com` (7), and `jstage.jst.go.jp` (5). These are the Gate 5 Mechanic-PDF / Envoy-Zyte targets while Goldsmith-PDF works down the REVIEW queue.
+Where the next safe retrieval work is: draft public TRUE non-good rows total `69`, split as `corrupt_or_truncated_pdf=64`, `encrypted_or_unreadable_pdf=4`, and `missing_pdf_harvest=1`. Wiley / `onlinelibrary.wiley.com` was sampled first (`22` rows in queue): no-storage Zyte provider probing recovered `0/5`, and four stored payload samples had PDF magic/EOF but failed external trailer/xref/page parser checks. Treat Wiley as an Envoy-Zyte support lane, not Taxicab route-code evidence. The next non-duplicate public TRUE target is ACS / `pubs.acs.org` (`8` corrupt_or_truncated rows), then SAGE (`7`) and J-STAGE (`5`).
 
 Next exact command:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/pdf_availability_gold.py --input /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv --out /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv --review-queue /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-review-queue.csv --eval-rows /tmp/taxicab-pdf-main-merge-gate/taxicab-pdf-20260623T063217Z/rows.ndjson --seed-sidecar /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie-pdf-availability.draft.csv --summary-json /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.summary.json --public-true-failures-out /tmp/taxicab-pdf-public-true-failures.csv --public-true-failures-summary-json /tmp/taxicab-pdf-public-true-failures-summary.json
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input /tmp/taxicab-pdf-public-true-failures.csv --category '' --publisher acs --host pubs.acs.org --limit 5 --strategies default_body,accept_pdf,google_referer,browser_html --out /tmp/taxicab-pdf-probes --run-id acs-publictrue-corrupt-probe5-3d2282a --env-file .env
 ```
 
 Current blocker: denominator review, not Taxicab runtime. Continue retrieval work only for `pdf_gold_include_in_public_denominator=TRUE AND latest_taxicab_category != good_pdf`; keep public FALSE and REVIEW rows separate.
 
-Latest commit/push status: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar tooling branch `codex/taxicab-pdf-gold-availability` is pushed at `852dcdb`; oxjobs `main` is pushed at `c9362a8e9`. This current slice adds a reusable public TRUE failure export and should be committed/pushed on `codex/taxicab-pdf-gold-availability` after tests pass.
+Latest commit/push status: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar tooling branch `codex/taxicab-pdf-gold-availability` is pushed at `3d2282a`; oxjobs `main` is pushed at `65fcea32b`. This current docs slice records the Wiley support-lane result and sets ACS as the next public TRUE evidence command.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
-Last updated: 2026-06-22 UTC.
+Last updated: 2026-06-23 UTC.
 
 This file is the handoff contract for Taxicab retrieval-quality work. Read it
 before doing new work. Keep it current before ending a long session. For the
