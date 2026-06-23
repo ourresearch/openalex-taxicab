@@ -1,61 +1,27 @@
 # OpenAlex Taxicab Agent Guide
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-22 AJBR / AFST / Annals Accepted Recovery
+## Current PDF Handoff: 2026-06-23 Rogue Scholar / Conscientia Beam / BBRC Accepted Recovery + Gold Denominator Pivot
 
-Accepted strict full 10K PDF gate is now
-`pdf-full10k-after-ajbr-afst-anndermatol-0baf702`:
-`2,441/6,293 good_pdf` (`38.79%`), up `+3` versus Academ Studies /
-Copernicus and `+604`
-versus the first measured denominator reference of `1,837/6,293` (`29.19%`).
-The 95% target is `5,979/6,293`, so the current gap is `3,538` rows. The clean
-accepted full gate changed exactly three rows, `missing_pdf_harvest -> good_pdf`,
-with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
+Latest local full 10K PDF gate is now `pdf-full10k-after-roguescholar-consciousbeam-bbrc-15f0c0b`: `2,444/6,293 good_pdf` (`38.84%`), up `+3` versus AJBR / AFST / Annals and `+607` versus the first measured denominator reference of `1,837/6,293` (`29.19%`). The legacy 95% target is `5,979/6,293`, so the current raw-denominator gap is `3,535` rows. The clean gate changed exactly three rows, all `missing_pdf_harvest -> good_pdf`, with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
-Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single
-unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose
-top scale is `100%`, and whose `95%` target line remains visible. The graph
-must visually start at `0/6,293` so progress is not overstated. Plot only
-accepted 6,293-denominator full gates after the zero origin; fixture, smoke,
-limit, raw all-10K, provider-probe, and bounded reharvest rows are not visual
-progress gates. The first measured denominator gate is only the first measured
-checkpoint, not the graph baseline. Do not restore any zoomed 29-38% y-axis.
-Green marks accepted improvement, red marks regression or stricter
-reclassification/gap, amber marks the 95% target, and the graph must remain at
-the top of the report before explanatory text.
+Important denominator update: the current `6,293` denominator is a legacy guessed-PDF-candidate denominator derived from corpus PDF candidate fields, not a reviewed proof that every row has a public full-text PDF. Next work must build PDF availability sidecars before continuing broad optimization: Phase A labels `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie.csv`; Phase B extends/joins labels into `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv`. Public denominator excludes subscription/login/purchase-only PDFs; secondary all-known-PDF metric keeps those visible when evidence proves a PDF exists.
 
-Latest accepted evidence update: low-count no-storage Zyte provider probe
-`lowcount-fresh-provider-probe-next5-after-academstudies-copernicus` recovered
-`3/5` candidate hosts. The winners were
-`africanjournalofbiomedicalresearch.com`, `afst.centre-mersenne.org`, and
-`anndermatol.org`; each returned valid PDF bytes through direct provider
-strategies. Bounded reharvest recovered `3/3`, read-only confirmation preserved
-`3/3`, and the full gate accepted `+3 good_pdf` with `0` regressions.
-Oxjobs commit `7f963a832 #461 taxicab-pdf: accept ajbr afst anndermatol
-recovery` records the report, latest summary, residual clusters, public
-AJBR / AFST / Annals recovery summary, and fixed `0-100%` bar chart.
-GitHub CI run `27976036640` passed.
+Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose top scale is `100%`, and whose `95%` target line remains visible. Plot only accepted 6,293-denominator full gates after the zero origin. The first measured denominator gate is only the first measured checkpoint, not the graph baseline. Do not restore any zoomed 29-39% y-axis.
 
-Latest negative/evidence-only context: the same five-host provider probe did
-not recover `akjournals.com` or `alat.journals.ekb.eg`. Prior negative or
-demoted lanes remain historical evidence only. ScholarHub remains
-branch-candidate evidence only; accepted KPI comes from bounded direct-PDF
-cache/reharvest plus clean read-only full-gate proof, not a Taxicab-main
-production scraping push.
+Latest accepted evidence update: the recovered hosts were `api.rogue-scholar.org`, `archive.conscientiabeam.com`, and `bbrc.in`. The read-only confirmation preserved `3/3` valid PDFs and the full gate accepted `+3 good_pdf` with `0` regressions. This is bounded cache/reharvest lift, not a Taxicab-main production scraping-code push.
 
-ScholarHub remains branch-candidate evidence only. It recovered locally through
-branch route logic but production reharvest stayed `missing_pdf_harvest`, so it
-is not part of the accepted KPI.
+Where the PDF gap is concentrated under the raw denominator: top residual host clusters are `link.springer.com` (814), `onlinelibrary.wiley.com` (582), `degruyterbrill.com` (200), `academic.oup.com` (147), `sciencedirect.com` (145), `journals.lww.com` (138), `cambridge.org` (124), `papers.ssrn.com` (73), `jstor.org` (60), and `pubs.acs.org` (53). These are not all proven Taxicab failures until the gold availability layer separates public-retrievable PDFs from paywalled/login/no-PDF cases.
 
-Next exact command for the next agent:
+Next exact command:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input pdf_eval_runs/queues/lowcount-fresh-provider-probe-next5-after-ajbr-afst-anndermatol.csv --category missing_pdf_harvest --limit 5 --strategies all --timeout 90 --sleep 0.2 --run-id lowcount-fresh-provider-probe-next5-after-ajbr-afst-anndermatol --out pdf_eval_runs
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 -m unittest discover -s tests && python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke && python3 scripts/taxicab_eval.py --fixture-smoke --out /tmp/taxicab-fixture-smoke
 ```
 
-Current blocker: no global blocker, but high-volume residual lanes remain provider/access-flow dominated. Do not repeat provider-negative or already-demoted lanes without new provider guidance.
+Current blocker: no global blocker. Do not push Taxicab `main` until the full 10K no-regression gate passes and category deltas are explained.
 
-Latest commit/push status: oxjobs main is pushed at `7f963a832` and GitHub CI passed. GitHub main has the new report; the oxjobs.org raw report endpoint may lag behind cache briefly. Update these Taxicab handoff docs, run `python3 -m unittest discover -s tests`, run `python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke`, run `git diff --check -- AGENTS.md CLAUDE.md GOAL.md NEXT_TO_DO.md`, secret-scan the edited docs, commit, pull --rebase, and push `codex/taxicab-pdf-phase2`.
+Latest commit/push status: oxjobs main is pushed at `b74777e66 #461 taxicab-pdf: publish gold denominator pivot`, and GitHub CI run `28006956879` passed. Taxicab branch is `codex/taxicab-pdf-phase2` at `15f0c0b`. Run checks, commit/push these handoff docs, then run the merge-to-main regression gate.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
 Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
