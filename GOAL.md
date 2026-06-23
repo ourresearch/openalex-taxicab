@@ -1,11 +1,13 @@
 # Taxicab Goal State
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-23 JournalUniga Full Gate Accepted
+## Current PDF Handoff: 2026-06-23 PDF Gold Sidecars Sanitized
 
 Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab `main` at `8b36486`. The active sidecar/evidence branch is `codex/taxicab-pdf-gold-availability`. The latest accepted full 10K read-only gate is `taxicab-pdf-after-journaluniga-cache-fc0be25`: `2,463/6,293 good_pdf` (`39.14%`) on the legacy guessed-PDF denominator, `+2` versus the prior accepted BMC Microbiology gate and `+626` versus the first measured denominator reference of `1,837/6,293` (`29.19%`). The legacy raw 95% target is `5,979/6,293`, so the raw-denominator gap is `3,516` rows. The accepted gate had `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors. Category movement versus the prior accepted full gate was `corrupt_or_truncated_pdf -1`, `missing_pdf_harvest -1`, and `good_pdf +2`.
 
-Important denominator update: the `6,293` denominator is a legacy guessed-PDF-candidate denominator, not proof that every row has a public full-text PDF. Phase A sidecars label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie.csv` as a 100-row seed; Phase B sidecars label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv` for the full 10K. The refreshed draft full-corpus sidecar counts are public TRUE `2,519`, public FALSE `3,680`, REVIEW `3,801`, and all-known TRUE `2,525`. The draft public TRUE metric is now `2,463/2,519` (`97.78%`), but this is provisional and does not complete the goal until the `3,801` REVIEW rows are resolved or explicitly scoped.
+Important denominator update: the `6,293` denominator is a legacy guessed-PDF-candidate denominator, not proof that every row has a public full-text PDF. Phase A sidecars label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie.csv` as a 100-row seed; regenerated counts are public TRUE `12`, public FALSE `23`, REVIEW `65`, and all-known TRUE `23`. Phase B sidecars label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv` for the full 10K; regenerated counts are public TRUE `2,519`, public FALSE `3,680`, REVIEW `3,801`, and all-known TRUE `2,525`. The draft public TRUE metric is now `2,463/2,519` (`97.78%`), but this is provisional and does not complete the goal until the `3,801` REVIEW rows are resolved or explicitly scoped.
+
+Sidecar artifact safety: Taxicab commit `c164408` sanitizes PDF gold sidecar URLs before CSV artifact writes. It keeps host/path for clustering but strips signed/challenge/auth query material, including `X-Amz-*`, PerfDrive challenge links, and `bm-verify` values. Phase A and Phase B sidecars were regenerated after the fix and passed the signed-query/secret scan. The generated sidecars are currently untracked in `/Users/shubh-trips/Documents/OpenAlex/parseland-eval`, which already has unrelated dirty work; do not stage or commit that repo without explicit coordination. `human-goldie.csv` remains unmodified by the sidecar generator.
 
 Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose top scale is `100%`, and whose `95%` target line remains visible. Plot only accepted 6,293-denominator full gates after the zero origin. Do not restore any zoomed 29-39% y-axis.
 
@@ -21,14 +23,31 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 scripts/pdf_availability_gold.py   --input /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv   --out /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv   --review-queue /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-review-queue.csv   --seed-sidecar /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie-pdf-availability.draft.csv   --eval-rows /tmp/taxicab-pdf-after-journaluniga-cache-gate/taxicab-pdf-after-journaluniga-cache-fc0be25/rows.ndjson   --summary-json /tmp/taxicab-pdf-availability-after-journaluniga-summary.json   --public-true-failures-out /tmp/taxicab-pdf-public-true-failures-after-journaluniga-cache.csv   --public-true-failures-summary-json /tmp/taxicab-pdf-public-true-failures-after-journaluniga-cache-summary.json
+python3 - <<'PY'
+import csv
+from collections import Counter
+
+path = "/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-review-queue.csv"
+with open(path, newline="", encoding="utf-8") as handle:
+    rows = list(csv.DictReader(handle))
+
+print(f"review_rows={len(rows)}")
+for label, key, limit in [
+    ("top_hosts", "pdf_gold_host", 25),
+    ("top_reasons", "pdf_gold_review_reason", 10),
+    ("latest_taxicab_categories", "latest_taxicab_category", 10),
+]:
+    print(label)
+    for value, count in Counter((row.get(key) or "unknown") for row in rows).most_common(limit):
+        print(f"{count}\t{value}")
+PY
 ```
 
-Then publish only aggregate sidecar/review counts if they differ from the current report. Stop blind public TRUE tail probing unless a new provider recipe appears. The next substantive work should be either Goldsmith-PDF denominator REVIEW reduction by top host or Envoy-Zyte support packets for accumulated provider failures.
+Use that output to choose one Goldsmith-PDF denominator-review lane by expected impact. Do not browse every DOI initially. Stop blind public TRUE tail probing unless a new provider recipe appears. The next substantive work should be denominator REVIEW reduction by top host/reason or Envoy-Zyte support packets for accumulated provider failures.
 
 Current blocker: denominator review. The remaining public TRUE residuals are mostly exhausted provider/validator tails, not a broad Taxicab runtime failure. Continue retrieval work only for `pdf_gold_include_in_public_denominator=TRUE AND latest_taxicab_category != good_pdf`; keep public FALSE and REVIEW rows separate. The provisional public TRUE metric is above 95%, but the `/goal` is not complete while 3,801 REVIEW rows remain.
 
-Latest commit/push status before this handoff update: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar branch is pushed at `9bdf21b`; oxjobs `main` is pushed at `e511d26aa`, CI run `28041494483` passed, and the live raw report plus new JSON asset were verified with tail-probe markers. This docs slice records the verified report and sets sidecar refresh as the next command.
+Latest commit/push status before this handoff update: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar branch is pushed at `c164408`; oxjobs `main` is pushed at `e511d26aa`, CI run `28041494483` passed, and the live raw report plus new JSON asset were verified with tail-probe markers. This docs slice records the sanitized sidecar refresh and sets REVIEW reduction as the next command.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
 Last updated: 2026-06-23 UTC.
