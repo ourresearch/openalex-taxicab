@@ -3,7 +3,7 @@
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
 ## Current PDF Handoff: 2026-06-23 REVIEW Pack, Overlay Mode, And Denominator Audit
 
-Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab <code>main</code> at <code>8b36486</code>. The active sidecar/evidence branch is <code>codex/taxicab-pdf-gold-availability</code>, currently pushed at <code>e82a0e3</code> before this Thieme handoff refresh. This branch is for PDF availability/gold-denominator tooling and evidence artifacts only; it does not change production scraping, R2, DynamoDB, or Taxicab storage behavior.
+Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab <code>main</code> at <code>8b36486</code>. The active sidecar/evidence branch is <code>codex/taxicab-pdf-gold-availability</code>, currently pushed at <code>4a5cb3f</code> before this RSC handoff refresh. This branch is for PDF availability/gold-denominator tooling and evidence artifacts only; it does not change production scraping, R2, DynamoDB, or Taxicab storage behavior.
 
 Latest accepted full 10K read-only gate remains <code>taxicab-pdf-after-cambridge-cache-6386430</code>: <code>2,464/6,293 good_pdf</code> (<code>39.15%</code>) on the legacy guessed-PDF denominator, <code>+1</code> versus the prior JournalUniga gate and <code>+627</code> versus the first measured denominator reference of <code>1,837/6,293</code> (<code>29.19%</code>). The legacy raw 95% target is <code>5,979/6,293</code>, so the raw-denominator gap is <code>3,515</code> rows. The accepted gate had <code>0</code> good-to-non-good regressions, <code>0</code> timeouts, and <code>0</code> Taxicab errors.
 
@@ -41,7 +41,9 @@ Prior no-movement REVIEW evidence slice: private no-storage Zyte run <code>lww-r
 
 Prior no-movement REVIEW evidence slice: private no-storage Zyte run <code>spie-review-pack-provider5-b1c0a0b</code> sampled <code>5</code> <code>spiedigitallibrary.org</code> rows from the private top-250 REVIEW pack. It recovered <code>0/5</code> valid PDFs; best categories were <code>empty_response=3</code> and <code>js_redirect_unresolved=2</code>. Private overlay joined all five rows but made <code>0</code> status or denominator changes, so these rows stay REVIEW. Public aggregate asset <code>evidence/report461-spie-review-provider-overlay-summary-b1c0a0b.json</code> is published in oxjobs #461 at commit <code>b8005f79f</code>, and the live raw report/asset were verified after cache retry.
 
-Latest no-movement REVIEW evidence slice: private no-storage Zyte run <code>thieme-review-pack-provider5-e82a0e3</code> sampled <code>5</code> <code>thieme-connect.de</code> rows from the private top-250 REVIEW pack. It recovered <code>0/5</code> valid PDFs; best categories were <code>js_redirect_unresolved=4</code> and <code>download_404=1</code>. Private overlay joined all five rows but made <code>0</code> status or denominator changes, so these rows stay REVIEW. Public aggregate asset <code>evidence/report461-thieme-review-provider-overlay-summary-e82a0e3.json</code> is published in oxjobs #461 at commit <code>097611d87</code>, and the live raw report/asset were verified after cache retry.
+Prior no-movement REVIEW evidence slice: private no-storage Zyte run <code>thieme-review-pack-provider5-e82a0e3</code> sampled <code>5</code> <code>thieme-connect.de</code> rows from the private top-250 REVIEW pack. It recovered <code>0/5</code> valid PDFs; best categories were <code>js_redirect_unresolved=4</code> and <code>download_404=1</code>. Private overlay joined all five rows but made <code>0</code> status or denominator changes, so these rows stay REVIEW. Public aggregate asset <code>evidence/report461-thieme-review-provider-overlay-summary-e82a0e3.json</code> is published in oxjobs #461 at commit <code>097611d87</code>, and the live raw report/asset were verified after cache retry.
+
+Latest no-movement REVIEW evidence slice: private no-storage Zyte run <code>rsc-review-pack-provider5-4a5cb3f</code> sampled <code>5</code> <code>pubs.rsc.org</code> rows from the private top-250 REVIEW pack. It recovered <code>0/5</code> valid PDFs; best category was <code>js_redirect_unresolved=5</code>, with browser HTML also hitting <code>bot_block_403=3</code>. Private overlay joined all five rows but made <code>0</code> status or denominator changes, so these rows stay REVIEW. Public aggregate asset <code>evidence/report461-rsc-review-provider-overlay-summary-4a5cb3f.json</code> is published in oxjobs #461 at commit <code>5472482dc</code>, and the live raw report/asset were verified after cache retry.
 
 Denominator interpretation rule: <code>verdict=approved</code> remains REVIEW because it proves prior Goldie content extraction acceptance, not public PDF availability. Those rows need bounded provider/browser availability checks before becoming public TRUE, public FALSE, all-known TRUE, or out-of-scope.
 
@@ -78,11 +80,11 @@ Current PDF metric: see the handoff block above. The accepted full gate is
 non-good-to-good transition and zero good-to-non-good regressions, zero
 timeouts, and zero Taxicab errors.
 
-Latest #461 report publish is oxjobs commit `097611d87`, which records the
-Thieme five-row REVIEW evidence slice as aggregate-only no-movement
+Latest #461 report publish is oxjobs commit `5472482dc`, which records the
+RSC five-row REVIEW evidence slice as aggregate-only no-movement
 denominator evidence. It keeps the Cambridge full gate as the accepted metric, keeps the
 0-origin fixed 0-100 chart, reports draft public TRUE as 2,464/2,514 (98.01%),
-and records the remaining 3,079 REVIEW rows. CI run `28062329004` passed; the
+and records the remaining 3,079 REVIEW rows. CI run `28062872716` passed; the
 live raw report and new aggregate JSON asset were verified after cache retry.
 The current handoff block above is authoritative; older BMC Microbiology and
 post-Wiley queue entries below are historical.
