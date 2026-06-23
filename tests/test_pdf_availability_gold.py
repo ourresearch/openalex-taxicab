@@ -107,6 +107,25 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
         self.assertEqual(label.pdf_gold_include_in_public_denominator, DENOM_REVIEW)
         self.assertEqual(label.pdf_gold_review_needed, "TRUE")
 
+    def test_no_pdf_expected_without_pdf_url_beats_bot_review(self):
+        label = label_pdf_availability(
+            {
+                "DOI": "10.5555/no-pdf-bot-page",
+                "Link": "https://doi.org/10.5555/no-pdf-bot-page",
+                "Has Bot Check": "TRUE",
+                "Notes": "closed_at=tier_b_local_chrome;verdict=approved",
+            },
+            eval_row={
+                "doi": "10.5555/no-pdf-bot-page",
+                "category": "no_pdf_expected",
+            },
+            checked_at="2026-06-23T00:00:00+00:00",
+        )
+        self.assertEqual(label.pdf_gold_status, "no_full_text_pdf_found")
+        self.assertEqual(label.pdf_gold_include_in_public_denominator, DENOM_FALSE)
+        self.assertEqual(label.pdf_gold_include_in_all_known_pdf_denominator, DENOM_FALSE)
+        self.assertEqual(label.pdf_gold_review_needed, "FALSE")
+
     def test_missing_pdf_harvest_stays_review_without_explicit_no_pdf_evidence(self):
         label = label_pdf_availability(
             {

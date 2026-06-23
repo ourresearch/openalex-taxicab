@@ -432,6 +432,21 @@ def label_pdf_availability(
             checked_at=checked,
         )
 
+    if category == "no_pdf_expected" and not url:
+        return make_label(
+            doi=doi,
+            status=STATUS_NO_FULL_TEXT_PDF,
+            url="",
+            access_type=ACCESS_NONE,
+            public=DENOM_FALSE,
+            all_known=DENOM_FALSE,
+            confidence=0.78,
+            evidence="; ".join(source_bits + ["latest Taxicab eval says no PDF is expected and no PDF URL exists"]),
+            review_needed=False,
+            source=source,
+            checked_at=checked,
+        )
+
     if has_bot:
         return make_label(
             doi=doi,
