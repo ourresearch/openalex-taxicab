@@ -9,21 +9,21 @@ Important denominator update: the `6,293` denominator is a legacy guessed-PDF-ca
 
 Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose top scale is `100%`, and whose `95%` target line remains visible. Plot only accepted 6,293-denominator full gates after the zero origin. Do not restore any zoomed 29-39% y-axis.
 
-Latest oxjobs #461 report state: `05fbd961c #461 taxicab-pdf: publish public true small batch` is pushed to `origin/main`, CI run `28024416677` passed, and the live raw report was verified. The report includes the prior scrubbed Wiley provider/production mismatch packet plus `evidence/report461-publictrue-smallbatch-after-wiley-summary-f64ca35.json`.
+Latest oxjobs #461 report state: `ddccf8ee2 #461 taxicab-pdf: publish biodiversitylibrary evidence` is pushed to `origin/main`, CI run `28024926481` passed, and the live raw report was verified. The report includes the prior scrubbed Wiley provider/production mismatch packet, `evidence/report461-publictrue-smallbatch-after-wiley-summary-f64ca35.json`, and `evidence/report461-biodiversitylibrary-publictrue-summary-fa4d7b8.json`.
 
-Where the next safe retrieval work is: draft public TRUE non-good rows are still `58`; no accepted KPI movement came from the latest small batch. Wiley remains blocked on provider recipe: no-storage `5/22`, bounded production reharvest `0/5`. The post-Wiley non-Wiley batch showed Hindawi `0/2`, Springer `0/2`, OUP `0/1`, Science Advances `1/1` no-storage but `0/1` durable reharvest, and `ios.is.pcz.pl` `0/1`. This is provider/production-path evidence, not route-code promotion.
+Where the next safe retrieval work is: draft public TRUE non-good rows are still `58`; no accepted KPI movement came from the latest evidence. Wiley remains blocked on provider recipe: no-storage `5/22`, bounded production reharvest `0/5`. The post-Wiley non-Wiley batch showed Hindawi `0/2`, Springer `0/2`, OUP `0/1`, Science Advances `1/1` no-storage but `0/1` durable reharvest, `ios.is.pcz.pl` `0/1`, and Biodiversity Library `0/1`. This is provider/production-path evidence, not route-code promotion.
 
 Next exact command:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input /tmp/taxicab-pdf-public-true-failures-after-wiley-row1-cache.csv --category '' --host biodiversitylibrary.org --limit 1 --strategies default_body,accept_pdf,google_referer,browser_html --out /tmp/taxicab-pdf-probes --run-id biodiversitylibrary-publictrue-residual1-after-smallbatch-$(git rev-parse --short HEAD) --env-file .env --timeout 60 --sleep 0.5
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/provider_pdf_probe.py --input /tmp/taxicab-pdf-public-true-failures-after-wiley-row1-cache.csv --category '' --host bmcgastroenterol.biomedcentral.com --limit 1 --strategies default_body,accept_pdf,google_referer,browser_html --out /tmp/taxicab-pdf-probes --run-id bmcgastroenterol-publictrue-residual1-after-biodiversity-$(git rev-parse --short HEAD) --env-file .env --timeout 60 --sleep 0.5
 ```
 
-Use no-storage provider probes first. Only run bounded reharvest if a lane returns valid PDF bytes; do not reharvest Wiley or Science Advances again until Zyte gives a concrete recipe or provider guidance.
+Use no-storage provider probes first. Only run bounded reharvest if a lane returns valid PDF bytes; do not reharvest Wiley, Science Advances, or Biodiversity Library again until Zyte gives a concrete recipe or provider guidance.
 
 Current blocker: denominator review plus remaining public TRUE provider/validator tails, not a broad Taxicab runtime failure. Continue retrieval work only for `pdf_gold_include_in_public_denominator=TRUE AND latest_taxicab_category != good_pdf`; keep public FALSE and REVIEW rows separate.
 
-Latest commit/push status before this handoff update: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar branch is pushed at `f64ca35`; oxjobs `main` is pushed at `05fbd961c` and live-verified. This docs slice records the post-Wiley public TRUE small-batch evidence and sets `biodiversitylibrary.org` as the next one-row provider probe.
+Latest commit/push status before this handoff update: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar branch is pushed at `fa4d7b8`; oxjobs `main` is pushed at `ddccf8ee2` and live-verified. This docs slice records the Biodiversity Library provider-negative evidence and sets `bmcgastroenterol.biomedcentral.com` as the next one-row provider probe.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
 Academic content harvesting API. Fetches HTML and PDFs from publisher websites via Zyte API, stores in Cloudflare R2 + DynamoDB.
@@ -38,13 +38,12 @@ gate is `taxicab-pdf-after-wiley-row1-cache-clean-3b2933f`: 2,458/6,293
 `corrupt_or_truncated_pdf -> good_pdf` transition and zero good-to-non-good
 regressions, zero timeouts, and zero Taxicab errors.
 
-Latest #461 report publish is oxjobs commit `05fbd961c`, which adds the
-post-Wiley public TRUE small-batch evidence after the scrubbed Wiley
-provider/production mismatch packet. It keeps the 0-origin fixed 0-100 chart,
-reports draft public TRUE as 2,458/2,516 (97.69%), and records that Science
-Advances was 1/1 provider-recoverable but 0/1 durable through production
-reharvest. The current handoff block above is authoritative; older
-AJBR/Philology/Revistas/PLOS/SCS/Scienceopen queue entries below are
+Latest #461 report publish is oxjobs commit `ddccf8ee2`, which adds
+Biodiversity Library provider-negative evidence after the post-Wiley public TRUE
+small batch. It keeps the 0-origin fixed 0-100 chart, reports draft public TRUE
+as 2,458/2,516 (97.69%), and records that Biodiversity Library recovered 0/1
+with bot/empty outcomes. The current handoff block above is authoritative;
+older AJBR/Philology/Revistas/PLOS/SCS/Scienceopen queue entries below are
 historical.
 
 Prior `07f8b2044` publishes the SS Editora accepted recovery, full gate
