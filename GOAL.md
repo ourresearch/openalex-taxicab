@@ -3,7 +3,7 @@
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
 ## Current PDF Handoff: 2026-06-23 REVIEW Pack, Overlay Mode, And Denominator Audit
 
-Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab <code>main</code> at <code>8b36486</code>. The active sidecar/evidence branch is <code>codex/taxicab-pdf-gold-availability</code>, currently pushed at <code>278f867</code>. This branch is for PDF availability/gold-denominator tooling and evidence artifacts only; it does not change production scraping, R2, DynamoDB, or Taxicab storage behavior.
+Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab <code>main</code> at <code>8b36486</code>. The active sidecar/evidence branch is <code>codex/taxicab-pdf-gold-availability</code>, currently pushed at <code>3aad3d4</code> before this De Gruyter handoff refresh. This branch is for PDF availability/gold-denominator tooling and evidence artifacts only; it does not change production scraping, R2, DynamoDB, or Taxicab storage behavior.
 
 Latest accepted full 10K read-only gate remains <code>taxicab-pdf-after-cambridge-cache-6386430</code>: <code>2,464/6,293 good_pdf</code> (<code>39.15%</code>) on the legacy guessed-PDF denominator, <code>+1</code> versus the prior JournalUniga gate and <code>+627</code> versus the first measured denominator reference of <code>1,837/6,293</code> (<code>29.19%</code>). The legacy raw 95% target is <code>5,979/6,293</code>, so the raw-denominator gap is <code>3,515</code> rows. The accepted gate had <code>0</code> good-to-non-good regressions, <code>0</code> timeouts, and <code>0</code> Taxicab errors.
 
@@ -34,6 +34,8 @@ Latest REVIEW evidence slice: private no-storage Zyte run <code>taylor-review-pa
 Follow-up REVIEW evidence slice: private no-storage Zyte run <code>jstor-review-pack-provider5-fe5a27c</code> sampled <code>5</code> <code>jstor.org</code> rows from the private top-250 REVIEW pack. It recovered <code>0/5</code> valid PDFs; best category was <code>html_instead_of_pdf=5</code>. Private overlay joined all five rows but made <code>0</code> status or denominator changes, so these rows stay REVIEW. Public aggregate asset <code>evidence/report461-jstor-review-provider-overlay-summary-fe5a27c.json</code> is published in oxjobs #461 at commit <code>d8948e278</code>, and the live raw report/asset were verified after cache retry.
 
 Latest positive REVIEW evidence slice: private no-storage Zyte run <code>acs-review-pack-provider5-278f867</code> sampled <code>5</code> <code>pubs.acs.org</code> rows from the private top-250 REVIEW pack. It recovered <code>2/5</code> valid PDFs; residual best category was <code>js_redirect_unresolved=3</code>. Private overlay would move <code>2</code> rows from public REVIEW to TRUE and all-known REVIEW to TRUE; the other <code>3</code> rows stay REVIEW. Public aggregate asset <code>evidence/report461-acs-review-provider-overlay-summary-278f867.json</code> is published in oxjobs #461 at commit <code>3f1a347e4</code>, and the live raw report/asset were verified after cache retry.
+
+Latest no-movement REVIEW evidence slice: private no-storage Zyte run <code>degruyter-review-pack-provider5-3aad3d4</code> sampled <code>5</code> <code>degruyterbrill.com</code> rows from the private top-250 REVIEW pack. It recovered <code>0/5</code> valid PDFs; best category was <code>js_redirect_unresolved=5</code>. Private overlay joined all five rows but made <code>0</code> status or denominator changes, so these rows stay REVIEW. Public aggregate asset <code>evidence/report461-degruyter-review-provider-overlay-summary-3aad3d4.json</code> is published in oxjobs #461 at commit <code>9f6e08ec6</code>, and the live raw report/asset were verified after cache retry.
 
 Denominator interpretation rule: <code>verdict=approved</code> remains REVIEW because it proves prior Goldie content extraction acceptance, not public PDF availability. Those rows need bounded provider/browser availability checks before becoming public TRUE, public FALSE, all-known TRUE, or out-of-scope.
 
@@ -100,11 +102,11 @@ Pushed: origin/main
 Gate 1: Taxicab PDF branch.
 Status: in progress.
 Branch: codex/taxicab-pdf-gold-availability
-Current publish status: oxjobs #461 commit `3f1a347e4` records the ACS five-row
-REVIEW evidence slice as aggregate-only partial public-TRUE denominator
+Current publish status: oxjobs #461 commit `9f6e08ec6` records the De Gruyter/Brill five-row
+REVIEW evidence slice as aggregate-only no-movement denominator
 evidence. The report keeps the Cambridge full gate as the accepted metric, keeps
 the fixed 0-origin 0-100 chart, and publishes the updated denominator audit.
-Oxjobs CI run `28060165079` passed; the live raw report and new aggregate
+Oxjobs CI run `28060645886` passed; the live raw report and new aggregate
 JSON asset were verified after cache retry.
 Draft public TRUE is 2,464/2,514 (98.01%) but remains provisional until the
 3,079 REVIEW rows are resolved.
