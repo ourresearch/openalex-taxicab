@@ -9,34 +9,34 @@ Important denominator update: the `6,293` denominator is a legacy guessed-PDF-ca
 
 Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose top scale is `100%`, and whose `95%` target line remains visible. Plot only accepted 6,293-denominator full gates after the zero origin. Do not restore any zoomed 29-39% y-axis.
 
-Latest oxjobs #461 report state: `b003cdede #461 taxicab-pdf: accept journaluniga gate` is pushed to `origin/main`, CI run `28039910912` passed, and the live raw report was verified after retry with JournalUniga markers (`2,463/6,293`, `39.14%`, `3,516`, `2,519`, `3,801`, `2,463/2,519`, `taxicab-pdf-after-journaluniga-cache`, and `<svg class="curve"`). Raw JSON and SVG artifacts also serve successfully. The public report includes aggregate-only JournalUniga provider/reharvest/read-only summaries plus the full-gate summary; raw DOI rows, raw URLs, UUIDs, sessions, cookies, and secret values stay out of oxjobs.
+Latest oxjobs #461 report state: `e511d26aa #461 taxicab-pdf: record post-journaluniga tail probes` is pushed to `origin/main`, CI run `28041494483` passed, and local `publish-report.py 461` passed. The live raw route still served the previous checkout on the first two retries after push: the new tail-probe report markers and JSON asset were not live yet. Retry live verification before treating the public report as current. The pushed report includes aggregate-only JournalUniga provider/reharvest/read-only summaries, the full-gate summary, the refreshed public TRUE queue, and `report461-publictrue-tail-probes-after-journaluniga-summary-81494ee.json`; raw DOI rows, raw URLs, UUIDs, sessions, cookies, and secret values stay out of oxjobs.
 
 Where the next safe retrieval work is: draft public TRUE non-good rows are now `56`: `corrupt_or_truncated_pdf=51`, `encrypted_or_unreadable_pdf=4`, and `missing_pdf_harvest=1`. Top residual hosts are `onlinelibrary.wiley.com` 21, `journals.sagepub.com` 5, `jstage.jst.go.jp` 5, `downloads.hindawi.com` 2, and `link.springer.com` 2, plus a 21-row single-host tail. Top residual publishers are `wiley` 21, `unknown` 15, `sage` 4, `springer` 4, `elsevier` 3, and `hindawi` 2. Do not reharvest Wiley, Hindawi, Springer, BMC, or other exhausted provider lanes unless Zyte gives a concrete provider recipe or new residual evidence exists.
 
 JournalUniga evidence accepted in this gate: no-storage provider probe `journaluniga-publictrue-residual1-after-bmcmicrobiol-fc0be25` recovered `1/1 good_pdf`; bounded reharvest `journaluniga-publictrue-reharvest1-fc0be25` returned `1/1 good_pdf`; read-only confirmation `journaluniga-publictrue-readonly1-fc0be25` returned `1/1 good_pdf`; full 10K gate `taxicab-pdf-after-journaluniga-cache-fc0be25` accepted `+2` raw good rows because the intended JournalUniga row and one incidental Wiley cache/read-path row moved to `good_pdf`.
 
+Post-JournalUniga tail evidence: eight non-duplicate singleton/tail hosts were probed with no Taxicab writes and recovered `0/8 good_pdf`: `ios.is.pcz.pl`, `e-journal.my.id`, `frontiersin.org`, `mdpi.com`, `nature.com`, `osf.io`, `sciencedirect.com`, and `revistas.filos.unam.mx`. Outcomes were empty responses, unresolved JS redirect, HTML instead of PDF, persistent corrupt/truncated bytes, or download 404. Do not reharvest or route-code these hosts without a new provider-advised recipe.
+
 Next exact command:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 - <<'PY'
+cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
+curl -L -sS -H 'Cache-Control: no-cache'   -o /tmp/ox461-report-tail.html   'https://oxjobs.org/reports/461/raw?path=evidence/report.html'
+curl -L -sS -H 'Cache-Control: no-cache'   -o /tmp/ox461-tail-summary.json   'https://oxjobs.org/reports/461/raw?path=evidence/report461-publictrue-tail-probes-after-journaluniga-summary-81494ee.json'
+rg -n 'Post-JournalUniga public TRUE tail probes|0/8|report461-publictrue-tail-probes-after-journaluniga-summary-81494ee|e-journal\.my\.id|revistas\.filos' /tmp/ox461-report-tail.html
+python3 - <<'PY'
 import json
 from pathlib import Path
-p = Path('/tmp/taxicab-pdf-public-true-failures-after-journaluniga-cache-summary.json')
-d = json.loads(p.read_text())
-print(json.dumps({
-  'total': d['total'],
-  'category_counts': d['category_counts'],
-  'publisher_counts': d['publisher_counts'],
-  'top_hosts': d['top_hosts'][:10],
-}, indent=2))
+d = json.loads(Path('/tmp/ox461-tail-summary.json').read_text())
+print(d['probe_count'], d['rows_probed'], d['recovered_good_pdf'])
 PY
 ```
 
-Inspect `/tmp/taxicab-pdf-public-true-failures-after-journaluniga-cache-summary.json` before choosing the next lane. Use no-storage provider probes first. Only run bounded reharvest if a lane returns valid PDF bytes and the targeted read-only proof says it is still a Taxicab-side recoverable residual.
+After the live route reflects `e511d26aa`, stop blind public TRUE tail probing unless a new provider recipe appears. The next substantive work should be either Goldsmith-PDF denominator REVIEW reduction by top host or Envoy-Zyte support packets for accumulated provider failures.
 
-Current blocker: denominator review plus remaining public TRUE provider/validator tails, not a broad Taxicab runtime failure. Continue retrieval work only for `pdf_gold_include_in_public_denominator=TRUE AND latest_taxicab_category != good_pdf`; keep public FALSE and REVIEW rows separate. The provisional public TRUE metric is above 95%, but the `/goal` is not complete while 3,801 REVIEW rows remain.
+Current blocker: live oxjobs raw-route lag plus denominator review. The remaining public TRUE residuals are mostly exhausted provider/validator tails, not a broad Taxicab runtime failure. Continue retrieval work only for `pdf_gold_include_in_public_denominator=TRUE AND latest_taxicab_category != good_pdf`; keep public FALSE and REVIEW rows separate. The provisional public TRUE metric is above 95%, but the `/goal` is not complete while 3,801 REVIEW rows remain.
 
-Latest commit/push status before this handoff update: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar branch is at `fc0be25` before this docs commit; oxjobs `main` is pushed at `b003cdede`, CI run `28039910912` passed, and the live raw report was verified with JournalUniga markers. This docs slice records the latest oxjobs verification and sets residual-lane inspection as the next command.
+Latest commit/push status before this handoff update: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar branch is pushed at `81494ee`; oxjobs `main` is pushed at `e511d26aa`, CI run `28041494483` passed, and live raw verification for the new tail-probe report is still pending due route lag. This docs slice records the negative tail probes and the live verification retry as the next command.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
 Last updated: 2026-06-23 UTC.
@@ -58,8 +58,9 @@ Current handoff override: accepted full 10K PDF gate
 +626 versus the first measured denominator reference. It has 0 timeout,
 0 `taxicab_error`, and 0 good-to-non-good regressions. Draft public TRUE is
 2,463/2,519 (97.78%) but provisional until 3,801 REVIEW rows are resolved. The
-current handoff block above is authoritative; older entries below are
-historical.
+post-JournalUniga tail-probe batch recovered 0/8 and should not be retried
+without new provider evidence. The current handoff block above is authoritative;
+older entries below are historical.
 Older entries including Revistas, Revmed/PLOS, OSTI/PLOS, provider snapshots,
 and DOI.org cleanup are historical; prior `3c125878f`
 publishes the aggregate-only
