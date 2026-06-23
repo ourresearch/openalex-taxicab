@@ -11,10 +11,13 @@ from openalex_taxicab.pdf_availability_gold import (
     DENOM_REVIEW,
     DENOM_TRUE,
     PDF_AVAILABILITY_FIELDS,
+    build_public_true_failure_queue,
     build_review_queue,
     generate_availability_rows,
     label_pdf_availability,
     read_sidecar,
+    summarize_public_true_failures,
+    write_csv_rows,
 )
 from openalex_taxicab.pdf_eval_harness import make_pdf_transport_row, summarize_pdf_rows
 from scripts.pdf_availability_gold import main as sidecar_main
@@ -142,6 +145,53 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
         self.assertEqual(summary["pdf_gold_review_total"], 1)
         self.assertEqual(summary["excluded_by_pdf_gold_status"]["paywalled_or_login_pdf_available"], 1)
 
+    def test_public_true_failure_queue_filters_to_latest_non_good(self):
+        labels = generate_availability_rows(
+            [
+                {"DOI": "10.5555/good", "PDF URL": "https://example.org/good.pdf", "Resolves To PDF": "TRUE"},
+                {"DOI": "10.5555/corrupt", "PDF URL": "https://onlinelibrary.wiley.com/full.pdf", "Resolves To PDF": "TRUE"},
+                {"DOI": "10.5555/paywall", "PDF URL": "https://publisher.example/full.pdf", "Notes": "Get access"},
+                {"DOI": "10.5555/review", "PDF URL": "https://publisher.example/review.pdf"},
+            ],
+            eval_rows_by_doi={
+                "10.5555/good": {"doi": "10.5555/good", "category": "good_pdf"},
+                "10.5555/corrupt": {
+                    "doi": "10.5555/corrupt",
+                    "category": "corrupt_or_truncated_pdf",
+                    "publisher": "wiley",
+                    "host": "",
+                    "candidate_url": "https://onlinelibrary.wiley.com/doi/pdf/10.5555/corrupt",
+                    "validation_errors": ["PdfReadError"],
+                },
+                "10.5555/paywall": {"doi": "10.5555/paywall", "category": "missing_pdf_harvest"},
+                "10.5555/review": {"doi": "10.5555/review", "category": "missing_pdf_harvest"},
+            },
+            checked_at="2026-06-23T00:00:00+00:00",
+        )
+        queue = build_public_true_failure_queue(
+            labels,
+            eval_rows_by_doi={
+                "10.5555/good": {"doi": "10.5555/good", "category": "good_pdf"},
+                "10.5555/corrupt": {
+                    "doi": "10.5555/corrupt",
+                    "category": "corrupt_or_truncated_pdf",
+                    "publisher": "wiley",
+                    "host": "",
+                    "candidate_url": "https://onlinelibrary.wiley.com/doi/pdf/10.5555/corrupt",
+                    "validation_errors": ["PdfReadError"],
+                },
+                "10.5555/paywall": {"doi": "10.5555/paywall", "category": "missing_pdf_harvest"},
+                "10.5555/review": {"doi": "10.5555/review", "category": "missing_pdf_harvest"},
+            },
+        )
+        self.assertEqual([row["DOI"] for row in queue], ["10.5555/corrupt"])
+        self.assertEqual(queue[0]["host"], "onlinelibrary.wiley.com")
+        self.assertEqual(queue[0]["validation_errors"], "PdfReadError")
+        summary = summarize_public_true_failures(queue)
+        self.assertEqual(summary["total"], 1)
+        self.assertEqual(summary["category_counts"]["corrupt_or_truncated_pdf"], 1)
+        self.assertEqual(summary["top_hosts"][0]["host"], "onlinelibrary.wiley.com")
+
     def test_sidecar_cli_writes_draft_and_review_queue(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -150,6 +200,8 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
             draft = tmp_path / "human-goldie-pdf-availability.draft.csv"
             review = tmp_path / "human-goldie-pdf-review-queue.csv"
             summary = tmp_path / "summary.json"
+            public_true_failures = tmp_path / "public-true-failures.csv"
+            public_true_summary = tmp_path / "public-true-failures-summary.json"
             with input_csv.open("w", newline="", encoding="utf-8") as handle:
                 writer = csv.DictWriter(
                     handle,
@@ -178,7 +230,34 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
                         "broken_doi": "FALSE",
                     }
                 )
-            eval_rows.write_text(json.dumps({"doi": "10.5555/good", "category": "good_pdf"}) + "\n", encoding="utf-8")
+                writer.writerow(
+                    {
+                        "DOI": "10.5555/corrupt",
+                        "Link": "https://doi.org/10.5555/corrupt",
+                        "PDF URL": "https://onlinelibrary.wiley.com/doi/pdf/10.5555/corrupt",
+                        "Notes": "",
+                        "Has Bot Check": "FALSE",
+                        "Resolves To PDF": "TRUE",
+                        "broken_doi": "FALSE",
+                    }
+                )
+            eval_rows.write_text(
+                "\n".join(
+                    [
+                        json.dumps({"doi": "10.5555/good", "category": "good_pdf"}),
+                        json.dumps(
+                            {
+                                "doi": "10.5555/corrupt",
+                                "category": "corrupt_or_truncated_pdf",
+                                "publisher": "wiley",
+                                "candidate_url": "https://onlinelibrary.wiley.com/doi/pdf/10.5555/corrupt",
+                            }
+                        ),
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
             with contextlib.redirect_stdout(io.StringIO()):
                 code = sidecar_main(
                     [
@@ -192,16 +271,38 @@ class PdfAvailabilityGoldTest(unittest.TestCase):
                         str(eval_rows),
                         "--summary-json",
                         str(summary),
+                        "--public-true-failures-out",
+                        str(public_true_failures),
+                        "--public-true-failures-summary-json",
+                        str(public_true_summary),
                     ]
                 )
             self.assertEqual(code, 0)
             self.assertTrue(draft.exists())
             self.assertTrue(review.exists())
-            self.assertEqual(len(read_sidecar(draft)), 2)
+            self.assertTrue(public_true_failures.exists())
+            self.assertTrue(public_true_summary.exists())
+            self.assertEqual(len(read_sidecar(draft)), 3)
             with review.open(encoding="utf-8") as handle:
                 self.assertEqual(len(list(csv.DictReader(handle))), 1)
+            with public_true_failures.open(encoding="utf-8") as handle:
+                failure_rows = list(csv.DictReader(handle))
+            self.assertEqual(len(failure_rows), 1)
+            self.assertEqual(failure_rows[0]["DOI"], "10.5555/corrupt")
             summary_data = json.loads(summary.read_text())
             self.assertEqual(summary_data["review_queue_total"], 1)
+            self.assertEqual(summary_data["public_true_failure_total"], 1)
+            public_summary_data = json.loads(public_true_summary.read_text())
+            self.assertEqual(public_summary_data["total"], 1)
+
+    def test_csv_writer_sanitizes_control_bytes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "rows.csv"
+            write_csv_rows(out, [{"DOI": "10.5555/control", "evidence": "\x14U\x00bad\nline"}], ["DOI", "evidence"])
+            text = out.read_text(encoding="utf-8")
+            self.assertNotIn("\x14", text)
+            self.assertNotIn("\x00", text)
+            self.assertIn("U bad line", text)
 
 
 if __name__ == "__main__":

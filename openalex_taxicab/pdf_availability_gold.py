@@ -72,6 +72,28 @@ PDF_AVAILABILITY_FIELDS = (
     "pdf_gold_checked_at",
 )
 
+PUBLIC_TRUE_FAILURE_FIELDS = (
+    "rank",
+    "DOI",
+    "latest_taxicab_category",
+    "publisher",
+    "host",
+    "pdf_gold_status",
+    "pdf_gold_confidence",
+    "pdf_gold_url",
+    "candidate_url",
+    "resolved_url",
+    "status_code",
+    "content_type",
+    "size_bytes",
+    "page_count",
+    "text_chars",
+    "validation_errors",
+    "error",
+    "evidence_snippet",
+    "next_action",
+)
+
 PAYWALL_RE = re.compile(
     r"\b("
     r"paywall|subscription|subscribe|purchase|buy now|get access|institution(?:al)? login|"
@@ -141,15 +163,23 @@ def row_pdf_url(row: dict[str, Any]) -> str:
     return ""
 
 
+def _host_from_value(value: str) -> str:
+    value = str(value or "").strip()
+    if not value:
+        return ""
+    first = value.split()[0].strip().strip(",;")
+    parsed = urlparse(first)
+    host = parsed.netloc.lower()
+    if not host and "://" not in first and "." in first and "/" not in first:
+        host = first.lower()
+    return host[4:] if host.startswith("www.") else host
+
+
 def row_host(row: dict[str, Any]) -> str:
     for key in ("host", "resolved_url", "candidate_url", "PDF URL", "Link", "resolved_links"):
-        value = str(row.get(key) or "").strip()
-        if not value:
-            continue
-        parsed = urlparse(value.split()[0])
-        host = parsed.netloc.lower()
+        host = _host_from_value(str(row.get(key) or ""))
         if host:
-            return host[4:] if host.startswith("www.") else host
+            return host
     return ""
 
 
@@ -463,13 +493,20 @@ def read_csv_rows(path: Path) -> list[dict[str, str]]:
         return [dict(row) for row in csv.DictReader(handle)]
 
 
+def csv_cell(value: Any) -> str:
+    if value is None:
+        return ""
+    text = str(value)
+    return re.sub(r"[\x00-\x1f\x7f]+", " ", text).strip()
+
+
 def write_csv_rows(path: Path, rows: Iterable[dict[str, Any]], fieldnames: Iterable[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(fieldnames))
+        writer = csv.DictWriter(handle, fieldnames=list(fieldnames), lineterminator="\n")
         writer.writeheader()
         for row in rows:
-            writer.writerow({field: row.get(field, "") for field in writer.fieldnames})
+            writer.writerow({field: csv_cell(row.get(field, "")) for field in writer.fieldnames})
 
 
 def read_sidecar(path: Path) -> dict[str, dict[str, str]]:
@@ -577,6 +614,126 @@ def build_review_queue(
     return rows
 
 
+def _label_dict(label: PdfAvailabilityLabel | dict[str, Any]) -> dict[str, str]:
+    if isinstance(label, PdfAvailabilityLabel):
+        return label.to_dict()
+    return {field: str(label.get(field, "")) for field in PDF_AVAILABILITY_FIELDS}
+
+
+def _validation_errors_text(value: Any) -> str:
+    if isinstance(value, list):
+        return "; ".join(str(item) for item in value)
+    return str(value or "")
+
+
+def _public_true_failure_action(category: str) -> str:
+    if category == "corrupt_or_truncated_pdf":
+        return "Mechanic-PDF: inspect validator/provider bytes; Envoy-Zyte if provider returns malformed PDF bytes"
+    if category == "encrypted_or_unreadable_pdf":
+        return "Mechanic-PDF: inspect encryption/readability policy before changing retrieval"
+    if category == "missing_pdf_harvest":
+        return "Lens-PDF + Envoy-Zyte: collect evidence for public PDF URL before route or provider change"
+    if category in {"html_instead_of_pdf", "js_redirect_unresolved", "interstitial_or_paywall", "bot_block_403"}:
+        return "Lens-PDF: browser/gold evidence; Envoy-Zyte: support packet if browser proves recoverability"
+    if category == "missing_eval_row":
+        return "Meter-PDF: rerun latest eval or inspect DOI join before retrieval work"
+    return "Quarry-PDF: inspect cluster and choose evidence-first Mechanic or Envoy path"
+
+
+def build_public_true_failure_queue(
+    labels: Iterable[PdfAvailabilityLabel | dict[str, Any]],
+    *,
+    eval_rows_by_doi: dict[str, dict[str, Any]] | None = None,
+    source_rows_by_doi: dict[str, dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    """Return public-denominator TRUE rows that are not latest ``good_pdf``.
+
+    This is the Gate 5 work queue: it excludes paywalled/FALSE rows and REVIEW
+    rows, then keeps only rows where the latest Taxicab PDF verdict still needs
+    work. It does not browse or mutate Taxicab storage.
+    """
+    eval_rows_by_doi = eval_rows_by_doi or {}
+    source_rows_by_doi = source_rows_by_doi or {}
+    rows: list[dict[str, Any]] = []
+    for label in labels:
+        label_row = _label_dict(label)
+        if label_row.get("pdf_gold_include_in_public_denominator", "").strip().upper() != DENOM_TRUE:
+            continue
+        doi = normalize_doi(label_row.get("DOI"))
+        eval_row = eval_rows_by_doi.get(doi, {})
+        category = str(eval_row.get("category") or "missing_eval_row")
+        if category == "good_pdf":
+            continue
+        source = source_rows_by_doi.get(doi, {})
+        host = row_host(eval_row) or row_host(source) or row_host(label_row)
+        publisher = str(eval_row.get("publisher") or source.get("Publisher") or source.get("publisher") or "unknown")
+        rows.append(
+            {
+                "rank": 0,
+                "DOI": doi,
+                "latest_taxicab_category": category,
+                "publisher": publisher,
+                "host": host,
+                "pdf_gold_status": label_row.get("pdf_gold_status", ""),
+                "pdf_gold_confidence": label_row.get("pdf_gold_confidence", ""),
+                "pdf_gold_url": label_row.get("pdf_gold_url", ""),
+                "candidate_url": eval_row.get("candidate_url", "") or source.get("PDF URL", ""),
+                "resolved_url": eval_row.get("resolved_url", ""),
+                "status_code": eval_row.get("status_code", ""),
+                "content_type": eval_row.get("content_type", ""),
+                "size_bytes": eval_row.get("size_bytes", ""),
+                "page_count": eval_row.get("page_count", ""),
+                "text_chars": eval_row.get("text_chars", ""),
+                "validation_errors": _validation_errors_text(eval_row.get("validation_errors", "")),
+                "error": eval_row.get("error", ""),
+                "evidence_snippet": eval_row.get("evidence_snippet", ""),
+                "next_action": _public_true_failure_action(category),
+            }
+        )
+    host_counts = Counter(str(row.get("host") or "unknown") for row in rows)
+    category_counts = Counter(str(row.get("latest_taxicab_category") or "unknown") for row in rows)
+    rows.sort(
+        key=lambda row: (
+            -host_counts.get(str(row.get("host") or "unknown"), 0),
+            str(row.get("host") or ""),
+            -category_counts.get(str(row.get("latest_taxicab_category") or "unknown"), 0),
+            str(row.get("latest_taxicab_category") or ""),
+            str(row.get("DOI") or ""),
+        )
+    )
+    for index, row in enumerate(rows, start=1):
+        row["rank"] = index
+    return rows
+
+
+def summarize_public_true_failures(rows: Iterable[dict[str, Any]]) -> dict[str, Any]:
+    row_list = list(rows)
+    category_counts = Counter(str(row.get("latest_taxicab_category") or "unknown") for row in row_list)
+    host_counts = Counter(str(row.get("host") or "unknown") for row in row_list)
+    publisher_counts = Counter(str(row.get("publisher") or "unknown") for row in row_list)
+    host_category_counts: dict[str, Counter[str]] = {}
+    for row in row_list:
+        host = str(row.get("host") or "unknown")
+        host_category_counts.setdefault(host, Counter())[str(row.get("latest_taxicab_category") or "unknown")] += 1
+    top_hosts = []
+    for host, count in host_counts.most_common(25):
+        dominant_category = host_category_counts.get(host, Counter()).most_common(1)
+        top_hosts.append(
+            {
+                "host": host,
+                "rows": count,
+                "dominant_category": dominant_category[0][0] if dominant_category else "unknown",
+            }
+        )
+    return {
+        "total": len(row_list),
+        "category_counts": dict(sorted(category_counts.items())),
+        "host_counts": dict(sorted(host_counts.items(), key=lambda item: (-item[1], item[0]))),
+        "publisher_counts": dict(sorted(publisher_counts.items(), key=lambda item: (-item[1], item[0]))),
+        "top_hosts": top_hosts,
+    }
+
+
 def summarize_availability_sidecar(labels: Iterable[PdfAvailabilityLabel]) -> dict[str, Any]:
     label_list = list(labels)
     status_counts = Counter(label.pdf_gold_status for label in label_list)
@@ -597,8 +754,10 @@ __all__ = [
     "DENOM_TRUE",
     "PDF_AVAILABILITY_FIELDS",
     "PDF_GOLD_STATUSES",
+    "PUBLIC_TRUE_FAILURE_FIELDS",
     "PdfAvailabilityLabel",
     "build_review_queue",
+    "build_public_true_failure_queue",
     "generate_availability_rows",
     "label_pdf_availability",
     "normalize_doi",
@@ -606,5 +765,6 @@ __all__ = [
     "read_eval_rows",
     "read_sidecar",
     "summarize_availability_sidecar",
+    "summarize_public_true_failures",
     "write_csv_rows",
 ]

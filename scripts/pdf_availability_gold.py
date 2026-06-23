@@ -13,6 +13,8 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from openalex_taxicab.pdf_availability_gold import (  # noqa: E402
     PDF_AVAILABILITY_FIELDS,
+    PUBLIC_TRUE_FAILURE_FIELDS,
+    build_public_true_failure_queue,
     build_review_queue,
     generate_availability_rows,
     normalize_doi,
@@ -20,6 +22,7 @@ from openalex_taxicab.pdf_availability_gold import (  # noqa: E402
     read_eval_rows,
     read_sidecar,
     summarize_availability_sidecar,
+    summarize_public_true_failures,
     write_csv_rows,
 )
 
@@ -43,11 +46,21 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--eval-rows", help="Optional latest Taxicab PDF rows.ndjson to join by DOI")
     parser.add_argument("--seed-sidecar", help="Optional reviewed/seed sidecar to copy labels by DOI")
     parser.add_argument("--summary-json", help="Optional availability summary JSON output")
+    parser.add_argument(
+        "--public-true-failures-out",
+        help="Optional CSV work queue of public-denominator TRUE rows that are not latest good_pdf",
+    )
+    parser.add_argument(
+        "--public-true-failures-summary-json",
+        help="Optional JSON summary for --public-true-failures-out",
+    )
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if (args.public_true_failures_out or args.public_true_failures_summary_json) and not args.eval_rows:
+        raise SystemExit("--eval-rows is required when exporting public TRUE failures")
     input_path = Path(args.input)
     out_path = Path(args.out)
     review_path = Path(args.review_queue)
@@ -75,6 +88,31 @@ def main(argv: list[str] | None = None) -> int:
             "review_queue_total": len(review_rows),
         }
     )
+    if args.public_true_failures_out or args.public_true_failures_summary_json:
+        public_true_failures = build_public_true_failure_queue(
+            labels,
+            eval_rows_by_doi=eval_rows,
+            source_rows_by_doi=source_by_doi,
+        )
+        public_true_summary = summarize_public_true_failures(public_true_failures)
+        public_true_summary.update(
+            {
+                "input": str(input_path),
+                "eval_rows": str(args.eval_rows or ""),
+                "availability_sidecar": str(out_path),
+            }
+        )
+        summary["public_true_failure_total"] = public_true_summary["total"]
+        if args.public_true_failures_out:
+            write_csv_rows(Path(args.public_true_failures_out), public_true_failures, PUBLIC_TRUE_FAILURE_FIELDS)
+            summary["public_true_failures_out"] = str(args.public_true_failures_out)
+            public_true_summary["public_true_failures_out"] = str(args.public_true_failures_out)
+        if args.public_true_failures_summary_json:
+            Path(args.public_true_failures_summary_json).write_text(
+                json.dumps(public_true_summary, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            summary["public_true_failures_summary_json"] = str(args.public_true_failures_summary_json)
     if args.summary_json:
         Path(args.summary_json).write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2, sort_keys=True))

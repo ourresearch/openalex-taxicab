@@ -1,27 +1,27 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-23 Rogue Scholar / Conscientia Beam / BBRC Accepted Recovery + Gold Denominator Pivot
+## Current PDF Handoff: 2026-06-23 Main-Merged PDF Eval + Public Denominator Failure Queue
 
-Latest local full 10K PDF gate is now `pdf-full10k-after-roguescholar-consciousbeam-bbrc-15f0c0b`: `2,444/6,293 good_pdf` (`38.84%`), up `+3` versus AJBR / AFST / Annals and `+607` versus the first measured denominator reference of `1,837/6,293` (`29.19%`). The legacy 95% target is `5,979/6,293`, so the current raw-denominator gap is `3,535` rows. The clean gate changed exactly three rows, all `missing_pdf_harvest -> good_pdf`, with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
+Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab `main` at `8b36486`. The full main-merge gate is `taxicab-pdf-20260623T063217Z`: `2,445/6,293 good_pdf` (`38.85%`), `+1` versus the prior accepted gate and `+608` versus the first measured denominator reference of `1,837/6,293` (`29.19%`). The legacy raw 95% target is `5,979/6,293`, so the raw-denominator gap is `3,534` rows. The main-merge gate had `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
 
-Important denominator update: the current `6,293` denominator is a legacy guessed-PDF-candidate denominator derived from corpus PDF candidate fields, not a reviewed proof that every row has a public full-text PDF. Next work must build PDF availability sidecars before continuing broad optimization: Phase A labels `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie.csv`; Phase B extends/joins labels into `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv`. Public denominator excludes subscription/login/purchase-only PDFs; secondary all-known-PDF metric keeps those visible when evidence proves a PDF exists.
+Important denominator update: the `6,293` denominator is a legacy guessed-PDF-candidate denominator, not proof that every row has a public full-text PDF. Phase A sidecars now label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie.csv` as a 100-row seed; Phase B sidecars now label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv` for the full 10K. The draft full-corpus sidecar counts are public TRUE `2,514`, public FALSE `3,680`, REVIEW `3,806`, and all-known TRUE `2,520`. The draft public TRUE metric is `2,445/2,514` (`97.26%`), but this is provisional and does not complete the goal until the `3,806` REVIEW rows are resolved or explicitly scoped.
 
-Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose top scale is `100%`, and whose `95%` target line remains visible. Plot only accepted 6,293-denominator full gates after the zero origin. The first measured denominator gate is only the first measured checkpoint, not the graph baseline. Do not restore any zoomed 29-39% y-axis.
+Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose top scale is `100%`, and whose `95%` target line remains visible. Plot only accepted 6,293-denominator full gates after the zero origin. Do not restore any zoomed 29-39% y-axis.
 
-Latest accepted evidence update: the recovered hosts were `api.rogue-scholar.org`, `archive.conscientiabeam.com`, and `bbrc.in`. The read-only confirmation preserved `3/3` valid PDFs and the full gate accepted `+3 good_pdf` with `0` regressions. This is bounded cache/reharvest lift, not a Taxicab-main production scraping-code push.
+Latest oxjobs #461 report state: `c9362a8e9 #461 taxicab-pdf: add public true failure targets` is pushed to `origin/main`, and the live raw report has been verified. It shows the raw legacy metric, denominator audit, `Where The PDF Gap Is`, and the draft public TRUE failure targets.
 
-Where the PDF gap is concentrated under the raw denominator: top residual host clusters are `link.springer.com` (814), `onlinelibrary.wiley.com` (582), `degruyterbrill.com` (200), `academic.oup.com` (147), `sciencedirect.com` (145), `journals.lww.com` (138), `cambridge.org` (124), `papers.ssrn.com` (73), `jstor.org` (60), and `pubs.acs.org` (53). These are not all proven Taxicab failures until the gold availability layer separates public-retrievable PDFs from paywalled/login/no-PDF cases.
+Where the next safe retrieval work is: draft public TRUE non-good rows total `69`, split as `corrupt_or_truncated_pdf=64`, `encrypted_or_unreadable_pdf=4`, and `missing_pdf_harvest=1`. The top public TRUE failure hosts are `onlinelibrary.wiley.com` (22), `pubs.acs.org` (8), `journals.sagepub.com` (7), and `jstage.jst.go.jp` (5). These are the Gate 5 Mechanic-PDF / Envoy-Zyte targets while Goldsmith-PDF works down the REVIEW queue.
 
 Next exact command:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 -m unittest discover -s tests && python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke && python3 scripts/taxicab_eval.py --fixture-smoke --out /tmp/taxicab-fixture-smoke
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/pdf_availability_gold.py --input /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv --out /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv --review-queue /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-review-queue.csv --eval-rows /tmp/taxicab-pdf-main-merge-gate/taxicab-pdf-20260623T063217Z/rows.ndjson --seed-sidecar /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie-pdf-availability.draft.csv --summary-json /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.summary.json --public-true-failures-out /tmp/taxicab-pdf-public-true-failures.csv --public-true-failures-summary-json /tmp/taxicab-pdf-public-true-failures-summary.json
 ```
 
-Current blocker: no global blocker. Do not push Taxicab `main` until the full 10K no-regression gate passes and category deltas are explained.
+Current blocker: denominator review, not Taxicab runtime. Continue retrieval work only for `pdf_gold_include_in_public_denominator=TRUE AND latest_taxicab_category != good_pdf`; keep public FALSE and REVIEW rows separate.
 
-Latest commit/push status: oxjobs main is pushed at `b74777e66 #461 taxicab-pdf: publish gold denominator pivot`, and GitHub CI run `28006956879` passed. Taxicab branch is `codex/taxicab-pdf-phase2` at `15f0c0b`. Run checks, commit/push these handoff docs, then run the merge-to-main regression gate.
+Latest commit/push status: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar tooling branch `codex/taxicab-pdf-gold-availability` is pushed at `852dcdb`; oxjobs `main` is pushed at `c9362a8e9`. This current slice adds a reusable public TRUE failure export and should be committed/pushed on `codex/taxicab-pdf-gold-availability` after tests pass.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
 Last updated: 2026-06-22 UTC.
