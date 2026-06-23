@@ -58,6 +58,18 @@ PDF_SMOKE_DOIS = [
     {"DOI": "10.9999/openalex-taxicab-pdf-missing-smoke", "Link": "https://doi.org/10.9999/openalex-taxicab-pdf-missing-smoke"},
 ]
 
+PDF_BROWSERBASE_DOWNLOAD_SELECTORS = (
+    "a[href*='Delivery.cfm']",
+    "a[href$='.pdf']",
+    "a[href*='.pdf?']",
+    "a[href*='/pdf']",
+    "a[href*='download'][href*='pdf']",
+    "a:has-text('Download This Paper')",
+    "a:has-text('Open PDF')",
+    "a:has-text('Download PDF')",
+    "button:has-text('Download')",
+)
+
 
 def git_sha() -> str:
     try:
@@ -706,6 +718,79 @@ def classify_browserbase_pdf_bytes(
     return classified.category
 
 
+def try_browserbase_pdf_download_clicks(page: Any, downloads: list[Any], *, timeout_ms: int) -> str:
+    """Click likely PDF controls in Browserbase evidence mode; success still requires PDF bytes."""
+    click_timeout = max(1000, min(3000, timeout_ms))
+    settle_timeout = max(500, min(3000, timeout_ms))
+    for selector in PDF_BROWSERBASE_DOWNLOAD_SELECTORS:
+        before_count = len(downloads)
+        try:
+            locator = page.locator(selector).first
+            if locator.count() < 1:
+                continue
+            try:
+                locator.scroll_into_view_if_needed(timeout=click_timeout)
+            except Exception:
+                pass
+            locator.click(timeout=click_timeout, no_wait_after=True)
+            try:
+                page.wait_for_timeout(settle_timeout)
+            except Exception:
+                pass
+            if len(downloads) > before_count:
+                return selector
+        except Exception:
+            continue
+    return ""
+
+
+def browserbase_pdf_candidate_urls(page: Any, *, limit: int = 5) -> list[dict[str, str]]:
+    script = """
+    () => {
+      const seen = new Set();
+      const rows = [];
+      const add = (url, source) => {
+        if (!url) return;
+        let absolute = "";
+        try {
+          absolute = new URL(url, document.baseURI).href;
+        } catch {
+          return;
+        }
+        if (seen.has(absolute)) return;
+        seen.add(absolute);
+        rows.push({url: absolute, source});
+      };
+      document.querySelectorAll("meta[name='citation_pdf_url'], meta[property='citation_pdf_url']").forEach((node) => {
+        add(node.getAttribute("content"), "citation_pdf_url");
+      });
+      document.querySelectorAll("a[href]").forEach((node) => {
+        const href = node.getAttribute("href") || "";
+        const text = (node.textContent || "").trim();
+        if (/Delivery\\.cfm|\\.pdf(?:$|[?#])|\\/pdf|download/i.test(href) || /download|open pdf|pdf/i.test(text)) {
+          add(href, "anchor");
+        }
+      });
+      return rows.slice(0, 10);
+    }
+    """
+    try:
+        rows = page.evaluate(script)
+    except Exception:
+        return []
+    candidates: list[dict[str, str]] = []
+    for row in rows or []:
+        if not isinstance(row, dict):
+            continue
+        url = str(row.get("url") or "")
+        source = str(row.get("source") or "page")
+        if url:
+            candidates.append({"url": url, "source": source})
+        if len(candidates) >= limit:
+            break
+    return candidates
+
+
 def browserbase_download_payload(
     row: Any,
     *,
@@ -715,6 +800,7 @@ def browserbase_download_payload(
     final_url: str,
     status_code: int | None,
     session_id: str,
+    click_selector: str = "",
 ) -> dict[str, Any]:
     download_path = out_base.with_suffix(".download")
     download_url = getattr(download, "url", "") or final_url
@@ -722,7 +808,7 @@ def browserbase_download_payload(
         download.save_as(str(download_path))
         body = download_path.read_bytes()
     except Exception as exc:
-        return {
+        payload = {
             "available": False,
             "verdict": "download_started_not_captured",
             "doi": row.doi,
@@ -738,6 +824,9 @@ def browserbase_download_payload(
             "download_url": download_url,
             "error": f"{type(exc).__name__}: {exc}",
         }
+        if click_selector:
+            payload["download_click_selector"] = click_selector
+        return payload
     content_type = "application/pdf" if body.startswith(b"%PDF-") else ""
     category = classify_browserbase_pdf_bytes(
         row,
@@ -766,6 +855,8 @@ def browserbase_download_payload(
         "download_detected": True,
         "evidence_path": str(evidence_path),
     }
+    if click_selector:
+        payload["download_click_selector"] = click_selector
     return payload
 
 
@@ -792,6 +883,9 @@ def collect_pdf_browserbase_session_evidence(
         body = b""
         title = ""
         screenshot_path = Path("")
+        download_click_selector = ""
+        browserbase_pdf_candidate_count = 0
+        browserbase_pdf_candidate_source = ""
         with sync_playwright() as playwright:
             browser = playwright.chromium.connect_over_cdp(connect_url, timeout=int(timeout_seconds * 1000))
             context = browser.new_context(accept_downloads=True)
@@ -827,6 +921,62 @@ def collect_pdf_browserbase_session_evidence(
                 except Exception:
                     html = ""
                 body = html.encode("utf-8", errors="replace")
+            if not downloads and not (body.startswith(b"%PDF-") or "application/pdf" in content_type.lower()):
+                download_click_selector = try_browserbase_pdf_download_clicks(
+                    page,
+                    downloads,
+                    timeout_ms=min(10000, int(timeout_seconds * 1000)),
+                )
+                if download_click_selector:
+                    final_url = page.url
+                    try:
+                        title = page.title()
+                    except Exception:
+                        title = ""
+                    try:
+                        html = page.content()
+                    except Exception:
+                        html = ""
+                    if html:
+                        body = html.encode("utf-8", errors="replace")
+            if not downloads and not (body.startswith(b"%PDF-") or "application/pdf" in content_type.lower()):
+                pdf_candidates = browserbase_pdf_candidate_urls(page)
+                browserbase_pdf_candidate_count = len(pdf_candidates)
+                for candidate in pdf_candidates:
+                    response = None
+                    try:
+                        response = page.goto(
+                            candidate["url"],
+                            wait_until="domcontentloaded",
+                            timeout=min(10000, int(timeout_seconds * 1000)),
+                        )
+                    except Exception as exc:
+                        navigation_error = f"{type(exc).__name__}: {exc}"
+                    try:
+                        page.wait_for_load_state("networkidle", timeout=min(10000, int(timeout_seconds * 1000)))
+                    except Exception:
+                        pass
+                    try:
+                        page.wait_for_timeout(3000)
+                    except Exception:
+                        pass
+                    final_url = page.url
+                    if response is not None:
+                        status_code = response.status
+                        content_type = response.headers.get("content-type", "")
+                        try:
+                            body = response.body()
+                        except Exception:
+                            body = b""
+                    if not body:
+                        try:
+                            html = page.content()
+                        except Exception:
+                            html = ""
+                        body = html.encode("utf-8", errors="replace")
+                    if downloads or body.startswith(b"%PDF-") or "application/pdf" in content_type.lower():
+                        browserbase_pdf_candidate_source = candidate["source"]
+                        break
             screenshot_path = out_base.with_suffix(".png")
             try:
                 page.screenshot(path=str(screenshot_path), full_page=True, timeout=10000)
@@ -841,11 +991,16 @@ def collect_pdf_browserbase_session_evidence(
                     final_url=final_url,
                     status_code=status_code,
                     session_id=session_id,
+                    click_selector=download_click_selector,
                 )
                 if navigation_error:
                     payload["navigation_error"] = navigation_error
                 if screenshot_path:
                     payload["screenshot_path"] = str(screenshot_path)
+                if browserbase_pdf_candidate_count:
+                    payload["browserbase_pdf_candidate_count"] = browserbase_pdf_candidate_count
+                if browserbase_pdf_candidate_source:
+                    payload["browserbase_pdf_candidate_source"] = browserbase_pdf_candidate_source
                 out_base.with_suffix(".json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
                 browser.close()
                 return payload
@@ -879,6 +1034,12 @@ def collect_pdf_browserbase_session_evidence(
             payload["navigation_error"] = navigation_error
         if screenshot_path:
             payload["screenshot_path"] = str(screenshot_path)
+        if download_click_selector:
+            payload["download_click_selector"] = download_click_selector
+        if browserbase_pdf_candidate_count:
+            payload["browserbase_pdf_candidate_count"] = browserbase_pdf_candidate_count
+        if browserbase_pdf_candidate_source:
+            payload["browserbase_pdf_candidate_source"] = browserbase_pdf_candidate_source
         out_base.with_suffix(".json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
         return payload
     except Exception as exc:
