@@ -41,6 +41,7 @@ from scripts.provider_pdf_probe import (  # noqa: E402
     filter_records,
     git_sha,
     load_env_file,
+    progress_record_label,
     read_input_records,
 )
 
@@ -220,7 +221,10 @@ def run_probe(args: argparse.Namespace) -> int:
     run_id = args.run_id or f"http-get-route-probe-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
     rows: list[dict[str, Any]] = []
     for index, record in enumerate(records, start=1):
-        print(f"{index}/{len(records)} {record.doi} {record.publisher} {record.host}", flush=True)
+        print(
+            f"{index}/{len(records)} {progress_record_label(record, show_doi=getattr(args, 'show_dois', False))}",
+            flush=True,
+        )
         target_url = record.fetch_url or record.candidate_url
         started = time.monotonic()
         try:
@@ -257,6 +261,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--connect-timeout", type=int, default=5)
     parser.add_argument("--sleep", type=float, default=0.5)
     parser.add_argument("--env-file", default="")
+    parser.add_argument(
+        "--show-dois",
+        action="store_true",
+        help="Include DOI values in progress logs. Off by default to keep shared probe logs redacted.",
+    )
     args = parser.parse_args(argv)
     return run_probe(args)
 

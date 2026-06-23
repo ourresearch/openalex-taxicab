@@ -1,9 +1,9 @@
 # OpenAlex Taxicab
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-23 SSRN Browserbase Candidate Capture
+## Current PDF Handoff: 2026-06-23 Probe Log Redaction And REVIEW Reduction
 
-Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab <code>main</code> at <code>8b36486</code>. The active sidecar/evidence branch is <code>codex/taxicab-pdf-gold-availability</code>; this branch now includes an evidence-only Browserbase PDF capture patch that tries bounded PDF/download clicks and same-session candidate-URL navigation after an HTML page loads. This does not change Taxicab production scraping or storage behavior.
+Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab <code>main</code> at <code>8b36486</code>. The active sidecar/evidence branch is <code>codex/taxicab-pdf-gold-availability</code>; this branch now includes evidence-only Browserbase PDF capture work and a probe-log safety patch: <code>scripts/provider_pdf_probe.py</code> and <code>scripts/http_get_route_probe.py</code> redact DOI progress labels by default, with <code>--show-dois</code> reserved for local debugging. This does not change Taxicab production scraping or storage behavior.
 
 Latest accepted full 10K read-only gate remains <code>taxicab-pdf-after-cambridge-cache-6386430</code>: <code>2,464/6,293 good_pdf</code> (<code>39.15%</code>) on the legacy guessed-PDF denominator, <code>+1</code> versus the prior JournalUniga gate and <code>+627</code> versus the first measured denominator reference of <code>1,837/6,293</code> (<code>29.19%</code>). The legacy raw 95% target is <code>5,979/6,293</code>, so the raw-denominator gap is <code>3,515</code> rows. The accepted gate had <code>0</code> good-to-non-good regressions, <code>0</code> timeouts, and <code>0</code> Taxicab errors.
 
@@ -22,14 +22,14 @@ Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 -m unittest discover -s tests
-python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-browserbase-candidate
+python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-redacted-probes
 ```
 
-After this branch is pushed, update oxjobs #461 with a sanitized aggregate for <code>ssrn-review-browserbase-candidate-gold3-310cb6e</code>. Do not publish raw Browserbase JSON, session IDs, raw DOI rows, raw URLs, SSRN delivery URLs, screenshots, or HTML. The next technical choice is either an Envoy-Zyte SSRN click/download support packet or a narrower Browserbase download-save investigation; do not promote SSRN production routing yet.
+After this branch is pushed, the next technical choice is either an Envoy-Zyte support packet/index for high-volume REVIEW lanes already backed by aggregate evidence, or a bounded denominator-review probe for a non-duplicate host. Future probe commands should rely on the default redacted progress logs and should not pass <code>--show-dois</code> when stdout/stderr might be shared. Do not publish raw Browserbase JSON, session IDs, raw DOI rows, raw URLs, SSRN delivery URLs, screenshots, or HTML.
 
 Current blocker: denominator review. The provisional public TRUE metric is above 95%, but the <code>/goal</code> is not complete while <code>3,079</code> REVIEW rows remain.
 
-Latest local verification for this Browserbase candidate-capture patch: <code>python3 -m unittest discover -s tests</code> passed 187 tests; <code>python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-browserbase-candidate</code> passed with 15 fixtures and 15 categories. <code>git diff --check</code> passed; tracked-file secret/signed-query scan had no matches. Branch push target is <code>codex/taxicab-pdf-gold-availability</code>.
+Latest local verification for this probe-log redaction patch: <code>python3 -m unittest discover -s tests</code> passed 189 tests; <code>python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke-redacted-probes</code> passed with 15 fixtures and 15 categories. <code>git diff --check</code> passed; tracked-file secret scan had no matches. Branch push target is <code>codex/taxicab-pdf-gold-availability</code>.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
 Academic content harvesting API. Fetches HTML and PDFs from publisher websites via Zyte API, stores in Cloudflare R2 + DynamoDB.
