@@ -1,29 +1,29 @@
 # OpenAlex Taxicab Agent Guide
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-23 Wiley Public TRUE Cache Gate Accepted
+## Current PDF Handoff: 2026-06-23 Wiley Provider Mismatch Published
 
-Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab `main` at `8b36486`. The latest accepted full 10K read-only gate is `taxicab-pdf-after-wiley-row1-cache-clean-3b2933f`: `2,458/6,293 good_pdf` (`39.06%`) on the legacy guessed-PDF denominator, `+1` versus the prior accepted gate and `+621` versus the first measured denominator reference of `1,837/6,293` (`29.19%`). The legacy raw 95% target is `5,979/6,293`, so the raw-denominator gap is `3,521` rows. The accepted gate had `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors. Category movement was `corrupt_or_truncated_pdf -1` and `good_pdf +1`. The first attempted full gate after Wiley row1 was rejected because one prior good row transiently timed out; the clean rerun is the accepted gate.
+Taxicab PDF Phase 2 eval/reporting work is merged to Taxicab `main` at `8b36486`. The sidecar/evidence branch is `codex/taxicab-pdf-gold-availability` at `525e3a0`. The latest accepted full 10K read-only gate is still `taxicab-pdf-after-wiley-row1-cache-clean-3b2933f`: `2,458/6,293 good_pdf` (`39.06%`) on the legacy guessed-PDF denominator, `+1` versus the prior accepted gate and `+621` versus the first measured denominator reference of `1,837/6,293` (`29.19%`). The legacy raw 95% target is `5,979/6,293`, so the raw-denominator gap is `3,521` rows. The accepted gate had `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors. Category movement was `corrupt_or_truncated_pdf -1` and `good_pdf +1`. The first attempted full gate after Wiley row1 was rejected because one prior good row transiently timed out; the clean rerun is the accepted gate.
 
 Important denominator update: the `6,293` denominator is a legacy guessed-PDF-candidate denominator, not proof that every row has a public full-text PDF. Phase A sidecars label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie.csv` as a 100-row seed; Phase B sidecars label `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv` for the full 10K. The refreshed draft full-corpus sidecar counts are public TRUE `2,516`, public FALSE `3,680`, REVIEW `3,804`, and all-known TRUE `2,522`. The draft public TRUE metric is now `2,458/2,516` (`97.69%`), but this is provisional and does not complete the goal until the `3,804` REVIEW rows are resolved or explicitly scoped.
 
 Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose top scale is `100%`, and whose `95%` target line remains visible. Plot only accepted 6,293-denominator full gates after the zero origin. Do not restore any zoomed 29-39% y-axis.
 
-Latest oxjobs #461 report state: `9efbdc8b1 #461 taxicab-pdf: accept wiley one row cache gate` is pushed to `origin/main`, CI passed, and the live raw route was verified after normal deploy/cache lag. The report shows the fixed 0-100% graph, raw legacy metric, denominator audit, `Where The PDF Gap Is`, draft public TRUE failures, ACS accepted targeted recovery, SAGE accepted two-row targeted recovery, J-STAGE encrypted-PDF validation evidence, refreshed Wiley aggregate evidence, and `evidence/report461-full10k-after-wiley-row1-cache-summary-3b2933f.json`.
+Latest oxjobs #461 report state: `086f1aa8d #461 taxicab-pdf: publish wiley provider mismatch` is pushed to `origin/main`, CI run `28023631472` passed, and the live raw report was verified. The report now includes aggregate-only Wiley residual evidence, `evidence/report461-wiley-publictrue-residual22-summary-525e3a0.json`, and `evidence/zyte-support/wiley-publictrue-pdfdirect-production-mismatch-525e3a0.md`. The public report still omits raw DOI rows, raw URLs, UUIDs, session IDs, cookies, signed URLs, and secret values.
 
-Where the next safe retrieval work is: draft public TRUE non-good rows are now `58`. Category split is `corrupt_or_truncated_pdf=53`, `encrypted_or_unreadable_pdf=4`, and `missing_pdf_harvest=1`. Top current public TRUE hosts include `onlinelibrary.wiley.com`, `journals.sagepub.com`, `jstage.jst.go.jp`, `downloads.hindawi.com`, and `link.springer.com`, with the remaining rows mostly singletons. Wiley refreshed no-storage Zyte probing recovered `2/5` valid PDFs; one recovered row now persists as durable `good_pdf`, while the second hit a `504` on direct POST and remains corrupt/provider-volatility evidence. ACS is closed at targeted/full-gate level. SAGE recovered `2/7` targeted and those two are accepted in the full gate; residual SAGE remains provider-support evidence. J-STAGE recovered `0/5`; residual work is validator/provider policy, not broad route guessing.
+Where the next safe retrieval work is: draft public TRUE non-good rows are now `58`. Category split is `corrupt_or_truncated_pdf=53`, `encrypted_or_unreadable_pdf=4`, and `missing_pdf_harvest=1`. The refreshed Wiley-hosted residual has `22` public TRUE corrupt/truncated rows. No-storage Zyte probe `wiley-publictrue-residual22-after-row1-525e3a0` recovered `5/22` valid PDFs, but bounded Taxicab production reharvest `wiley-publictrue-recovered5-reharvest-525e3a0` recovered `0/5`; all five stayed `corrupt_or_truncated_pdf` with `0` timeout and `0` Taxicab error. This is Zyte/provider recipe work, not route-code promotion. ACS is closed at targeted/full-gate level. SAGE recovered `2/7` targeted and those two are accepted in the full gate; residual SAGE remains provider-support evidence. J-STAGE recovered `0/5`; residual work is validator/provider policy, not broad route guessing.
 
 Next exact command:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 scripts/pdf_availability_gold.py --input /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv --out /tmp/merged-FINAL-pdf-availability-after-wiley-row1-cache.draft.csv --review-queue /tmp/merged-FINAL-pdf-review-queue-after-wiley-row1-cache.csv --eval-rows /tmp/taxicab-pdf-after-wiley-row1-cache-gate-clean/taxicab-pdf-after-wiley-row1-cache-clean-3b2933f/rows.ndjson --seed-sidecar /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie-pdf-availability.draft.csv --summary-json /tmp/merged-FINAL-pdf-availability-after-wiley-row1-cache-summary.json --public-true-failures-out /tmp/taxicab-pdf-public-true-failures-after-wiley-row1-cache.csv --public-true-failures-summary-json /tmp/taxicab-pdf-public-true-failures-after-wiley-row1-cache-summary.json
+cd /Users/shubh-trips/Documents/OpenAlex/oxjobs && sed -n '1,220p' working/taxicab-pdf/evidence/zyte-support/wiley-publictrue-pdfdirect-production-mismatch-525e3a0.md
 ```
 
-After that, use the regenerated 58-row public TRUE queue to choose the next small provider/validator lane. Do not promote route code without already-good preservation proof and a full no-regression gate.
+Use that scrubbed packet for Zyte support/provider-recipe escalation. Do not reharvest the Wiley residual again until Zyte gives a concrete recipe or provider guidance. If not working the support lane, pick the next non-Wiley public TRUE residual cluster from `/tmp/taxicab-pdf-public-true-failures-after-wiley-row1-cache.csv` and run a no-storage provider probe before any production change.
 
 Current blocker: denominator review plus remaining public TRUE provider/validator tails, not a broad Taxicab runtime failure. Continue retrieval work only for `pdf_gold_include_in_public_denominator=TRUE AND latest_taxicab_category != good_pdf`; keep public FALSE and REVIEW rows separate.
 
-Latest commit/push status before this handoff update: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar tooling branch `codex/taxicab-pdf-gold-availability` is pushed at `3b2933f`; oxjobs `main` is pushed at `9efbdc8b1`. This docs slice records the accepted Wiley one-row gate and sets sidecar regeneration as the next command.
+Latest commit/push status before this handoff update: Taxicab `main` is pushed at `8b36486`; Taxicab sidecar tooling branch `codex/taxicab-pdf-gold-availability` is pushed at `525e3a0`; oxjobs `main` is pushed at `086f1aa8d` and live-verified. This docs slice records the Wiley provider/production mismatch report and sets Zyte support packet review as the next command.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
 Current goal state: HTML Phase 1 is complete at 9,583/10,000 `good_html`
@@ -37,12 +37,13 @@ Current PDF metric: see the handoff block above. The accepted full gate is
 `corrupt_or_truncated_pdf -> good_pdf` transition and zero good-to-non-good
 regressions, zero timeouts, and zero Taxicab errors.
 
-Latest #461 report publish is oxjobs commit `9efbdc8b1`, which accepts the
-Wiley one-row cache gate, keeps the 0-origin fixed 0-100 bar chart with visual
-baseline at `0/6,293`, and reports draft public TRUE as 2,458/2,516 (97.69%)
-while preserving the 3,804 REVIEW-row blocker. The current handoff block above
-is authoritative; older AJBR/Philology/Revistas/PLOS/SCS/Scienceopen queue
-entries below are historical.
+Latest #461 report publish is oxjobs commit `086f1aa8d`, which adds the
+scrubbed Wiley provider/production mismatch packet after the accepted one-row
+cache gate. It keeps the 0-origin fixed 0-100 chart, reports draft public TRUE
+as 2,458/2,516 (97.69%), and records that Wiley no-storage probing recovered
+5/22 while bounded production reharvest recovered 0/5. The current handoff
+block above is authoritative; older AJBR/Philology/Revistas/PLOS/SCS/
+Scienceopen queue entries below are historical.
 
 Prior `07f8b2044` publishes the SS Editora accepted recovery, full gate
 `pdf-full10k-after-sseditora-ac692df`, residual refresh
