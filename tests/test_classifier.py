@@ -101,6 +101,23 @@ class ClassifierTests(unittest.TestCase):
         row = classify_content(ContentEvidence(content_type="text/html", body=body), run_id="test")
         self.assertEqual(row.category, CATEGORY_GOOD_HTML)
 
+    def test_article_page_with_perfdrive_reference_is_not_bot_block(self):
+        body = """
+        <html><head><title>The Electronic and Lattice Structures - IOPscience</title>
+        <meta name="citation_title" content="The Electronic and Lattice Structures">
+        <meta name="citation_author" content="Example Author">
+        <meta name="citation_doi" content="10.1088/0253-6102/36/1/109">
+        </head><body><article><h1>The Electronic and Lattice Structures</h1>
+        <p>Abstract. This article page contains useful publisher landing-page content,
+        citation metadata, authors, and enough visible scholarly text for downstream
+        extraction. A bot-protection script reference appears in the returned page,
+        but the article itself is present and usable.</p></article>
+        <script src="https://validate.perfdrive.com/static/challenge.js"></script>
+        </body></html>
+        """
+        row = classify_content(ContentEvidence(content_type="text/html", body=body), run_id="test")
+        self.assertEqual(row.category, CATEGORY_GOOD_HTML)
+
     def test_article_page_with_enable_javascript_widget_is_not_js_required(self):
         body = """
         <html><head><title>Internalization choices under competition</title>

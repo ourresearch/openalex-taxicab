@@ -70,7 +70,6 @@ STRONG_BOT_BLOCK_PATTERNS = tuple(
         r"errors\.edgesuite\.net",
         r"powered\s+and\s+protected\s+by\s+privacy",
         r"akamai bot manager",
-        r"validate\.perfdrive\.com",
         r"distil_r_captcha",
         r"<title[^>]*>\s*just a moment",
         r"<title[^>]*>\s*checking your browser",
@@ -88,6 +87,7 @@ WEAK_BOT_BLOCK_PATTERNS = tuple(
         r"recaptcha",
         r"\bg-recaptcha\b",
         r"captcha",
+        r"validate\.perfdrive\.com",
     )
 )
 
