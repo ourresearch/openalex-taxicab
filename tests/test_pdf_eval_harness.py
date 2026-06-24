@@ -490,6 +490,31 @@ class PdfEvalHarnessTests(unittest.TestCase):
 
         self.assertEqual(row.category, PDF_CATEGORY_GOOD_PDF)
 
+    def test_erudit_article_cover_table_of_contents_link_is_good_pdf(self):
+        text = (
+            "Alterstice International Journal of Intercultural Research "
+            "Trajectoire migratoire de jeunes en Alberta : parcours de mobilité "
+            "et d'individuation DOI: https://doi.org/10.7202/1091893ar "
+            "See table of contents Publisher Alterstice Article abstract "
+            + ("article body with analysis and discussion " * 50)
+        )
+        with patch(
+            "openalex_taxicab.pdf_eval_harness.structured_pdf_smoke",
+            return_value=(12, text, False, ""),
+        ):
+            row = classify_pdf_content(
+                PdfEvidence(
+                    doi="10.7202/1091893ar",
+                    title="Trajectoire migratoire de jeunes en Alberta",
+                    body=(FIXTURE_DIR / "valid_fulltext.pdf").read_bytes(),
+                    content_type="application/pdf",
+                    resolved_url="https://www.erudit.org/en/journals/alterstice/2022-v11-n1-alterstice07243/1091893ar.pdf",
+                ),
+                run_id="test",
+            )
+
+        self.assertEqual(row.category, PDF_CATEGORY_GOOD_PDF)
+
     def test_no_pdf_expected_short_circuits_content(self):
         row = classify_pdf_content(
             PdfEvidence(

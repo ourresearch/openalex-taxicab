@@ -846,6 +846,33 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertEqual(response.url, citation_pdf_url)
         self.assertTrue(response.content.startswith(b"%PDF-"))
 
+    def test_http_get_fetches_erudit_pdf_directly(self):
+        pdf_url = "https://www.erudit.org/en/journals/alterstice/2022-v11-n1-alterstice07243/1091893ar.pdf"
+        captured = {}
+
+        class FakeResponse:
+            status_code = 200
+            url = pdf_url
+            content = b"%PDF-1.4\nbody\n%%EOF"
+            headers = {"Content-Type": "application/pdf"}
+
+        def fake_get(*args, **kwargs):
+            captured["url"] = args[0]
+            captured["headers"] = kwargs.get("headers")
+            return FakeResponse()
+
+        with patch("openalex_taxicab.http_cache.requests.get", side_effect=fake_get), patch(
+            "openalex_taxicab.http_cache.requests.post",
+            side_effect=AssertionError("Erudit PDF route should not call Zyte"),
+        ):
+            response = http_get(pdf_url, doi="10.7202/1091893ar")
+
+        self.assertEqual(captured["url"], pdf_url)
+        self.assertEqual(captured["headers"], {"Accept": "application/pdf,*/*"})
+        self.assertEqual(response.url, pdf_url)
+        self.assertEqual(response.headers["Content-Type"], "application/pdf")
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
 
 if __name__ == "__main__":
     unittest.main()

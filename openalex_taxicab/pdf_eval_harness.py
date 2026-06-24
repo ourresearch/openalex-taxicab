@@ -116,7 +116,6 @@ SUPPLEMENT_PATTERNS = tuple(
         r"\bsupplement\b",
         r"\bpreview\b",
         r"\bcover page\b",
-        r"\btable of contents\b",
         r"\bfront matter\b",
     )
 )

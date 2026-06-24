@@ -489,6 +489,9 @@ def http_get(url,
         if not attempt_n and _is_scholarhub_pdf_url(url):
             return _fetch_scholarhub_pdf(url, connect_timeout, read_timeout)
 
+        if not attempt_n and _is_erudit_pdf_url(url):
+            return _fetch_erudit_pdf(url, connect_timeout, read_timeout, verify)
+
         if not attempt_n and _is_peerj_pdf_url(url):
             return _fetch_peerj_pdf(url, connect_timeout, read_timeout)
 
@@ -769,6 +772,10 @@ SCHOLARHUB_PDF_HOSTS = [
     "scholarhub.ui.ac.id",
 ]
 
+ERUDIT_PDF_HOSTS = [
+    "erudit.org",
+]
+
 
 # Hosts that hide direct PDF URLs behind Cloudflare-style fingerprint checks.
 # Direct httpResponseBody calls to the PDF URL get banned (Zyte 520), but
@@ -882,6 +889,19 @@ def _is_scholarhub_pdf_url(url):
         return False
     return any(host == scholarhub_host or host.endswith(f".{scholarhub_host}")
                for scholarhub_host in SCHOLARHUB_PDF_HOSTS)
+
+
+def _is_erudit_pdf_url(url):
+    try:
+        split_url = urlsplit(url)
+    except ValueError:
+        return False
+    host = split_url.netloc.lower()
+    path = split_url.path.lower()
+    if not path.endswith(".pdf"):
+        return False
+    return any(host == erudit_host or host.endswith(f".{erudit_host}")
+               for erudit_host in ERUDIT_PDF_HOSTS)
 
 
 def _should_use_landing_page_rewrite(url):
@@ -1170,6 +1190,32 @@ def _fetch_peerj_pdf(url, connect_timeout=5, read_timeout=60):
             return current
 
     return last_response
+
+
+def _fetch_erudit_pdf(url, connect_timeout=5, read_timeout=60, verify=False):
+    """Fetch Erudit PDF URLs directly.
+
+    Erudit serves verification HTML to browser-style user agents and to Zyte's
+    default body fetch, while a plain PDF request returns public PDF bytes. Keep
+    this route PDF-only so article HTML still uses the normal path.
+    """
+    try:
+        response = requests.get(
+            url,
+            headers={"Accept": "application/pdf,*/*"},
+            timeout=(connect_timeout, read_timeout),
+            verify=verify,
+        )
+    except requests.exceptions.RequestException as exc:
+        logger.warning(f"Erudit PDF direct fetch failed for {url}: {exc}")
+        return ResponseObject(content=b"", headers=[], status_code=520, url=url)
+
+    return ResponseObject(
+        content=response.content,
+        headers=[{"name": key, "value": value} for key, value in response.headers.items()],
+        status_code=response.status_code,
+        url=response.url,
+    )
 
 
 def _needs_cookie_fetch(url):
