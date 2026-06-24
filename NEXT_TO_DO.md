@@ -1,21 +1,21 @@
 # Taxicab next work for Codex and Claude
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-24 Cell Press No-Movement Evidence
+## Current PDF Handoff: 2026-06-24 Cell Press Browserbase Gold Evidence
 
-Active repo: `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab`. Do not use `/Users/shubh-trips/Documents/openalex-taxicab`. Active branch: `codex/taxicab-pdf-gold-availability`, pushed at `86ef031` before this Cell Press handoff refresh. Taxicab `main` already contains the PDF Phase 2 lead merge at `8b364865525a904ba517c63da9aa91d413570075`; no production scraping behavior changed in this slice.
+Active repo: `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab`. Do not use `/Users/shubh-trips/Documents/openalex-taxicab`. Active branch: `codex/taxicab-pdf-gold-availability`, pushed at `e54f53b` before this Cell Press Browserbase handoff refresh. Taxicab `main` already contains the PDF Phase 2 lead merge at `8b364865525a904ba517c63da9aa91d413570075`; no production scraping behavior changed in this slice.
 
 Latest accepted full 10K read-only gate remains `taxicab-pdf-after-cambridge-cache-6386430`: `2,464/6,293 good_pdf` (`39.15%`) on the legacy guessed-PDF denominator, `+1` versus the prior accepted gate, with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors. The legacy raw 95% target is `5,979/6,293`, so the raw gap is `3,515` rows.
 
 Denominator state: `6,293` is a legacy guessed-PDF-candidate denominator, not proof that every row has a public full-text PDF. Current full-corpus draft counts remain public TRUE `2,514`, public FALSE `4,407`, REVIEW `3,079`, and all-known-PDF TRUE `3,185`. Draft public TRUE rows score `2,464/2,514` (`98.01%`), but this is provisional because the `3,079` REVIEW rows are unresolved.
 
-Latest Cell Press REVIEW evidence slice: private exact-host no-storage Zyte run `cell-review-pack-provider5-86ef031` sampled `5` `cell.com` rows from the private top-250 REVIEW pack. The probe input classified the rows as Elsevier-attributed, and the exact host lane is Cell Press. It recovered `0/5` valid PDFs; best categories were `js_redirect_unresolved=3`, `empty_response=1`, and `html_instead_of_pdf=1`. Private overlay joined all five rows and made `0` status or denominator changes. Public aggregate asset `evidence/report461-cell-review-provider-overlay-summary-86ef031.json` is published in oxjobs #461 at commit `2380bcc8e`; CI run `28075409128` passed and the live raw report/asset were verified after route retry. Accepted sidecar counts are unchanged until the private overlay is reviewed and adopted.
+Latest Cell Press REVIEW evidence slice: private exact-host no-storage Zyte run `cell-review-pack-provider5-86ef031` sampled `5` `cell.com` rows from the private top-250 REVIEW pack and recovered `0/5` valid PDFs; best categories were `js_redirect_unresolved=3`, `empty_response=1`, and `html_instead_of_pdf=1`. Follow-up Browserbase session run `cell-review-browserbase-gold5-e54f53b` also captured `0/5` valid PDFs, with `download_started_not_captured=2` and `html_not_pdf=3`. Private overlay joined all five rows and made `0` status or denominator changes. Public aggregate assets `evidence/report461-cell-review-provider-overlay-summary-86ef031.json` and `evidence/report461-cell-review-browserbase-summary-e54f53b.json` are published in oxjobs #461 at commit `64608af7d`; CI run `28075997570` passed and the live raw report/assets were verified after route retry. Accepted sidecar counts are unchanged until the private overlay is reviewed and adopted.
 
-Recent REVIEW evidence, newest first: `cell.com` stayed REVIEW (`0/5`, best `js_redirect_unresolved=3`, `empty_response=1`, `html_instead_of_pdf=1`); `jpet.aspetjournals.org` stayed REVIEW (`0/5`, `js_redirect_unresolved=5`); `journals.ametsoc.org` found four public TRUE candidates and one paywall/login candidate; `eurekaselect.com` stayed REVIEW (`0/5`, `bot_block_403=5`); `actahort.org` stayed REVIEW (`0/5`, `js_redirect_unresolved=5`); `pdcnet.org` stayed REVIEW (`0/5`, `js_redirect_unresolved=5`); `sk.sagepub.com` stayed REVIEW (`0/5`, `js_redirect_unresolved=5`); `karger.com` stayed REVIEW (`0/5`, `html_instead_of_pdf=5`); `jamanetwork.com` found two paywall/login candidates and three remaining REVIEW rows. Older no-movement samples remain REVIEW unless a private overlay is explicitly reviewed and adopted.
+Recent REVIEW evidence, newest first: `cell.com` stayed REVIEW after Zyte plus Browserbase (`0/5` valid PDFs; Browserbase `download_started_not_captured=2`, `html_not_pdf=3`); `jpet.aspetjournals.org` stayed REVIEW after Zyte-only provider probing (`0/5`, `js_redirect_unresolved=5`); `journals.ametsoc.org` found four public TRUE candidates and one paywall/login candidate; `eurekaselect.com` stayed REVIEW (`0/5`, `bot_block_403=5`); `actahort.org` stayed REVIEW (`0/5`, `js_redirect_unresolved=5`); `pdcnet.org` stayed REVIEW (`0/5`, `js_redirect_unresolved=5`); `sk.sagepub.com` stayed REVIEW (`0/5`, `js_redirect_unresolved=5`); `karger.com` stayed REVIEW (`0/5`, `html_instead_of_pdf=5`); `jamanetwork.com` found two paywall/login candidates and three remaining REVIEW rows. Older no-movement samples remain REVIEW unless a private overlay is explicitly reviewed and adopted.
 
 Review-pack top hosts already sampled for denominator evidence include `api.taylorfrancis.com`, `jstor.org`, `pubs.acs.org`, `degruyterbrill.com`, `journals.lww.com`, `spiedigitallibrary.org`, `thieme-connect.de`, `pubs.rsc.org`, `tandfonline.com`, `pubs.aip.org`, `link.aps.org`, `doi.org`, `opg.optica.org`, `brill.com`, `journals.uchicago.edu`, `journals.sagepub.com`, `aip.scitation.org`, `iopscience.iop.org`, `thelancet.com`, `nature.com`, `asmedigitalcollection.asme.org`, `jamanetwork.com`, `karger.com`, `sk.sagepub.com`, `pdcnet.org`, `actahort.org`, `eurekaselect.com`, `journals.ametsoc.org`, `jpet.aspetjournals.org`, and `cell.com`.
 
-Next exact work is aggregate host-count inspection over the private review pack to choose the next unsampled exact-host candidate. Higher-volume hosts such as `link.springer.com`, `onlinelibrary.wiley.com`, `sciencedirect.com`, `cambridge.org`, `academic.oup.com`, and `papers.ssrn.com` have substantial prior evidence elsewhere; do not rerun them unless testing a new provider-advised recipe or a specific denominator question.
+Aggregate inspection of the private top-250 REVIEW pack found no new exact-host candidates after excluding already-sampled hosts and hosts with substantial prior evidence. Next exact work is JPET Browserbase gold, AMETSOC overlay review/adoption, or provider-guided recipe work; do not rerun known lanes unless testing a new provider-advised recipe or a specific denominator question.
 
 Secret and evidence rule: never print or commit API keys, cookies, signed URLs, Browserbase session JSON, screenshots, HTML, private exact-host CSVs, provider `rows.ndjson`, raw DOIs, or raw URLs. Oxjobs gets aggregate counts only.
 
@@ -24,24 +24,23 @@ Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 - <<'PY'
 import csv
-from collections import Counter
-from urllib.parse import urlparse
-sampled = {'api.taylorfrancis.com','jstor.org','pubs.acs.org','degruyterbrill.com','journals.lww.com','spiedigitallibrary.org','thieme-connect.de','pubs.rsc.org','tandfonline.com','pubs.aip.org','link.aps.org','doi.org','opg.optica.org','brill.com','journals.uchicago.edu','journals.sagepub.com','aip.scitation.org','iopscience.iop.org','thelancet.com','nature.com','asmedigitalcollection.asme.org','jamanetwork.com','karger.com','sk.sagepub.com','pdcnet.org','actahort.org','eurekaselect.com','journals.ametsoc.org','jpet.aspetjournals.org','cell.com'}
-counts = Counter()
-with open('/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-review-pack-top250.csv', newline='') as f:
-    for row in csv.DictReader(f):
-        host = (row.get('pdf_gold_host') or row.get('host') or '').strip().lower()
-        if not host:
-            for field in ('resolved_url', 'candidate_url', 'PDF URL', 'Link'):
-                url = (row.get(field) or '').strip()
-                if url:
-                    host = urlparse(url).netloc.lower().removeprefix('www.')
-                    break
-        if host and host not in sampled:
-            counts[host] += 1
-for host, count in counts.most_common(25):
-    print(host, count)
+from pathlib import Path
+src = Path('/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-review-pack-top250.csv')
+out = Path('/tmp/jpet-review-pack5.csv')
+rows = []
+with src.open(newline='') as f:
+    reader = csv.DictReader(f)
+    fields = reader.fieldnames or []
+    for row in reader:
+        if (row.get('pdf_gold_host') or row.get('host') or '').strip().lower() == 'jpet.aspetjournals.org':
+            rows.append(row)
+with out.open('w', newline='') as f:
+    writer = csv.DictWriter(f, fieldnames=fields)
+    writer.writeheader()
+    writer.writerows(rows)
+print(f'wrote {len(rows)} private JPET rows to {out}')
 PY
+python3 scripts/taxicab_pdf_eval.py --doi-file /tmp/jpet-review-pack5.csv --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --out /tmp/taxicab-pdf-browserbase-gold --run-id jpet-review-browserbase-gold5-$(git rev-parse --short HEAD) --with-browserbase --browserbase-mode session --browserbase-timeout 75 --env-file /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env --workers 1 --timeout 45 --retries 2
 ```
 
 Required checks before the next Taxicab push: `python3 -m unittest discover -s tests`, `python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke`, `git diff --check`, and the configured secret scan. For oxjobs pushes, run `python3 scripts/publish-report.py 461`, `git diff --check -- working/taxicab-pdf`, the secret scan, GitHub Actions, and public raw report verification.
