@@ -175,6 +175,32 @@ def jbc_fulltext_url_from_url(url):
     return f"https://www.jbc.org/article/{formatted_pii}/fulltext"
 
 
+def elsevier_journal_fulltext_url_from_pdf_viewer(url):
+    """Map Elsevier-family journal PDF viewer URLs to article fulltext pages."""
+    if not url:
+        return None
+
+    parsed = urlsplit(url)
+    path = parsed.path
+    match = re.match(r"^(/article/[^?#]+?)/pdf/?$", path, re.IGNORECASE)
+    if not match:
+        return None
+
+    return f"{parsed.scheme or 'https'}://{parsed.netloc}{match.group(1)}/fulltext"
+
+
+def _looks_like_browser_pdf_viewer_shell(content):
+    if isinstance(content, bytes):
+        text = content[:4096].decode("utf-8", errors="ignore")
+    else:
+        text = str(content or "")[:4096]
+    lower = text.lower()
+    return (
+        "pdf_embedder.css" in lower
+        or "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai" in lower
+    )
+
+
 BOT_PROTECTION_DOMAINS = [
     'perfdrive.com',
     'distilnetworks.com',
@@ -720,6 +746,24 @@ def http_get(url,
                     verify=verify,
                     cookies=cookies,
                     attempt_n=attempt_n
+                )
+
+            fulltext_url = elsevier_journal_fulltext_url_from_pdf_viewer(r.url)
+            if fulltext_url and _looks_like_browser_pdf_viewer_shell(r.content):
+                logger.info(f"PDF viewer shell detected at {r.url}, fetching fulltext page: {fulltext_url}")
+                return http_get(
+                    url=fulltext_url,
+                    headers=headers,
+                    read_timeout=read_timeout,
+                    connect_timeout=connect_timeout,
+                    stream=stream,
+                    publisher=publisher,
+                    session_id=session_id,
+                    ask_slowly=ask_slowly,
+                    verify=verify,
+                    cookies=cookies,
+                    attempt_n=attempt_n,
+                    doi=doi,
                 )
 
             return r

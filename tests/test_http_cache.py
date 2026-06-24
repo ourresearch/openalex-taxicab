@@ -8,6 +8,7 @@ sys.modules.setdefault("unidecode", types.SimpleNamespace(unidecode=lambda value
 sys.modules.setdefault("magic", types.SimpleNamespace(Magic=lambda mime=True: types.SimpleNamespace(from_buffer=lambda content: "text/html")))
 
 from openalex_taxicab.http_cache import (
+    elsevier_journal_fulltext_url_from_pdf_viewer,
     http_get,
     jbc_fulltext_url_from_url,
     sciencedirect_article_url_from_pdf_asset,
@@ -554,6 +555,21 @@ class ScienceDirectUrlTests(unittest.TestCase):
             jbc_fulltext_url_from_url("https://linkinghub.elsevier.com/retrieve/pii/S0140673624000012")
         )
 
+    def test_rewrites_elsevier_journal_pdf_viewer_to_fulltext(self):
+        self.assertEqual(
+            elsevier_journal_fulltext_url_from_pdf_viewer(
+                "https://www.gastrojournal.org/article/0016-5085(95)22767-9/pdf"
+            ),
+            "https://www.gastrojournal.org/article/0016-5085(95)22767-9/fulltext",
+        )
+
+    def test_ignores_non_elsevier_journal_pdf_viewer_url(self):
+        self.assertIsNone(
+            elsevier_journal_fulltext_url_from_pdf_viewer(
+                "https://www.cell.com/cell-reports/pdf/S2211-1247(18)31646-2.pdf"
+            )
+        )
+
     def test_extracts_sciencedirect_article_url_from_query_pii(self):
         url = (
             "https://pdf.sciencedirectassets.com/286905/1-s2.0-S2238785424X00034/"
@@ -723,6 +739,45 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertNotIn("browserHtml", captured["params"])
         self.assertEqual(response.url, article_url)
         self.assertIn("JBC article", str(response.content))
+
+    def test_http_get_rewrites_elsevier_pdf_viewer_shell_to_fulltext(self):
+        pdf_url = "https://www.gastrojournal.org/article/0016-5085(95)22767-9/pdf"
+        fulltext_url = "https://www.gastrojournal.org/article/0016-5085(95)22767-9/fulltext"
+        captured = []
+        responses = [
+            {
+                "statusCode": 200,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "browserHtml": (
+                    '<!DOCTYPE html><html><head><link rel="stylesheet" '
+                    'href="chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/pdf_embedder.css">'
+                    "</head><body></body></html>"
+                ),
+            },
+            {
+                "statusCode": 200,
+                "url": fulltext_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "httpResponseBody": base64.b64encode(
+                    b"<html><head><title>Gastroenterology article</title></head>"
+                    b"<body><article>Full article landing page text.</article></body></html>"
+                ).decode(),
+            },
+        ]
+
+        def fake_call_with_zyte_api(url, params=None):
+            captured.append((url, params))
+            return responses[len(captured) - 1]
+
+        with patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=fake_call_with_zyte_api):
+            response = http_get(pdf_url, doi="10.1016/0016-5085(95)22767-9")
+
+        self.assertEqual(len(captured), 2)
+        self.assertEqual(captured[0][0], pdf_url)
+        self.assertEqual(captured[1][0], fulltext_url)
+        self.assertEqual(response.url, fulltext_url)
+        self.assertIn("Gastroenterology article", str(response.content))
 
     def test_http_get_uses_browser_html_after_preprints_doi_redirect_even_when_head_403(self):
         doi_url = "https://doi.org/10.20944/preprints202005.0515.v1"
