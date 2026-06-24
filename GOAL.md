@@ -1,30 +1,47 @@
 # Taxicab Goal State
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
-## Current PDF Handoff: 2026-06-23 Rogue Scholar / Conscientia Beam / BBRC Accepted Recovery + Gold Denominator Pivot
+## Current PDF Handoff: 2026-06-24 JPET Browserbase Gold Evidence
 
-Latest local full 10K PDF gate is now `pdf-full10k-after-roguescholar-consciousbeam-bbrc-15f0c0b`: `2,444/6,293 good_pdf` (`38.84%`), up `+3` versus AJBR / AFST / Annals and `+607` versus the first measured denominator reference of `1,837/6,293` (`29.19%`). The legacy 95% target is `5,979/6,293`, so the current raw-denominator gap is `3,535` rows. The clean gate changed exactly three rows, all `missing_pdf_harvest -> good_pdf`, with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors.
+Active repo: `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab`. Do not use `/Users/shubh-trips/Documents/openalex-taxicab`. Active branch: `codex/taxicab-pdf-gold-availability`, pushed at `15486c5` before this JPET Browserbase handoff refresh. Taxicab `main` already contains the PDF Phase 2 lead merge at `8b364865525a904ba517c63da9aa91d413570075`; no production scraping behavior changed in this slice.
 
-Important denominator update: the current `6,293` denominator is a legacy guessed-PDF-candidate denominator derived from corpus PDF candidate fields, not a reviewed proof that every row has a public full-text PDF. Next work must build PDF availability sidecars before continuing broad optimization: Phase A labels `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/human-goldie.csv`; Phase B extends/joins labels into `/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL.csv`. Public denominator excludes subscription/login/purchase-only PDFs; secondary all-known-PDF metric keeps those visible when evidence proves a PDF exists.
+Latest accepted full 10K read-only gate remains `taxicab-pdf-after-cambridge-cache-6386430`: `2,464/6,293 good_pdf` (`39.15%`) on the legacy guessed-PDF denominator, `+1` versus the prior accepted gate, with `0` good-to-non-good regressions, `0` timeouts, and `0` Taxicab errors. The legacy raw 95% target is `5,979/6,293`, so the raw gap is `3,515` rows.
 
-Graph/report rule: oxjobs #461 must stay anchored at reality. Use a single unboxed fixed `0-100%` bar chart whose visual baseline is `0 good_pdf`, whose top scale is `100%`, and whose `95%` target line remains visible. Plot only accepted 6,293-denominator full gates after the zero origin. The first measured denominator gate is only the first measured checkpoint, not the graph baseline. Do not restore any zoomed 29-39% y-axis.
+Denominator state: `6,293` is a legacy guessed-PDF-candidate denominator, not proof that every row has a public full-text PDF. Current full-corpus draft counts remain public TRUE `2,514`, public FALSE `4,407`, REVIEW `3,079`, and all-known-PDF TRUE `3,185`. Draft public TRUE rows score `2,464/2,514` (`98.01%`), but this is provisional because the `3,079` REVIEW rows are unresolved.
 
-Latest accepted evidence update: the recovered hosts were `api.rogue-scholar.org`, `archive.conscientiabeam.com`, and `bbrc.in`. The read-only confirmation preserved `3/3` valid PDFs and the full gate accepted `+3 good_pdf` with `0` regressions. This is bounded cache/reharvest lift, not a Taxicab-main production scraping-code push.
+Latest JPET REVIEW evidence slice: private exact-host no-storage Zyte run `jpet-review-pack-provider5-23d755e` sampled `5` `jpet.aspetjournals.org` rows from the private top-250 REVIEW pack and recovered `0/5` valid PDFs; best category was `js_redirect_unresolved=5`. Follow-up Browserbase session run `jpet-review-browserbase-gold5-15486c5` also captured `0/5` valid PDFs, with `html_not_pdf=5`. Private overlay joined all five rows and made `0` status or denominator changes. Public aggregate assets `evidence/report461-jpet-review-provider-overlay-summary-23d755e.json` and `evidence/report461-jpet-review-browserbase-summary-15486c5.json` are published in oxjobs #461 at commit `261f04eee`; CI run `28076823234` passed and the live raw report/assets were verified after route retry. Accepted sidecar counts are unchanged until the private overlay is reviewed and adopted.
 
-Where the PDF gap is concentrated under the raw denominator: top residual host clusters are `link.springer.com` (814), `onlinelibrary.wiley.com` (582), `degruyterbrill.com` (200), `academic.oup.com` (147), `sciencedirect.com` (145), `journals.lww.com` (138), `cambridge.org` (124), `papers.ssrn.com` (73), `jstor.org` (60), and `pubs.acs.org` (53). These are not all proven Taxicab failures until the gold availability layer separates public-retrievable PDFs from paywalled/login/no-PDF cases.
+Recent REVIEW evidence, newest first: `jpet.aspetjournals.org` stayed REVIEW after Zyte plus Browserbase (`0/5` valid PDFs; Browserbase `html_not_pdf=5`); `cell.com` stayed REVIEW after Zyte plus Browserbase (`0/5` valid PDFs; Browserbase `download_started_not_captured=2`, `html_not_pdf=3`); `journals.ametsoc.org` found four public TRUE candidates and one paywall/login candidate; `eurekaselect.com` stayed REVIEW (`0/5`, `bot_block_403=5`); `actahort.org` stayed REVIEW (`0/5`, `js_redirect_unresolved=5`); `pdcnet.org` stayed REVIEW (`0/5`, `js_redirect_unresolved=5`); `sk.sagepub.com` stayed REVIEW (`0/5`, `js_redirect_unresolved=5`); `karger.com` stayed REVIEW (`0/5`, `html_instead_of_pdf=5`); `jamanetwork.com` found two paywall/login candidates and three remaining REVIEW rows. Older no-movement samples remain REVIEW unless a private overlay is explicitly reviewed and adopted.
+
+Review-pack top hosts already sampled for denominator evidence include `api.taylorfrancis.com`, `jstor.org`, `pubs.acs.org`, `degruyterbrill.com`, `journals.lww.com`, `spiedigitallibrary.org`, `thieme-connect.de`, `pubs.rsc.org`, `tandfonline.com`, `pubs.aip.org`, `link.aps.org`, `doi.org`, `opg.optica.org`, `brill.com`, `journals.uchicago.edu`, `journals.sagepub.com`, `aip.scitation.org`, `iopscience.iop.org`, `thelancet.com`, `nature.com`, `asmedigitalcollection.asme.org`, `jamanetwork.com`, `karger.com`, `sk.sagepub.com`, `pdcnet.org`, `actahort.org`, `eurekaselect.com`, `journals.ametsoc.org`, `jpet.aspetjournals.org`, and `cell.com`.
+
+Aggregate inspection of the private top-250 REVIEW pack found no new exact-host candidates after excluding already-sampled hosts and hosts with substantial prior evidence. Next exact work is AMETSOC overlay review/adoption or provider-guided recipe work; do not rerun known lanes unless testing a new provider-advised recipe or a specific denominator question.
+
+Secret and evidence rule: never print or commit API keys, cookies, signed URLs, Browserbase session JSON, screenshots, HTML, private exact-host CSVs, provider `rows.ndjson`, raw DOIs, or raw URLs. Oxjobs gets aggregate counts only.
 
 Next exact command:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 -m unittest discover -s tests && python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke && python3 scripts/taxicab_eval.py --fixture-smoke --out /tmp/taxicab-fixture-smoke
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab && python3 - <<'PY'
+import json
+from pathlib import Path
+p = Path('/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability-overlay-ametsoc-review-pack-provider5-8594e9f.json')
+data = json.loads(p.read_text())
+print(json.dumps({
+    'changed_total': data.get('changed_total'),
+    'status_transitions': data.get('status_transitions'),
+    'public_denominator_transitions': data.get('public_denominator_transitions'),
+    'all_known_pdf_denominator_transitions': data.get('all_known_pdf_denominator_transitions'),
+    'input': data.get('input', {}).get('public_denominator_counts'),
+    'output': data.get('output', {}).get('public_denominator_counts'),
+}, indent=2, sort_keys=True))
+PY
 ```
 
-Current blocker: no global blocker. Do not push Taxicab `main` until the full 10K no-regression gate passes and category deltas are explained.
-
-Latest commit/push status: oxjobs main is pushed at `b74777e66 #461 taxicab-pdf: publish gold denominator pivot`, and GitHub CI run `28006956879` passed. Taxicab branch is `codex/taxicab-pdf-phase2` at `15f0c0b`. Run checks, commit/push these handoff docs, then run the merge-to-main regression gate.
+Required checks before the next Taxicab push: `python3 -m unittest discover -s tests`, `python3 scripts/taxicab_pdf_eval.py --fixture-smoke --out /tmp/taxicab-pdf-fixture-smoke`, `git diff --check`, and the configured secret scan. For oxjobs pushes, run `python3 scripts/publish-report.py 461`, `git diff --check -- working/taxicab-pdf`, the secret scan, GitHub Actions, and public raw report verification.
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_END -->
 
-Last updated: 2026-06-22 UTC.
+Last updated: 2026-06-24 UTC.
 
 ## Goal
 
@@ -64,13 +81,15 @@ Pushed: origin/main
 
 Gate 1: Taxicab PDF branch.
 Status: in progress.
-Branch: codex/taxicab-pdf-phase2
-Current publish status: oxjobs #461 commit `7f963a832` publishes the
-AJBR / AFST / Annals accepted recovery while keeping ScholarHub as
-evidence-only branch-candidate work, learning notes, a 0-origin fixed 0-100 bar
-chart starting at `0/6,293`, and the next low-count provider-probe command.
-GitHub `main` and the oxjobs CI run are verified; oxjobs.org raw report cache
-may lag GitHub briefly.
+Branch: codex/taxicab-pdf-gold-availability
+Current publish status: oxjobs #461 commit `261f04eee` records the JPET/ASPET
+five-row Browserbase gold evidence slice as aggregate-only no-movement REVIEW
+evidence. The report keeps the Cambridge full gate as the accepted metric,
+keeps the fixed 0-origin 0-100 chart, and publishes the updated denominator
+audit. Oxjobs CI run `28076823234` passed; the live raw report and new
+aggregate JSON asset were verified after route retry.
+Draft public TRUE is 2,464/2,514 (98.01%) but remains provisional until the
+3,079 REVIEW rows are resolved.
 
 Prior `07f8b2044` publishes the SS Editora accepted recovery, full gate
 `pdf-full10k-after-sseditora-ac692df`, residual refresh
@@ -79,12 +98,12 @@ Prior `07f8b2044` publishes the SS Editora accepted recovery, full gate
 provider/gold negative evidence and residual queue. Prior `af33e5eec`
 publishes the ResearchHub provider/validator evidence and residual-priority
 demotion. The accepted full 10K metric is now
-`pdf-full10k-after-ajbr-afst-anndermatol-0baf702`: 2,441/6,293
-`good_pdf` (38.79%), +3 versus Academ Studies / Copernicus and +604 versus the first
-measured denominator reference, with 0 timeout and 0 `taxicab_error`. This is
-bounded direct-PDF cache/reharvest plus clean read-only measurement, not a
-Taxicab-main production scraping push. Current phase is residual-cluster refresh
-and the next evidence-only lane before any Taxicab main push.
+`taxicab-pdf-after-cambridge-cache-6386430`: 2,464/6,293
+`good_pdf` (39.15%), +1 versus the prior accepted gate and +627 versus the
+first measured denominator reference, with 0 timeout and 0 `taxicab_error`.
+This is a bounded cache/reharvest lift plus clean read-only measurement, not a
+Taxicab-main production scraping push. Current phase is shifting to denominator
+REVIEW reduction or provider-support packets rather than more blind tail probing.
 Do not
 promote SAGE, Wiley, ACS, IOP, Elsevier DOI.org, rank-39 DOI.org, ACM,
 bioRxiv/CSHLP, IngentaConnect, ICE Virtual Library, Ecologica, ASTM Compass,
@@ -92,9 +111,10 @@ CCCC, Atlantis Press, IWA/AMPP/Sage Knowledge/RSNA/AJOG/Elgar, or broad
 Elsevier article-PDF lanes without a narrower or provider-advised recipe. Do
 not push Taxicab main before the full PDF 95% proof.
 Current handoff override: `/goal` is active for PDF Phase 2. The top-level
-accepted metric is `pdf-full10k-after-ajbr-afst-anndermatol-0baf702`,
-2,441/6,293 `good_pdf` (38.79%), with a 3,538-row gap to 95%. The current
-handoff block above is authoritative; older entries below are historical.
+accepted metric is `taxicab-pdf-after-cambridge-cache-6386430`,
+2,464/6,293 `good_pdf` (39.15%), with a 3,515-row gap to 95% on the legacy raw
+denominator. The current handoff block above is authoritative; older entries
+below are historical.
 Older entries such as Revistas, Revmed/PLOS, OSTI/PLOS, provider snapshots, and DOI.org cleanup are
 historical; prior `5a1254630` publishes the aggregate-only closed
 DOI.org residual-priority cleanup and refreshed queue; prior `3c125878f`

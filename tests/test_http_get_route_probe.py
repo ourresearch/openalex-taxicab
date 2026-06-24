@@ -1,4 +1,6 @@
 import argparse
+import contextlib
+import io
 import json
 import tempfile
 import unittest
@@ -120,6 +122,7 @@ class HttpGetRouteProbeTests(unittest.TestCase):
                 env_file="",
             )
 
+            stdout = io.StringIO()
             with patch(
                 "scripts.http_get_route_probe.http_get",
                 return_value=FakeResponse(
@@ -127,11 +130,14 @@ class HttpGetRouteProbeTests(unittest.TestCase):
                     headers={"Content-Type": "application/pdf"},
                 ),
             ) as mocked:
-                self.assertEqual(run_probe(args), 0)
+                with contextlib.redirect_stdout(stdout):
+                    self.assertEqual(run_probe(args), 0)
 
             mocked.assert_called_once()
             self.assertEqual(mocked.call_args.args[0], fetch_url)
             self.assertIn("article=1201", mocked.call_args.args[0])
+            self.assertNotIn("10.7454/example", stdout.getvalue())
+            self.assertIn("publisher=unknown host=scholarhub.ui.ac.id", stdout.getvalue())
             summary = json.loads((out / "unit-http-get-route" / "summary.json").read_text(encoding="utf-8"))
             self.assertEqual(summary["category_counts"], {"good_pdf": 1})
             self.assertEqual(summary["prior_non_good_recovered"], 1)

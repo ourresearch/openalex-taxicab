@@ -207,6 +207,16 @@ def filter_records(
     return filtered
 
 
+def progress_record_label(record: ProbeRecord, *, show_doi: bool = False) -> str:
+    """Return a progress label that is safe for shared logs by default."""
+    publisher = record.publisher or "unknown"
+    host = record.host or host_from_url(record.candidate_url) or "unknown"
+    baseline = record.baseline_category or "unknown"
+    if show_doi:
+        return f"{record.doi} {publisher} {host}"
+    return f"publisher={publisher} host={host} baseline={baseline}"
+
+
 def _replace_url_placeholders(value: Any, url: str) -> Any:
     if isinstance(value, str):
         return value.replace("{{url}}", url).replace("{url}", url)
@@ -545,7 +555,10 @@ def run_probe(args: argparse.Namespace) -> int:
     run_id = args.run_id or f"provider-pdf-probe-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
     rows: list[dict[str, Any]] = []
     for index, record in enumerate(records, start=1):
-        print(f"{index}/{len(records)} {record.doi} {record.publisher} {record.host}", flush=True)
+        print(
+            f"{index}/{len(records)} {progress_record_label(record, show_doi=args.show_dois)}",
+            flush=True,
+        )
         for strategy in strategies:
             params = strategy_params(strategy, record.fetch_url or record.candidate_url, recipes)
             status_code, content_type, body, resolved_url, error = zyte_fetch(params, timeout=args.timeout)
@@ -602,6 +615,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--timeout", type=int, default=60)
     parser.add_argument("--sleep", type=float, default=0.5)
     parser.add_argument("--env-file", default="")
+    parser.add_argument(
+        "--show-dois",
+        action="store_true",
+        help="Include DOI values in progress logs. Off by default to keep shared probe logs redacted.",
+    )
     args = parser.parse_args(argv)
     return run_probe(args)
 

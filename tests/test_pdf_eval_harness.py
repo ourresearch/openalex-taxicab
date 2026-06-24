@@ -167,38 +167,140 @@ class FakeDownloadStartPage:
         Path(path).write_bytes(b"png")
 
 
+class FakeClickDownloadLocator:
+    def __init__(self, page, selector: str):
+        self.page = page
+        self.selector = selector
+
+    @property
+    def first(self):
+        return self
+
+    def count(self):
+        return 1 if self.selector == "a:has-text('Download This Paper')" else 0
+
+    def scroll_into_view_if_needed(self, *args, **kwargs):
+        return None
+
+    def click(self, *args, **kwargs):
+        self.page.url = "https://papers.ssrn.com/sol3/Delivery.cfm/SSRN_ID.pdf"
+        if self.page.download_handler is not None:
+            self.page.download_handler(FakeBrowserbaseDownload(self.page.download_body, url=self.page.url))
+
+
+class FakeClickDownloadPage:
+    url = "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=123"
+
+    def __init__(self, download_body: bytes):
+        self.download_body = download_body
+        self.download_handler = None
+
+    def on(self, event: str, handler):
+        if event == "download":
+            self.download_handler = handler
+
+    def goto(self, *args, **kwargs):
+        return None
+
+    def wait_for_load_state(self, *args, **kwargs):
+        return None
+
+    def wait_for_timeout(self, *args, **kwargs):
+        return None
+
+    def title(self):
+        return "SSRN Article"
+
+    def content(self):
+        return "<html><body><a>Download This Paper</a></body></html>"
+
+    def locator(self, selector: str):
+        return FakeClickDownloadLocator(self, selector)
+
+    def evaluate(self, *args, **kwargs):
+        return []
+
+    def screenshot(self, path: str, *args, **kwargs):
+        Path(path).write_bytes(b"png")
+
+
+class FakeCandidateDownloadLocator:
+    @property
+    def first(self):
+        return self
+
+    def count(self):
+        return 0
+
+
+class FakeCandidateDownloadPage(FakeClickDownloadPage):
+    def locator(self, selector: str):
+        return FakeCandidateDownloadLocator()
+
+    def evaluate(self, *args, **kwargs):
+        return [{"url": "https://papers.ssrn.com/sol3/Delivery.cfm/SSRN_ID.pdf", "source": "citation_pdf_url"}]
+
+    def goto(self, url: str, *args, **kwargs):
+        if "Delivery.cfm" in url and self.download_handler is not None:
+            self.url = url
+            self.download_handler(FakeBrowserbaseDownload(self.download_body, url=url))
+        return None
+
+
 class FakeBrowserbaseContext:
-    def __init__(self, body: bytes):
+    def __init__(self, body: bytes, *, click_download: bool = False, candidate_download: bool = False):
         self.body = body
+        self.click_download = click_download
+        self.candidate_download = candidate_download
 
     def new_page(self):
+        if self.candidate_download:
+            return FakeCandidateDownloadPage(self.body)
+        if self.click_download:
+            return FakeClickDownloadPage(self.body)
         return FakeDownloadStartPage(self.body)
 
 
 class FakeBrowserbaseBrowser:
-    def __init__(self, body: bytes):
+    def __init__(self, body: bytes, *, click_download: bool = False, candidate_download: bool = False):
         self.body = body
+        self.click_download = click_download
+        self.candidate_download = candidate_download
         self.closed = False
 
     def new_context(self, **kwargs):
         self.accept_downloads = kwargs.get("accept_downloads")
-        return FakeBrowserbaseContext(self.body)
+        return FakeBrowserbaseContext(
+            self.body,
+            click_download=self.click_download,
+            candidate_download=self.candidate_download,
+        )
 
     def close(self):
         self.closed = True
 
 
 class FakeBrowserbaseChromium:
-    def __init__(self, body: bytes):
+    def __init__(self, body: bytes, *, click_download: bool = False, candidate_download: bool = False):
         self.body = body
+        self.click_download = click_download
+        self.candidate_download = candidate_download
 
     def connect_over_cdp(self, *args, **kwargs):
-        return FakeBrowserbaseBrowser(self.body)
+        return FakeBrowserbaseBrowser(
+            self.body,
+            click_download=self.click_download,
+            candidate_download=self.candidate_download,
+        )
 
 
 class FakeSyncPlaywright:
-    def __init__(self, body: bytes):
-        self.chromium = FakeBrowserbaseChromium(body)
+    def __init__(self, body: bytes, *, click_download: bool = False, candidate_download: bool = False):
+        self.chromium = FakeBrowserbaseChromium(
+            body,
+            click_download=click_download,
+            candidate_download=candidate_download,
+        )
 
     def __enter__(self):
         return self
@@ -619,6 +721,79 @@ class PdfEvalHarnessTests(unittest.TestCase):
             self.assertTrue(Path(payload["evidence_path"]).exists())
             self.assertEqual(Path(payload["evidence_path"]).suffix, ".pdf")
             self.assertTrue(out_base.with_suffix(".json").exists())
+            release.assert_called_once()
+
+    def test_browserbase_session_clicks_download_control(self):
+        row = make_pdf_transport_row(
+            run_id="browserbase-test",
+            doi="10.5555/browserbase",
+            category=PDF_CATEGORY_HTML_INSTEAD_OF_PDF,
+            publisher="SSRN",
+            host="papers.ssrn.com",
+            input_url="https://doi.org/10.5555/browserbase",
+            candidate_url="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=123",
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            out_base = Path(tmp) / "evidence"
+            with patch(
+                "playwright.sync_api.sync_playwright",
+                return_value=FakeSyncPlaywright(PdfLookupHandler.pdf_body, click_download=True),
+            ), patch(
+                "scripts.taxicab_pdf_eval.create_browserbase_session",
+                return_value={"id": "session-1", "connect_url": "wss://connect.example"},
+            ), patch("scripts.taxicab_pdf_eval.release_browserbase_session") as release:
+                payload = collect_pdf_browserbase_session_evidence(
+                    row,
+                    evidence_dir=Path(tmp),
+                    out_base=out_base,
+                    target_url="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=123",
+                    api_key="secret-key",
+                    timeout_seconds=30,
+                )
+
+            self.assertTrue(payload["available"])
+            self.assertEqual(payload["verdict"], "good_pdf_download_candidate")
+            self.assertEqual(payload["download_click_selector"], "a:has-text('Download This Paper')")
+            self.assertTrue(payload["download_detected"])
+            self.assertEqual(Path(payload["evidence_path"]).suffix, ".pdf")
+            release.assert_called_once()
+
+    def test_browserbase_session_uses_discovered_pdf_candidate_url(self):
+        row = make_pdf_transport_row(
+            run_id="browserbase-test",
+            doi="10.5555/browserbase",
+            category=PDF_CATEGORY_HTML_INSTEAD_OF_PDF,
+            publisher="SSRN",
+            host="papers.ssrn.com",
+            input_url="https://doi.org/10.5555/browserbase",
+            candidate_url="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=123",
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            out_base = Path(tmp) / "evidence"
+            with patch(
+                "playwright.sync_api.sync_playwright",
+                return_value=FakeSyncPlaywright(PdfLookupHandler.pdf_body, candidate_download=True),
+            ), patch(
+                "scripts.taxicab_pdf_eval.create_browserbase_session",
+                return_value={"id": "session-1", "connect_url": "wss://connect.example"},
+            ), patch("scripts.taxicab_pdf_eval.release_browserbase_session") as release:
+                payload = collect_pdf_browserbase_session_evidence(
+                    row,
+                    evidence_dir=Path(tmp),
+                    out_base=out_base,
+                    target_url="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=123",
+                    api_key="secret-key",
+                    timeout_seconds=30,
+                )
+
+            self.assertTrue(payload["available"])
+            self.assertEqual(payload["verdict"], "good_pdf_download_candidate")
+            self.assertEqual(payload["browserbase_pdf_candidate_count"], 1)
+            self.assertEqual(payload["browserbase_pdf_candidate_source"], "citation_pdf_url")
+            self.assertTrue(payload["download_detected"])
+            self.assertEqual(Path(payload["evidence_path"]).suffix, ".pdf")
             release.assert_called_once()
 
     def test_pdf_cli_workers_write_expected_summary(self):

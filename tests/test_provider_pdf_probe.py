@@ -5,10 +5,12 @@ import unittest
 from pathlib import Path
 
 from scripts.provider_pdf_probe import (
+    ProbeRecord,
     decode_zyte_body,
     filter_records,
     load_recipe_strategies,
     normalize_fetch_url,
+    progress_record_label,
     read_input_records,
     sanitize_url,
     strategy_list,
@@ -22,6 +24,34 @@ def base64_text(body: bytes) -> str:
 
 
 class ProviderPdfProbeTests(unittest.TestCase):
+    def test_progress_record_label_redacts_doi_by_default(self):
+        record = ProbeRecord(
+            doi="10.1234/example.secret",
+            publisher="springer",
+            host="link.springer.com",
+            baseline_category="missing_pdf_harvest",
+        )
+
+        label = progress_record_label(record)
+
+        self.assertNotIn("10.1234/example.secret", label)
+        self.assertEqual(
+            label,
+            "publisher=springer host=link.springer.com baseline=missing_pdf_harvest",
+        )
+
+    def test_progress_record_label_can_show_doi_for_local_debugging(self):
+        record = ProbeRecord(
+            doi="10.1234/example",
+            publisher="springer",
+            host="link.springer.com",
+        )
+
+        self.assertEqual(
+            progress_record_label(record, show_doi=True),
+            "10.1234/example springer link.springer.com",
+        )
+
     def test_sanitize_url_drops_query_and_fragment(self):
         self.assertEqual(
             sanitize_url("https://example.org/full.pdf?download=1&token=secret#page=2"),

@@ -798,6 +798,54 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertEqual(response.url, article_url)
         self.assertIn("MDPI article", response.content)
 
+    def test_http_get_uses_landing_page_session_for_journalajess_pdf_download(self):
+        pdf_url = "https://journalajess.com/index.php/AJESS/article/download/1023/1998/1621"
+        citation_pdf_url = "https://journalajess.com/index.php/AJESS/article/download/1023/1998"
+        doi = "10.9734/ajess/2023/v47i31023"
+        captured = []
+
+        class FakeResponse:
+            def __init__(self, data):
+                self._data = data
+
+            def json(self):
+                return self._data
+
+        responses = [
+            {
+                "url": "https://journalajess.com/index.php/AJESS/article/view/1023",
+                "browserHtml": (
+                    "<html><head>"
+                    f"<meta name=\"citation_pdf_url\" content=\"{citation_pdf_url}\">"
+                    "</head><body>AJESS article</body></html>"
+                ),
+            },
+            {
+                "statusCode": 200,
+                "url": citation_pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+            },
+        ]
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse(responses[len(captured) - 1])
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url, doi=doi)
+
+        self.assertEqual(len(captured), 2)
+        self.assertEqual(captured[0]["url"], f"https://doi.org/{doi}")
+        self.assertTrue(captured[0]["browserHtml"])
+        self.assertTrue(captured[0]["javascript"])
+        self.assertIn("session", captured[0])
+        self.assertEqual(captured[1]["url"], citation_pdf_url)
+        self.assertTrue(captured[1]["httpResponseBody"])
+        self.assertEqual(captured[0]["session"], captured[1]["session"])
+        self.assertEqual(response.url, citation_pdf_url)
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
 
 if __name__ == "__main__":
     unittest.main()
