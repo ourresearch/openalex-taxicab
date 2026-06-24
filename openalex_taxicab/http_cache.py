@@ -776,6 +776,7 @@ SCHOLARHUB_PDF_HOSTS = [
 # Zyte session reuses the same egress IP + cookies, which the protection
 # accepts. See _fetch_via_landing_page.
 LANDING_PAGE_REWRITE_HOSTS = [
+    "journalajess.com",
     "journals.sagepub.com",
     "karger.com",
     "rupress.org",
@@ -801,6 +802,7 @@ def _looks_like_direct_pdf_url(url):
         or u.endswith('/pdf')
         or '/pdf?' in u
         or '/pdfdirect/' in u
+        or '/article/download/' in u
     )
 
 
