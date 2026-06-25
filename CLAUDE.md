@@ -8,23 +8,23 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 `/goal` is active for the 100-row Taxicab + Parseland loop over the 10K PDF
 availability file. The durable runner is `scripts/taxicab_batch_e2e.py`.
 
-Latest completed batch: batch 023, output in `batch_e2e_runs/batch-023/`.
-Result: 100 checked, 66 ready rows, 34 review rows, 60 passes, 6 failures,
-90.91% on ready rows, 24/24 public-PDF rows retrieved by Taxicab, and 80 rows
-with useful Parseland output. The six failures are label mismatches where
+Latest completed batch: batch 024, output in `batch_e2e_runs/batch-024/`.
+Result: 100 checked, 71 ready rows, 29 review rows, 68 passes, 3 failures,
+95.77% on ready rows, 24/24 public-PDF rows retrieved by Taxicab, and 84 rows
+with useful Parseland output. The three failures are label mismatches where
 Taxicab found a real PDF even though the sidecar says no public PDF.
 
-Cumulative batch loop result through batches 001-023: 2,300 checked, 1,558 ready
-rows, 742 review rows, 1,441 passes, 117 failures, 92.49% on ready rows, 581/583
-public-PDF rows retrieved by Taxicab, and 1,954 rows with useful Parseland output.
+Cumulative batch loop result through batches 001-024: 2,400 checked, 1,629 ready
+rows, 771 review rows, 1,509 passes, 120 failures, 92.63% on ready rows, 605/607
+public-PDF rows retrieved by Taxicab, and 2,038 rows with useful Parseland output.
 The two public-PDF misses are the original ScienceDirect/JMRT PDF-byte retrieval
 issue from batch 006 and the batch 018 OSF label-review case where the sidecar
-URL downloads DOCX, not PDF. Batch 023 added no public-PDF miss.
+URL downloads DOCX, not PDF. Batch 024 added no public-PDF miss.
 
 Next command:
 
 ```bash
-python3 scripts/taxicab_batch_e2e.py --batch-number 24 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
+python3 scripts/taxicab_batch_e2e.py --batch-number 25 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
 ```
 
 Keep raw DOI rows local. Oxjobs #461 gets aggregate counts only unless Shubh
