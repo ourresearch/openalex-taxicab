@@ -8,28 +8,29 @@ Taxicab endpoint and live Parseland endpoint.
 Latest completed batch:
 
 ```text
-batch: 030
+batch: 031
 file: /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv
-run output: batch_e2e_runs/batch-030/
+run output: batch_e2e_runs/batch-031/
 total rows: 100
-ready rows: 64
-review rows: 36
-passes: 61
-failures: 3
-score on ready rows: 95.31%
-public PDF rows: 28/28 retrieved by Taxicab
+ready rows: 69
+review rows: 31
+passes: 63
+failures: 6
+score on ready rows: 91.30%
+public PDF rows: 28/29 retrieved by Taxicab
 ```
 
-Cumulative batches 001-030: 3,000 checked, 2,035 ready rows, 965 review rows,
-1,885 passes, 150 failures, 92.63% on ready rows, 760/763 public-PDF rows
-retrieved by Taxicab, and 2,552 rows with useful Parseland output.
+Cumulative batches 001-031: 3,100 checked, 2,104 ready rows, 996 review rows,
+1,948 passes, 156 failures, 92.59% on ready rows, 788/792 public-PDF rows
+retrieved by Taxicab, and 2,634 rows with useful Parseland output.
 
-The three public-PDF misses remain the original ScienceDirect/JMRT PDF-byte
+The four public-PDF misses are the original ScienceDirect/JMRT PDF-byte
 retrieval issue from batch 006, the batch 018 OSF label-review case where the
-sidecar URL downloads DOCX rather than PDF, and the batch 027
-revistas.filos.unam.mx tiny/corrupt PDF-like response. Batch 030 added no new
-public-PDF miss. Its three failures are likely label fixes: Taxicab found a real
-PDF even though the sidecar said no public PDF. Review the local rows in
+sidecar URL downloads DOCX rather than PDF, the batch 027
+revistas.filos.unam.mx tiny/corrupt PDF-like response, and one batch 031
+Taxicab DOI-lookup failure. Batch 031 added one public-PDF miss. Its six scored
+failures are likely label fixes: Taxicab found a real PDF even though the
+sidecar said no public PDF. Review the local rows in
 `batch_e2e_runs/batch-001/rows.csv`, `batch_e2e_runs/batch-002/rows.csv`, and
 `batch_e2e_runs/batch-003/rows.csv`, `batch_e2e_runs/batch-004/rows.csv`, and
 `batch_e2e_runs/batch-005/rows.csv`, and
@@ -57,7 +58,8 @@ PDF even though the sidecar said no public PDF. Review the local rows in
 `batch_e2e_runs/batch-027/rows.csv`,
 `batch_e2e_runs/batch-028/rows.csv`, and
 `batch_e2e_runs/batch-029/rows.csv`, and
-`batch_e2e_runs/batch-030/rows.csv`
+`batch_e2e_runs/batch-030/rows.csv`, and
+`batch_e2e_runs/batch-031/rows.csv`
 before changing labels.
 
 Next exact command:
@@ -65,7 +67,7 @@ Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 31 \
+  --batch-number 32 \
   --batch-size 100 \
   --out batch_e2e_runs \
   --workers 4 \
