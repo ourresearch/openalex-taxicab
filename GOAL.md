@@ -8,90 +8,9 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 New durable runner: `scripts/taxicab_batch_e2e.py`.
 
-Batch 033 used:
+Batch 034 used:
 
 ```bash
-python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 33 \
-  --batch-size 100 \
-  --out batch_e2e_runs \
-  --workers 4 \
-  --timeout 90 \
-  --reharvest
-```
-
-Batch 033 result:
-
-```text
-total rows: 100
-ready rows: 74
-review rows: 26
-passes: 67
-failures: 7
-score on ready rows: 90.54%
-public PDF rows: 25/25 Taxicab found real PDFs
-Taxicab found real PDFs: 34
-useful Parseland rows: 86
-```
-
-Cumulative batches 001-033:
-
-```text
-total rows: 3,300
-ready rows: 2,249
-review rows: 1,051
-passes: 2,082
-failures: 167
-score on ready rows: 92.57%
-public PDF rows: 843/847 Taxicab found real PDFs
-Taxicab found real PDFs: 1,056
-useful Parseland rows: 2,807
-```
-
-The four public-PDF misses are the original ScienceDirect/JMRT PDF-byte
-retrieval issue from batch 006, the batch 018 OSF label-review case where the
-sidecar URL downloads DOCX rather than PDF, the batch 027
-revistas.filos.unam.mx tiny/corrupt PDF-like response, and one batch 031
-Taxicab DOI-lookup failure. Batch 033 added no public-PDF misses. Its seven scored
-failures are likely label fixes: the sidecar said no public PDF, but Taxicab
-found a real PDF. Local row details are in
-`batch_e2e_runs/batch-001/rows.csv`, `batch_e2e_runs/batch-002/rows.csv`, and
-`batch_e2e_runs/batch-003/rows.csv`, and
-`batch_e2e_runs/batch-004/rows.csv`, and
-`batch_e2e_runs/batch-005/rows.csv`, and
-`batch_e2e_runs/batch-006/rows.csv`, and
-`batch_e2e_runs/batch-007/rows.csv`, and
-`batch_e2e_runs/batch-008/rows.csv`, and
-`batch_e2e_runs/batch-009/rows.csv`, and
-`batch_e2e_runs/batch-010/rows.csv`, and
-`batch_e2e_runs/batch-011/rows.csv`, and
-`batch_e2e_runs/batch-012/rows.csv`, and
-`batch_e2e_runs/batch-013/rows.csv`, and
-`batch_e2e_runs/batch-014/rows.csv`, and
-`batch_e2e_runs/batch-015/rows.csv`, and
-`batch_e2e_runs/batch-016/rows.csv`, and
-`batch_e2e_runs/batch-017/rows.csv`, and
-`batch_e2e_runs/batch-018/rows.csv`, and
-`batch_e2e_runs/batch-019/rows.csv`, and
-`batch_e2e_runs/batch-020/rows.csv`, and
-`batch_e2e_runs/batch-021/rows.csv`, and
-`batch_e2e_runs/batch-022/rows.csv`, and
-`batch_e2e_runs/batch-023/rows.csv`, and
-`batch_e2e_runs/batch-024/rows.csv`,
-`batch_e2e_runs/batch-025/rows.csv`,
-`batch_e2e_runs/batch-026/rows.csv`,
-`batch_e2e_runs/batch-027/rows.csv`,
-`batch_e2e_runs/batch-028/rows.csv`, and
-`batch_e2e_runs/batch-029/rows.csv`, and
-`batch_e2e_runs/batch-030/rows.csv`,
-`batch_e2e_runs/batch-031/rows.csv`,
-`batch_e2e_runs/batch-032/rows.csv`, and
-`batch_e2e_runs/batch-033/rows.csv`. Public oxjobs gets aggregate counts only.
-
-Next exact command:
-
-```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_batch_e2e.py \
   --batch-number 34 \
   --batch-size 100 \
@@ -101,7 +20,50 @@ python3 scripts/taxicab_batch_e2e.py \
   --reharvest
 ```
 
-After batch 034, update oxjobs #461 with aggregate counts only. Do not publish
+Batch 034 result:
+
+```text
+total rows: 100
+ready rows: 70
+review rows: 30
+passes: 63
+failures: 7
+score on ready rows: 90.00%
+public PDF rows: 24/25 Taxicab found real PDFs
+Taxicab found real PDFs: 32
+useful Parseland rows: 84
+```
+
+Cumulative batches 001-034:
+
+```text
+total rows: 3,400
+ready rows: 2,319
+review rows: 1,081
+passes: 2,145
+failures: 174
+score on ready rows: 92.50%
+public PDF rows: 867/872 Taxicab found real PDFs
+Taxicab found real PDFs: 1,088
+useful Parseland rows: 2,891
+```
+
+The five public-PDF misses are the original ScienceDirect/JMRT PDF-byte retrieval issue from batch 006, the batch 018 OSF label-review case where the sidecar URL downloads DOCX rather than PDF, the batch 027 revistas.filos.unam.mx tiny/corrupt PDF-like response, one batch 031 Taxicab DOI-lookup failure, and the batch 034 revistas.uach.cl tiny/corrupt PDF-like response. Batch 034 added one public-PDF miss and six label mismatches where Taxicab found a real PDF even though the sidecar says no public PDF. Local row details are in `batch_e2e_runs/batch-001/rows.csv` through `batch_e2e_runs/batch-034/rows.csv`. Public oxjobs gets aggregate counts only.
+
+Next exact command:
+
+```bash
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
+python3 scripts/taxicab_batch_e2e.py \
+  --batch-number 35 \
+  --batch-size 100 \
+  --out batch_e2e_runs \
+  --workers 4 \
+  --timeout 90 \
+  --reharvest
+```
+
+After batch 035, update oxjobs #461 with aggregate counts only. Do not publish
 raw DOI rows, raw URLs, cookies, signed URLs, screenshots, or HTML.
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
