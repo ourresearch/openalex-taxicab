@@ -8,23 +8,23 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 `/goal` is active for the 100-row Taxicab + Parseland loop over the 10K PDF
 availability file. The durable runner is `scripts/taxicab_batch_e2e.py`.
 
-Latest completed batch: batch 020, output in `batch_e2e_runs/batch-020/`.
-Result: 100 checked, 65 ready rows, 35 review rows, 59 passes, 6 failures,
-90.77% on ready rows, 23/23 public-PDF rows retrieved by Taxicab, and 87 rows
-with useful Parseland output. The six failures are label mismatches where
+Latest completed batch: batch 021, output in `batch_e2e_runs/batch-021/`.
+Result: 100 checked, 65 ready rows, 35 review rows, 60 passes, 5 failures,
+92.31% on ready rows, 16/16 public-PDF rows retrieved by Taxicab, and 81 rows
+with useful Parseland output. The five failures are label mismatches where
 Taxicab found a real PDF even though the sidecar says no public PDF.
 
-Cumulative batch loop result through batches 001-020: 2,000 checked, 1,359 ready
-rows, 641 review rows, 1,257 passes, 102 failures, 92.49% on ready rows, 512/514
-public-PDF rows retrieved by Taxicab, and 1,706 rows with useful Parseland output.
+Cumulative batch loop result through batches 001-021: 2,100 checked, 1,424 ready
+rows, 676 review rows, 1,317 passes, 107 failures, 92.49% on ready rows, 528/530
+public-PDF rows retrieved by Taxicab, and 1,787 rows with useful Parseland output.
 The two public-PDF misses are the original ScienceDirect/JMRT PDF-byte retrieval
 issue from batch 006 and the batch 018 OSF label-review case where the sidecar
-URL downloads DOCX, not PDF. Batch 020 added no public-PDF miss.
+URL downloads DOCX, not PDF. Batch 021 added no public-PDF miss.
 
 Next command:
 
 ```bash
-python3 scripts/taxicab_batch_e2e.py --batch-number 21 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
+python3 scripts/taxicab_batch_e2e.py --batch-number 22 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
 ```
 
 Keep raw DOI rows local. Oxjobs #461 gets aggregate counts only unless Shubh
