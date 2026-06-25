@@ -8,25 +8,25 @@ Taxicab endpoint and live Parseland endpoint.
 Latest completed batch:
 
 ```text
-batch: 024
+batch: 025
 file: /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv
-run output: batch_e2e_runs/batch-024/
+run output: batch_e2e_runs/batch-025/
 total rows: 100
-ready rows: 71
-review rows: 29
-passes: 68
-failures: 3
-score on ready rows: 95.77%
-public PDF rows: 24/24 retrieved by Taxicab
+ready rows: 61
+review rows: 39
+passes: 57
+failures: 4
+score on ready rows: 93.44%
+public PDF rows: 22/22 retrieved by Taxicab
 ```
 
-Cumulative batches 001-024: 2,400 checked, 1,629 ready rows, 771 review rows,
-1,509 passes, 120 failures, 92.63% on ready rows, 605/607 public-PDF rows
-retrieved by Taxicab, and 2,038 rows with useful Parseland output.
+Cumulative batches 001-025: 2,500 checked, 1,690 ready rows, 810 review rows,
+1,566 passes, 124 failures, 92.66% on ready rows, 627/629 public-PDF rows
+retrieved by Taxicab, and 2,119 rows with useful Parseland output.
 
 The two public-PDF misses are the original ScienceDirect/JMRT PDF-byte retrieval
 issue from batch 006 and the batch 018 OSF label-review case where the sidecar
-URL downloads DOCX, not PDF. Batch 024 added no public-PDF miss. Most failures
+URL downloads DOCX, not PDF. Batch 025 added no public-PDF miss. Most failures
 are likely label fixes: Taxicab found a real PDF even though the sidecar said
 no public PDF. Review the local rows in
 `batch_e2e_runs/batch-001/rows.csv`, `batch_e2e_runs/batch-002/rows.csv`, and
@@ -50,7 +50,8 @@ no public PDF. Review the local rows in
 `batch_e2e_runs/batch-021/rows.csv`, and
 `batch_e2e_runs/batch-022/rows.csv`, and
 `batch_e2e_runs/batch-023/rows.csv`, and
-`batch_e2e_runs/batch-024/rows.csv`
+`batch_e2e_runs/batch-024/rows.csv`, and
+`batch_e2e_runs/batch-025/rows.csv`
 before changing labels.
 
 Next exact command:
@@ -58,7 +59,7 @@ Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 25 \
+  --batch-number 26 \
   --batch-size 100 \
   --out batch_e2e_runs \
   --workers 4 \
