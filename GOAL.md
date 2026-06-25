@@ -8,40 +8,9 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 New durable runner: `scripts/taxicab_batch_e2e.py`.
 
-Batch 001 used:
+Batch 002 used:
 
 ```bash
-python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 1 \
-  --batch-size 100 \
-  --out batch_e2e_runs \
-  --workers 4 \
-  --timeout 90 \
-  --reharvest
-```
-
-Batch 001 result:
-
-```text
-total rows: 100
-ready rows: 68
-review rows: 32
-passes: 64
-failures: 4
-score on ready rows: 94.12%
-public PDF rows: 22/22 Taxicab found real PDFs
-Taxicab found real PDFs: 26
-useful Parseland rows: 86
-```
-
-The four failures are label mismatches, not Taxicab misses: the sidecar said no
-public PDF, but Taxicab found a real PDF. Local row details are in
-`batch_e2e_runs/batch-001/rows.csv`. Public oxjobs gets aggregate counts only.
-
-Next exact command:
-
-```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_batch_e2e.py \
   --batch-number 2 \
   --batch-size 100 \
@@ -51,7 +20,53 @@ python3 scripts/taxicab_batch_e2e.py \
   --reharvest
 ```
 
-After batch 002, update oxjobs #461 with aggregate counts only. Do not publish
+Batch 002 result:
+
+```text
+total rows: 100
+ready rows: 67
+review rows: 33
+passes: 60
+failures: 7
+score on ready rows: 89.55%
+public PDF rows: 22/22 Taxicab found real PDFs
+Taxicab found real PDFs: 30
+useful Parseland rows: 85
+```
+
+Cumulative batches 001-002:
+
+```text
+total rows: 200
+ready rows: 135
+review rows: 65
+passes: 124
+failures: 11
+score on ready rows: 91.85%
+public PDF rows: 44/44 Taxicab found real PDFs
+Taxicab found real PDFs: 56
+useful Parseland rows: 171
+```
+
+All 11 failures are label mismatches, not Taxicab misses: the sidecar said no
+public PDF, but Taxicab found a real PDF. Local row details are in
+`batch_e2e_runs/batch-001/rows.csv` and `batch_e2e_runs/batch-002/rows.csv`.
+Public oxjobs gets aggregate counts only.
+
+Next exact command:
+
+```bash
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
+python3 scripts/taxicab_batch_e2e.py \
+  --batch-number 3 \
+  --batch-size 100 \
+  --out batch_e2e_runs \
+  --workers 4 \
+  --timeout 90 \
+  --reharvest
+```
+
+After batch 003, update oxjobs #461 with aggregate counts only. Do not publish
 raw DOI rows, raw URLs, cookies, signed URLs, screenshots, or HTML.
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
