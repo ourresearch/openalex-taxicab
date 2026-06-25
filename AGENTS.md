@@ -8,15 +8,15 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 `/goal` is active for the 100-row Taxicab + Parseland loop over the 10K PDF
 availability file. The durable runner is `scripts/taxicab_batch_e2e.py`.
 
-Latest completed batch: batch 028, output in `batch_e2e_runs/batch-028/`.
-Result: 100 checked, 64 ready rows, 36 review rows, 59 passes, 5 failures,
-92.19% on ready rows, 27/27 public-PDF rows retrieved by Taxicab, and 86 rows
-with useful Parseland output. All five failures are label mismatches where
+Latest completed batch: batch 029, output in `batch_e2e_runs/batch-029/`.
+Result: 100 checked, 76 ready rows, 24 review rows, 69 passes, 7 failures,
+90.79% on ready rows, 25/25 public-PDF rows retrieved by Taxicab, and 82 rows
+with useful Parseland output. All seven failures are label mismatches where
 Taxicab found a real PDF even though the sidecar says no public PDF.
 
-Cumulative batch loop result through batches 001-028: 2,800 checked, 1,895 ready
-rows, 905 review rows, 1,755 passes, 140 failures, 92.61% on ready rows, 707/710
-public-PDF rows retrieved by Taxicab, and 2,379 rows with useful Parseland output.
+Cumulative batch loop result through batches 001-029: 2,900 checked, 1,971 ready
+rows, 929 review rows, 1,824 passes, 147 failures, 92.54% on ready rows, 732/735
+public-PDF rows retrieved by Taxicab, and 2,461 rows with useful Parseland output.
 The three public-PDF misses remain the original ScienceDirect/JMRT PDF-byte
 retrieval issue from batch 006, the batch 018 OSF label-review case where the
 sidecar URL downloads DOCX rather than PDF, and the batch 027
@@ -25,7 +25,7 @@ revistas.filos.unam.mx tiny/corrupt PDF-like response.
 Next command:
 
 ```bash
-python3 scripts/taxicab_batch_e2e.py --batch-number 29 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
+python3 scripts/taxicab_batch_e2e.py --batch-number 30 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
 ```
 
 Keep raw DOI rows local. Oxjobs #461 gets aggregate counts only unless Shubh
