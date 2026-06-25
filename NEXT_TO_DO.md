@@ -8,24 +8,24 @@ Taxicab endpoint and live Parseland endpoint.
 Latest completed batch:
 
 ```text
-batch: 013
+batch: 014
 file: /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv
-run output: batch_e2e_runs/batch-013/
+run output: batch_e2e_runs/batch-014/
 total rows: 100
-ready rows: 72
-review rows: 28
-passes: 65
-failures: 7
-score on ready rows: 90.28%
-public PDF rows: 30/30 retrieved by Taxicab
+ready rows: 68
+review rows: 32
+passes: 60
+failures: 8
+score on ready rows: 88.24%
+public PDF rows: 26/26 retrieved by Taxicab
 ```
 
-Cumulative batches 001-013: 1,300 checked, 891 ready rows, 409 review rows,
-830 passes, 61 failures, 93.15% on ready rows, 336/337 public-PDF rows
-retrieved by Taxicab, and 1,114 rows with useful Parseland output.
+Cumulative batches 001-014: 1,400 checked, 959 ready rows, 441 review rows,
+890 passes, 69 failures, 92.81% on ready rows, 362/363 public-PDF rows
+retrieved by Taxicab, and 1,203 rows with useful Parseland output.
 
 The only public-PDF miss remains the ScienceDirect/JMRT PDF-byte retrieval
-issue from batch 006. The other 60 failures are likely label fixes: Taxicab
+issue from batch 006. The other 68 failures are likely label fixes: Taxicab
 found a real PDF even though
 the sidecar said no public PDF. Review the local rows in
 `batch_e2e_runs/batch-001/rows.csv`, `batch_e2e_runs/batch-002/rows.csv`, and
@@ -38,7 +38,8 @@ the sidecar said no public PDF. Review the local rows in
 `batch_e2e_runs/batch-010/rows.csv`, and
 `batch_e2e_runs/batch-011/rows.csv`, and
 `batch_e2e_runs/batch-012/rows.csv`, and
-`batch_e2e_runs/batch-013/rows.csv`
+`batch_e2e_runs/batch-013/rows.csv`, and
+`batch_e2e_runs/batch-014/rows.csv`
 before changing labels.
 
 Next exact command:
@@ -46,7 +47,7 @@ Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 14 \
+  --batch-number 15 \
   --batch-size 100 \
   --out batch_e2e_runs \
   --workers 4 \
