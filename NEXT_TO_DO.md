@@ -8,26 +8,25 @@ Taxicab endpoint and live Parseland endpoint.
 Latest completed batch:
 
 ```text
-batch: 018
+batch: 019
 file: /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv
-run output: batch_e2e_runs/batch-018/
+run output: batch_e2e_runs/batch-019/
 total rows: 100
-ready rows: 65
-review rows: 35
-passes: 60
-failures: 5
-score on ready rows: 92.31%
-public PDF rows: 25/26 retrieved by Taxicab
+ready rows: 63
+review rows: 37
+passes: 59
+failures: 4
+score on ready rows: 93.65%
+public PDF rows: 26/26 retrieved by Taxicab
 ```
 
-Cumulative batches 001-018: 1,800 checked, 1,231 ready rows, 569 review rows,
-1,139 passes, 92 failures, 92.53% on ready rows, 463/465 public-PDF rows
-retrieved by Taxicab, and 1,535 rows with useful Parseland output.
+Cumulative batches 001-019: 1,900 checked, 1,294 ready rows, 606 review rows,
+1,198 passes, 96 failures, 92.58% on ready rows, 489/491 public-PDF rows
+retrieved by Taxicab, and 1,619 rows with useful Parseland output.
 
-The original public-PDF miss remains the ScienceDirect/JMRT PDF-byte retrieval
-issue from batch 006. Batch 018 added an apparent OSF public-PDF miss, but a
-direct check showed the sidecar URL downloads a DOCX file, not a PDF, so review
-that label before treating it as a Taxicab route problem. Most other failures
+The two public-PDF misses are the original ScienceDirect/JMRT PDF-byte retrieval
+issue from batch 006 and the batch 018 OSF label-review case where the sidecar
+URL downloads DOCX, not PDF. Batch 019 added no public-PDF miss. Most failures
 are likely label fixes: Taxicab found a real PDF even though the sidecar said
 no public PDF. Review the local rows in
 `batch_e2e_runs/batch-001/rows.csv`, `batch_e2e_runs/batch-002/rows.csv`, and
@@ -45,7 +44,8 @@ no public PDF. Review the local rows in
 `batch_e2e_runs/batch-015/rows.csv`, and
 `batch_e2e_runs/batch-016/rows.csv`, and
 `batch_e2e_runs/batch-017/rows.csv`, and
-`batch_e2e_runs/batch-018/rows.csv`
+`batch_e2e_runs/batch-018/rows.csv`, and
+`batch_e2e_runs/batch-019/rows.csv`
 before changing labels.
 
 Next exact command:
@@ -53,7 +53,7 @@ Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 19 \
+  --batch-number 20 \
   --batch-size 100 \
   --out batch_e2e_runs \
   --workers 4 \
