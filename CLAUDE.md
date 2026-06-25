@@ -8,23 +8,23 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 `/goal` is active for the 100-row Taxicab + Parseland loop over the 10K PDF
 availability file. The durable runner is `scripts/taxicab_batch_e2e.py`.
 
-Latest completed batch: batch 025, output in `batch_e2e_runs/batch-025/`.
-Result: 100 checked, 61 ready rows, 39 review rows, 57 passes, 4 failures,
-93.44% on ready rows, 22/22 public-PDF rows retrieved by Taxicab, and 81 rows
-with useful Parseland output. The four failures are label mismatches where
+Latest completed batch: batch 026, output in `batch_e2e_runs/batch-026/`.
+Result: 100 checked, 74 ready rows, 26 review rows, 67 passes, 7 failures,
+90.54% on ready rows, 27/27 public-PDF rows retrieved by Taxicab, and 84 rows
+with useful Parseland output. The seven failures are label mismatches where
 Taxicab found a real PDF even though the sidecar says no public PDF.
 
-Cumulative batch loop result through batches 001-025: 2,500 checked, 1,690 ready
-rows, 810 review rows, 1,566 passes, 124 failures, 92.66% on ready rows, 627/629
-public-PDF rows retrieved by Taxicab, and 2,119 rows with useful Parseland output.
+Cumulative batch loop result through batches 001-026: 2,600 checked, 1,764 ready
+rows, 836 review rows, 1,633 passes, 131 failures, 92.57% on ready rows, 654/656
+public-PDF rows retrieved by Taxicab, and 2,203 rows with useful Parseland output.
 The two public-PDF misses are the original ScienceDirect/JMRT PDF-byte retrieval
 issue from batch 006 and the batch 018 OSF label-review case where the sidecar
-URL downloads DOCX, not PDF. Batch 025 added no public-PDF miss.
+URL downloads DOCX, not PDF. Batch 026 added no public-PDF miss.
 
 Next command:
 
 ```bash
-python3 scripts/taxicab_batch_e2e.py --batch-number 26 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
+python3 scripts/taxicab_batch_e2e.py --batch-number 27 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
 ```
 
 Keep raw DOI rows local. Oxjobs #461 gets aggregate counts only unless Shubh
