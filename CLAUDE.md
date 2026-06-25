@@ -8,22 +8,24 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 `/goal` is active for the 100-row Taxicab + Parseland loop over the 10K PDF
 availability file. The durable runner is `scripts/taxicab_batch_e2e.py`.
 
-Latest completed batch: batch 043, output in `batch_e2e_runs/batch-043/`.
-Result: 100 checked, 67 ready rows, 33 review rows, 61 passes, 6 failures,
-91.04% on ready rows, 19/19 public-PDF rows retrieved by Taxicab, and 89 rows
-with useful Parseland output. Batch 043 added no public-PDF misses. All six
+Latest completed batch: batch 044, output in `batch_e2e_runs/batch-044/`.
+Result: 100 checked, 78 ready rows, 22 review rows, 75 passes, 3 failures,
+96.15% on ready rows, 23/23 public-PDF rows retrieved by Taxicab, and 84 rows
+with useful Parseland output. Batch 044 added no public-PDF misses. All three
 scored failures are label mismatches where Taxicab found a real PDF even though
 the sidecar says no public PDF.
 
-Cumulative batch loop result through batches 001-043: 4,300 checked, 2,929 ready
-rows, 1,371 review rows, 2,707 passes, 222 failures, 92.42% on ready rows,
-1,078/1,083 public-PDF rows retrieved by Taxicab, and 3,688 rows with useful
-Parseland output. The five public-PDF misses remain the original ScienceDirect/JMRT PDF-byte retrieval issue from batch 006, the batch 018 OSF label-review case where the sidecar URL downloads DOCX rather than PDF, the batch 027 revistas.filos.unam.mx tiny/corrupt PDF-like response, one batch 031 Taxicab DOI-lookup failure, and the batch 034 revistas.uach.cl tiny/corrupt PDF-like response. Batch 043 added no public-PDF misses and six label mismatches where Taxicab found a real PDF even though the sidecar says no public PDF.
+Cumulative batch loop result through batches 001-044: 4,400 checked, 3,007 ready
+rows, 1,393 review rows, 2,782 passes, 225 failures, 92.52% on ready rows,
+1,101/1,106 public-PDF rows retrieved by Taxicab, and 3,772 rows with useful
+Parseland output. The five public-PDF misses remain the original ScienceDirect/JMRT PDF-byte retrieval issue from batch 006, the batch 018 OSF label-review case where the sidecar URL downloads DOCX rather than PDF, the batch 027 revistas.filos.unam.mx tiny/corrupt PDF-like response, one batch 031 Taxicab DOI-lookup failure, and the batch 034 revistas.uach.cl tiny/corrupt PDF-like response. Batch 044 added no public-PDF misses and three
+label mismatches where Taxicab found a real PDF even though the sidecar says no
+public PDF.
 
 Next command:
 
 ```bash
-python3 scripts/taxicab_batch_e2e.py --batch-number 44 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
+python3 scripts/taxicab_batch_e2e.py --batch-number 45 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
 ```
 
 Keep raw DOI rows local. Oxjobs #461 gets aggregate counts only unless Shubh
