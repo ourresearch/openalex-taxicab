@@ -8,21 +8,21 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 `/goal` is active for the 100-row Taxicab + Parseland loop over the 10K PDF
 availability file. The durable runner is `scripts/taxicab_batch_e2e.py`.
 
-Latest completed batch: batch 003, output in `batch_e2e_runs/batch-003/`.
-Result: 100 checked, 72 ready rows, 28 review rows, 66 passes, 6 failures,
-91.67% on ready rows, 33/33 public-PDF rows retrieved by Taxicab, and 87 rows
-with useful Parseland output. The six failures are label mismatches where the
+Latest completed batch: batch 004, output in `batch_e2e_runs/batch-004/`.
+Result: 100 checked, 65 ready rows, 35 review rows, 60 passes, 5 failures,
+92.31% on ready rows, 25/25 public-PDF rows retrieved by Taxicab, and 82 rows
+with useful Parseland output. The five failures are label mismatches where the
 sidecar said no public PDF but Taxicab found a real PDF.
 
-Cumulative batch loop result through batches 001-003: 300 checked, 207 ready
-rows, 93 review rows, 190 passes, 17 failures, 91.79% on ready rows, 77/77
-public-PDF rows retrieved by Taxicab, and 258 rows with useful Parseland output.
-All 17 failures are label mismatches; there are no public-PDF misses yet.
+Cumulative batch loop result through batches 001-004: 400 checked, 272 ready
+rows, 128 review rows, 250 passes, 22 failures, 91.91% on ready rows, 102/102
+public-PDF rows retrieved by Taxicab, and 340 rows with useful Parseland output.
+All 22 failures are label mismatches; there are no public-PDF misses yet.
 
 Next command:
 
 ```bash
-python3 scripts/taxicab_batch_e2e.py --batch-number 4 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
+python3 scripts/taxicab_batch_e2e.py --batch-number 5 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
 ```
 
 Keep raw DOI rows local. Oxjobs #461 gets aggregate counts only unless Shubh
