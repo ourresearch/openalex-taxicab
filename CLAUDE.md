@@ -8,22 +8,22 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 `/goal` is active for the 100-row Taxicab + Parseland loop over the 10K PDF
 availability file. The durable runner is `scripts/taxicab_batch_e2e.py`.
 
-Latest completed batch: batch 006, output in `batch_e2e_runs/batch-006/`.
-Result: 100 checked, 61 ready rows, 39 review rows, 59 passes, 2 failures,
-96.72% on ready rows, 24/25 public-PDF rows retrieved by Taxicab, and 89 rows
-with useful Parseland output. One failure is a ScienceDirect public-PDF miss;
-the other is a label mismatch where the sidecar said no public PDF but Taxicab
-found a real PDF.
+Latest completed batch: batch 007, output in `batch_e2e_runs/batch-007/`.
+Result: 100 checked, 72 ready rows, 28 review rows, 67 passes, 5 failures,
+93.06% on ready rows, 18/18 public-PDF rows retrieved by Taxicab, and 82 rows
+with useful Parseland output. All five failures are label mismatches where the
+sidecar said no public PDF but Taxicab found a real PDF.
 
-Cumulative batch loop result through batches 001-006: 600 checked, 400 ready
-rows, 200 review rows, 372 passes, 28 failures, 93.00% on ready rows, 146/147
-public-PDF rows retrieved by Taxicab, and 515 rows with useful Parseland output.
-There is one public-PDF miss so far, on a ScienceDirect PDF-byte retrieval lane.
+Cumulative batch loop result through batches 001-007: 700 checked, 472 ready
+rows, 228 review rows, 439 passes, 33 failures, 93.01% on ready rows, 164/165
+public-PDF rows retrieved by Taxicab, and 597 rows with useful Parseland output.
+The only public-PDF miss remains the ScienceDirect/JMRT PDF-byte retrieval
+issue from batch 006.
 
 Next command:
 
 ```bash
-python3 scripts/taxicab_batch_e2e.py --batch-number 7 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
+python3 scripts/taxicab_batch_e2e.py --batch-number 8 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
 ```
 
 Keep raw DOI rows local. Oxjobs #461 gets aggregate counts only unless Shubh
