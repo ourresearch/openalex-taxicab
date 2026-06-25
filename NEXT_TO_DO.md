@@ -1,5 +1,45 @@
 # Taxicab next work for Codex and Claude
 
+## Current next step: 2026-06-25 100-DOI batch loop
+
+`/goal` is active. Continue the 10K work in 100-row batches using the live
+Taxicab endpoint and live Parseland endpoint.
+
+Latest completed batch:
+
+```text
+batch: 001
+file: /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv
+run output: batch_e2e_runs/batch-001/
+total rows: 100
+ready rows: 68
+review rows: 32
+passes: 64
+failures: 4
+score on ready rows: 94.12%
+public PDF rows: 22/22 retrieved by Taxicab
+```
+
+The four failures are likely label fixes: Taxicab found a real PDF even though
+the sidecar said no public PDF. Review the local rows in
+`batch_e2e_runs/batch-001/rows.csv` before changing labels.
+
+Next exact command:
+
+```bash
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
+python3 scripts/taxicab_batch_e2e.py \
+  --batch-number 2 \
+  --batch-size 100 \
+  --out batch_e2e_runs \
+  --workers 4 \
+  --timeout 90 \
+  --reharvest
+```
+
+After each batch, update oxjobs #461 with simple aggregate counts. Keep raw DOI
+rows and URLs local unless Shubh explicitly asks to publish them.
+
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
 ## Current PDF Handoff: 2026-06-24 JPET Browserbase Gold Evidence
 

@@ -1,5 +1,59 @@
 # Taxicab Goal State
 
+## Current Goal Update: 2026-06-25 100-DOI Batch Loop
+
+`/goal` is active for the 100-at-a-time Taxicab PDF/HTML improvement loop.
+Use the correct repo: `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab`.
+Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
+
+New durable runner: `scripts/taxicab_batch_e2e.py`.
+
+Batch 001 used:
+
+```bash
+python3 scripts/taxicab_batch_e2e.py \
+  --batch-number 1 \
+  --batch-size 100 \
+  --out batch_e2e_runs \
+  --workers 4 \
+  --timeout 90 \
+  --reharvest
+```
+
+Batch 001 result:
+
+```text
+total rows: 100
+ready rows: 68
+review rows: 32
+passes: 64
+failures: 4
+score on ready rows: 94.12%
+public PDF rows: 22/22 Taxicab found real PDFs
+Taxicab found real PDFs: 26
+useful Parseland rows: 86
+```
+
+The four failures are label mismatches, not Taxicab misses: the sidecar said no
+public PDF, but Taxicab found a real PDF. Local row details are in
+`batch_e2e_runs/batch-001/rows.csv`. Public oxjobs gets aggregate counts only.
+
+Next exact command:
+
+```bash
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
+python3 scripts/taxicab_batch_e2e.py \
+  --batch-number 2 \
+  --batch-size 100 \
+  --out batch_e2e_runs \
+  --workers 4 \
+  --timeout 90 \
+  --reharvest
+```
+
+After batch 002, update oxjobs #461 with aggregate counts only. Do not publish
+raw DOI rows, raw URLs, cookies, signed URLs, screenshots, or HTML.
+
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
 ## Current PDF Handoff: 2026-06-24 JPET Browserbase Gold Evidence
 
