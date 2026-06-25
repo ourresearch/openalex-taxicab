@@ -8,24 +8,24 @@ Taxicab endpoint and live Parseland endpoint.
 Latest completed batch:
 
 ```text
-batch: 015
+batch: 016
 file: /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv
-run output: batch_e2e_runs/batch-015/
+run output: batch_e2e_runs/batch-016/
 total rows: 100
-ready rows: 72
-review rows: 28
-passes: 66
-failures: 6
-score on ready rows: 91.67%
-public PDF rows: 31/31 retrieved by Taxicab
+ready rows: 66
+review rows: 34
+passes: 64
+failures: 2
+score on ready rows: 96.97%
+public PDF rows: 28/28 retrieved by Taxicab
 ```
 
-Cumulative batches 001-015: 1,500 checked, 1,031 ready rows, 469 review rows,
-956 passes, 75 failures, 92.73% on ready rows, 393/394 public-PDF rows
-retrieved by Taxicab, and 1,286 rows with useful Parseland output.
+Cumulative batches 001-016: 1,600 checked, 1,097 ready rows, 503 review rows,
+1,020 passes, 77 failures, 92.98% on ready rows, 421/422 public-PDF rows
+retrieved by Taxicab, and 1,369 rows with useful Parseland output.
 
 The only public-PDF miss remains the ScienceDirect/JMRT PDF-byte retrieval
-issue from batch 006. The other 74 failures are likely label fixes: Taxicab
+issue from batch 006. The other 76 failures are likely label fixes: Taxicab
 found a real PDF even though
 the sidecar said no public PDF. Review the local rows in
 `batch_e2e_runs/batch-001/rows.csv`, `batch_e2e_runs/batch-002/rows.csv`, and
@@ -40,7 +40,8 @@ the sidecar said no public PDF. Review the local rows in
 `batch_e2e_runs/batch-012/rows.csv`, and
 `batch_e2e_runs/batch-013/rows.csv`, and
 `batch_e2e_runs/batch-014/rows.csv`, and
-`batch_e2e_runs/batch-015/rows.csv`
+`batch_e2e_runs/batch-015/rows.csv`, and
+`batch_e2e_runs/batch-016/rows.csv`
 before changing labels.
 
 Next exact command:
@@ -48,7 +49,7 @@ Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 16 \
+  --batch-number 17 \
   --batch-size 100 \
   --out batch_e2e_runs \
   --workers 4 \
