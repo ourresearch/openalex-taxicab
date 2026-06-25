@@ -8,22 +8,24 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 `/goal` is active for the 100-row Taxicab + Parseland loop over the 10K PDF
 availability file. The durable runner is `scripts/taxicab_batch_e2e.py`.
 
-Latest completed batch: batch 017, output in `batch_e2e_runs/batch-017/`.
-Result: 100 checked, 69 ready rows, 31 review rows, 59 passes, 10 failures,
-85.51% on ready rows, 17/17 public-PDF rows retrieved by Taxicab, and 89 rows
-with useful Parseland output. All 10 failures are label mismatches where the
-sidecar said no public PDF but Taxicab found a real PDF.
+Latest completed batch: batch 018, output in `batch_e2e_runs/batch-018/`.
+Result: 100 checked, 65 ready rows, 35 review rows, 60 passes, 5 failures,
+92.31% on ready rows, 25/26 public-PDF rows retrieved by Taxicab, and 77 rows
+with useful Parseland output. The apparent public-PDF miss is an OSF row whose
+sidecar URL downloads a DOCX file, not a PDF, so review the label before
+treating it as a Taxicab route problem.
 
-Cumulative batch loop result through batches 001-017: 1,700 checked, 1,166 ready
-rows, 534 review rows, 1,079 passes, 87 failures, 92.54% on ready rows, 438/439
-public-PDF rows retrieved by Taxicab, and 1,458 rows with useful Parseland output.
-The only public-PDF miss remains the ScienceDirect/JMRT PDF-byte retrieval
-issue from batch 006.
+Cumulative batch loop result through batches 001-018: 1,800 checked, 1,231 ready
+rows, 569 review rows, 1,139 passes, 92 failures, 92.53% on ready rows, 463/465
+public-PDF rows retrieved by Taxicab, and 1,535 rows with useful Parseland output.
+The original public-PDF miss remains the ScienceDirect/JMRT PDF-byte retrieval
+issue from batch 006; the new OSF apparent miss needs label review because its
+download URL is a DOCX.
 
 Next command:
 
 ```bash
-python3 scripts/taxicab_batch_e2e.py --batch-number 18 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
+python3 scripts/taxicab_batch_e2e.py --batch-number 19 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
 ```
 
 Keep raw DOI rows local. Oxjobs #461 gets aggregate counts only unless Shubh
