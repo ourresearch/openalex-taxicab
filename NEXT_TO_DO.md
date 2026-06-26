@@ -8,27 +8,27 @@ Taxicab endpoint and live Parseland endpoint.
 Latest completed batch:
 
 ```text
-batch: 075
+batch: 076
 file: /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv
-run output: batch_e2e_runs/batch-075/
+run output: batch_e2e_runs/batch-076/
 total rows: 100
-ready rows: 71
-review rows: 29
-passes: 65
-failures: 6
-score on ready rows: 91.55%
-public PDF rows: 27/28 retrieved by Taxicab
+ready rows: 70
+review rows: 30
+passes: 66
+failures: 4
+score on ready rows: 94.29%
+public PDF rows: 18/18 retrieved by Taxicab
 ```
 
-Cumulative batches 001-075: 7,500 checked, 5,173 ready rows, 2,327 review rows,
-4,825 passes, 348 failures, 93.27% on ready rows, 1,906/1,913 public-PDF rows
-retrieved by Taxicab, 2,361 real PDFs found by Taxicab, 5,866 useful Taxicab
-HTML rows, and 6,434 rows with useful Parseland output.
+Cumulative batches 001-076: 7,600 checked, 5,243 ready rows, 2,357 review rows,
+4,891 passes, 352 failures, 93.29% on ready rows, 1,924/1,931 public-PDF rows
+retrieved by Taxicab, 2,383 real PDFs found by Taxicab, 5,950 useful Taxicab
+HTML rows, and 6,521 rows with useful Parseland output.
 
-There are now seven public-PDF attention rows. Batch 075 added one public-PDF
-miss on `press.armywarcollege.edu` and five label mismatches where Taxicab found
-real PDFs even though the sidecar says no public PDF. Review the local rows in
-`batch_e2e_runs/batch-001/rows.csv` through `batch_e2e_runs/batch-075/rows.csv`
+The same seven public-PDF attention rows remain. Batch 076 added no public-PDF
+miss and four label mismatches where Taxicab found real PDFs even though the
+sidecar says no public PDF. Review the local rows in
+`batch_e2e_runs/batch-001/rows.csv` through `batch_e2e_runs/batch-076/rows.csv`
 before changing labels.
 
 Next exact command:
@@ -36,7 +36,7 @@ Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 76 \
+  --batch-number 77 \
   --batch-size 100 \
   --out batch_e2e_runs \
   --workers 4 \
