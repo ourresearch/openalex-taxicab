@@ -8,11 +8,11 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 New durable runner: `scripts/taxicab_batch_e2e.py`.
 
-Batch 092 used:
+Batch 093 used:
 
 ```bash
 python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 92 \
+  --batch-number 93 \
   --batch-size 100 \
   --out batch_e2e_runs \
   --workers 2 \
@@ -20,43 +20,43 @@ python3 scripts/taxicab_batch_e2e.py \
   --reharvest
 ```
 
-Batch 092 result:
+Batch 093 result:
 
 ```text
 total rows: 100
-ready rows: 67
-review rows: 33
-passes: 61
-failures: 6
-score on ready rows: 91.04%
-public PDF rows: 19/19 Taxicab found real PDFs
-Taxicab found real PDFs: 29
-useful Taxicab HTML rows: 79
-useful Parseland rows: 84
+ready rows: 72
+review rows: 28
+passes: 68
+failures: 4
+score on ready rows: 94.44%
+public PDF rows: 17/17 Taxicab found real PDFs
+Taxicab found real PDFs: 22
+useful Taxicab HTML rows: 81
+useful Parseland rows: 89
 ```
 
-Cumulative batches 001-092:
+Cumulative batches 001-093:
 
 ```text
-total rows: 9,200
-ready rows: 6,370
-review rows: 2,830
-passes: 5,947
-failures: 423
-score on ready rows: 93.36%
-public PDF rows: 2,319/2,327 Taxicab found real PDFs
-Taxicab found real PDFs: 2,882
-useful Taxicab HTML rows: 7,211
-useful Parseland rows: 7,879
+total rows: 9,300
+ready rows: 6,442
+review rows: 2,858
+passes: 6,015
+failures: 427
+score on ready rows: 93.37%
+public PDF rows: 2,336/2,344 Taxicab found real PDFs
+Taxicab found real PDFs: 2,904
+useful Taxicab HTML rows: 7,292
+useful Parseland rows: 7,968
 ```
 
-Eight public-PDF attention rows remain. Batch 092 added no public-PDF miss and
-six label mismatches where Taxicab found real PDFs even though the sidecar says
+Eight public-PDF attention rows remain. Batch 093 added no public-PDF miss and
+four label mismatches where Taxicab found real PDFs even though the sidecar says
 no public PDF. Local row details are in `batch_e2e_runs/batch-001/rows.csv`
-through `batch_e2e_runs/batch-092/rows.csv`.
+through `batch_e2e_runs/batch-093/rows.csv`.
 
-Batch 092 used lower concurrency after batch 090's first attempt showed a local
-DNS burst. The accepted batch 092 run had all 100 Taxicab lookups return HTTP
+Batch 093 used lower concurrency after batch 090's first attempt showed a local
+DNS burst. The accepted batch 093 run had all 100 Taxicab lookups return HTTP
 200.
 
 The batch 088 unknown-host miss was inspected on 2026-06-26: the direct source
@@ -70,7 +70,7 @@ Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 93 \
+  --batch-number 94 \
   --batch-size 100 \
   --out batch_e2e_runs \
   --workers 2 \
