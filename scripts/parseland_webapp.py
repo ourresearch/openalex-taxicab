@@ -82,6 +82,39 @@ def http_post_json(url: str, payload: dict, timeout: float) -> tuple[int | None,
         return None, str(e)
 
 
+def bytecheck_pdf(uuid: str, timeout: float) -> dict:
+    """Download a stored Taxicab object and report whether it is real PDF bytes."""
+    status, body, err = http_get(f"{TAXICAB}/taxicab/{quote(uuid, safe='')}", timeout)
+    return {
+        "uuid": uuid,
+        "download_status": status,
+        "size_bytes": len(body),
+        "is_pdf": body.startswith(b"%PDF-"),
+        "error": err,
+    }
+
+
+def stored_pdf_records(records: dict, timeout: float, limit: int = 5) -> list[dict]:
+    """Byte-check Taxicab's stored pdf records, newest first, deduped by resolved URL."""
+    out: list[dict] = []
+    seen: set[str] = set()
+    pdfs = sorted(
+        records.get("pdf") or [],
+        key=lambda r: str(r.get("created_date") or r.get("created_timestamp") or ""),
+        reverse=True,
+    )
+    for rec in pdfs:
+        url = clean_url(str(rec.get("resolved_url") or rec.get("url") or ""))
+        if url in seen:
+            continue
+        seen.add(url)
+        check = bytecheck_pdf(str(rec.get("id") or ""), timeout)
+        out.append({"resolved_url": url, **check})
+        if len(out) >= limit:
+            break
+    return out
+
+
 def lookup(doi: str, *, harvest: bool, timeout: float) -> dict:
     doi = normalize_doi(doi)
     if not doi:
@@ -106,35 +139,46 @@ def lookup(doi: str, *, harvest: bool, timeout: float) -> dict:
     except Exception as e:  # noqa: BLE001
         return {"doi": doi, "steps": steps, "error": f"Taxicab returned bad JSON: {e}"}
 
+    # Always report what Taxicab actually stored, byte-checked. This is the verdict,
+    # and it works even for direct-to-PDF DOIs that have no HTML landing page.
+    stored = stored_pdf_records(records, timeout)
+    good = sum(1 for r in stored if r.get("is_pdf"))
+    steps.append(f"   Taxicab stored PDFs -> {len(stored)} record(s), {good} real %PDF-")
+    result: dict = {"doi": doi, "steps": steps, "stored_pdfs": stored}
+
     html = latest(records.get("html") or [])
     if not html:
-        return {"doi": doi, "steps": steps, "error": "No stored HTML scrape for this DOI yet."}
+        result["note"] = (
+            "No HTML landing scrape for this DOI (it may resolve straight to a PDF). "
+            "See Taxicab stored PDFs below for the real verdict."
+        )
+        return result
+
     uuid = str(html.get("id") or "")
     landing_url = clean_url(str(html.get("resolved_url") or html.get("url") or ""))
+    result.update({"uuid": uuid, "landing_url": landing_url})
     steps.append(f"   latest scrape UUID -> {uuid}")
 
     status, body, err = http_get(f"{PARSELAND}/parseland/{quote(uuid, safe='')}", timeout)
     steps.append(f"3. Parseland GET /parseland/<uuid> -> {err or status}")
     if status != 200 or err:
-        return {"doi": doi, "steps": steps, "uuid": uuid, "landing_url": landing_url,
-                "error": f"Parseland failed ({err or status})."}
+        result["error"] = f"Parseland failed ({err or status})."
+        return result
     try:
         parsed = json.loads(body.decode("utf-8"))
     except Exception as e:  # noqa: BLE001
-        return {"doi": doi, "steps": steps, "uuid": uuid, "error": f"Parseland returned bad JSON: {e}"}
+        result["error"] = f"Parseland returned bad JSON: {e}"
+        return result
 
     candidates = extract_pdf_candidates(parsed if isinstance(parsed, dict) else {})
     steps.append(f"4. Candidate PDF URLs found -> {len(candidates)}")
-    return {
-        "doi": doi,
-        "uuid": uuid,
-        "landing_url": landing_url,
+    result.update({
         "candidate_pdf_url": candidates[0] if candidates else "",
         "candidate_pdf_urls": candidates,
         "all_urls": [clean_url(u.get("url") if isinstance(u, dict) else str(u)) for u in (parsed.get("urls") or [])],
         "parseland_error": str(parsed.get("error") or "") if isinstance(parsed, dict) else "",
-        "steps": steps,
-    }
+    })
+    return result
 
 
 PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -188,12 +232,25 @@ function esc(s){return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':
 function link(u){return u?'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(u)+'</a>':'';}
 function render(d){
   let h='';
-  h+='<div class="lbl">Candidate PDF URL</div>';
+  h+='<div class="lbl">Candidate PDF URL (Parseland guess)</div>';
   if(d.candidate_pdf_url){h+='<div class="pdf">'+link(d.candidate_pdf_url)+'</div>';}
   else{h+='<div class="err">No candidate PDF URL extracted.'+(d.error?' '+esc(d.error):'')+'</div>';}
   if(d.candidate_pdf_urls&&d.candidate_pdf_urls.length>1){
     h+='<div class="lbl">Other candidates</div><ul>'+d.candidate_pdf_urls.slice(1).map(u=>'<li>'+link(u)+'</li>').join('')+'</ul>';
   }
+  // Taxicab stored PDFs = the real verdict (byte-checked), independent of Parseland.
+  h+='<div class="lbl">Taxicab stored PDF (byte-checked = verdict)</div>';
+  if(d.stored_pdfs&&d.stored_pdfs.length){
+    h+='<ul>'+d.stored_pdfs.map(p=>{
+      const ok=p.is_pdf;
+      const badge='<span style="color:'+(ok?'var(--ok)':'#ff6b6b')+'">'+(ok?'%PDF- OK':'NOT pdf')+'</span>';
+      const kb=p.size_bytes?(' '+Math.round(p.size_bytes/1024)+' KB'):'';
+      return '<li>'+badge+' ('+(p.download_status||'?')+kb+')<br>'+link(p.resolved_url)+'</li>';
+    }).join('')+'</ul>';
+  } else {
+    h+='<div class="err">Taxicab has no stored PDF for this DOI.</div>';
+  }
+  if(d.note){h+='<div class="lbl">Note</div><div class="mono">'+esc(d.note)+'</div>';}
   if(d.landing_url){h+='<div class="lbl">Landing page</div><div>'+link(d.landing_url)+'</div>';}
   if(d.uuid){h+='<div class="lbl">Scrape UUID</div><div class="mono">'+esc(d.uuid)+'</div>';}
   if(d.all_urls&&d.all_urls.length){h+='<div class="lbl">All Parseland URLs ('+d.all_urls.length+')</div><ul>'+d.all_urls.map(u=>'<li>'+link(u)+'</li>').join('')+'</ul>';}

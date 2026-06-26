@@ -410,9 +410,214 @@ a miss. Always confirm with the `%PDF-` byte-check before deciding a row is
 missing or recovered.
 
 This means the webapp candidate view is good for triage but is not the verdict.
-A useful next improvement is to add a "Taxicab stored PDF" panel to the webapp
-that lists the pdf records and shows whether each one downloads as `%PDF-`
-bytes, so the Parseland candidate and the real stored result sit side by side.
+The webapp now has a "Taxicab stored PDF" panel that lists the pdf records and
+byte-checks each one (`%PDF-` or not), so the Parseland candidate and the real
+stored result sit side by side. The stored-PDF panel is the verdict; the
+Parseland candidate is just the guess.
+
+### Real Example: DOI That Resolves Straight To A PDF (No HTML Page)
+
+Some DOIs do not have an HTML landing page at all. The DOI redirects directly to
+a PDF file. The old webapp could not see these: its flow was DOI -> HTML ->
+Parseland -> candidate, so when there was no HTML record it wrongly said "No
+stored HTML scrape" and showed nothing, even when Taxicab already had the PDF.
+
+DOI:
+
+```text
+10.36838/v4i6.14
+```
+
+Taxicab storage for this DOI:
+
+```text
+html records: 0
+pdf records:  several, all pointing at the same file
+resolved_url: https://terra-docs.s3.us-east-2.amazonaws.com/IJHSR/Articles/volume4-issue6/2022_46_p80_Nguyen.pdf
+download status: 200
+content-type: application/pdf
+size: about 485 KB
+first bytes: %PDF-1.7  -> real PDF
+```
+
+So Taxicab had already fully recovered this row, but the HTML-only view made it
+look like a miss. Lesson: never decide a row is missing from the HTML/Parseland
+path alone. Always read Taxicab's stored pdf records and byte-check them. The
+webapp now does this for every DOI, HTML or not.
+
+### Real Example: A `.pdf` URL That Redirects To A Paywall (OUP)
+
+A candidate URL that ends in `.pdf` can still be a trap. Some publisher PDF
+URLs do not return PDF bytes. They redirect back to the article page, which is a
+paywall or login HTML page.
+
+DOI:
+
+```text
+10.1016/s0378-1097(99)00346-8
+```
+
+The webapp candidate looked perfect. It ends in `.pdf` and sits on the same
+publisher host:
+
+```text
+landing:    https://academic.oup.com/femsle/article-abstract/177/2/289/447451
+candidate:  https://academic.oup.com/femsle/article-pdf/177/2/289/19096376/177-2-289.pdf
+```
+
+But fetching that `article-pdf` URL redirects to the same paywalled article
+page. The response is HTML, not PDF bytes. So this is not a real PDF, even
+though the URL looks like one.
+
+Lesson: the URL shape is not proof. Taxicab must measure the fetched bytes, not
+trust the link:
+
+```text
+follow the candidate URL
+check the final response after redirects
+if the bytes start with %PDF-      -> real PDF
+if the bytes are HTML / login / paywall -> not a PDF, do not count it
+```
+
+This is the same rule as "Do not count a URL ending in `.pdf` as success by
+itself" from earlier in this file, shown with a concrete OUP redirect example.
+Publishers like Oxford Academic, Elsevier, Wiley, and SAGE often do this: the
+`article-pdf` or `/doi/pdf/` link bounces an unauthenticated fetch back to the
+paywalled landing page. Only the byte check tells the truth.
+
+### Recovery Target: PDF Lives On An Open Aggregator, Not The DOI Host
+
+Sometimes the DOI resolves to a publisher page that has no public PDF, but the
+same article is openly available as a PDF on a different host (an aggregator or
+repository). Taxicab currently misses these because it only looks at the host
+the DOI resolved to.
+
+DOI:
+
+```text
+10.7256/2454-0730.2019.1.20595
+```
+
+Taxicab resolved this to the nbpublish reader page and found no PDF:
+
+```text
+landing:   https://nbpublish.com/library_read_article.php   (no PDF link, generic reader page)
+candidate: (none)
+```
+
+But the same article is openly available as a real PDF on CyberLeninka:
+
+```text
+open pdf: https://cyberleninka.ru/article/n/servisologiya-kak-nauchnaya-osnova-razvitiya-sfery-servisa.pdf
+```
+
+So a public PDF exists; Taxicab just looked in the wrong place. This is a real
+recovery opportunity, not a "no PDF expected" row.
+
+The improvement target:
+
+```text
+DOI resolves to publisher host with no public PDF
+-> also check known open aggregators/repositories for the same article
+   (e.g. CyberLeninka, and similar)
+-> fetch the aggregator PDF
+-> verify bytes start with %PDF-
+-> store it as a Taxicab PDF record
+```
+
+Do not claim this as fixed until Taxicab DOI lookup shows a PDF record and the
+Taxicab download URL returns `%PDF-` bytes. Treat the aggregator-PDF lane as a
+provider/route candidate to test through the no-storage probe first, then the
+reharvest-and-confirm loop.
+
+## Big Recurring Class: ScienceDirect / Elsevier Paywall PDF Redirects
+
+This is not a one-off. It is one of the largest single failure classes in the
+corpus, so it deserves a real solution, not a per-DOI patch.
+
+### The Pattern
+
+The DOI resolves to a ScienceDirect abstract page, and the `/pdf` URL we build
+from it just bounces back to that same paywalled page.
+
+DOI:
+
+```text
+10.1016/0963-8695(91)90937-x
+```
+
+```text
+landing:   https://www.sciencedirect.com/science/article/abs/pii/096386959190937X
+candidate: https://www.sciencedirect.com/science/article/pii/096386959190937X/pdf
+```
+
+Fetching the candidate does not return PDF bytes. It redirects to the abstract
+page, which shows the Elsevier paywall: "Access through your organization" and
+"Purchase PDF". So the bytes are HTML, not a PDF.
+
+The tell-tale signs of this closed class:
+
+```text
+landing path contains /article/abs/pii/   (abs = abstract, usually closed)
+fetched page text contains: "Access through your organization"
+                            "Purchase PDF"
+                            "Get rights and content"
+                            "Sign in"
+the response is HTML, not %PDF-
+```
+
+### Why One-Off Fixes Do Not Work Here
+
+There are many such rows (Elsevier/ScienceDirect, and the same shape on Wiley,
+OUP, SAGE, etc.). Rewriting one URL or reharvesting one DOI does not move the
+number, because the blocker is access, not a wrong URL. The `/pdf` URL is
+already the "right" shape; the publisher just refuses it without a paywall
+login.
+
+### Strong Solution (Two Steps)
+
+Step 1 — Detect and stop lying to ourselves. Make Taxicab measure bytes, not
+trust the URL, and recognize the paywall signature:
+
+```text
+fetch candidate -> follow redirects -> read final bytes
+if bytes start with %PDF-                         -> real PDF, store it
+if final page is the publisher abstract/paywall   -> NOT a PDF
+   (matches /abs/ landing + paywall text above)
+```
+
+A row in this state is a closed publisher article. Do not store the HTML as a
+PDF, and do not count it as a Taxicab retrieval miss either. It is "no public
+PDF at the publisher".
+
+Step 2 — Look for a public copy somewhere else before giving up. For each closed
+publisher row, check open locations for the same work:
+
+```text
+OpenAlex open-access location (best_oa_location / oa_url) for the DOI
+open aggregators and repositories (e.g. CyberLeninka, institutional repos, preprint servers)
+```
+
+If an open copy exists, fetch that URL (not the publisher paywall URL), verify
+`%PDF-`, and store it. This is the same lesson as the aggregator example above
+and the earlier candidate_url reharvest work: when Taxicab is handed the correct
+open URL, its fetch code works; the failure is URL selection, not retrieval.
+
+### How To Work This Class
+
+```text
+1. Cluster all rows whose landing is /article/abs/pii/ on sciencedirect.com.
+2. Split them with the byte check + paywall signature into:
+   - genuinely closed (no public PDF anywhere)  -> mark no_public_pdf, stop chasing
+   - has an open copy elsewhere                  -> recover via the open URL
+3. For the open-copy group, test the open URL through the no-storage probe,
+   then the bounded reharvest-and-confirm loop.
+4. Only the proven %PDF- recoveries count toward the KPI.
+```
+
+The win here is twofold: stop counting paywall HTML as PDF (accuracy), and
+recover the subset that really is open somewhere else (real lift). Chasing the
+publisher paywall URL itself is a dead end without provider/login access.
 
 ## Be Careful With Springer, Elsevier, Wiley, And Similar Publishers
 
