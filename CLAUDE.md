@@ -8,26 +8,26 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 `/goal` is active for the 100-row Taxicab + Parseland loop over the 10K PDF
 availability file. The durable runner is `scripts/taxicab_batch_e2e.py`.
 
-Latest completed batch: batch 068, output in `batch_e2e_runs/batch-068/`.
+Latest completed batch: batch 069, output in `batch_e2e_runs/batch-069/`.
 
 ```text
-batch 068: 100 checked, 74 ready rows, 26 review rows, 70 passes, 4 failures,
-94.59% on ready rows, 28/28 public-PDF rows retrieved by Taxicab,
-33 real PDFs found by Taxicab, 77 useful Taxicab HTML rows, and 89 rows with
+batch 069: 100 checked, 71 ready rows, 29 review rows, 66 passes, 5 failures,
+92.96% on ready rows, 29/29 public-PDF rows retrieved by Taxicab,
+35 real PDFs found by Taxicab, 83 useful Taxicab HTML rows, and 90 rows with
 useful Parseland output.
 ```
 
-Batch 068 added no public-PDF miss. Its four failures are label mismatches on
-`doi.org`, `sec.journals.ekb.eg`, `shs.cairn.info`, and `tandfonline.com`,
-where Taxicab found real PDFs even though the sidecar says no public PDF.
+Batch 069 added no public-PDF miss. Its five failures are label mismatches on
+`digilib.phil.muni.cz`, `doi.org`, and `sciencedirect.com`, where Taxicab found
+real PDFs even though the sidecar says no public PDF.
 
-Cumulative batch loop result through batches 001-068:
+Cumulative batch loop result through batches 001-069:
 
 ```text
-6,800 checked, 4,685 ready rows, 2,115 review rows, 4,365 passes,
-320 failures, 93.17% on ready rows, 1,716/1,722 public-PDF rows retrieved by
-Taxicab, 2,133 real PDFs found by Taxicab, 5,311 useful Taxicab HTML rows,
-and 5,826 rows with useful Parseland output.
+6,900 checked, 4,756 ready rows, 2,144 review rows, 4,431 passes,
+325 failures, 93.17% on ready rows, 1,745/1,751 public-PDF rows retrieved by
+Taxicab, 2,168 real PDFs found by Taxicab, 5,394 useful Taxicab HTML rows,
+and 5,916 rows with useful Parseland output.
 ```
 
 The same six public-PDF attention rows are unchanged: the original
@@ -40,7 +40,7 @@ PDF-like response, and the batch 045 IJST/SciResOL S3 public-PDF miss.
 Next command:
 
 ```bash
-python3 scripts/taxicab_batch_e2e.py --batch-number 69 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
+python3 scripts/taxicab_batch_e2e.py --batch-number 70 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
 ```
 
 Keep raw DOI rows local. Oxjobs #461 gets aggregate counts only unless Shubh
