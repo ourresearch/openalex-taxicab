@@ -301,6 +301,61 @@ content starts with %PDF-1.4
 file size about 3.7 MB
 ```
 
+## Interactive Diagnostic Webapp
+
+There is a small local web app for fast DOI checking:
+
+```text
+scripts/parseland_webapp.py
+```
+
+Run it:
+
+```bash
+python3 scripts/parseland_webapp.py
+# then open http://localhost:8000
+```
+
+Enter a DOI and it runs the full chain for you:
+
+```text
+1. POST /taxicab        (optional re-harvest, off by default)
+2. GET  /taxicab/doi    -> latest stored scrape UUID
+3. GET  /parseland/<uuid> -> parsed landing page
+4. extract the candidate PDF URL from Parseland's links
+```
+
+It shows the candidate PDF URL, the landing page, the scrape UUID, and every
+URL Parseland returned. It is read-only by default: it tells you what link
+Parseland found, it does not make Taxicab fetch or store the PDF. Tick the
+"Re-harvest first" box only when a DOI has no stored scrape yet, because that
+POST costs Zyte credits.
+
+This tool is for triage. The real PDF recovery still goes through the
+reharvest-and-confirm loop in "Current Simple Strategy".
+
+### Fix Found While Exploring: Image Previews Were Counted As PDFs
+
+The candidate extractor matched any URL containing `pdf`, `pdfft`, or
+`download`. That wrongly accepted preview images.
+
+Example, DOI `10.1253/circj.cj-12-0636` on J-STAGE returned only:
+
+```text
+https://www.jstage.jst.go.jp/pub/pdfpreview/circj/76/8_76_CJ-12-0636.jpg
+```
+
+The word `pdfpreview` matched, but the file is a `.jpg` thumbnail, not a PDF.
+
+The extractor now drops any URL whose path ends in an image extension
+(`.jpg .jpeg .png .gif .webp .svg .tif`). So that DOI now correctly shows zero
+PDF candidates instead of a fake one.
+
+This is the kind of small accuracy fix that improves Taxicab over time:
+each false candidate we remove stops a wasted fetch and stops a non-PDF from
+being treated as a public PDF. The same image-extension guard is now applied in
+both `scripts/parseland_webapp.py` and `scripts/taxicab_batch_e2e.py`.
+
 ## Be Careful With Springer, Elsevier, Wiley, And Similar Publishers
 
 Do not say a publisher improved just because Taxicab currently has some valid

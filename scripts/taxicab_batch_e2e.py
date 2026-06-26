@@ -31,6 +31,8 @@ BOT_OR_LOGIN_RE = re.compile(
     r"(captcha|cloudflare|access denied|anubis|login\.wolterskluwer|sign in|log in|institution)",
     re.IGNORECASE,
 )
+PDF_LINK_RE = re.compile(r"pdf|pdfft|download", re.IGNORECASE)
+IMAGE_PREVIEW_EXT_RE = re.compile(r"\.(jpe?g|png|gif|webp|svg|tiff?)$", re.IGNORECASE)
 
 
 def clean_url(url: str) -> str:
@@ -53,6 +55,13 @@ def host(url: str) -> str:
 def is_real_url(value: str) -> bool:
     text = (value or "").strip()
     return bool(text and text.upper() != "N/A" and text.lower().startswith(("http://", "https://")))
+
+
+def looks_like_pdf_link(value: str) -> bool:
+    if not value or not PDF_LINK_RE.search(value):
+        return False
+    path = urlsplit(clean_url(value)).path
+    return not IMAGE_PREVIEW_EXT_RE.search(path)
 
 
 def read_sidecar(path: Path) -> list[dict[str, str]]:
@@ -130,7 +139,7 @@ def parse_parseland_payload(body: bytes) -> dict[str, Any]:
     pdf_urls: list[str] = []
     for item in urls:
         value = item.get("url") if isinstance(item, dict) else str(item)
-        if value and re.search(r"pdf|pdfft|download", value, re.IGNORECASE):
+        if looks_like_pdf_link(value):
             pdf_urls.append(clean_url(value))
     return {
         "parseland_error": str(data.get("error") or ""),
