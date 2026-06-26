@@ -1,5 +1,14 @@
 # OpenAlex Taxicab Claude Guide
 
+## PDF Improvement Strategy
+
+Before changing PDF retrieval behavior, read
+`PDF-IMPROVEMENT-STRATEGY.md`. It defines the simple rule for real PDF
+improvement: a public PDF exists, Taxicab previously missed it, a narrow fetch
+fix is added, and the stored Taxicab download returns bytes starting with
+`%PDF-`. Do not count better HTML, paywall pages, login pages, bot pages, or
+label corrections as PDF-byte recoveries.
+
 ## Current Override: 2026-06-26 Batch Loop
 
 Use `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab` on `main`.
@@ -8,26 +17,27 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 `/goal` is active for the 100-row Taxicab + Parseland loop over the 10K PDF
 availability file. The durable runner is `scripts/taxicab_batch_e2e.py`.
 
-Latest completed batch: batch 061, output in `batch_e2e_runs/batch-061/`.
+Latest completed batch: batch 062, output in `batch_e2e_runs/batch-062/`.
 
 ```text
-batch 061: 100 checked, 69 ready rows, 31 review rows, 65 passes, 4 failures,
-94.20% on ready rows, 28/28 public-PDF rows retrieved by Taxicab,
-33 real PDFs found by Taxicab, 76 useful Taxicab HTML rows, and 82 rows with
+batch 062: 100 checked, 72 ready rows, 28 review rows, 67 passes, 5 failures,
+93.06% on ready rows, 26/26 public-PDF rows retrieved by Taxicab,
+35 real PDFs found by Taxicab, 85 useful Taxicab HTML rows, and 85 rows with
 useful Parseland output.
 ```
 
-Batch 061 added no public-PDF miss. Its four failures are label mismatches on
-`doi.org`, `ojs.kgpa.km.ua`, `osf.io`, and `periodicos.ufpb.br`, where Taxicab
-found real PDFs even though the sidecar says no public PDF.
+Batch 062 added no public-PDF miss. Its five failures are label mismatches on
+`brill.com`, `journals.pan.pl`, `mdpi.com`, `onlinelibrary.wiley.com`, and
+`vjol.info.vn`, where Taxicab found real PDFs even though the sidecar says no
+public PDF.
 
-Cumulative batch loop result through batches 001-061:
+Cumulative batch loop result through batches 001-062:
 
 ```text
-6,100 checked, 4,200 ready rows, 1,900 review rows, 3,911 passes,
-289 failures, 93.12% on ready rows, 1,550/1,555 public-PDF rows retrieved by
-Taxicab, 1,920 real PDFs found by Taxicab, 4,744 useful Taxicab HTML rows,
-and 5,225 rows with useful Parseland output.
+6,200 checked, 4,272 ready rows, 1,928 review rows, 3,978 passes,
+294 failures, 93.12% on ready rows, 1,575/1,581 public-PDF rows retrieved by
+Taxicab, 1,955 real PDFs found by Taxicab, 4,829 useful Taxicab HTML rows,
+and 5,310 rows with useful Parseland output.
 ```
 
 The same six public-PDF attention rows are unchanged: the original
@@ -40,7 +50,7 @@ PDF-like response, and the batch 045 IJST/SciResOL S3 public-PDF miss.
 Next command:
 
 ```bash
-python3 scripts/taxicab_batch_e2e.py --batch-number 62 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
+python3 scripts/taxicab_batch_e2e.py --batch-number 63 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
 ```
 
 Keep raw DOI rows local. Oxjobs #461 gets aggregate counts only unless Shubh
