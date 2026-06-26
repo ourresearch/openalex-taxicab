@@ -356,6 +356,64 @@ each false candidate we remove stops a wasted fetch and stops a non-PDF from
 being treated as a public PDF. The same image-extension guard is now applied in
 both `scripts/parseland_webapp.py` and `scripts/taxicab_batch_e2e.py`.
 
+### Important: The Parseland Candidate Is Not What Taxicab Stored
+
+The webapp shows the candidate PDF URL that Parseland extracted from the landing
+page. That is a guess from the HTML. It is not proof of what Taxicab actually
+fetched and stored. The two can disagree in both directions:
+
+```text
+Parseland finds a junk/off-site link, but Taxicab stored the real PDF.
+Parseland finds a clean PDF link, but Taxicab stored only HTML.
+```
+
+So the candidate URL alone never tells you if the row is good. To know the
+truth, byte-check Taxicab's own stored PDF records:
+
+```text
+GET /taxicab/doi/<doi>        -> read the pdf record list
+GET /taxicab/<pdf_uuid>       -> download the stored bytes
+check the bytes start with %PDF-
+```
+
+### Real Example: Régiókutatás Szemle (OJS, unideb.hu)
+
+DOI:
+
+```text
+10.30716/rsz/21/2/15
+```
+
+The webapp candidate looked wrong. Parseland returned only one link, on a
+different host than the journal, with an unrelated file number:
+
+```text
+landing:    https://ojs.lib.unideb.hu/regiokutatasszemle/article/view/12750
+candidate:  https://mek.oszk.hu/10000/10080/10080.pdf   (foreign host, looks like a reference link)
+```
+
+But the byte-check of Taxicab storage showed Taxicab was already correct:
+
+```text
+2 pdf records
+resolved_url: https://ojs.lib.unideb.hu/regiokutatasszemle/article/download/12750/11195
+download status: 200
+content-type: application/pdf
+size: about 623 KB
+first bytes: %PDF-1.5  -> real PDF
+```
+
+Lesson: Taxicab found the real PDF through the OJS `/article/download/` path,
+even though Parseland's extracted candidate pointed at an unrelated off-site
+file. If we had trusted the candidate URL, we would have wrongly called this row
+a miss. Always confirm with the `%PDF-` byte-check before deciding a row is
+missing or recovered.
+
+This means the webapp candidate view is good for triage but is not the verdict.
+A useful next improvement is to add a "Taxicab stored PDF" panel to the webapp
+that lists the pdf records and shows whether each one downloads as `%PDF-`
+bytes, so the Parseland candidate and the real stored result sit side by side.
+
 ## Be Careful With Springer, Elsevier, Wiley, And Similar Publishers
 
 Do not say a publisher improved just because Taxicab currently has some valid
