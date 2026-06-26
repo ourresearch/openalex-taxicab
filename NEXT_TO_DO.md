@@ -8,11 +8,11 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 New durable runner: `scripts/taxicab_batch_e2e.py`.
 
-Batch 081 used:
+Batch 082 used:
 
 ```bash
 python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 81 \
+  --batch-number 82 \
   --batch-size 100 \
   --out batch_e2e_runs \
   --workers 4 \
@@ -20,40 +20,40 @@ python3 scripts/taxicab_batch_e2e.py \
   --reharvest
 ```
 
-Batch 081 result:
+Batch 082 result:
 
 ```text
 total rows: 100
-ready rows: 68
-review rows: 32
-passes: 62
-failures: 6
-score on ready rows: 91.18%
-public PDF rows: 18/18 Taxicab found real PDFs
-Taxicab found real PDFs: 27
-useful Taxicab HTML rows: 76
-useful Parseland rows: 82
+ready rows: 80
+review rows: 20
+passes: 76
+failures: 4
+score on ready rows: 95.00%
+public PDF rows: 26/26 Taxicab found real PDFs
+Taxicab found real PDFs: 33
+useful Taxicab HTML rows: 79
+useful Parseland rows: 81
 ```
 
-Cumulative batches 001-081:
+Cumulative batches 001-082:
 
 ```text
-total rows: 8,100
-ready rows: 5,584
-review rows: 2,516
-passes: 5,206
-failures: 378
-score on ready rows: 93.23%
-public PDF rows: 2,049/2,056 Taxicab found real PDFs
-Taxicab found real PDFs: 2,543
-useful Taxicab HTML rows: 6,329
-useful Parseland rows: 6,944
+total rows: 8,200
+ready rows: 5,664
+review rows: 2,536
+passes: 5,282
+failures: 382
+score on ready rows: 93.26%
+public PDF rows: 2,075/2,082 Taxicab found real PDFs
+Taxicab found real PDFs: 2,576
+useful Taxicab HTML rows: 6,408
+useful Parseland rows: 7,025
 ```
 
-The same seven public-PDF attention rows remain. Batch 081 added no public-PDF
-miss and six label mismatches where Taxicab found real PDFs even though the
+The same seven public-PDF attention rows remain. Batch 082 added no public-PDF
+miss and four label mismatches where Taxicab found real PDFs even though the
 sidecar says no public PDF. Local row details are in
-`batch_e2e_runs/batch-001/rows.csv` through `batch_e2e_runs/batch-081/rows.csv`.
+`batch_e2e_runs/batch-001/rows.csv` through `batch_e2e_runs/batch-082/rows.csv`.
 Public oxjobs gets aggregate counts only.
 
 Next exact command:
@@ -61,7 +61,7 @@ Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 82 \
+  --batch-number 83 \
   --batch-size 100 \
   --out batch_e2e_runs \
   --workers 4 \
