@@ -8,33 +8,35 @@ Taxicab endpoint and live Parseland endpoint.
 Latest completed batch:
 
 ```text
-batch: 056
+batch: 057
 file: /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv
-run output: batch_e2e_runs/batch-056/
+run output: batch_e2e_runs/batch-057/
 total rows: 100
-ready rows: 69
-review rows: 31
-passes: 65
+ready rows: 77
+review rows: 23
+passes: 73
 failures: 4
-score on ready rows: 94.20%
-public PDF rows: 25/25 retrieved by Taxicab
+score on ready rows: 94.81%
+public PDF rows: 26/26 retrieved by Taxicab
 ```
 
-Cumulative batches 001-056: 5,600 checked, 3,844 ready rows, 1,756 review rows,
-3,571 passes, 273 failures, 92.90% on ready rows, 1,422/1,427 public-PDF rows
-retrieved by Taxicab, and 4,803 rows with useful Parseland output.
+Cumulative batches 001-057: 5,700 checked, 3,921 ready rows, 1,779 review rows,
+3,644 passes, 277 failures, 92.94% on ready rows, 1,448/1,453 public-PDF rows
+retrieved by Taxicab, 1,800 real PDFs found by Taxicab, 4,430 useful Taxicab
+HTML rows, and 4,890 rows with useful Parseland output.
 
-The same six public-PDF attention rows are unchanged: the original ScienceDirect/JMRT PDF-byte retrieval issue from batch 006, the batch 018 OSF label-review case where the sidecar URL downloads DOCX rather than PDF, the batch 027 revistas.filos.unam.mx tiny/corrupt PDF-like response, one batch 031 Taxicab DOI-lookup review row, the batch 034 revistas.uach.cl tiny/corrupt PDF-like response, and the batch 045 IJST/SciResOL S3 public-PDF miss. Batch 056 added no public-PDF miss and four label mismatches where
-Taxicab found a real PDF even though the sidecar says no public PDF. Review the
-local rows in `batch_e2e_runs/batch-001/rows.csv` through
-`batch_e2e_runs/batch-056/rows.csv` before changing labels.
+The same six public-PDF attention rows are unchanged. Batch 057 added no
+public-PDF miss and four label mismatches where Taxicab found a real PDF even
+though the sidecar says no public PDF. Review the local rows in
+`batch_e2e_runs/batch-001/rows.csv` through `batch_e2e_runs/batch-057/rows.csv`
+before changing labels.
 
 Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 57 \
+  --batch-number 58 \
   --batch-size 100 \
   --out batch_e2e_runs \
   --workers 4 \
