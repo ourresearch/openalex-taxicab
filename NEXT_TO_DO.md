@@ -8,27 +8,27 @@ Taxicab endpoint and live Parseland endpoint.
 Latest completed batch:
 
 ```text
-batch: 069
+batch: 070
 file: /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv
-run output: batch_e2e_runs/batch-069/
+run output: batch_e2e_runs/batch-070/
 total rows: 100
-ready rows: 71
-review rows: 29
+ready rows: 69
+review rows: 31
 passes: 66
-failures: 5
-score on ready rows: 92.96%
-public PDF rows: 29/29 retrieved by Taxicab
+failures: 3
+score on ready rows: 95.65%
+public PDF rows: 27/27 retrieved by Taxicab
 ```
 
-Cumulative batches 001-069: 6,900 checked, 4,756 ready rows, 2,144 review rows,
-4,431 passes, 325 failures, 93.17% on ready rows, 1,745/1,751 public-PDF rows
-retrieved by Taxicab, 2,168 real PDFs found by Taxicab, 5,394 useful Taxicab
-HTML rows, and 5,916 rows with useful Parseland output.
+Cumulative batches 001-070: 7,000 checked, 4,825 ready rows, 2,175 review rows,
+4,497 passes, 328 failures, 93.20% on ready rows, 1,772/1,778 public-PDF rows
+retrieved by Taxicab, 2,199 real PDFs found by Taxicab, 5,472 useful Taxicab
+HTML rows, and 6,002 rows with useful Parseland output.
 
-The same six public-PDF attention rows are unchanged. Batch 069 added no
-public-PDF miss and five label mismatches where Taxicab found real PDFs even
+The same six public-PDF attention rows are unchanged. Batch 070 added no
+public-PDF miss and three label mismatches where Taxicab found real PDFs even
 though the sidecar says no public PDF. Review the local rows in
-`batch_e2e_runs/batch-001/rows.csv` through `batch_e2e_runs/batch-069/rows.csv`
+`batch_e2e_runs/batch-001/rows.csv` through `batch_e2e_runs/batch-070/rows.csv`
 before changing labels.
 
 Next exact command:
@@ -36,7 +36,7 @@ Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 70 \
+  --batch-number 71 \
   --batch-size 100 \
   --out batch_e2e_runs \
   --workers 4 \
