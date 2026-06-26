@@ -674,3 +674,75 @@ PY
 
 Do not print secrets, cookies, signed URLs, Browserbase session IDs, or raw
 private provider evidence.
+
+## Dated Verification Log
+
+Short, dated notes from manual spot-checks. Each entry records the date, the
+DOI, what was checked, and the reason for the outcome. These are evidence, not
+conclusions about the whole corpus.
+
+### 2026-06-26 — Springer DOI looked like a miss but was already recovered
+
+DOI:
+
+```text
+10.1007/s10705-024-10386-1
+```
+
+URL inspected:
+
+```text
+https://link.springer.com/content/pdf/10.1007/s10705-024-10386-1.pdf
+```
+
+First impression was that "Taxicab + Parseland could not get it". The byte-check
+disproved that:
+
+```text
+Parseland candidate: https://link.springer.com/content/pdf/10.1007/s10705-024-10386-1.pdf  (correct)
+Taxicab stored pdf records: 3, all application/pdf, all start with %PDF-
+size: about 1.25 MB
+```
+
+Reason for the confusion: a naive direct fetch of that Springer URL from the
+local sandbox failed (`urlopen error`, local network/SSL block). That local
+failure is not Taxicab. Taxicab fetches through Zyte, which retrieved the real
+PDF, and Parseland had already extracted the correct candidate. So this is a
+clean success, not a miss.
+
+Lesson: do not judge a row from a naive direct fetch or from an empty candidate
+panel. The verdict is Taxicab's stored bytes (`%PDF-`). Both Parseland and
+Taxicab succeeded here.
+
+### 2026-06-26 — APS Physical Review B: PDF button exists but page is paywalled
+
+DOI:
+
+```text
+10.1103/physrevb.44.3757
+```
+
+```text
+landing:   https://journals.aps.org/prb/abstract/10.1103/PhysRevB.44.3757
+candidate: http://link.aps.org/pdf/10.1103/PhysRevB.44.3757
+Taxicab stored pdf records: 0   (real miss)
+```
+
+Parseland extracted a clean-looking candidate, and the APS page even shows a
+"PDF" button. But the page itself says "Authorization Required — We need you to
+provide your credentials before accessing this content" with "Log in via your
+institution / Access through your institution". So the article (1991 Phys. Rev.
+B) is paywalled: the `link.aps.org/pdf/` URL redirects to this login/paywall
+page and returns HTML, not PDF bytes.
+
+Reason this is a real miss, not a tooling bug: Taxicab has 0 stored PDF records,
+and the candidate URL is access-gated. This is the same paywall-redirect class
+as the ScienceDirect and Oxford Academic examples above, just on APS
+(`journals.aps.org` / `link.aps.org`). It matches the APS provider lane in the
+handoff, where Zyte strategies return `js_redirect_unresolved` and recovered
+0/24.
+
+Handling: treat as closed publisher access. Do not store the login HTML as a
+PDF. Only recover if an open copy exists elsewhere (OpenAlex OA location,
+arXiv/repository), tested through the no-storage probe first. Chasing the APS
+PDF URL directly is a dead end without provider/login access.
