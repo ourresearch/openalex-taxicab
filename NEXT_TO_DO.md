@@ -8,33 +8,33 @@ Taxicab endpoint and live Parseland endpoint.
 Latest completed batch:
 
 ```text
-batch: 053
+batch: 054
 file: /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv
-run output: batch_e2e_runs/batch-053/
+run output: batch_e2e_runs/batch-054/
 total rows: 100
-ready rows: 68
-review rows: 32
-passes: 66
-failures: 2
-score on ready rows: 97.06%
-public PDF rows: 24/24 retrieved by Taxicab
+ready rows: 80
+review rows: 20
+passes: 76
+failures: 4
+score on ready rows: 95.00%
+public PDF rows: 27/27 retrieved by Taxicab
 ```
 
-Cumulative batches 001-053: 5,300 checked, 3,622 ready rows, 1,678 review rows,
-3,363 passes, 259 failures, 92.85% on ready rows, 1,348/1,353 public-PDF rows
-retrieved by Taxicab, and 4,541 rows with useful Parseland output.
+Cumulative batches 001-054: 5,400 checked, 3,702 ready rows, 1,698 review rows,
+3,439 passes, 263 failures, 92.90% on ready rows, 1,375/1,380 public-PDF rows
+retrieved by Taxicab, and 4,628 rows with useful Parseland output.
 
-The same six public-PDF attention rows are unchanged: the original ScienceDirect/JMRT PDF-byte retrieval issue from batch 006, the batch 018 OSF label-review case where the sidecar URL downloads DOCX rather than PDF, the batch 027 revistas.filos.unam.mx tiny/corrupt PDF-like response, one batch 031 Taxicab DOI-lookup review row, the batch 034 revistas.uach.cl tiny/corrupt PDF-like response, and the batch 045 IJST/SciResOL S3 public-PDF miss. Batch 053 added no public-PDF miss and two label mismatches where
+The same six public-PDF attention rows are unchanged: the original ScienceDirect/JMRT PDF-byte retrieval issue from batch 006, the batch 018 OSF label-review case where the sidecar URL downloads DOCX rather than PDF, the batch 027 revistas.filos.unam.mx tiny/corrupt PDF-like response, one batch 031 Taxicab DOI-lookup review row, the batch 034 revistas.uach.cl tiny/corrupt PDF-like response, and the batch 045 IJST/SciResOL S3 public-PDF miss. Batch 054 added no public-PDF miss and four label mismatches where
 Taxicab found a real PDF even though the sidecar says no public PDF. Review the
 local rows in `batch_e2e_runs/batch-001/rows.csv` through
-`batch_e2e_runs/batch-053/rows.csv` before changing labels.
+`batch_e2e_runs/batch-054/rows.csv` before changing labels.
 
 Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 54 \
+  --batch-number 55 \
   --batch-size 100 \
   --out batch_e2e_runs \
   --workers 4 \
