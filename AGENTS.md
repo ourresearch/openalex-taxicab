@@ -8,26 +8,25 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 `/goal` is active for the 100-row Taxicab + Parseland loop over the 10K PDF
 availability file. The durable runner is `scripts/taxicab_batch_e2e.py`.
 
-Latest completed batch: batch 078, output in `batch_e2e_runs/batch-078/`.
+Latest completed batch: batch 079, output in `batch_e2e_runs/batch-079/`.
 
 ```text
-batch 078: 100 checked, 65 ready rows, 35 review rows, 60 passes, 5 failures,
-92.31% on ready rows, 28/28 public-PDF rows retrieved by Taxicab,
-33 real PDFs found by Taxicab, 78 useful Taxicab HTML rows, and 88 rows with
+batch 079: 100 checked, 66 ready rows, 34 review rows, 62 passes, 4 failures,
+93.94% on ready rows, 23/23 public-PDF rows retrieved by Taxicab,
+29 real PDFs found by Taxicab, 73 useful Taxicab HTML rows, and 85 rows with
 useful Parseland output.
 ```
 
-Batch 078 added no public-PDF miss. Its five failures are label mismatches on
-`mdpi.com` (2), `sciencedirect.com`, `tandfonline.com`, and `unknown`, where
-Taxicab found real PDFs even though the sidecar says no public PDF.
+Batch 079 added no public-PDF miss. Its four failures are label mismatches on
+`jstage.jst.go.jp` (2), `degruyterbrill.com`, and `mdpi.com`, where Taxicab found real PDFs even though the sidecar says no public PDF.
 
-Cumulative batch loop result through batches 001-078:
+Cumulative batch loop result through batches 001-079:
 
 ```text
-7,800 checked, 5,376 ready rows, 2,424 review rows, 5,012 passes,
-364 failures, 93.23% on ready rows, 1,979/1,986 public-PDF rows retrieved by
-Taxicab, 2,452 real PDFs found by Taxicab, 6,111 useful Taxicab HTML rows,
-and 6,696 rows with useful Parseland output.
+7,900 checked, 5,442 ready rows, 2,458 review rows, 5,074 passes,
+368 failures, 93.24% on ready rows, 2,002/2,009 public-PDF rows retrieved by
+Taxicab, 2,481 real PDFs found by Taxicab, 6,184 useful Taxicab HTML rows,
+and 6,781 rows with useful Parseland output.
 ```
 
 The same seven public-PDF attention rows remain: the original ScienceDirect/JMRT
@@ -41,7 +40,7 @@ Army War College Press public-PDF miss.
 Next command:
 
 ```bash
-python3 scripts/taxicab_batch_e2e.py --batch-number 79 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
+python3 scripts/taxicab_batch_e2e.py --batch-number 80 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
 ```
 
 Keep raw DOI rows local. Oxjobs #461 gets aggregate counts only unless Shubh
