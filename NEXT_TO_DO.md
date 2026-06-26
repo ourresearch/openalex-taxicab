@@ -8,11 +8,11 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 New durable runner: `scripts/taxicab_batch_e2e.py`.
 
-Batch 088 used:
+Batch 089 used:
 
 ```bash
 python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 88 \
+  --batch-number 89 \
   --batch-size 100 \
   --out batch_e2e_runs \
   --workers 4 \
@@ -20,40 +20,45 @@ python3 scripts/taxicab_batch_e2e.py \
   --reharvest
 ```
 
-Batch 088 result:
+Batch 089 result:
 
 ```text
 total rows: 100
-ready rows: 74
-review rows: 26
-passes: 70
-failures: 4
-score on ready rows: 94.59%
-public PDF rows: 24/25 Taxicab found real PDFs
-Taxicab found real PDFs: 30
-useful Taxicab HTML rows: 82
-useful Parseland rows: 88
+ready rows: 76
+review rows: 24
+passes: 67
+failures: 9
+score on ready rows: 88.16%
+public PDF rows: 25/25 Taxicab found real PDFs
+Taxicab found real PDFs: 36
+useful Taxicab HTML rows: 76
+useful Parseland rows: 81
 ```
 
-Cumulative batches 001-088:
+Cumulative batches 001-089:
 
 ```text
-total rows: 8,800
-ready rows: 6,091
-review rows: 2,709
-passes: 5,690
-failures: 401
-score on ready rows: 93.42%
-public PDF rows: 2,228/2,236 Taxicab found real PDFs
-Taxicab found real PDFs: 2,757
-useful Taxicab HTML rows: 6,894
-useful Parseland rows: 7,539
+total rows: 8,900
+ready rows: 6,167
+review rows: 2,733
+passes: 5,757
+failures: 410
+score on ready rows: 93.35%
+public PDF rows: 2,253/2,261 Taxicab found real PDFs
+Taxicab found real PDFs: 2,793
+useful Taxicab HTML rows: 6,970
+useful Parseland rows: 7,620
 ```
 
-Eight public-PDF attention rows remain. Batch 088 added one public-PDF miss and
-three label mismatches where Taxicab found real PDFs even though the sidecar says
+Eight public-PDF attention rows remain. Batch 089 added no public-PDF miss and
+nine label mismatches where Taxicab found real PDFs even though the sidecar says
 no public PDF. Local row details are in `batch_e2e_runs/batch-001/rows.csv`
-through `batch_e2e_runs/batch-088/rows.csv`.
+through `batch_e2e_runs/batch-089/rows.csv`.
+
+The batch 088 unknown-host miss was inspected on 2026-06-26: the direct source
+PDF returned 403 HTML locally, and Taxicab/Zyte `/test-zyte` returned a 520 empty
+provider response. Treat it as provider/source evidence unless a later check
+finds reachable PDF bytes.
 Public oxjobs gets aggregate counts only.
 
 Next exact command:
@@ -61,7 +66,7 @@ Next exact command:
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 89 \
+  --batch-number 90 \
   --batch-size 100 \
   --out batch_e2e_runs \
   --workers 4 \
