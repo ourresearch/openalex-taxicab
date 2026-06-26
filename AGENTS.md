@@ -8,27 +8,26 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 `/goal` is active for the 100-row Taxicab + Parseland loop over the 10K PDF
 availability file. The durable runner is `scripts/taxicab_batch_e2e.py`.
 
-Latest completed batch: batch 059, output in `batch_e2e_runs/batch-059/`.
+Latest completed batch: batch 060, output in `batch_e2e_runs/batch-060/`.
 
 ```text
-batch 059: 100 checked, 76 ready rows, 24 review rows, 72 passes, 4 failures,
-94.74% on ready rows, 24/24 public-PDF rows retrieved by Taxicab,
-28 real PDFs found by Taxicab, 86 useful Taxicab HTML rows, and 83 rows with
+batch 060: 100 checked, 67 ready rows, 33 review rows, 66 passes, 1 failure,
+98.51% on ready rows, 21/21 public-PDF rows retrieved by Taxicab,
+24 real PDFs found by Taxicab, 77 useful Taxicab HTML rows, and 81 rows with
 useful Parseland output.
 ```
 
-Batch 059 added no public-PDF miss. Its four failures are label mismatches on
-`ebm-journal.org`, `journals.sagepub.com`, `login.wolterskluwer.com`, and
+Batch 060 added no public-PDF miss. Its one failure is a label mismatch on
 `mdpi.com`, where Taxicab found a real PDF even though the sidecar says no
 public PDF.
 
-Cumulative batch loop result through batches 001-059:
+Cumulative batch loop result through batches 001-060:
 
 ```text
-5,900 checked, 4,064 ready rows, 1,836 review rows, 3,780 passes,
-284 failures, 93.01% on ready rows, 1,501/1,506 public-PDF rows retrieved by
-Taxicab, 1,863 real PDFs found by Taxicab, 4,591 useful Taxicab HTML rows,
-and 5,062 rows with useful Parseland output.
+6,000 checked, 4,131 ready rows, 1,869 review rows, 3,846 passes,
+285 failures, 93.10% on ready rows, 1,522/1,527 public-PDF rows retrieved by
+Taxicab, 1,887 real PDFs found by Taxicab, 4,668 useful Taxicab HTML rows,
+and 5,143 rows with useful Parseland output.
 ```
 
 The same six public-PDF attention rows are unchanged: the original
@@ -41,7 +40,7 @@ PDF-like response, and the batch 045 IJST/SciResOL S3 public-PDF miss.
 Next command:
 
 ```bash
-python3 scripts/taxicab_batch_e2e.py --batch-number 60 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
+python3 scripts/taxicab_batch_e2e.py --batch-number 61 --batch-size 100 --out batch_e2e_runs --workers 4 --timeout 90 --reharvest
 ```
 
 Keep raw DOI rows local. Oxjobs #461 gets aggregate counts only unless Shubh
