@@ -8,7 +8,7 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 New durable runner: `scripts/taxicab_batch_e2e.py`.
 
-Batch 095 used:
+Batch 096 used:
 
 ```bash
 python3 scripts/taxicab_batch_e2e.py \
@@ -20,43 +20,43 @@ python3 scripts/taxicab_batch_e2e.py \
   --reharvest
 ```
 
-Batch 095 result:
+Batch 096 result:
 
 ```text
 total rows: 100
-ready rows: 71
-review rows: 29
-passes: 68
-failures: 3
-score on ready rows: 95.77%
-public PDF rows: 28/28 Taxicab found real PDFs
-Taxicab found real PDFs: 31
-useful Taxicab HTML rows: 77
-useful Parseland rows: 88
+ready rows: 69
+review rows: 31
+passes: 63
+failures: 6
+score on ready rows: 91.30%
+public PDF rows: 26/26 Taxicab found real PDFs
+Taxicab found real PDFs: 32
+useful Taxicab HTML rows: 73
+useful Parseland rows: 86
 ```
 
-Cumulative batches 001-095:
+Cumulative batches 001-096:
 
 ```text
-total rows: 9,500
-ready rows: 6,581
-review rows: 2,919
-passes: 6,142
-failures: 439
-score on ready rows: 93.33%
-public PDF rows: 2,377/2,385 Taxicab found real PDFs
-Taxicab found real PDFs: 2,961
-useful Taxicab HTML rows: 7,448
-useful Parseland rows: 8,137
+total rows: 9,600
+ready rows: 6,650
+review rows: 2,950
+passes: 6,205
+failures: 445
+score on ready rows: 93.31%
+public PDF rows: 2,403/2,411 Taxicab found real PDFs
+Taxicab found real PDFs: 2,993
+useful Taxicab HTML rows: 7,521
+useful Parseland rows: 8,223
 ```
 
-Eight public-PDF attention rows remain. Batch 095 added no public-PDF miss and
+Eight public-PDF attention rows remain. Batch 096 added no public-PDF miss and
 nine label mismatches where Taxicab found real PDFs even though the sidecar says
 no public PDF. Local row details are in `batch_e2e_runs/batch-001/rows.csv`
-through `batch_e2e_runs/batch-095/rows.csv`.
+through `batch_e2e_runs/batch-096/rows.csv`.
 
-Batch 095 used lower concurrency after batch 090's first attempt showed a local
-DNS burst. The accepted batch 095 run had all 100 Taxicab lookups return HTTP
+Batch 096 used lower concurrency after batch 090's first attempt showed a local
+DNS burst. The accepted batch 096 run had all 100 Taxicab lookups return HTTP
 200.
 
 The batch 088 unknown-host miss was inspected on 2026-06-26: the direct source
