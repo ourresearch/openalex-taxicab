@@ -1,12 +1,22 @@
 # OpenAlex Taxicab Agent Guide
 
-## Current Goal Update: 2026-06-28 Peertechz/Organsci Sidecar URL Correction
+## Current Goal Update: 2026-06-28 Pubsonline Provider/HTML Review
 
 `/goal` is active for the 100-at-a-time Taxicab PDF/HTML improvement loop.
 Use the correct repo: `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab`.
 Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
+
+Latest residual review check: one fresh `pubsonline.informs.org` row was tested
+from the current residual queue. The file had a PDF-looking link, but Zyte
+no-storage checks recovered 0/1 valid PDFs and direct source checks reached a
+403 challenge page instead of PDF bytes. A bounded live Taxicab re-harvest
+passed when treated as no public PDF expected: Taxicab did not store a PDF, did
+store useful HTML, and Parseland extracted useful article data. No Taxicab code
+changed. Treat this as provider/source review evidence, not a route-code
+candidate. Public oxjobs artifact:
+`evidence/report461-pubsonline-provider-html-review-summary-20260628.json`.
 
 Latest residual sidecar URL check: one fresh `peertechzpublications.com` row
 was tested from the current residual queue. The file had an old Peertechz PDF
