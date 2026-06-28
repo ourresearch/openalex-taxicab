@@ -521,6 +521,9 @@ def http_get(url,
         if not attempt_n and _is_peerj_pdf_url(url):
             return _fetch_peerj_pdf(url, connect_timeout, read_timeout)
 
+        if not attempt_n and _is_sba_ojs_pdf_url(url):
+            return _fetch_sba_ojs_pdf(url, connect_timeout, read_timeout, verify)
+
         # Check if it's a DOI or Handle URL that needs resolution
         is_doi_url = 'doi.org/' in url
         is_handle_url = 'hdl.handle.net/' in url
@@ -820,6 +823,10 @@ ERUDIT_PDF_HOSTS = [
     "erudit.org",
 ]
 
+SBA_OJS_PDF_HOSTS = [
+    "sba.org.br",
+]
+
 
 # Hosts that hide direct PDF URLs behind Cloudflare-style fingerprint checks.
 # Direct httpResponseBody calls to the PDF URL get banned (Zyte 520), but
@@ -946,6 +953,19 @@ def _is_erudit_pdf_url(url):
         return False
     return any(host == erudit_host or host.endswith(f".{erudit_host}")
                for erudit_host in ERUDIT_PDF_HOSTS)
+
+
+def _is_sba_ojs_pdf_url(url):
+    try:
+        split_url = urlsplit(url)
+    except ValueError:
+        return False
+    host = split_url.netloc.lower()
+    path = split_url.path.lower()
+    if not path.startswith("/open_journal_systems/index.php/cba/article/download/"):
+        return False
+    return any(host == sba_host or host.endswith(f".{sba_host}")
+               for sba_host in SBA_OJS_PDF_HOSTS)
 
 
 def _should_use_landing_page_rewrite(url):
@@ -1252,6 +1272,32 @@ def _fetch_erudit_pdf(url, connect_timeout=5, read_timeout=60, verify=False):
         )
     except requests.exceptions.RequestException as exc:
         logger.warning(f"Erudit PDF direct fetch failed for {url}: {exc}")
+        return ResponseObject(content=b"", headers=[], status_code=520, url=url)
+
+    return ResponseObject(
+        content=response.content,
+        headers=[{"name": key, "value": value} for key, value in response.headers.items()],
+        status_code=response.status_code,
+        url=response.url,
+    )
+
+
+def _fetch_sba_ojs_pdf(url, connect_timeout=5, read_timeout=60, verify=False):
+    """Fetch public SBA OJS article-download PDF URLs directly.
+
+    SBA serves the OJS download path as plain public PDF bytes, while Zyte
+    timed out or returned empty provider responses for the same URL. Keep this
+    PDF-only so article HTML still uses the normal path.
+    """
+    try:
+        response = requests.get(
+            url,
+            headers={"Accept": "application/pdf,*/*"},
+            timeout=(connect_timeout, read_timeout),
+            verify=verify,
+        )
+    except requests.exceptions.RequestException as exc:
+        logger.warning(f"SBA OJS PDF direct fetch failed for {url}: {exc}")
         return ResponseObject(content=b"", headers=[], status_code=520, url=url)
 
     return ResponseObject(

@@ -194,6 +194,55 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertIsInstance(response.content, str)
         self.assertIn("Scholarhub article shell", response.content)
 
+    def test_http_get_fetches_sba_ojs_pdf_directly(self):
+        pdf_url = "https://www.sba.org.br/open_journal_systems/index.php/cba/article/download/4194/3678"
+        captured = {}
+
+        class FakeResponse:
+            content = b"%PDF-1.5\nbody\n%%EOF"
+            headers = {"Content-Type": "application/pdf"}
+            status_code = 200
+            url = pdf_url
+
+        def fake_get(url, **kwargs):
+            captured["url"] = url
+            captured["headers"] = kwargs.get("headers")
+            return FakeResponse()
+
+        with patch("openalex_taxicab.http_cache.requests.get", side_effect=fake_get):
+            with patch("openalex_taxicab.http_cache.call_with_zyte_api") as fake_zyte:
+                response = http_get(pdf_url)
+
+        self.assertEqual(captured["url"], pdf_url)
+        self.assertEqual(captured["headers"], {"Accept": "application/pdf,*/*"})
+        fake_zyte.assert_not_called()
+        self.assertEqual(response.url, pdf_url)
+        self.assertEqual(response.headers["Content-Type"], "application/pdf")
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_http_get_does_not_sba_route_article_html(self):
+        article_url = "https://www.sba.org.br/open_journal_systems/index.php/cba/article/view/4194"
+        captured = {}
+
+        def fake_call_with_zyte_api(url, params=None):
+            captured["url"] = url
+            captured["params"] = params
+            return {
+                "statusCode": 200,
+                "url": article_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "httpResponseBody": base64.b64encode(b"<html>SBA article page</html>").decode(),
+            }
+
+        with patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=fake_call_with_zyte_api):
+            response = http_get(article_url)
+
+        self.assertEqual(captured["url"], article_url)
+        self.assertEqual(captured["params"]["url"], article_url)
+        self.assertNotIn("customHttpRequestHeaders", captured["params"])
+        self.assertIsInstance(response.content, str)
+        self.assertIn("SBA article page", response.content)
+
     def test_http_get_uses_pdf_body_strategy_for_iop_article_pdf(self):
         pdf_url = "https://iopscience.iop.org/article/10.1088/0951-7715/7/1/008/pdf"
         captured = []
