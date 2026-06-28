@@ -1,12 +1,23 @@
 # Taxicab next work for Codex and Claude
 
-## Current Goal Update: 2026-06-28 100-DOI Batch Loop Complete
+## Current Goal Update: 2026-06-28 SBA OJS PDF Recovery
 
 `/goal` is active for the 100-at-a-time Taxicab PDF/HTML improvement loop.
 Use the correct repo: `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab`.
 Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
+
+Latest residual PDF recovery: one fresh `sba.org.br` public-PDF row was tested
+from the current residual queue. Zyte no-storage provider probes recovered
+0/1 PDFs: every strategy ended as empty response, timeout, or provider 520.
+Direct source checks showed the SBA OJS article-download path serves public PDF
+bytes. Taxicab now fetches only SBA OJS article-download PDF URLs directly;
+article HTML still uses the existing route. Deployed commit `794971b` passed a
+bounded live one-row re-harvest: Taxicab stored a real PDF, stored useful HTML,
+and Parseland extracted useful article data. This is a narrow Taxicab PDF
+recovery, not a broad route change. Public oxjobs artifact:
+`evidence/report461-sba-ojs-direct-pdf-recovery-summary-20260628.json`.
 
 Latest residual broken-link review check: one fresh `platform.almanhal.com`
 REVIEW row was tested from the current residual queue. The file had a
