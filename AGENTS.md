@@ -74,9 +74,19 @@ python3 scripts/publish-report.py 461
 ```
 
 After publishing this final 10K batch summary, the next work is to inspect the
-remaining 10 public-PDF attention rows plus the label mismatches that Taxicab
+remaining public-PDF attention rows plus the label mismatches that Taxicab
 already recovered. Do not publish raw DOI rows, raw URLs, cookies, signed URLs,
 screenshots, or HTML.
+
+
+Post-batch fix: the IJST/SciResOL public-PDF attention row was a real PDF with
+harmless blank bytes before `%PDF-`. Taxicab now accepts that as real PDF bytes
+in the eval helper, batch runner, provider probe, Browserbase evidence path, and
+harvest PDF validation. A targeted one-row live eval now returns `good_pdf` with
+5 pages and no validation errors. Treat this as a focused validator/harvest
+PDF-byte fix, not a broad publisher route change. Public-PDF attention rows move
+from 10 to 9 after this targeted check; rerun the relevant batch or full loop if
+you need a refreshed batch-run snapshot.
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
 ## Current PDF Handoff: 2026-06-24 JPET Browserbase Gold Evidence

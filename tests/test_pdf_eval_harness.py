@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 from openalex_taxicab.pdf_eval_harness import (
     PDF_CATEGORIES,
+    PDF_CATEGORY_CORRUPT_OR_TRUNCATED_PDF,
     PDF_CATEGORY_ENCRYPTED_OR_UNREADABLE_PDF,
     PDF_CATEGORY_GOOD_PDF,
     PDF_CATEGORY_HTML_INSTEAD_OF_PDF,
@@ -357,6 +358,33 @@ class PdfEvalHarnessTests(unittest.TestCase):
         self.assertGreater(row.page_count, 0)
         self.assertTrue(row.doi_match)
         self.assertGreater(row.title_overlap, 0)
+
+    def test_valid_pdf_allows_leading_whitespace_before_magic(self):
+        body = b"\n\n\t" + (FIXTURE_DIR / "valid_fulltext.pdf").read_bytes()
+        row = classify_pdf_content(
+            PdfEvidence(
+                doi="10.5555/goodpdf",
+                title="Example Full Text Article",
+                body=body,
+                content_type="application/pdf",
+            ),
+            run_id="test",
+        )
+
+        self.assertEqual(row.category, PDF_CATEGORY_GOOD_PDF)
+        self.assertTrue(row.pdf_magic)
+
+    def test_pdf_magic_rejects_zip_even_when_labeled_pdf(self):
+        row = classify_pdf_content(
+            PdfEvidence(
+                body=b"PK\x03\x04" + b"not a pdf" * 100,
+                content_type="application/pdf",
+            ),
+            run_id="test",
+        )
+
+        self.assertEqual(row.category, PDF_CATEGORY_CORRUPT_OR_TRUNCATED_PDF)
+        self.assertFalse(row.pdf_magic)
 
     def test_large_valid_pdf_uses_full_body_for_eof_check(self):
         body = (FIXTURE_DIR / "valid_fulltext.pdf").read_bytes()

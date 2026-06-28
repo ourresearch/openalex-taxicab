@@ -12,6 +12,11 @@ SPEC.loader.exec_module(batch_e2e)
 
 
 class BatchE2ETests(unittest.TestCase):
+    def test_pdf_magic_allows_leading_whitespace(self):
+        self.assertTrue(batch_e2e.has_pdf_magic(b"\n\n%PDF-1.4\nbody\n%%EOF"))
+        self.assertFalse(batch_e2e.has_pdf_magic(b"<h1>404 Not Found</h1>"))
+        self.assertFalse(batch_e2e.has_pdf_magic(b"PK\x03\x04not a pdf"))
+
     def test_parse_parseland_payload_skips_pdfpreview_images(self):
         payload = {
             "urls": [

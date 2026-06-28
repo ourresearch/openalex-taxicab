@@ -133,6 +133,8 @@ PREVIEW_URL_PATTERNS = tuple(
 
 HTML_MARKERS = ("<html", "<!doctype html", "<body", "<head", "<script")
 READABLE_ENCRYPTED_MIN_TEXT_CHARS = 500
+PDF_MAGIC_SCAN_PREFIX_BYTES = 1024
+PDF_MAGIC_LEADING_BYTES = b"\xef\xbb\xbf\x00\t\r\n\f "
 
 
 @dataclass(frozen=True)
@@ -214,6 +216,13 @@ def ensure_bytes(content: bytes | str | None) -> bytes:
     if isinstance(content, bytes):
         return content
     return str(content).encode("utf-8", errors="replace")
+
+
+def has_pdf_magic(content: bytes | str | None) -> bool:
+    body = ensure_bytes(content)
+    if not body:
+        return False
+    return body[:PDF_MAGIC_SCAN_PREFIX_BYTES].lstrip(PDF_MAGIC_LEADING_BYTES).startswith(b"%PDF-")
 
 
 def decode_latin1(content: bytes, max_bytes: int = 256 * 1024) -> str:
@@ -358,7 +367,7 @@ def classify_pdf_content(evidence: PdfEvidence, *, run_id: str = "") -> PdfEvalR
     sha256 = hashlib.sha256(body).hexdigest() if body else ""
     content_type = normalize_content_type(evidence.content_type)
     host = evidence.host or host_from_url(evidence.resolved_url) or host_from_url(evidence.candidate_url)
-    pdf_magic = body.startswith(b"%PDF-")
+    pdf_magic = has_pdf_magic(body)
     decoded = decode_latin1(body)
     text_smoke = ""
     page_count = 0

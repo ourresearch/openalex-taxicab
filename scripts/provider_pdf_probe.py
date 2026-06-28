@@ -30,7 +30,7 @@ import requests
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from openalex_taxicab.pdf_eval_harness import PdfEvidence, classify_pdf_content, host_from_url  # noqa: E402
+from openalex_taxicab.pdf_eval_harness import PdfEvidence, classify_pdf_content, has_pdf_magic, host_from_url  # noqa: E402
 from openalex_taxicab.publisher_index import classify_row as classify_publisher  # noqa: E402
 
 DEFAULT_ROWS = REPO_ROOT / "pdf_eval_runs" / "pdf-full10k-after-humankinetics-bbd2225" / "rows.ndjson"
@@ -372,7 +372,7 @@ def best_network_capture(data: dict[str, Any]) -> tuple[str, bytes, str, int | N
         url = _captured_url(capture)
         content_type_lc = content_type.lower()
         url_lc = url.lower()
-        if body.startswith(b"%PDF-"):
+        if has_pdf_magic(body):
             score = 0
         elif "application/pdf" in content_type_lc:
             score = 1

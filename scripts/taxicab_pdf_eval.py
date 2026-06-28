@@ -35,6 +35,7 @@ from openalex_taxicab.pdf_eval_harness import (  # noqa: E402
     classify_pdf_reharvest_post,
     classify_pdf_uuid_download_error,
     default_pdf_run_id,
+    has_pdf_magic,
     host_from_url,
     latest_pdf_row_by_doi,
     make_pdf_transport_row,
@@ -827,7 +828,7 @@ def browserbase_download_payload(
         if click_selector:
             payload["download_click_selector"] = click_selector
         return payload
-    content_type = "application/pdf" if body.startswith(b"%PDF-") else ""
+    content_type = "application/pdf" if has_pdf_magic(body) else ""
     category = classify_browserbase_pdf_bytes(
         row,
         body=body,
@@ -851,7 +852,7 @@ def browserbase_download_payload(
         "status_code": status_code,
         "content_type": content_type,
         "size_bytes": len(body),
-        "is_pdf": bool(body.startswith(b"%PDF-")),
+        "is_pdf": bool(has_pdf_magic(body)),
         "download_detected": True,
         "evidence_path": str(evidence_path),
     }
@@ -921,7 +922,7 @@ def collect_pdf_browserbase_session_evidence(
                 except Exception:
                     html = ""
                 body = html.encode("utf-8", errors="replace")
-            if not downloads and not (body.startswith(b"%PDF-") or "application/pdf" in content_type.lower()):
+            if not downloads and not (has_pdf_magic(body) or "application/pdf" in content_type.lower()):
                 download_click_selector = try_browserbase_pdf_download_clicks(
                     page,
                     downloads,
@@ -939,7 +940,7 @@ def collect_pdf_browserbase_session_evidence(
                         html = ""
                     if html:
                         body = html.encode("utf-8", errors="replace")
-            if not downloads and not (body.startswith(b"%PDF-") or "application/pdf" in content_type.lower()):
+            if not downloads and not (has_pdf_magic(body) or "application/pdf" in content_type.lower()):
                 pdf_candidates = browserbase_pdf_candidate_urls(page)
                 browserbase_pdf_candidate_count = len(pdf_candidates)
                 for candidate in pdf_candidates:
@@ -974,7 +975,7 @@ def collect_pdf_browserbase_session_evidence(
                         except Exception:
                             html = ""
                         body = html.encode("utf-8", errors="replace")
-                    if downloads or body.startswith(b"%PDF-") or "application/pdf" in content_type.lower():
+                    if downloads or has_pdf_magic(body) or "application/pdf" in content_type.lower():
                         browserbase_pdf_candidate_source = candidate["source"]
                         break
             screenshot_path = out_base.with_suffix(".png")
@@ -1006,7 +1007,7 @@ def collect_pdf_browserbase_session_evidence(
                 return payload
             browser.close()
 
-        is_pdf = body.startswith(b"%PDF-") or "application/pdf" in content_type.lower()
+        is_pdf = has_pdf_magic(body) or "application/pdf" in content_type.lower()
         if is_pdf:
             evidence_path = out_base.with_suffix(".pdf")
             evidence_path.write_bytes(body)

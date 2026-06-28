@@ -22,6 +22,8 @@ from urllib.parse import quote, urlparse, urlsplit, urlunsplit
 
 import requests
 
+from openalex_taxicab.pdf_eval_harness import has_pdf_magic
+
 
 DEFAULT_SIDECAR = Path("/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv")
 DEFAULT_TAXICAB = "http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com"
@@ -250,7 +252,7 @@ def check_one(row: dict[str, str], *, taxicab_url: str, parseland_url: str, time
         pdf_uuid = str(pdf.get("id") or "")
         resolved_url = str(pdf.get("resolved_url") or pdf.get("url") or "")
         d_status, d_headers, d_body, d_error, d_ms = get(session, f"{taxicab_url.rstrip()}/taxicab/{quote(pdf_uuid, safe='')}", timeout)
-        pdf_magic = d_body.startswith(b"%PDF-")
+        pdf_magic = has_pdf_magic(d_body)
         if index == 0:
             first_pdf_detail = {
                 "pdf_uuid": pdf_uuid,

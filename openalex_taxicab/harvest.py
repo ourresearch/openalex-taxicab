@@ -14,6 +14,16 @@ import tenacity
 from .http_cache import http_get
 from .util import guess_mime_type
 
+PDF_MAGIC_SCAN_PREFIX_BYTES = 1024
+PDF_MAGIC_LEADING_BYTES = b"\xef\xbb\xbf\x00\t\r\n\f "
+
+
+def has_pdf_magic(content: bytes) -> bool:
+    return bool(
+        content
+        and content[:PDF_MAGIC_SCAN_PREFIX_BYTES].lstrip(PDF_MAGIC_LEADING_BYTES).startswith(b'%PDF-')
+    )
+
 
 class Harvester:
     HTML_BUCKET = 'openalex-html'
@@ -73,7 +83,7 @@ class Harvester:
         """Validate that the content is a PDF"""
         return (
             content
-            and content.startswith(b'%PDF-')
+            and has_pdf_magic(content)
             and len(content) >= 100
         )
 
