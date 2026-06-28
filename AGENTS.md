@@ -81,12 +81,14 @@ screenshots, or HTML.
 
 Post-batch fix: the IJST/SciResOL public-PDF attention row was a real PDF with
 harmless blank bytes before `%PDF-`. Taxicab now accepts that as real PDF bytes
-in the eval helper, batch runner, provider probe, Browserbase evidence path, and
-harvest PDF validation. A targeted one-row live eval now returns `good_pdf` with
-5 pages and no validation errors. Treat this as a focused validator/harvest
-PDF-byte fix, not a broad publisher route change. Public-PDF attention rows move
-from 10 to 9 after this targeted check; rerun the relevant batch or full loop if
-you need a refreshed batch-run snapshot.
+in the eval helper, batch runner, provider probe, Browserbase evidence path, MIME
+guessing, and harvest PDF validation. Commit `2886639` was pushed to `main`,
+deployed through ECS, and verified with a one-row live `--reharvest` run against
+the load balancer. The deployed service returned `good_pdf`, `application/pdf`,
+504,015 bytes, and no validation errors. Treat this as a focused validator and
+harvest PDF-byte fix, not a broad publisher route change. Public-PDF attention
+rows move from 10 to 9 after this targeted check; rerun the relevant batch or
+full loop if you need a refreshed batch-run snapshot.
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
 ## Current PDF Handoff: 2026-06-24 JPET Browserbase Gold Evidence
