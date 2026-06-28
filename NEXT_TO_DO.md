@@ -90,6 +90,14 @@ harvest PDF-byte fix, not a broad publisher route change. Public-PDF attention
 rows move from 10 to 9 after this targeted check; rerun the relevant batch or
 full loop if you need a refreshed batch-run snapshot.
 
+Follow-up attention recheck on deployed commit `3e600ad`: a bounded 10-row live
+`--reharvest` run recovered 5/10 current attention rows as `good_pdf`. Two more
+rows pass when using the PDF links found from the Taxicab HTML through Parseland,
+so those are sidecar URL fixes, not Taxicab scraper fixes. The remaining three
+problem classes are: one ScienceDirect/JMRT row where the provider response is
+non-PDF bytes, one OSF row where the download is a Word document rather than a
+PDF, and one source-host row returning 403 HTML. Keep DOI/URL details local.
+
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
 ## Current PDF Handoff: 2026-06-24 JPET Browserbase Gold Evidence
 
