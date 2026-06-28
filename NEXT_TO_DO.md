@@ -2064,6 +2064,23 @@ Plain reading: the two stale-link corrections and the Office-document label
 correction behave as expected. The remaining two rows need provider/source
 follow-up, not a broad Taxicab route change.
 
+Remaining-two Browserbase evidence check:
+
+```text
+run: remaining2-browserbase-20260628
+rows checked: 2
+Taxicab good_pdf: 0
+Browserbase valid PDFs recovered: 0
+ScienceDirect case: download started but Browserbase did not capture PDF bytes
+source-host case: Browserbase rendered HTML, not PDF
+local direct checks: ScienceDirect returned HTML/403; source host returned 403 or TLS failure
+decision: provider/source evidence only; no broad Taxicab route change
+```
+
+Raw Browserbase JSON, screenshots, HTML, final URLs, DOI rows, and
+signed/challenge URLs are local only under `/tmp/taxicab-remaining2-browserbase`
+and must not be published.
+
 Next exact command:
 
 ```bash

@@ -1232,3 +1232,27 @@ python3 scripts/publish-report.py 461
 git diff --check -- working/taxicab-pdf
 rg -n "(ZYTE_API_KEY|BROWSERBASE_API_KEY|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|R2_SECRET|CRAWLERA_KEY)=[^[:space:]]+|bm-verify=[A-Za-z0-9_-]{12,}|X-Amz-(Credential|Signature|Security-Token)=|hcvalidate\\.perfdrive\\.com/\\?ssa=" working/taxicab-pdf
 ```
+
+## Latest Remaining-Two Browserbase Check - 2026-06-28
+
+The two remaining public-PDF attention rows were checked with Browserbase as
+evidence only. Raw Browserbase JSON, screenshots, HTML, final URLs, DOI rows,
+and signed/challenge URLs remain local under `/tmp` and must not be published.
+
+Command:
+
+```text
+python3 scripts/taxicab_pdf_eval.py --base-url http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com --doi-file /tmp/taxicab-remaining2-browserbase-input.csv --with-browserbase --browserbase-mode session --browserbase-timeout 90 --env-file /Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/.env --out /tmp/taxicab-remaining2-browserbase --run-id remaining2-browserbase-20260628 --workers 1 --row-timeout 180 --timeout 60 --retries 1 --progress-every 1
+```
+
+Result:
+
+```text
+rows checked: 2
+Taxicab good_pdf: 0
+Browserbase valid PDFs recovered: 0
+ScienceDirect case: download started but Browserbase did not capture PDF bytes
+source-host case: Browserbase rendered HTML, not PDF
+local direct checks: ScienceDirect returned HTML/403; source host returned 403 or TLS failure
+decision: provider/source evidence only; no broad Taxicab route change
+```

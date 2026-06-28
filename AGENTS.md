@@ -1467,3 +1467,15 @@ remaining failures: provider/source follow-up
 
 Do not publish raw DOI rows, raw PDF URLs, cookies, signed URLs, Browserbase
 session files, or screenshots. Public reports should use aggregate counts only.
+
+Latest remaining-two evidence check:
+
+```text
+run: remaining2-browserbase-20260628
+rows checked: 2
+Taxicab good_pdf: 0
+Browserbase valid PDFs recovered: 0
+ScienceDirect case: download started but Browserbase did not capture PDF bytes
+source-host case: Browserbase rendered HTML, not PDF
+decision: provider/source evidence only; no broad Taxicab route change
+```
