@@ -8,6 +8,13 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest residual sidecar URL check: one fresh `revistas.usp.br` REVIEW row was
+tested from the current residual queue. The file pointed at an article view
+page, not the real PDF download. Direct source checks showed the view page has a
+working PDF download link. A bounded live Taxicab re-harvest with that download
+link stored a valid PDF, and Parseland extracted useful article data. This is a
+sidecar URL correction candidate, not a Taxicab PDF route-code candidate.
+
 Latest residual login-only review check: one fresh `revistas.uva.es` REVIEW row
 was tested from the current residual queue. The file had an old PDF link that
 now returns 404. Direct source checks showed the current article/download paths
