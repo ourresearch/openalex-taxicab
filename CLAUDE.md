@@ -8,6 +8,14 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest residual login-only review check: one fresh `revistas.uva.es` REVIEW row
+was tested from the current residual queue. The file had an old PDF link that
+now returns 404. Direct source checks showed the current article/download paths
+resolve to a login page. A bounded live Taxicab re-harvest passed when treated
+as no public PDF expected: Taxicab did not store a PDF and did store useful
+HTML. This is a login-only review correction candidate, not a Taxicab PDF
+route-code candidate.
+
 Latest residual sidecar review check: one fresh `scholarhub.ui.ac.id` REVIEW
 row was tested from the current residual queue. The file has a public-looking
 PDF link. A normal direct request hit 403, but the article page exposes the PDF

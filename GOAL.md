@@ -8,6 +8,13 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest small lane: `revistas.uva.es` was checked from the fresh residual queue.
+The file had an old PDF link that now returns 404. Direct source checks showed
+the current article/download paths resolve to a login page. A bounded live
+Taxicab re-harvest passed when treated as no public PDF expected: Taxicab did
+not store a PDF and did store useful HTML. No Taxicab code changed. Treat this
+as login-only review correction evidence, not a route-code candidate.
+
 Latest small lane: `scholarhub.ui.ac.id` was checked from the fresh residual
 queue. The file has a public-looking PDF link. A normal direct request hit 403,
 but the article page exposes the PDF link and Zyte recovered valid PDF bytes
