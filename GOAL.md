@@ -8,6 +8,16 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest small lane: `recordsofzsi.com` was checked from the fresh residual
+queue. No-storage Zyte provider probing recovered `0/1` valid PDFs: PDF-byte
+strategies returned Zyte 520 empty responses and browser HTML returned a
+Cloudflare-style security verification page. Browserbase also recovered `0/1`
+valid PDFs. A bounded live Taxicab re-harvest found useful HTML and live
+Parseland extracted useful article data plus a PDF-looking link, but the PDF
+harvest returned no stored PDF. No Taxicab production code changed. Next work is
+another fresh residual lane or a provider-guided recipe, not a broad route
+patch.
+
 Latest small lane: `rfc-editor.org` was checked from the fresh residual queue.
 The guessed PDF link returned 404 through all Zyte strategies, direct source
 checks found no working PDF variant, and the DOI still has useful HTML/text.

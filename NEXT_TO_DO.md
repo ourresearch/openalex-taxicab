@@ -8,6 +8,17 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest residual provider check: one fresh `recordsofzsi.com` row was tested
+from the current residual queue. The no-storage Zyte provider probe recovered
+`0/1` valid PDFs: direct PDF-byte strategies returned Zyte 520 empty responses,
+and browser HTML returned a Cloudflare-style security verification page.
+Browserbase also recovered `0/1` valid PDFs; it saw the protected flow and the
+download did not produce captured PDF bytes. A bounded live Taxicab re-harvest
+found useful HTML and live Parseland extracted useful article data plus a
+PDF-looking link, but the PDF harvest returned no stored PDF. This is provider
+or access-flow evidence, not a Taxicab route-code candidate. Public oxjobs
+artifact: `evidence/report461-recordsofzsi-provider-summary-20260628.json`.
+
 Latest residual REVIEW check: `rfc-editor.org` was selected from the latest
 fresh one-row residual queue. No-storage Zyte provider probe
 `rfc-editor-provider-probe1-8638e7d` recovered `0/1` valid PDFs; every strategy
@@ -23,7 +34,14 @@ Next exact command:
 
 ```bash
 cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
-python3 -m unittest discover -s tests
+python3 - <<'PY'
+import csv
+from pathlib import Path
+p=Path('pdf_eval_runs/residual-clusters-after-roguescholar-consciousbeam-bbrc-15f0c0b/residual-subclusters.csv')
+for row in csv.DictReader(p.open()):
+    if row.get('priority_band') == 'probe_next':
+        print(row['rank'], row['host'], row['path_pattern'])
+PY
 ```
 
 Batch 100 used:
