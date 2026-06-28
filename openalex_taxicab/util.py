@@ -7,6 +7,9 @@ from requests.adapters import HTTPAdapter
 
 import magic
 
+PDF_MAGIC_SCAN_PREFIX_BYTES = 1024
+PDF_MAGIC_LEADING_BYTES = b"\xef\xbb\xbf\x00\t\r\n\f "
+
 
 class NoDoiException(Exception):
     pass
@@ -47,7 +50,17 @@ def normalize_doi(doi, return_none_if_error=False):
     return doi.replace('\0', '')
 
 
+def has_pdf_magic(content):
+    if not content:
+        return False
+    if isinstance(content, str):
+        content = content.encode('utf-8', errors='replace')
+    return content[:PDF_MAGIC_SCAN_PREFIX_BYTES].lstrip(PDF_MAGIC_LEADING_BYTES).startswith(b'%PDF-')
+
+
 def guess_mime_type(content):
+    if has_pdf_magic(content):
+        return 'pdf'
     mime = magic.Magic(mime=True)
     mime_type = mime.from_buffer(content)
     if 'html' in mime_type or 'javascript' in mime_type:
@@ -121,4 +134,3 @@ def get_link_target(url, base_url, strip_jsessionid=True):
     if base_url:
         url = urljoin(base_url, url)
     return url
-

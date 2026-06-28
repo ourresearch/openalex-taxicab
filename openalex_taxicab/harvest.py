@@ -12,17 +12,7 @@ from boto3.dynamodb.conditions import Key
 import tenacity
 
 from .http_cache import http_get
-from .util import guess_mime_type
-
-PDF_MAGIC_SCAN_PREFIX_BYTES = 1024
-PDF_MAGIC_LEADING_BYTES = b"\xef\xbb\xbf\x00\t\r\n\f "
-
-
-def has_pdf_magic(content: bytes) -> bool:
-    return bool(
-        content
-        and content[:PDF_MAGIC_SCAN_PREFIX_BYTES].lstrip(PDF_MAGIC_LEADING_BYTES).startswith(b'%PDF-')
-    )
+from .util import guess_mime_type, has_pdf_magic
 
 
 class Harvester:
