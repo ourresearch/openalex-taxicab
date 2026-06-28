@@ -1,12 +1,22 @@
 # OpenAlex Taxicab Agent Guide
 
-## Current Goal Update: 2026-06-28 Press Religacion Sidecar URL Correction
+## Current Goal Update: 2026-06-28 Pediatric Neurology Briefs Sidecar URL Correction
 
 `/goal` is active for the 100-at-a-time Taxicab PDF/HTML improvement loop.
 Use the correct repo: `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab`.
 Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
+
+Latest residual sidecar URL check: one fresh `pediatricneurologybriefs.com`
+row was tested from the current residual queue. The file had an old
+galley/download-style URL that now resolves to article HTML instead of PDF
+bytes. The DOI landing page is live and exposes a current PDF file. A bounded
+live Taxicab re-harvest with that current PDF file passed: Taxicab stored a
+real PDF and useful HTML, and Parseland extracted useful article data. No
+Taxicab code changed. Treat this as a sidecar URL correction, not a route-code
+candidate. Public oxjobs artifact:
+`evidence/report461-pediatricneurologybriefs-sidecar-url-summary-20260628.json`.
 
 Latest residual sidecar URL check: one fresh `press.religacion.com` row was
 tested from the current residual queue. The file had an old PDF-looking catalog
