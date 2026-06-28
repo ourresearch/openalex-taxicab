@@ -1,12 +1,21 @@
 # Taxicab Goal State
 
-## Current Goal Update: 2026-06-28 Pediatric Neurology Briefs Sidecar URL Correction
+## Current Goal Update: 2026-06-28 Peertechz/Organsci Sidecar URL Correction
 
 `/goal` is active for the 100-at-a-time Taxicab PDF/HTML improvement loop.
 Use the correct repo: `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab`.
 Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
+
+Latest small lane: `peertechzpublications.com` was checked from the fresh
+residual queue. The file had an old Peertechz PDF URL that returned 404 HTML
+through Zyte and direct source checks. The DOI landing page now resolves to
+`organscigroup.us` and exposes a current PDF file. A bounded live Taxicab
+re-harvest with that current PDF file passed: Taxicab stored a real PDF, and
+Parseland extracted useful article data. The simple HTML guard did not count
+the HTML as useful. No Taxicab code changed. Treat this as sidecar URL
+correction evidence, not a route-code candidate.
 
 Latest small lane: `pediatricneurologybriefs.com` was checked from the fresh
 residual queue. The file had an old galley/download-style URL that now resolves
