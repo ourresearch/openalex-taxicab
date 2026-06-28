@@ -1,12 +1,19 @@
 # Taxicab Goal State
 
-## Current Goal Update: 2026-06-28 SBA OJS PDF Recovery
+## Current Goal Update: 2026-06-28 AOTA Provider Evidence
 
 `/goal` is active for the 100-at-a-time Taxicab PDF/HTML improvement loop.
 Use the correct repo: `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab`.
 Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
+
+Latest small lane: `research.aota.org` was checked from the fresh residual
+queue. Zyte no-storage provider probes recovered 0/1 PDFs, direct source checks
+hit Cloudflare HTML instead of PDF bytes, and Browserbase reached the article
+page with a download-start signal but captured 0/1 valid PDF bytes. No Taxicab
+code changed. Treat this as provider/access evidence for Zyte support or a
+future download-capture recipe, not a route-code candidate.
 
 Latest small lane: `sba.org.br` was checked from the fresh residual queue.
 Zyte no-storage provider probes recovered 0/1 PDFs, with empty response,
