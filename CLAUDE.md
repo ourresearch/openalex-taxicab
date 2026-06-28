@@ -98,6 +98,13 @@ problem classes are: one ScienceDirect/JMRT row where the provider response is
 non-PDF bytes, one OSF row where the download is a Word document rather than a
 PDF, and one source-host row returning 403 HTML. Keep DOI/URL details local.
 
+No-storage Zyte provider probe for the remaining three recovered 0/3 valid PDFs.
+Best categories: ScienceDirect/JMRT returned Zyte ban/HTML responses, OSF returned
+non-PDF Office bytes, and the remaining source host returned Zyte ban/empty
+responses. Next action: prepare provider/source evidence for ScienceDirect and
+the source host, and correct the OSF sidecar label so a Word document is not
+counted as a public PDF.
+
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
 ## Current PDF Handoff: 2026-06-24 JPET Browserbase Gold Evidence
 
