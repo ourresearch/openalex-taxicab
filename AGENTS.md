@@ -1,12 +1,23 @@
 # OpenAlex Taxicab Agent Guide
 
-## Current Goal Update: 2026-06-28 Pulmonary Chronicles Review Correction
+## Current Goal Update: 2026-06-28 Ruslang Broken-Link Review Correction
 
 `/goal` is active for the 100-at-a-time Taxicab PDF/HTML improvement loop.
 Use the correct repo: `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab`.
 Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
+
+Latest residual broken-link review check: one fresh `ruslang.ru:81` row was
+tested from the current residual queue. The file had a PDF-looking URL, but
+Zyte no-storage probes returned 404 for every strategy. Direct source checks
+showed the candidate PDF path and DOI landing path both return 404 HTML, and
+the page did not expose a replacement PDF link. A bounded live Taxicab
+re-harvest passed when treated as no public PDF expected: Taxicab did not store
+a PDF. Parseland did not extract useful article data because the source path is
+broken. No Taxicab code changed. Treat this as a sidecar/review correction, not
+a route-code candidate. Public oxjobs artifact:
+`evidence/report461-ruslang-broken-link-review-summary-20260628.json`.
 
 Latest residual review check: one fresh `pulmonarychronicles.com` row was tested
 from the current residual queue. The file had a PDF-looking download URL, but
