@@ -1,75 +1,16 @@
 # Taxicab next work for Codex and Claude
 
-## Current Goal Update: 2026-06-28 100-DOI Batch Loop
+## Current Goal Update: 2026-06-28 100-DOI Batch Loop Complete
 
 `/goal` is active for the 100-at-a-time Taxicab PDF/HTML improvement loop.
 Use the correct repo: `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab`.
 Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
-New durable runner: `scripts/taxicab_batch_e2e.py`.
+Durable runner: `scripts/taxicab_batch_e2e.py`.
 
-Batch 099 used:
-
-```bash
-python3 scripts/taxicab_batch_e2e.py \
-  --batch-number 99 \
-  --batch-size 100 \
-  --out batch_e2e_runs \
-  --workers 2 \
-  --timeout 90 \
-  --reharvest
-```
-
-Batch 099 result:
-
-```text
-total rows: 100
-ready rows: 68
-review rows: 32
-passes: 60
-failures: 8
-score on ready rows: 88.24%
-public PDF rows: 23/24 Taxicab found real PDFs
-Taxicab found real PDFs: 31
-useful Taxicab HTML rows: 81
-useful Parseland rows: 84
-```
-
-Cumulative batches 001-099:
-
-```text
-total rows: 9,900
-ready rows: 6,842
-review rows: 3,058
-passes: 6,383
-failures: 459
-score on ready rows: 93.29%
-public PDF rows: 2,477/2,487 Taxicab found real PDFs
-Taxicab found real PDFs: 3,083
-useful Taxicab HTML rows: 7,763
-useful Parseland rows: 8,477
-```
-
-Ten public-PDF attention rows remain. Batch 099 added one public-PDF miss and
-seven label mismatches where Taxicab found real PDFs even though the sidecar says
-no public PDF. Local row details are in `batch_e2e_runs/batch-001/rows.csv`
-through `batch_e2e_runs/batch-099/rows.csv`.
-
-Batch 099 had 98 Taxicab lookups return HTTP 200 and two transient
-lookup-review rows. There were zero DNS errors. Batch 097 had one rejected first
-attempt after a local DNS burst caused 51 lookup failures; that bad run was
-moved aside and not published.
-
-The batch 088 unknown-host miss was inspected on 2026-06-26: the direct source
-PDF returned 403 HTML locally, and Taxicab/Zyte `/test-zyte` returned a 520 empty
-provider response. Treat it as provider/source evidence unless a later check
-finds reachable PDF bytes.
-Public oxjobs gets aggregate counts only.
-
-Next exact command:
+Batch 100 used:
 
 ```bash
-cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
 python3 scripts/taxicab_batch_e2e.py \
   --batch-number 100 \
   --batch-size 100 \
@@ -79,8 +20,63 @@ python3 scripts/taxicab_batch_e2e.py \
   --reharvest
 ```
 
-After each batch, update oxjobs #461 with aggregate counts only. Do not publish
-raw DOI rows, raw URLs, cookies, signed URLs, screenshots, or HTML.
+Batch 100 result:
+
+```text
+total rows: 100
+ready rows: 73
+review rows: 27
+passes: 68
+failures: 5
+score on ready rows: 93.15%
+public PDF rows: 27/27 Taxicab found real PDFs
+Taxicab found real PDFs: 36
+useful Taxicab HTML rows: 78
+useful Parseland rows: 92
+```
+
+Cumulative batches 001-100:
+
+```text
+total rows: 10,000
+ready rows: 6,915
+review rows: 3,085
+passes: 6,451
+failures: 464
+score on ready rows: 93.29%
+public PDF rows: 2,504/2,514 Taxicab found real PDFs
+Taxicab found real PDFs: 3,119
+useful Taxicab HTML rows: 7,841
+useful Parseland rows: 8,569
+```
+
+The 10K batch loop is now covered end to end. Ten public-PDF attention rows
+remain across all 10,000 rows. Batch 100 added zero public-PDF misses; its five
+scored failures are label mismatches where Taxicab found real PDFs even though
+the sidecar says no public PDF. Local row details are in
+`batch_e2e_runs/batch-001/rows.csv` through `batch_e2e_runs/batch-100/rows.csv`.
+
+Batch 100 had 100 Taxicab lookups return HTTP 200 and zero DNS errors. Parseland
+returned HTTP 200 for 98 rows, one 500, and one blank response. Batch 097 had one
+rejected first attempt after a local DNS burst caused 51 lookup failures; that
+bad run was moved aside and not published.
+
+The batch 088 unknown-host miss was inspected on 2026-06-26: the direct source
+PDF returned 403 HTML locally, and Taxicab/Zyte `/test-zyte` returned a 520 empty
+provider response. Treat it as provider/source evidence unless a later check
+finds reachable PDF bytes. Public oxjobs gets aggregate counts only.
+
+Next exact command:
+
+```bash
+cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
+python3 scripts/publish-report.py 461
+```
+
+After publishing this final 10K batch summary, the next work is to inspect the
+remaining 10 public-PDF attention rows plus the label mismatches that Taxicab
+already recovered. Do not publish raw DOI rows, raw URLs, cookies, signed URLs,
+screenshots, or HTML.
 
 <!-- TAXICAB_PDF_CURRENT_HANDOFF_START -->
 ## Current PDF Handoff: 2026-06-24 JPET Browserbase Gold Evidence
