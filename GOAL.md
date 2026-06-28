@@ -8,6 +8,15 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest small lane: `platform.almanhal.com` was checked from the fresh residual
+queue. The file had a PDF-looking file URL, but no-storage Zyte saw a 404 for
+that file path and direct source checks returned empty 202 responses instead of
+PDF bytes. A bounded live Taxicab re-harvest passed when treated as no public
+PDF expected: Taxicab did not store a PDF. Taxicab did store HTML, and
+Parseland extracted useful data from that HTML, although the simple HTML guard
+did not mark the page as useful. No Taxicab code changed. Treat this as
+broken-link review correction evidence, not a route-code candidate.
+
 Latest small lane: `poj.peeters-leuven.be` was checked from the fresh residual
 queue. The file had an article/download-style URL, but Zyte and direct source
 checks returned Peeters article/order HTML instead of PDF bytes. A bounded live

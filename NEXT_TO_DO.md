@@ -8,6 +8,17 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest residual broken-link review check: one fresh `platform.almanhal.com`
+REVIEW row was tested from the current residual queue. The file had a
+PDF-looking file URL, but no-storage Zyte saw a 404 for that file path and
+direct source checks returned empty 202 responses instead of PDF bytes. A
+bounded live Taxicab re-harvest passed when treated as no public PDF expected:
+Taxicab did not store a PDF. Taxicab did store HTML, and Parseland extracted
+useful data from that HTML, although the simple HTML guard did not mark the
+page as useful. This is a broken-link review correction, not a Taxicab scraper
+fix. Public oxjobs artifact:
+`evidence/report461-platform-almanhal-broken-link-summary-20260628.json`.
+
 Latest residual paywall/order review check: one fresh `poj.peeters-leuven.be`
 REVIEW row was tested from the current residual queue. The file had an
 article/download-style URL, but Zyte and direct source checks returned Peeters
