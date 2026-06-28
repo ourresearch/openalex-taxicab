@@ -8,6 +8,14 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest small lane: `rfc-editor.org` was checked from the fresh residual queue.
+The guessed PDF link returned 404 through all Zyte strategies, direct source
+checks found no working PDF variant, and the DOI still has useful HTML/text.
+A live one-row Taxicab -> Parseland check passed when the row was treated as no
+public PDF expected: Taxicab found useful HTML, found no PDF, and Parseland
+extracted useful data. No Taxicab production code changed. Next work is another
+fresh residual lane or reviewed label adoption, not a broad route patch.
+
 Batch 100 used:
 
 ```bash

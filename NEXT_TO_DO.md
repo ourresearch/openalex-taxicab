@@ -8,6 +8,24 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest residual REVIEW check: `rfc-editor.org` was selected from the latest
+fresh one-row residual queue. No-storage Zyte provider probe
+`rfc-editor-provider-probe1-8638e7d` recovered `0/1` valid PDFs; every strategy
+hit `download_404` on the guessed PDF link. Direct source checks showed the
+guessed PDF and the obvious PDF variant both return 404, while the RFC text
+record and DOI landing page return 200. A live one-row Taxicab -> Parseland
+check, treating the row as no public PDF expected, passed: Taxicab found useful
+HTML, found no PDF, and Parseland extracted useful data. This is a label/review
+correction, not a Taxicab route-code candidate. Public oxjobs artifact:
+`evidence/report461-rfc-editor-review-summary-20260628.json`.
+
+Next exact command:
+
+```bash
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
+python3 -m unittest discover -s tests
+```
+
 Batch 100 used:
 
 ```bash
