@@ -1,12 +1,21 @@
 # Taxicab next work for Codex and Claude
 
-## Current Goal Update: 2026-06-28 Ruslang Broken-Link Review Correction
+## Current Goal Update: 2026-06-28 QU/QJES Sidecar URL Correction
 
 `/goal` is active for the 100-at-a-time Taxicab PDF/HTML improvement loop.
 Use the correct repo: `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab`.
 Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
+
+Latest residual sidecar URL check: one fresh `qu.edu.iq` row was tested from
+the current residual queue. The file had an old PDF-looking URL that returned
+404 through every Zyte strategy. Direct source checks showed the DOI landing
+page is live and exposes a current PDF link on `qjes.qu.edu.iq`. A bounded live
+Taxicab re-harvest with that current PDF link passed: Taxicab stored a real PDF
+and Parseland extracted useful article data. No Taxicab code changed. Treat
+this as a sidecar URL correction, not a route-code candidate. Public oxjobs
+artifact: `evidence/report461-qu-edu-iq-sidecar-url-summary-20260628.json`.
 
 Latest residual broken-link review check: one fresh `ruslang.ru:81` row was
 tested from the current residual queue. The file had a PDF-looking URL, but
