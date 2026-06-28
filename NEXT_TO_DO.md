@@ -8,6 +8,16 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest residual sidecar URL check: one fresh `revistas.unisucre.edu.co` REVIEW
+row was tested from the current residual queue. The file pointed at an article
+view page that resolves to a BunkerWeb bot challenge, not PDF bytes. Direct
+source checks showed the matching download URL returns a real PDF. A bounded
+live Taxicab re-harvest with that download URL stored a valid PDF, but the HTML
+record still landed on the challenge page and Parseland did not extract useful
+article data. This is a sidecar URL correction for PDF plus a separate
+HTML/provider challenge lane. Public oxjobs artifact:
+`evidence/report461-revistas-unisucre-sidecar-url-summary-20260628.json`.
+
 Latest residual sidecar URL check: one fresh `revistas.usp.br` REVIEW row was
 tested from the current residual queue. The file pointed at an article view
 page, not the real PDF download. Direct source checks showed the view page has a

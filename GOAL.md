@@ -8,6 +8,15 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest small lane: `revistas.unisucre.edu.co` was checked from the fresh
+residual queue. The file pointed at an article view page that resolves to a
+BunkerWeb bot challenge, not PDF bytes. Direct source checks showed the matching
+download URL returns a real PDF. A bounded live Taxicab re-harvest with that
+download URL stored a valid PDF. The HTML record still landed on the challenge
+page and Parseland did not extract useful article data. No Taxicab code changed.
+Treat this as sidecar URL correction evidence for PDF and a separate
+HTML/provider challenge lane.
+
 Latest small lane: `revistas.usp.br` was checked from the fresh residual queue.
 The file pointed at an article view page, not the real PDF download. Direct
 source checks showed the view page has a working PDF download link. A bounded
