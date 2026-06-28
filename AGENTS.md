@@ -8,6 +8,14 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest residual sidecar review check: one fresh `scholarhub.ui.ac.id` REVIEW
+row was tested from the current residual queue. The file has a public-looking
+PDF link. A normal direct request hit 403, but the article page exposes the PDF
+link and Zyte recovered valid PDF bytes through the existing ScholarHub
+strategy. A bounded live Taxicab re-harvest stored a valid PDF, and Parseland
+extracted useful article data. This is sidecar review evidence, not a Taxicab
+PDF route-code candidate.
+
 Latest residual sidecar URL check: one fresh `qjes.qu.edu.iq` REVIEW row was
 tested from the current residual queue. The file had an old PDF link that now
 returns 404. Direct source checks showed the current DOI landing page exposes a
