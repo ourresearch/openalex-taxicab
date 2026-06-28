@@ -8,6 +8,15 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest residual paywall/order review check: one fresh `poj.peeters-leuven.be`
+REVIEW row was tested from the current residual queue. The file had an
+article/download-style URL, but Zyte and direct source checks returned Peeters
+article/order HTML instead of PDF bytes. A bounded live Taxicab re-harvest
+passed when treated as no public PDF expected: Taxicab did not store a PDF, did
+store useful HTML, and Parseland extracted useful data. This is a review
+correction, not a Taxicab scraper fix. Public oxjobs artifact:
+`evidence/report461-poj-peeters-paywall-review-summary-20260628.json`.
+
 Latest residual login-only review check: one fresh
 `revistaeclesiasticabrasileira.itf.edu.br` REVIEW row was tested from the
 current residual queue. The file had a PDF-looking download URL, but both Zyte
