@@ -1443,3 +1443,27 @@ Current Browserbase state: Browserbase REST session create/release is healthy. L
 - PDF Phase 2 uses oxjobs #461 `taxicab-pdf` with its own report surface at `/Users/shubh-trips/Documents/OpenAlex/oxjobs/working/taxicab-pdf`.
 - Keep Taxicab retrieval KPIs separate from Parseland extraction KPIs.
 - Keep HTML and PDF Taxicab KPIs separate. Report `good_html_rate` for #133 and `good_pdf_rate` for the new PDF job.
+
+## Latest PDF Sidecar Check
+
+Before starting a new PDF fix lane, read `GOAL.md` and `NEXT_TO_DO.md`.
+The latest completed check used a private corrected sidecar copy, not the
+original draft sidecar. The corrected copy changes one Office-document row to
+"no public PDF expected" and fixes two stale PDF links found from Taxicab HTML
+through Parseland.
+
+Current aggregate result:
+
+```text
+sidecar: /tmp/taxicab-corrected-attention5-sidecar.csv
+live mode: Taxicab reharvest plus readback
+rows: 5
+pass: 3
+fail: 2
+public PDF rows: 4
+public PDFs found: 2
+remaining failures: provider/source follow-up
+```
+
+Do not publish raw DOI rows, raw PDF URLs, cookies, signed URLs, Browserbase
+session files, or screenshots. Public reports should use aggregate counts only.

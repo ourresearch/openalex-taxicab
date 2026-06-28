@@ -2008,3 +2008,67 @@ Stop and report instead of improvising if:
 - Browserbase sees content but Zyte cannot for a host cluster, because that is a Zyte support path first;
 - a secret value or signed provider URL appears in any tracked file;
 - AWS/ECS/deploy state contradicts the repo assumptions above.
+
+## Current Sidecar Correction Check
+
+Status: live five-row reharvest check completed on 2026-06-28.
+
+Original sidecar was not mutated:
+
+```text
+/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.draft.csv
+```
+
+Private corrected copy and mini sidecar:
+
+```text
+/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.corrected-20260628.csv
+/tmp/taxicab-corrected-attention5-sidecar.csv
+```
+
+What changed in the corrected copy:
+
+```text
+3 total row changes
+1 Office-document download changed to no public PDF expected
+2 stale PDF links changed to the PDF links found from Taxicab HTML through Parseland
+```
+
+Live check command:
+
+```bash
+cd /Users/shubh-trips/Documents/OpenAlex/openalex-taxicab
+PYTHONPATH=. python3 scripts/taxicab_batch_e2e.py \
+  --sidecar /tmp/taxicab-corrected-attention5-sidecar.csv \
+  --batch-number 1 \
+  --batch-size 5 \
+  --out /tmp/taxicab-corrected-attention5-e2e \
+  --workers 2 \
+  --timeout 120 \
+  --reharvest
+```
+
+Result:
+
+```text
+5 total rows
+3 pass
+2 fail
+60.00% on these five rows
+4 rows where a public PDF is expected
+2 public PDFs found by Taxicab
+0 review rows
+```
+
+Plain reading: the two stale-link corrections and the Office-document label
+correction behave as expected. The remaining two rows need provider/source
+follow-up, not a broad Taxicab route change.
+
+Next exact command:
+
+```bash
+cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
+python3 scripts/publish-report.py 461
+git diff --check -- working/taxicab-pdf
+rg -n "(ZYTE_API_KEY|BROWSERBASE_API_KEY|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|R2_SECRET|CRAWLERA_KEY)=[^[:space:]]+|bm-verify=[A-Za-z0-9_-]{12,}|X-Amz-(Credential|Signature|Security-Token)=|hcvalidate\\.perfdrive\\.com/\\?ssa=" working/taxicab-pdf
+```

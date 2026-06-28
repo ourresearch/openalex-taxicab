@@ -1199,3 +1199,36 @@ Do not use Browserbase as production fallback.
 Do not print secrets, signed URLs, cookies, or decrypted AWS secret values.
 Do not push broad production scraping changes without full regression proof.
 ```
+
+## Latest Sidecar Correction Check - 2026-06-28
+
+The original full sidecar was not changed. A private corrected copy was created
+only for checking five known attention rows:
+
+```text
+/Users/shubh-trips/Documents/OpenAlex/parseland-eval/eval/data/merged-FINAL-pdf-availability.corrected-20260628.csv
+/tmp/taxicab-corrected-attention5-sidecar.csv
+```
+
+The corrected copy changes three rows: one Office-document download is now
+marked as no public PDF expected, and two stale PDF links are replaced by the
+PDF links found from the Taxicab HTML through Parseland.
+
+Live reharvest check:
+
+```text
+command: PYTHONPATH=. python3 scripts/taxicab_batch_e2e.py --sidecar /tmp/taxicab-corrected-attention5-sidecar.csv --batch-number 1 --batch-size 5 --out /tmp/taxicab-corrected-attention5-e2e --workers 2 --timeout 120 --reharvest
+result: 5 rows, 3 pass, 2 fail, 60.00%
+public PDF rows: 4
+public PDFs found by Taxicab: 2
+remaining failures: one ScienceDirect PDF asset response and one source-host PDF response
+```
+
+Next exact action:
+
+```bash
+cd /Users/shubh-trips/Documents/OpenAlex/oxjobs
+python3 scripts/publish-report.py 461
+git diff --check -- working/taxicab-pdf
+rg -n "(ZYTE_API_KEY|BROWSERBASE_API_KEY|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|R2_SECRET|CRAWLERA_KEY)=[^[:space:]]+|bm-verify=[A-Za-z0-9_-]{12,}|X-Amz-(Credential|Signature|Security-Token)=|hcvalidate\\.perfdrive\\.com/\\?ssa=" working/taxicab-pdf
+```

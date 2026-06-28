@@ -1443,3 +1443,27 @@ print('Chain:', ' -> '.join(result['redirect_chain']))
 - **BOT_PROTECTION_DOMAINS**: Known bot protection services (e.g. `perfdrive.com`). DOI redirect resolution walks back the chain if it lands on one of these.
 - **Soft blocks**: Pages that return HTTP 200 but contain captcha/verification content. Detected by pattern matching in `Harvester._check_soft_block()`.
 - **Publisher-specific handling**: Some publishers need special Zyte params (cookies, JS actions, waitForSelector). See `http_get()` and `call_with_zyte_api()` in `http_cache.py`.
+
+## Latest PDF Sidecar Check
+
+Before starting a new PDF fix lane, read `GOAL.md` and `NEXT_TO_DO.md`.
+The latest completed check used a private corrected sidecar copy, not the
+original draft sidecar. The corrected copy changes one Office-document row to
+"no public PDF expected" and fixes two stale PDF links found from Taxicab HTML
+through Parseland.
+
+Current aggregate result:
+
+```text
+sidecar: /tmp/taxicab-corrected-attention5-sidecar.csv
+live mode: Taxicab reharvest plus readback
+rows: 5
+pass: 3
+fail: 2
+public PDF rows: 4
+public PDFs found: 2
+remaining failures: provider/source follow-up
+```
+
+Do not publish raw DOI rows, raw PDF URLs, cookies, signed URLs, Browserbase
+session files, or screenshots. Public reports should use aggregate counts only.
