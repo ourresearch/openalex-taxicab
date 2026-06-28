@@ -1,12 +1,22 @@
 # OpenAlex Taxicab Agent Guide
 
-## Current Goal Update: 2026-06-28 AOTA Provider Evidence
+## Current Goal Update: 2026-06-28 Pulmonary Chronicles Review Correction
 
 `/goal` is active for the 100-at-a-time Taxicab PDF/HTML improvement loop.
 Use the correct repo: `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab`.
 Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
+
+Latest residual review check: one fresh `pulmonarychronicles.com` row was tested
+from the current residual queue. The file had a PDF-looking download URL, but
+Zyte no-storage probes, direct source checks, and Browserbase all reached HTML
+instead of PDF bytes. A bounded live Taxicab re-harvest passed when treated as
+no public PDF expected: Taxicab did not store a PDF. When the source URL was
+also re-harvested, Taxicab stored useful HTML and Parseland extracted useful
+article data. No Taxicab code changed. Treat this as a sidecar/review
+correction, not a route-code candidate. Public oxjobs artifact:
+`evidence/report461-pulmonarychronicles-review-summary-20260628.json`.
 
 Latest residual provider/access check: one fresh `research.aota.org` public-PDF
 row was tested from the current residual queue. Zyte no-storage provider probes
