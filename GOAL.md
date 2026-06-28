@@ -8,6 +8,13 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest small lane: `qjes.qu.edu.iq` was checked from the fresh residual queue.
+The file had an old PDF link that now returns 404. Direct source checks showed
+the current DOI landing page exposes a live PDF. A bounded live Taxicab
+re-harvest with the current PDF link stored a valid PDF, and Parseland extracted
+useful article data. No Taxicab code changed. Treat this as sidecar URL
+correction evidence, not a route-code candidate.
+
 Latest small lane: `radab.uomosul.edu.iq` was checked from the fresh residual
 queue. Zyte recovered `0/1` PDFs and every strategy got `download_404` on the
 guessed PDF-like URL. Direct source checks showed the DOI resolves to article

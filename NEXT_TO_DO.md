@@ -8,6 +8,14 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest residual sidecar URL check: one fresh `qjes.qu.edu.iq` REVIEW row was
+tested from the current residual queue. The file had an old PDF link that now
+returns 404. Direct source checks showed the current DOI landing page exposes a
+live PDF. A bounded live Taxicab re-harvest with the current PDF link stored a
+valid PDF, and Parseland extracted useful article data. This is a sidecar URL
+correction candidate, not a Taxicab PDF route-code candidate. Public oxjobs
+artifact: `evidence/report461-qjes-sidecar-url-summary-20260628.json`.
+
 Latest residual review check: one fresh `radab.uomosul.edu.iq` REVIEW row was
 tested from the current residual queue. The no-storage Zyte provider probe
 recovered `0/1` valid PDFs; every strategy returned `download_404` for the
