@@ -8,6 +8,14 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest small lane: `radab.uomosul.edu.iq` was checked from the fresh residual
+queue. Zyte recovered `0/1` PDFs and every strategy got `download_404` on the
+guessed PDF-like URL. Direct source checks showed the DOI resolves to article
+HTML with no real PDF link. A bounded live Taxicab re-harvest stored useful HTML
+and found no PDF; Parseland returned 200 but did not extract useful data. No
+Taxicab code changed. Treat this as review/label correction evidence, not a
+route-code candidate.
+
 Latest small lane: `recordsofzsi.com` was checked from the fresh residual
 queue. No-storage Zyte provider probing recovered `0/1` valid PDFs: PDF-byte
 strategies returned Zyte 520 empty responses and browser HTML returned a

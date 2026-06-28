@@ -8,6 +8,17 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest residual review check: one fresh `radab.uomosul.edu.iq` REVIEW row was
+tested from the current residual queue. The no-storage Zyte provider probe
+recovered `0/1` valid PDFs; every strategy returned `download_404` for the
+guessed PDF-like URL. Direct source checks showed the DOI resolves to a live
+article HTML page, but the page exposes no real PDF link; the only PDF wording
+is a site metric. A bounded live Taxicab re-harvest stored useful HTML and found
+no PDF. Parseland returned 200 but did not extract useful data from that HTML.
+This is a review/label correction candidate, not a Taxicab PDF route-code
+candidate. Public oxjobs artifact:
+`evidence/report461-radab-review-summary-20260628.json`.
+
 Latest residual provider check: one fresh `recordsofzsi.com` row was tested
 from the current residual queue. The no-storage Zyte provider probe recovered
 `0/1` valid PDFs: direct PDF-byte strategies returned Zyte 520 empty responses,
