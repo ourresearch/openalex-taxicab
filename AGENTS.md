@@ -1,6 +1,6 @@
 # OpenAlex Taxicab Agent Guide
 
-## Current Override: 2026-06-27 Batch Loop
+## Current Override: 2026-06-28 Batch Loop
 
 Use `/Users/shubh-trips/Documents/OpenAlex/openalex-taxicab` on `main`.
 Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
@@ -8,41 +8,43 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 `/goal` is active for the 100-row Taxicab + Parseland loop over the 10K PDF
 availability file. The durable runner is `scripts/taxicab_batch_e2e.py`.
 
-Latest completed batch: batch 098, output in `batch_e2e_runs/batch-098/`.
+Latest completed batch: batch 099, output in `batch_e2e_runs/batch-099/`.
 
 ```text
-batch 098: 100 checked, 54 ready rows, 46 review rows, 50 passes, 4 failures,
-92.59% on ready rows, 21/22 public-PDF rows retrieved by Taxicab,
-26 real PDFs found by Taxicab, 81 useful Taxicab HTML rows, and 81 rows with
+batch 099: 100 checked, 68 ready rows, 32 review rows, 60 passes, 8 failures,
+88.24% on ready rows, 23/24 public-PDF rows retrieved by Taxicab,
+31 real PDFs found by Taxicab, 81 useful Taxicab HTML rows, and 84 rows with
 useful Parseland output.
 ```
 
-Batch 098 added one public-PDF miss at `iopscience.iop.org`. Its other three
+Batch 099 added one public-PDF miss at `jcp.bmj.com`. Its other seven
 scored failures are label mismatches where Taxicab found real PDFs even though
-the sidecar says no public PDF. Hosts: `mdpi.com` (1), `nber.org` (1), and
-`preprints.org` (1). It also had three transient lookup-review rows
+the sidecar says no public PDF. Hosts: `jstage.jst.go.jp` (2),
+`ascelibrary.org` (1), `bijmrd.com` (1), `link.springer.com` (1), `mdpi.com`
+(1), and `sciencedirect.com` (1). It also had two transient lookup-review rows
 (connection reset/read timeout), with zero DNS errors; those rows stay out of
 the score.
 
-Cumulative batch loop result through batches 001-098:
+Cumulative batch loop result through batches 001-099:
 
 ```text
-9,800 checked, 6,774 ready rows, 3,026 review rows, 6,323 passes,
-451 failures, 93.34% on ready rows, 2,454/2,463 public-PDF rows retrieved by
-Taxicab, 3,052 real PDFs found by Taxicab, 7,682 useful Taxicab HTML rows,
-and 8,393 rows with useful Parseland output.
+9,900 checked, 6,842 ready rows, 3,058 review rows, 6,383 passes,
+459 failures, 93.29% on ready rows, 2,477/2,487 public-PDF rows retrieved by
+Taxicab, 3,083 real PDFs found by Taxicab, 7,763 useful Taxicab HTML rows,
+and 8,477 rows with useful Parseland output.
 ```
 
-Nine public-PDF attention rows remain: the original ScienceDirect/JMRT
+Ten public-PDF attention rows remain: the original ScienceDirect/JMRT
 PDF-byte retrieval issue from batch 006, the batch 018 OSF label-review case
 where the sidecar URL downloads DOCX rather than PDF, the batch 027
 revistas.filos.unam.mx tiny/corrupt PDF-like response, one batch 031 Taxicab
 DOI-lookup review row, the batch 034 revistas.uach.cl tiny/corrupt PDF-like
 response, the batch 045 IJST/SciResOL S3 public-PDF miss, the batch 075
 Army War College Press public-PDF miss, and the batch 088 unknown-host
-public-PDF miss, plus the batch 098 IOP public-PDF miss.
+public-PDF miss, the batch 098 IOP public-PDF miss, and the batch 099
+JCP/BMJ public-PDF miss.
 
-Batch 098 had 97 Taxicab lookups return HTTP 200 and three transient
+Batch 099 had 98 Taxicab lookups return HTTP 200 and two transient
 lookup-review rows. There were zero DNS errors. Batch 097 had one rejected first
 attempt after a local DNS burst caused 51 lookup failures; that bad run was
 moved aside and not published.
@@ -55,7 +57,7 @@ finds reachable PDF bytes.
 Next command:
 
 ```bash
-python3 scripts/taxicab_batch_e2e.py --batch-number 99 --batch-size 100 --out batch_e2e_runs --workers 2 --timeout 90 --reharvest
+python3 scripts/taxicab_batch_e2e.py --batch-number 100 --batch-size 100 --out batch_e2e_runs --workers 2 --timeout 90 --reharvest
 ```
 
 Keep raw DOI rows local. Oxjobs #461 gets aggregate counts only unless Shubh
