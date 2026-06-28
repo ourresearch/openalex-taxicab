@@ -8,6 +8,16 @@ Do not use `/Users/shubh-trips/Documents/openalex-taxicab`.
 
 Durable runner: `scripts/taxicab_batch_e2e.py`.
 
+Latest residual login-only review check: one fresh
+`revistaeclesiasticabrasileira.itf.edu.br` REVIEW row was tested from the
+current residual queue. The file had a PDF-looking download URL, but both Zyte
+and direct source checks reached a login page instead of PDF bytes. A bounded
+live Taxicab re-harvest passed when treated as no public PDF expected: Taxicab
+did not store a PDF, did store useful HTML, and Parseland extracted useful data.
+This is a login-only review correction, not a Taxicab scraper fix. Public
+oxjobs artifact:
+`evidence/report461-revistaeclesiastica-login-review-summary-20260628.json`.
+
 Latest residual sidecar URL check: one fresh `revistas.unisucre.edu.co` REVIEW
 row was tested from the current residual queue. The file pointed at an article
 view page that resolves to a BunkerWeb bot challenge, not PDF bytes. Direct
