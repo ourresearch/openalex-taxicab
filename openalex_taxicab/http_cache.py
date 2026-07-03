@@ -524,6 +524,9 @@ def http_get(url,
         if not attempt_n and _is_sba_ojs_pdf_url(url):
             return _fetch_sba_ojs_pdf(url, connect_timeout, read_timeout, verify)
 
+        if not attempt_n and _is_sciencedirect_pdf_url(url):
+            return _fetch_sciencedirect_pdf(url, connect_timeout, read_timeout)
+
         # Check if it's a DOI or Handle URL that needs resolution
         is_doi_url = 'doi.org/' in url
         is_handle_url = 'hdl.handle.net/' in url
@@ -827,6 +830,11 @@ SBA_OJS_PDF_HOSTS = [
     "sba.org.br",
 ]
 
+SCIENCEDIRECT_PDF_HOSTS = [
+    "www.sciencedirect.com",
+    "sciencedirect.com",
+]
+
 
 # Hosts that hide direct PDF URLs behind Cloudflare-style fingerprint checks.
 # Direct httpResponseBody calls to the PDF URL get banned (Zyte 520), but
@@ -968,6 +976,32 @@ def _is_sba_ojs_pdf_url(url):
                for sba_host in SBA_OJS_PDF_HOSTS)
 
 
+_SCIENCEDIRECT_PDF_PATH_RE = re.compile(
+    r"^/science/article/(?:abs/|am/)?pii/[A-Za-z0-9]+/pdf/?$",
+    re.IGNORECASE,
+)
+
+
+def _is_sciencedirect_pdf_url(url):
+    """True only for the ScienceDirect PDF viewer path (`/pii/<PII>/pdf`).
+
+    This is the PDF-intent trigger: the SD `/pdf` candidate URL passed as the
+    harvest url. HTML-intent harvests pass the DOI/landing URL and never match,
+    so the existing SD landing-page/author-expansion browser flow is untouched.
+    Signed `pdf.sciencedirectassets.com` asset URLs are intentionally excluded;
+    the recipe regenerates a fresh signed URL inside its own session.
+    """
+    try:
+        split_url = urlsplit(url)
+    except ValueError:
+        return False
+    host = split_url.netloc.lower()
+    if not _SCIENCEDIRECT_PDF_PATH_RE.match(split_url.path):
+        return False
+    return any(host == sd_host or host.endswith(f".{sd_host}")
+               for sd_host in SCIENCEDIRECT_PDF_HOSTS)
+
+
 def _should_use_landing_page_rewrite(url):
     if not _looks_like_direct_pdf_url(url):
         return False
@@ -1058,6 +1092,141 @@ def _fetch_via_landing_page(direct_pdf_url, doi):
         status_code=step2.get("statusCode") or 200,
         url=step2.get("url", citation_url),
     )
+
+
+# Markers on a ScienceDirect PDF-viewer page that mean the article is not
+# entitled (paywalled). When step 1 captures no main.pdf request AND the page
+# shows one of these, treat it as a clean no-public-PDF signal, not an error.
+_SCIENCEDIRECT_PAYWALL_MARKERS = (
+    "purchase pdf",
+    "get access",
+    "sign in",
+)
+
+
+def _fetch_sciencedirect_pdf(url, connect_timeout=10, read_timeout=60):
+    """Fetch a ScienceDirect `/pii/<PII>/pdf` viewer URL as real PDF bytes.
+
+    ScienceDirect mints a signed `pdf.sciencedirectassets.com/.../main.pdf`
+    asset URL bound to the egress IP + browser fingerprint that requested it, so
+    a plain httpResponseBody fetch returns a 536-byte HTML stub. This recovers
+    the PDF with a two-step, single-Zyte-session flow:
+
+      1. browserHtml render of the viewer URL with a fresh session id;
+         networkCapture intercepts the browser's `main.pdf` request (its URL and
+         request headers). The captured response body is the stub -- ignored.
+      2. httpResponseBody fetch of the captured signed URL, replaying the
+         captured request headers, in the SAME session so the egress IP and
+         fingerprint match. This returns `%PDF-` bytes.
+
+    Behaves as an entitlement gate: an entitled (OA / open-archive) article
+    fires the main.pdf request and yields bytes; a paywalled article never fires
+    it, so step 1 returns the article HTML (a clean no-public-PDF signal).
+
+    Failure contract (so harvest stores correctly and never stores the stub):
+      - success: ResponseObject(<%PDF- bytes>, status 200)
+      - paywalled / no capture: ResponseObject(<viewer HTML str>, status 200)
+        -> stored as HTML, not PDF
+      - all attempts transient (520 / non-PDF replay): ResponseObject(b"",
+        status 520). 520 (not 500/502/503) so the outer tenacity retry does not
+        re-enter http_get with attempt_n set and fall through to the stub path.
+    """
+    zyte_api_url = "https://api.zyte.com/v1/extract"
+    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    last_status = 520
+
+    for attempt in range(3):
+        session_id = str(uuid.uuid4())
+        logger.info(f"ScienceDirect PDF fetch attempt {attempt + 1} session={session_id[:8]}: {url}")
+
+        step1_params = {
+            "url": url,
+            "browserHtml": True,
+            "actions": [{
+                "action": "waitForResponse",
+                "urlMatchingOptions": "contains",
+                "timeout": 15,
+                "onError": "return",
+                "urlPattern": "main.pdf",
+            }],
+            "networkCapture": [{
+                "filterType": "url",
+                "httpResponseBody": True,
+                "matchType": "contains",
+                "value": "main.pdf",
+            }],
+            "session": {"id": session_id},
+        }
+        try:
+            step1_resp = requests.post(
+                zyte_api_url, auth=(zyte_api_key, ''), json=step1_params,
+                verify=False, timeout=(connect_timeout, read_timeout),
+            )
+        except requests.exceptions.RequestException as exc:
+            logger.warning(f"ScienceDirect PDF step1 failed: {exc}")
+            continue
+        step1 = step1_resp.json()
+        if step1.get("status"):
+            last_status = step1.get("status") or 520
+            logger.warning(f"ScienceDirect PDF step1 provider status {last_status}")
+            continue
+
+        captures = [c for c in (step1.get("networkCapture") or [])
+                    if "main.pdf" in (c.get("url") or "")]
+        if not captures:
+            html = step1.get("browserHtml", "") or ""
+            if any(marker in html.lower() for marker in _SCIENCEDIRECT_PAYWALL_MARKERS):
+                logger.info(f"ScienceDirect no main.pdf capture + paywall markers; treating as no public PDF: {url}")
+                return ResponseObject(
+                    content=html,
+                    headers=[{"name": "Content-Type", "value": "text/html"}],
+                    status_code=200,
+                    url=step1.get("url", url),
+                )
+            logger.info("ScienceDirect no main.pdf capture (transient); retrying with fresh session")
+            continue
+
+        capture = captures[0]
+        signed_url = capture.get("url") or ""
+        req_headers = (capture.get("request") or {}).get("headers") or {}
+        # Zyte returns request headers as a {name: value} map; convert to the
+        # customHttpRequestHeaders list shape.
+        custom_headers = [{"name": name, "value": value}
+                          for name, value in req_headers.items()]
+
+        step2_params = {
+            "url": signed_url,
+            "httpResponseBody": True,
+            "httpResponseHeaders": True,
+            "customHttpRequestHeaders": custom_headers,
+            "session": {"id": session_id},
+        }
+        try:
+            step2_resp = requests.post(
+                zyte_api_url, auth=(zyte_api_key, ''), json=step2_params,
+                verify=False, timeout=(connect_timeout, read_timeout),
+            )
+        except requests.exceptions.RequestException as exc:
+            logger.warning(f"ScienceDirect PDF step2 failed: {exc}")
+            continue
+        step2 = step2_resp.json()
+        if step2.get("status"):
+            last_status = step2.get("status") or 520
+            logger.warning(f"ScienceDirect PDF step2 provider status {last_status}")
+            continue
+
+        body = b64decode(step2.get("httpResponseBody", "")) if step2.get("httpResponseBody") else b""
+        if body[:5] == b"%PDF-":
+            logger.info(f"ScienceDirect PDF recovered ({len(body)} bytes): {url}")
+            return ResponseObject(
+                content=body,
+                headers=step2.get("httpResponseHeaders", []),
+                status_code=200,
+                url=step2.get("url", signed_url),
+            )
+        logger.info("ScienceDirect step2 returned non-PDF (transient); retrying with fresh session")
+
+    return ResponseObject(content=b"", headers=[], status_code=last_status or 520, url=url)
 
 
 def _wiley_pdfdirect_strategy_params(url):
