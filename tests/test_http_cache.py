@@ -8,6 +8,7 @@ sys.modules.setdefault("unidecode", types.SimpleNamespace(unidecode=lambda value
 sys.modules.setdefault("magic", types.SimpleNamespace(Magic=lambda mime=True: types.SimpleNamespace(from_buffer=lambda content: "text/html")))
 
 from openalex_taxicab.http_cache import (
+    _is_sciencedirect_pdf_url,
     elsevier_journal_fulltext_url_from_pdf_viewer,
     http_get,
     jbc_fulltext_url_from_url,
@@ -90,6 +91,176 @@ class ScienceDirectUrlTests(unittest.TestCase):
             ],
         )
         self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_is_sciencedirect_pdf_url_matching(self):
+        self.assertTrue(_is_sciencedirect_pdf_url(
+            "https://www.sciencedirect.com/science/article/pii/S0022247X18302294/pdf"))
+        self.assertTrue(_is_sciencedirect_pdf_url(
+            "https://www.sciencedirect.com/science/article/pii/055032139290256B/pdf/"))
+        self.assertTrue(_is_sciencedirect_pdf_url(
+            "https://sciencedirect.com/science/article/abs/pii/S0022247X18302294/pdf"))
+        # landing/abstract (no /pdf suffix), non-SD hosts, and signed asset URLs must NOT match
+        self.assertFalse(_is_sciencedirect_pdf_url(
+            "https://www.sciencedirect.com/science/article/pii/S0022247X18302294"))
+        self.assertFalse(_is_sciencedirect_pdf_url(
+            "https://www.sciencedirect.com/science/article/pii/S0022247X18302294/abstract"))
+        self.assertFalse(_is_sciencedirect_pdf_url(
+            "https://pdf.sciencedirectassets.com/271610/1-s2.0-S0022247X18302294/main.pdf"))
+        self.assertFalse(_is_sciencedirect_pdf_url("https://doi.org/10.1016/j.jmaa.2018.03.023"))
+
+    def test_sciencedirect_two_step_session_returns_pdf(self):
+        pdf_url = "https://www.sciencedirect.com/science/article/pii/S0022247X18302294/pdf"
+        signed_url = "https://pdf.sciencedirectassets.com/271610/1-s2.0-S0022247X18302294/main.pdf?tk=fake-test-token"
+        captured = []
+        responses = [
+            {  # step 1: browser render with a main.pdf capture (response body is the stub)
+                "url": pdf_url,
+                "browserHtml": "<html>viewer</html>",
+                "networkCapture": [{
+                    "url": signed_url,
+                    "httpResponseBody": base64.b64encode(b"<!doctype html>stub").decode(),
+                    "request": {"headers": {"referer": pdf_url, "user-agent": "Zyte"}},
+                }],
+            },
+            {  # step 2: replay yields real PDF bytes
+                "statusCode": 200,
+                "url": signed_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+            },
+        ]
+
+        class FakeResponse:
+            def __init__(self, data):
+                self._data = data
+
+            def json(self):
+                return self._data
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse(responses[len(captured) - 1])
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url, doi="10.1016/j.jmaa.2018.03.023")
+
+        self.assertEqual(len(captured), 2)
+        self.assertTrue(captured[0]["browserHtml"])
+        # both calls share the same session id
+        self.assertEqual(captured[0]["session"]["id"], captured[1]["session"]["id"])
+        # step 2 replays the signed url + captured headers (map -> list shape)
+        self.assertEqual(captured[1]["url"], signed_url)
+        self.assertEqual(
+            captured[1]["customHttpRequestHeaders"],
+            [{"name": "referer", "value": pdf_url}, {"name": "user-agent", "value": "Zyte"}],
+        )
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_sciencedirect_retry_on_520_uses_fresh_session(self):
+        pdf_url = "https://www.sciencedirect.com/science/article/pii/S0022247X18302294/pdf"
+        signed_url = "https://pdf.sciencedirectassets.com/271610/1-s2.0-S0022247X18302294/main.pdf?tk=fake-test-token"
+        captured = []
+        responses = [
+            {"status": 520, "detail": "ban-free response unavailable"},  # attempt 1 step1
+            {  # attempt 2 step1 with capture
+                "url": pdf_url,
+                "browserHtml": "<html>viewer</html>",
+                "networkCapture": [{
+                    "url": signed_url,
+                    "httpResponseBody": base64.b64encode(b"stub").decode(),
+                    "request": {"headers": {"referer": pdf_url}},
+                }],
+            },
+            {  # attempt 2 step2 -> PDF
+                "statusCode": 200,
+                "url": signed_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+            },
+        ]
+
+        class FakeResponse:
+            def __init__(self, data):
+                self._data = data
+
+            def json(self):
+                return self._data
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse(responses[len(captured) - 1])
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url, doi="10.1016/j.jmaa.2018.03.023")
+
+        self.assertEqual(len(captured), 3)
+        # the failed first attempt used a different session id than the successful retry
+        self.assertNotEqual(captured[0]["session"]["id"], captured[1]["session"]["id"])
+        self.assertEqual(captured[1]["session"]["id"], captured[2]["session"]["id"])
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_sciencedirect_paywall_html_passes_through(self):
+        pdf_url = "https://www.sciencedirect.com/science/article/pii/S0022247X18302294/pdf"
+        captured = []
+
+        class FakeResponse:
+            def json(self):
+                return {
+                    "url": pdf_url,
+                    "browserHtml": "<html><body>Purchase PDF or Sign in</body></html>",
+                    "networkCapture": [],
+                }
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse()
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url, doi="10.1016/j.jmaa.2018.03.023")
+
+        # no step 2, single browser call; returns HTML, not a PDF, at status 200
+        self.assertEqual(len(captured), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIsInstance(response.content, bytes)
+        self.assertIn("Purchase PDF", response.content)
+
+    def test_sciencedirect_exhausted_returns_520_no_pdf(self):
+        pdf_url = "https://www.sciencedirect.com/science/article/pii/S0022247X18302294/pdf"
+        signed_url = "https://pdf.sciencedirectassets.com/271610/1-s2.0-S0022247X18302294/main.pdf?tk=fake-test-token"
+        captured = []
+
+        class FakeResponse:
+            def json(self):
+                # step1 always captures; step2 always returns non-PDF HTML
+                if len(captured) % 2 == 1:
+                    return {
+                        "url": pdf_url,
+                        "browserHtml": "<html>viewer</html>",
+                        "networkCapture": [{
+                            "url": signed_url,
+                            "httpResponseBody": base64.b64encode(b"stub").decode(),
+                            "request": {"headers": {"referer": pdf_url}},
+                        }],
+                    }
+                return {
+                    "statusCode": 200,
+                    "url": signed_url,
+                    "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                    "httpResponseBody": base64.b64encode(b"<html>60kb not pdf</html>").decode(),
+                }
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse()
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(pdf_url, doi="10.1016/j.jmaa.2018.03.023")
+
+        # 3 attempts x 2 calls each; exhausted -> 520 (NOT a retryable status), empty content
+        self.assertEqual(len(captured), 6)
+        self.assertEqual(response.status_code, 520)
+        self.assertEqual(response.content, b"")
 
     def test_http_get_uses_pdf_body_strategy_for_scholarhub_viewcontent(self):
         pdf_url = "https://scholarhub.ui.ac.id/cgi/viewcontent.cgi?article=1201&context=journal"
