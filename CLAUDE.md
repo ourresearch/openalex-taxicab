@@ -1,5 +1,17 @@
 # OpenAlex Taxicab Agent Guide
 
+## Eval Dataset (authoritative)
+
+The Taxicab PDF eval dataset is
+`data/taxicab-human-goldie-pdf-availability-elsevier.draft - Sheet3.csv`
+(239 human-labeled rows). **Score against the `correct_taxicab_retrieval`
+column** — it is Shubh's ground truth for "did Taxicab do the right thing"
+(a correct no-PDF on a genuinely non-retrievable row counts as success, and a
+real PDF on an entitled row counts as success). Shubh fixed the earlier label
+errors in this column. Do NOT use `data/taxicab-ai-goldier-oa-pdf-fetching.csv`
+(a separate 2514-row AI file with no `correct_taxicab_retrieval` column) when he
+says "the eval dataset."
+
 ## Current Goal Update: 2026-06-28 Pubsonline Provider/HTML Review
 
 `/goal` is active for the 100-at-a-time Taxicab PDF/HTML improvement loop.
