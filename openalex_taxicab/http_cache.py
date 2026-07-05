@@ -527,6 +527,10 @@ def http_get(url,
         if not attempt_n and _is_sciencedirect_pdf_url(url):
             return _fetch_sciencedirect_pdf(url, connect_timeout, read_timeout)
 
+        _ssrn_id = _ssrn_abstract_id(url, doi) if not attempt_n else None
+        if _ssrn_id:
+            return _fetch_ssrn_pdf(_ssrn_id, connect_timeout, read_timeout)
+
         # Check if it's a DOI or Handle URL that needs resolution
         is_doi_url = 'doi.org/' in url
         is_handle_url = 'hdl.handle.net/' in url
@@ -1227,6 +1231,149 @@ def _fetch_sciencedirect_pdf(url, connect_timeout=10, read_timeout=60):
         logger.info("ScienceDirect step2 returned non-PDF (transient); retrying with fresh session")
 
     return ResponseObject(content=b"", headers=[], status_code=last_status or 520, url=url)
+
+
+SSRN_HOSTS = ("papers.ssrn.com", "ssrn.com")
+_SSRN_PAYWALL_MARKERS = ("sign in", "purchase", "removed", "cannot be found", "not available")
+
+
+def _ssrn_abstract_id(url, doi):
+    """Return the numeric SSRN abstract id, or None.
+
+    Sources, in order: the DOI (`10.2139/ssrn.<id>`), then an SSRN URL's
+    `abstractid=`/`abstract_id=` query param. This is the PDF-intent trigger:
+    it fires for an SSRN DOI whether the harvest url is the doi.org URL, a
+    `Delivery.cfm` candidate, or a `papers.cfm` page.
+    """
+    if doi:
+        m = re.search(r"ssrn\.(\d+)", doi, re.IGNORECASE)
+        if m:
+            return m.group(1)
+    try:
+        split_url = urlsplit(url or "")
+    except ValueError:
+        return None
+    host = split_url.netloc.lower()
+    if not any(host == h or host.endswith(f".{h}") for h in SSRN_HOSTS):
+        return None
+    params = parse_qs(split_url.query)
+    for key in ("abstractid", "abstract_id"):
+        for k, v in params.items():
+            if k.lower() == key and v and v[0].isdigit():
+                return v[0]
+    return None
+
+
+def _fetch_ssrn_pdf(abstract_id, connect_timeout=10, read_timeout=60):
+    """Fetch an SSRN paper's PDF via the Zyte-support click + session-replay recipe.
+
+    SSRN gates the download behind Cloudflare and a JS click; a plain fetch of
+    the Delivery.cfm URL returns the ~60KB challenge HTML. This recovers the PDF
+    with a two-step, single-Zyte-session flow: browserHtml render of the abstract
+    page, click the download button (xpath keyed on data-abstract-id), and
+    networkCapture the resulting `.pdf` request; then replay that captured signed
+    URL with `httpResponseBody` and the captured headers in the SAME session.
+
+    Entitlement gate: the .pdf request only fires when SSRN actually serves the
+    download, so a removed/withdrawn paper yields no capture and its HTML is
+    returned (a clean no-public-PDF signal), never a stub. Failure contract
+    mirrors _fetch_sciencedirect_pdf (520 on exhaustion so the outer tenacity
+    retry cannot re-enter and store the challenge HTML).
+    """
+    zyte_api_url = "https://api.zyte.com/v1/extract"
+    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    abstract_url = f"https://papers.ssrn.com/sol3/papers.cfm?abstract_id={abstract_id}"
+    last_status = 520
+
+    for attempt in range(3):
+        session_id = str(uuid.uuid4())
+        logger.info(f"SSRN PDF fetch attempt {attempt + 1} session={session_id[:8]} abstract_id={abstract_id}")
+
+        step1_params = {
+            "url": abstract_url,
+            "browserHtml": True,
+            "actions": [
+                {"action": "click",
+                 "selector": {"type": "xpath", "state": "visible",
+                              "value": f'//a[@class="button-link primary "][@data-abstract-id="{abstract_id}"]'},
+                 "delay": 0, "button": "left", "onError": "return"},
+                {"action": "waitForResponse", "urlMatchingOptions": "contains",
+                 "timeout": 15, "onError": "return", "urlPattern": ".pdf"},
+            ],
+            "networkCapture": [{
+                "filterType": "url", "httpResponseBody": True,
+                "matchType": "contains", "value": ".pdf",
+            }],
+            "session": {"id": session_id},
+        }
+        try:
+            step1_resp = requests.post(
+                zyte_api_url, auth=(zyte_api_key, ''), json=step1_params,
+                verify=False, timeout=(connect_timeout, read_timeout),
+            )
+        except requests.exceptions.RequestException as exc:
+            logger.warning(f"SSRN PDF step1 failed: {exc}")
+            continue
+        step1 = step1_resp.json()
+        if step1.get("status"):
+            last_status = step1.get("status") or 520
+            logger.warning(f"SSRN PDF step1 provider status {last_status}")
+            continue
+
+        captures = [c for c in (step1.get("networkCapture") or [])
+                    if ".pdf" in (c.get("url") or "").lower()]
+        if not captures:
+            html = step1.get("browserHtml", "") or ""
+            if any(marker in html.lower() for marker in _SSRN_PAYWALL_MARKERS):
+                logger.info(f"SSRN no .pdf capture + no-download markers; treating as no public PDF: {abstract_id}")
+                return ResponseObject(
+                    content=html,
+                    headers=[{"name": "Content-Type", "value": "text/html"}],
+                    status_code=200,
+                    url=abstract_url,
+                )
+            logger.info("SSRN no .pdf capture (transient); retrying with fresh session")
+            continue
+
+        capture = captures[0]
+        signed_url = capture.get("url") or ""
+        req_headers = (capture.get("request") or {}).get("headers") or {}
+        custom_headers = [{"name": name, "value": value}
+                          for name, value in req_headers.items()]
+
+        step2_params = {
+            "url": signed_url,
+            "httpResponseBody": True,
+            "httpResponseHeaders": True,
+            "customHttpRequestHeaders": custom_headers,
+            "session": {"id": session_id},
+        }
+        try:
+            step2_resp = requests.post(
+                zyte_api_url, auth=(zyte_api_key, ''), json=step2_params,
+                verify=False, timeout=(connect_timeout, read_timeout),
+            )
+        except requests.exceptions.RequestException as exc:
+            logger.warning(f"SSRN PDF step2 failed: {exc}")
+            continue
+        step2 = step2_resp.json()
+        if step2.get("status"):
+            last_status = step2.get("status") or 520
+            logger.warning(f"SSRN PDF step2 provider status {last_status}")
+            continue
+
+        body = b64decode(step2.get("httpResponseBody", "")) if step2.get("httpResponseBody") else b""
+        if body[:5] == b"%PDF-":
+            logger.info(f"SSRN PDF recovered ({len(body)} bytes): abstract_id={abstract_id}")
+            return ResponseObject(
+                content=body,
+                headers=step2.get("httpResponseHeaders", []),
+                status_code=200,
+                url=step2.get("url", signed_url),
+            )
+        logger.info("SSRN step2 returned non-PDF (transient); retrying with fresh session")
+
+    return ResponseObject(content=b"", headers=[], status_code=last_status or 520, url=abstract_url)
 
 
 def _wiley_pdfdirect_strategy_params(url):

@@ -9,6 +9,7 @@ sys.modules.setdefault("magic", types.SimpleNamespace(Magic=lambda mime=True: ty
 
 from openalex_taxicab.http_cache import (
     _is_sciencedirect_pdf_url,
+    _ssrn_abstract_id,
     elsevier_journal_fulltext_url_from_pdf_viewer,
     http_get,
     jbc_fulltext_url_from_url,
@@ -261,6 +262,85 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertEqual(len(captured), 6)
         self.assertEqual(response.status_code, 520)
         self.assertEqual(response.content, b"")
+
+    def test_ssrn_abstract_id_matching(self):
+        self.assertEqual(_ssrn_abstract_id("https://doi.org/10.2139/ssrn.6239931",
+                                           "10.2139/ssrn.6239931"), "6239931")
+        self.assertEqual(_ssrn_abstract_id(
+            "https://papers.ssrn.com/sol3/Delivery.cfm?abstractid=6239931&mirid=1", None), "6239931")
+        self.assertEqual(_ssrn_abstract_id(
+            "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6239931", None), "6239931")
+        self.assertIsNone(_ssrn_abstract_id("https://www.sciencedirect.com/x", "10.1016/j.x"))
+        self.assertIsNone(_ssrn_abstract_id("https://example.com/a", None))
+
+    def test_ssrn_two_step_session_returns_pdf(self):
+        signed_url = "https://papers.ssrn.com/sol3/Delivery.cfm/abc-MECA.pdf?abstractid=6239931&mirid=1"
+        captured = []
+        responses = [
+            {  # step 1: browser render, click, capture a .pdf request (0-byte body)
+                "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6239931",
+                "browserHtml": "<html>abstract</html>",
+                "networkCapture": [{
+                    "url": signed_url,
+                    "httpResponseBody": base64.b64encode(b"").decode(),
+                    "request": {"headers": {"referer": "https://papers.ssrn.com/", "user-agent": "Zyte"}},
+                }],
+            },
+            {  # step 2: replay yields real PDF bytes
+                "statusCode": 200,
+                "url": signed_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+            },
+        ]
+
+        class FakeResponse:
+            def __init__(self, data):
+                self._data = data
+
+            def json(self):
+                return self._data
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse(responses[len(captured) - 1])
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get("https://doi.org/10.2139/ssrn.6239931", doi="10.2139/ssrn.6239931")
+
+        self.assertEqual(len(captured), 2)
+        self.assertTrue(captured[0]["browserHtml"])
+        self.assertEqual(captured[0]["session"]["id"], captured[1]["session"]["id"])
+        self.assertEqual(captured[1]["url"], signed_url)
+        self.assertEqual(
+            captured[1]["customHttpRequestHeaders"],
+            [{"name": "referer", "value": "https://papers.ssrn.com/"}, {"name": "user-agent", "value": "Zyte"}],
+        )
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_ssrn_no_capture_returns_html(self):
+        captured = []
+
+        class FakeResponse:
+            def json(self):
+                return {
+                    "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6239931",
+                    "browserHtml": "<html><body>This paper has been removed from SSRN</body></html>",
+                    "networkCapture": [],
+                }
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse()
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get("https://doi.org/10.2139/ssrn.6239931", doi="10.2139/ssrn.6239931")
+
+        self.assertEqual(len(captured), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIsInstance(response.content, bytes)
+        self.assertIn("removed", response.content)
 
     def test_http_get_uses_pdf_body_strategy_for_scholarhub_viewcontent(self):
         pdf_url = "https://scholarhub.ui.ac.id/cgi/viewcontent.cgi?article=1201&context=journal"
