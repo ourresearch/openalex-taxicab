@@ -1335,43 +1335,46 @@ def _fetch_ssrn_pdf(abstract_id, connect_timeout=10, read_timeout=60):
             logger.info("SSRN no .pdf capture (transient); retrying with fresh session")
             continue
 
-        capture = captures[0]
-        signed_url = capture.get("url") or ""
-        req_headers = (capture.get("request") or {}).get("headers") or {}
-        custom_headers = [{"name": name, "value": value}
-                          for name, value in req_headers.items()]
-
-        step2_params = {
-            "url": signed_url,
-            "httpResponseBody": True,
-            "httpResponseHeaders": True,
-            "customHttpRequestHeaders": custom_headers,
-            "session": {"id": session_id},
-        }
-        try:
-            step2_resp = requests.post(
-                zyte_api_url, auth=(zyte_api_key, ''), json=step2_params,
-                verify=False, timeout=(connect_timeout, read_timeout),
-            )
-        except requests.exceptions.RequestException as exc:
-            logger.warning(f"SSRN PDF step2 failed: {exc}")
-            continue
-        step2 = step2_resp.json()
-        if step2.get("status"):
-            last_status = step2.get("status") or 520
-            logger.warning(f"SSRN PDF step2 provider status {last_status}")
-            continue
-
-        body = b64decode(step2.get("httpResponseBody", "")) if step2.get("httpResponseBody") else b""
-        if body[:5] == b"%PDF-":
-            logger.info(f"SSRN PDF recovered ({len(body)} bytes): abstract_id={abstract_id}")
-            return ResponseObject(
-                content=body,
-                headers=step2.get("httpResponseHeaders", []),
-                status_code=200,
-                url=step2.get("url", signed_url),
-            )
-        logger.info("SSRN step2 returned non-PDF (transient); retrying with fresh session")
+        # The real PDF is served from download.ssrn.com; the papers.ssrn.com
+        # ".../<hash>-<CODE>.pdf" capture is a preview (MECA) variant. Replay the
+        # download.ssrn.com capture(s) first, then any other .pdf capture, and
+        # take the first replay that returns real %PDF- bytes.
+        captures.sort(key=lambda c: 0 if "download.ssrn.com" in (c.get("url") or "").lower() else 1)
+        for capture in captures:
+            signed_url = capture.get("url") or ""
+            req_headers = (capture.get("request") or {}).get("headers") or {}
+            custom_headers = [{"name": name, "value": value}
+                              for name, value in req_headers.items()]
+            step2_params = {
+                "url": signed_url,
+                "httpResponseBody": True,
+                "httpResponseHeaders": True,
+                "customHttpRequestHeaders": custom_headers,
+                "session": {"id": session_id},
+            }
+            try:
+                step2_resp = requests.post(
+                    zyte_api_url, auth=(zyte_api_key, ''), json=step2_params,
+                    verify=False, timeout=(connect_timeout, read_timeout),
+                )
+            except requests.exceptions.RequestException as exc:
+                logger.warning(f"SSRN PDF step2 failed: {exc}")
+                continue
+            step2 = step2_resp.json()
+            if step2.get("status"):
+                last_status = step2.get("status") or 520
+                logger.warning(f"SSRN PDF step2 provider status {last_status}")
+                continue
+            body = b64decode(step2.get("httpResponseBody", "")) if step2.get("httpResponseBody") else b""
+            if body[:5] == b"%PDF-":
+                logger.info(f"SSRN PDF recovered ({len(body)} bytes) from {urlsplit(signed_url).netloc}: abstract_id={abstract_id}")
+                return ResponseObject(
+                    content=body,
+                    headers=step2.get("httpResponseHeaders", []),
+                    status_code=200,
+                    url=step2.get("url", signed_url),
+                )
+        logger.info("SSRN step2 replays returned no PDF (transient); retrying with fresh session")
 
     return ResponseObject(content=b"", headers=[], status_code=last_status or 520, url=abstract_url)
 
