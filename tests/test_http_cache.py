@@ -9,6 +9,7 @@ sys.modules.setdefault("magic", types.SimpleNamespace(Magic=lambda mime=True: ty
 
 from openalex_taxicab.http_cache import (
     _is_sciencedirect_pdf_url,
+    _sciencedirect_am_pii,
     _ssrn_abstract_id,
     elsevier_journal_fulltext_url_from_pdf_viewer,
     http_get,
@@ -222,6 +223,105 @@ class ScienceDirectUrlTests(unittest.TestCase):
 
         # no step 2, single browser call; returns HTML, not a PDF, at status 200
         self.assertEqual(len(captured), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIsInstance(response.content, bytes)
+        self.assertIn("Purchase PDF", response.content)
+
+    def test_sciencedirect_am_pii_matching(self):
+        # accepted-manuscript URLs (with/without /pdf, with query) yield the PII
+        self.assertEqual(
+            _sciencedirect_am_pii("https://www.sciencedirect.com/science/article/am/pii/S0242649820300316"),
+            "S0242649820300316")
+        self.assertEqual(
+            _sciencedirect_am_pii("https://www.sciencedirect.com/science/article/am/pii/S0242649820300316?via%3Dihub"),
+            "S0242649820300316")
+        self.assertEqual(
+            _sciencedirect_am_pii("https://www.sciencedirect.com/science/article/am/pii/S0242649820300316/pdf"),
+            "S0242649820300316")
+        # published viewer, abstract, and non-SD hosts are NOT accepted-manuscript URLs
+        self.assertIsNone(
+            _sciencedirect_am_pii("https://www.sciencedirect.com/science/article/pii/S0242649820300316/pdf"))
+        self.assertIsNone(
+            _sciencedirect_am_pii("https://www.sciencedirect.com/science/article/abs/pii/S0242649820300316"))
+        self.assertIsNone(
+            _sciencedirect_am_pii("https://example.com/science/article/am/pii/S0242649820300316"))
+
+    def test_sciencedirect_am_three_step_session_returns_pdf(self):
+        am_url = "https://www.sciencedirect.com/science/article/am/pii/S0242649820300316?via%3Dihub"
+        signed_url = "https://pdf.sciencedirectassets.com/276851/1-s2.0-S0242649820300316/am.pdf?tk=fake-test-token"
+        captured = []
+        responses = [
+            {  # step 1: landing page render exposes the AM manuscript link
+                "url": "https://www.sciencedirect.com/science/article/abs/pii/S0242649820300316",
+                "browserHtml": '<html><a href="/science/article/am/pii/S0242649820300316">View open manuscript</a></html>',
+            },
+            {  # step 2: AM viewer render captures the signed am.pdf request (body is the stub)
+                "url": "https://www.sciencedirect.com/science/article/am/pii/S0242649820300316",
+                "browserHtml": "<html>viewer</html>",
+                "networkCapture": [{
+                    "url": signed_url,
+                    "httpResponseBody": base64.b64encode(b"<!doctype html>stub").decode(),
+                    "request": {"headers": {"referer": am_url, "user-agent": "Zyte"}},
+                }],
+            },
+            {  # step 3: replay yields real PDF bytes
+                "statusCode": 200,
+                "url": signed_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+            },
+        ]
+
+        class FakeResponse:
+            def __init__(self, data):
+                self._data = data
+
+            def json(self):
+                return self._data
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse(responses[len(captured) - 1])
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(am_url, doi="10.1016/j.annpat.2020.01.006")
+
+        self.assertEqual(len(captured), 3)
+        # all three calls share one session id so the signed asset stays valid
+        self.assertEqual(captured[0]["session"]["id"], captured[1]["session"]["id"])
+        self.assertEqual(captured[1]["session"]["id"], captured[2]["session"]["id"])
+        # step 2 captures am.pdf (not main.pdf); step 3 replays the signed url + headers
+        self.assertEqual(captured[1]["networkCapture"][0]["value"], "am.pdf")
+        self.assertEqual(captured[2]["url"], signed_url)
+        self.assertEqual(
+            captured[2]["customHttpRequestHeaders"],
+            [{"name": "referer", "value": am_url}, {"name": "user-agent", "value": "Zyte"}],
+        )
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_sciencedirect_am_no_manuscript_link_returns_landing_html(self):
+        am_url = "https://www.sciencedirect.com/science/article/am/pii/S0242649820300316?via%3Dihub"
+        captured = []
+
+        class FakeResponse:
+            def json(self):
+                # landing render with no /am/pii/ link => no open manuscript
+                return {
+                    "url": "https://www.sciencedirect.com/science/article/abs/pii/S0242649820300316",
+                    "browserHtml": "<html><body>Purchase PDF or Sign in</body></html>",
+                }
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse()
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(am_url, doi="10.1016/j.annpat.2020.01.006")
+
+        # only landing renders (one per attempt), never a viewer/replay; HTML at 200
+        self.assertEqual(len(captured), 3)
+        self.assertTrue(all("networkCapture" not in call for call in captured))
         self.assertEqual(response.status_code, 200)
         self.assertNotIsInstance(response.content, bytes)
         self.assertIn("Purchase PDF", response.content)

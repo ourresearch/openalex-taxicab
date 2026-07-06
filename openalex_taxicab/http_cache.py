@@ -524,6 +524,10 @@ def http_get(url,
         if not attempt_n and _is_sba_ojs_pdf_url(url):
             return _fetch_sba_ojs_pdf(url, connect_timeout, read_timeout, verify)
 
+        _sd_am_pii = _sciencedirect_am_pii(url) if not attempt_n else None
+        if _sd_am_pii:
+            return _fetch_sciencedirect_am_pdf(_sd_am_pii, connect_timeout, read_timeout)
+
         if not attempt_n and _is_sciencedirect_pdf_url(url):
             return _fetch_sciencedirect_pdf(url, connect_timeout, read_timeout)
 
@@ -1006,6 +1010,35 @@ def _is_sciencedirect_pdf_url(url):
                for sd_host in SCIENCEDIRECT_PDF_HOSTS)
 
 
+_SCIENCEDIRECT_AM_PATH_RE = re.compile(
+    r"^/science/article/am/pii/([A-Za-z0-9]+)(?:/pdf)?/?$",
+    re.IGNORECASE,
+)
+
+
+def _sciencedirect_am_pii(url):
+    """Return the PII for a ScienceDirect accepted-manuscript URL, else None.
+
+    The "View open manuscript" link Parseland extracts from a ScienceDirect
+    landing page is `/science/article/am/pii/<PII>` (Elsevier's open accepted
+    manuscript for an otherwise-paywalled article). It is a distinct asset from
+    the published-version `/pii/<PII>/pdf` viewer: the AM viewer mints a signed
+    `pdf.sciencedirectassets.com/.../am.pdf` asset (not `main.pdf`), and it only
+    serves that asset to a session that first loaded the article landing page,
+    so it needs its own two-page recipe. This is the PDF-intent trigger for it.
+    """
+    try:
+        split_url = urlsplit(url)
+    except ValueError:
+        return None
+    host = split_url.netloc.lower()
+    if not any(host == sd_host or host.endswith(f".{sd_host}")
+               for sd_host in SCIENCEDIRECT_PDF_HOSTS):
+        return None
+    match = _SCIENCEDIRECT_AM_PATH_RE.match(split_url.path)
+    return match.group(1) if match else None
+
+
 def _should_use_landing_page_rewrite(url):
     if not _looks_like_direct_pdf_url(url):
         return False
@@ -1231,6 +1264,169 @@ def _fetch_sciencedirect_pdf(url, connect_timeout=10, read_timeout=60):
         logger.info("ScienceDirect step2 returned non-PDF (transient); retrying with fresh session")
 
     return ResponseObject(content=b"", headers=[], status_code=last_status or 520, url=url)
+
+
+def _fetch_sciencedirect_am_pdf(pii, connect_timeout=10, read_timeout=60):
+    """Fetch a ScienceDirect accepted-manuscript (`/am/pii/<PII>`) as PDF bytes.
+
+    The open accepted manuscript is gated differently from the published-version
+    viewer handled by _fetch_sciencedirect_pdf: navigating straight to the AM
+    viewer trips a Cloudflare "Page not found" challenge, and the AM viewer mints
+    a signed `pdf.sciencedirectassets.com/.../am.pdf` asset (not `main.pdf`) that
+    is only served to a session that already loaded the article landing page.
+    This recovers it with a three-page, single-Zyte-session flow:
+
+      1. browserHtml render of the `/abs/pii/<PII>` landing page (clears the
+         Cloudflare challenge, sets the session cookies). The `a[href*="/am/pii/"]`
+         wait doubles as the entitlement gate: no such link -> no open manuscript.
+      2. browserHtml render of the `/am/pii/<PII>` viewer in the SAME session;
+         networkCapture intercepts the browser's signed `am.pdf` request (its URL
+         and request headers). The captured response body is the stub -- ignored.
+      3. httpResponseBody fetch of the captured signed URL, replaying the captured
+         request headers in the SAME session so egress IP + fingerprint match.
+         This returns `%PDF-` bytes.
+
+    Failure contract mirrors _fetch_sciencedirect_pdf so harvest stores correctly
+    and never stores the stub or challenge page:
+      - success: ResponseObject(<%PDF- bytes>, status 200)
+      - no open manuscript (no AM link / no capture): ResponseObject(<landing
+        HTML str>, status 200) -> stored as HTML, a clean no-public-PDF signal
+      - all attempts transient: ResponseObject(b"", status 520) so the outer
+        tenacity retry does not re-enter and fall through to the stub path.
+    """
+    zyte_api_url = "https://api.zyte.com/v1/extract"
+    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    landing_url = f"https://www.sciencedirect.com/science/article/abs/pii/{pii}"
+    am_url = f"https://www.sciencedirect.com/science/article/am/pii/{pii}"
+    last_status = 520
+    landing_html = ""
+
+    for attempt in range(3):
+        session_id = str(uuid.uuid4())
+        logger.info(f"ScienceDirect AM PDF fetch attempt {attempt + 1} session={session_id[:8]} pii={pii}")
+
+        # Step 1: landing page — clears Cloudflare, seeds the session, and the
+        # AM-link wait is the entitlement gate.
+        step1_params = {
+            "url": landing_url,
+            "browserHtml": True,
+            "actions": [{
+                "action": "waitForSelector",
+                "selector": {"type": "css", "value": 'a[href*="/am/pii/"]'},
+                "timeout": 15,
+                "onError": "return",
+            }],
+            "session": {"id": session_id},
+        }
+        try:
+            step1_resp = requests.post(
+                zyte_api_url, auth=(zyte_api_key, ''), json=step1_params,
+                verify=False, timeout=(connect_timeout, read_timeout),
+            )
+        except requests.exceptions.RequestException as exc:
+            logger.warning(f"ScienceDirect AM step1 failed: {exc}")
+            continue
+        step1 = step1_resp.json()
+        if step1.get("status"):
+            last_status = step1.get("status") or 520
+            logger.warning(f"ScienceDirect AM step1 provider status {last_status}")
+            continue
+        html = step1.get("browserHtml", "") or ""
+        if 'href="' not in html or "/am/pii/" not in html:
+            # No open-manuscript link: article has no public accepted manuscript.
+            landing_html = html or landing_html
+            logger.info(f"ScienceDirect AM: no manuscript link for pii={pii}; treating as no public PDF")
+            continue
+        landing_html = html
+
+        # Step 2: AM viewer in the SAME session; capture the signed am.pdf request.
+        step2_params = {
+            "url": am_url,
+            "browserHtml": True,
+            "actions": [{
+                "action": "waitForResponse",
+                "urlMatchingOptions": "contains",
+                "timeout": 15,
+                "onError": "return",
+                "urlPattern": "am.pdf",
+            }],
+            "networkCapture": [{
+                "filterType": "url",
+                "httpResponseBody": True,
+                "matchType": "contains",
+                "value": "am.pdf",
+            }],
+            "session": {"id": session_id},
+        }
+        try:
+            step2_resp = requests.post(
+                zyte_api_url, auth=(zyte_api_key, ''), json=step2_params,
+                verify=False, timeout=(connect_timeout, read_timeout),
+            )
+        except requests.exceptions.RequestException as exc:
+            logger.warning(f"ScienceDirect AM step2 failed: {exc}")
+            continue
+        step2 = step2_resp.json()
+        if step2.get("status"):
+            last_status = step2.get("status") or 520
+            logger.warning(f"ScienceDirect AM step2 provider status {last_status}")
+            continue
+
+        captures = [c for c in (step2.get("networkCapture") or [])
+                    if "am.pdf" in (c.get("url") or "")]
+        if not captures:
+            logger.info("ScienceDirect AM: no am.pdf capture (transient); retrying with fresh session")
+            continue
+
+        capture = captures[0]
+        signed_url = capture.get("url") or ""
+        req_headers = (capture.get("request") or {}).get("headers") or {}
+        custom_headers = [{"name": name, "value": value}
+                          for name, value in req_headers.items()]
+
+        # Step 3: replay the signed asset URL with the captured headers, same session.
+        step3_params = {
+            "url": signed_url,
+            "httpResponseBody": True,
+            "httpResponseHeaders": True,
+            "customHttpRequestHeaders": custom_headers,
+            "session": {"id": session_id},
+        }
+        try:
+            step3_resp = requests.post(
+                zyte_api_url, auth=(zyte_api_key, ''), json=step3_params,
+                verify=False, timeout=(connect_timeout, read_timeout),
+            )
+        except requests.exceptions.RequestException as exc:
+            logger.warning(f"ScienceDirect AM step3 failed: {exc}")
+            continue
+        step3 = step3_resp.json()
+        if step3.get("status"):
+            last_status = step3.get("status") or 520
+            logger.warning(f"ScienceDirect AM step3 provider status {last_status}")
+            continue
+
+        body = b64decode(step3.get("httpResponseBody", "")) if step3.get("httpResponseBody") else b""
+        if body[:5] == b"%PDF-":
+            logger.info(f"ScienceDirect AM PDF recovered ({len(body)} bytes): pii={pii}")
+            return ResponseObject(
+                content=body,
+                headers=step3.get("httpResponseHeaders", []),
+                status_code=200,
+                url=step3.get("url", signed_url),
+            )
+        logger.info("ScienceDirect AM step3 returned non-PDF (transient); retrying with fresh session")
+
+    if landing_html:
+        # Entitlement gate never yielded a manuscript: store the landing HTML so
+        # the article is recorded as HTML (a clean no-public-PDF signal).
+        return ResponseObject(
+            content=landing_html,
+            headers=[{"name": "Content-Type", "value": "text/html"}],
+            status_code=200,
+            url=landing_url,
+        )
+    return ResponseObject(content=b"", headers=[], status_code=last_status or 520, url=am_url)
 
 
 SSRN_HOSTS = ("papers.ssrn.com", "ssrn.com")
