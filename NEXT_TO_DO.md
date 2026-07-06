@@ -1,41 +1,36 @@
 <!-- HANDOFF_TOP_START -->
 # NEXT TO DO — live session handoff (refresh this block each state change)
 
-_Updated 2026-07-06. Keep prev/current/next current; history is below this block._
+_Updated 2026-07-06. prev/current/next; history below._
 
 ## Previous session
-- Shipped ScienceDirect PDF route (`_fetch_sciencedirect_pdf`) + SSRN PDF route
-  (`_fetch_ssrn_pdf`, click + session-capture, prefer `download.ssrn.com`) to
-  Taxicab `main`/ECS. Latest code commits: SD `9fef0e5`, SSRN `633bb21`, SSRN
-  capture fix `d827ac0`.
-- oxjobs #461 report restructured to a highlight (Results/Wins/Learnings/Key
-  insights) with a "what this measures" primer; last published number was
-  **228/239 = 95.4%** on the Elsevier eval sheet (commit `7716c7e70`).
+- Shipped ScienceDirect + SSRN PDF routes to Taxicab main/ECS (SD `9fef0e5`,
+  SSRN `633bb21`, SSRN capture fix `d827ac0`). oxjobs #461 highlight last at
+  228/239 = 95.4% (commit `7716c7e70`).
 
-## Current session (in flight)
-- Appended **72 SSRN rows** to the eval sheet
-  `data/taxicab-human-goldie-pdf-availability-elsevier.draft - Sheet3.csv`
-  → **311 rows total, 72 SSRN**, verified unique, backup `...bak-20260705`.
-- Running the deployed 311-row eval (readback-first, 504=read-back, 3 workers,
-  cold-retry pass): scratchpad `full_eval_311.py` → `eval_311_results.json`,
-  score in `eval_311.out`. Progress at last check: ~160/311 scored
-  (RECOVERED 81 / CORRECT_NO_PDF 66 / STILL_FAILING 5 / GOT_PDF_ON_FALSE 8).
+## Current session — DONE
+- Appended 72 SSRN rows → eval sheet now **311 rows** (backup `...bak-20260705`;
+  raw-DOI CSV stays local, not committed).
+- Ran the deployed 311-row eval (readback-first, 504=read-back, cold-retry pass).
+  **SCORE: 303/311 = 97.4%** on `correct_taxicab_retrieval`.
+  Classes: RECOVERED 149 / CORRECT_NO_PDF 99 / GOT_PDF_ON_FALSE 55 / STILL_FAILING 8.
+  **SSRN slice: 72/72 pass; 46/72 real PDFs recovered** (other 26 returned no
+  PDF — pass as labeled vpr=FALSE, but honest SSRN recovery is 46/72 = 64%;
+  the 26 are transient/no-download, worth a cold recheck).
+- Wrote `ctr=TRUE` back for 163 byte-proven rows (sheet now 268 TRUE / 43 FALSE).
 
-## Next session (do these, in order)
-1. Read final score from `eval_311.out` (`SCORE`/`DONE`) + `eval_311_results.json`.
-2. Write `correct_taxicab_retrieval=TRUE` back into the sheet for rows the
-   deployed run byte-proved (`%PDF-` via readback); leave other human labels.
-3. Update oxjobs #461 report highlight numbers (311 total, SSRN slice, overall
-   %), leak-scan (`python3 scripts/publish-report.py 461`), commit+push oxjobs
-   `main`, confirm CI green.
-4. Refresh THIS block, `CLAUDE.md`, `MEMORY.md`, and memory files
-   `ssrn-pdf-route.md` / `taxicab-eval-dataset.md` with the new totals.
+## Next session (do these)
+1. Update oxjobs #461 report highlight: 311 total, 97.4%, SSRN 72/72 (46 PDFs).
+   Leak-scan (`python3 scripts/publish-report.py 461`), commit+push oxjobs main, CI.  [IF NOT DONE THIS SESSION]
+2. Sync CLAUDE.md + MEMORY.md + memory files (`ssrn-pdf-route`,
+   `taxicab-eval-dataset`) with 311/97.4%.  [IF NOT DONE]
+3. Cold-recheck the 26 SSRN no-PDF rows + the 8 STILL_FAILING (5 SD hard-tail +
+   3 Parseland-gap) — likely transient Zyte 520.
 
-## Operating rules (standing — Shubh, 2026-07-06)
-- Never halt on context/session limit; durable state lives in NEXT_TO_DO.md +
-  CLAUDE.md + MEMORY.md + claude-mem. Keep going.
-- Commit frequently: openalex-taxicab `main` (code, standing deploy auth) and
-  oxjobs `main` (#461, aggregate-only, no raw DOIs/URLs). Gates before push.
+## Operating rules (standing — Shubh)
+- Never halt on context/session limit; state lives in NEXT_TO_DO.md + CLAUDE.md
+  + MEMORY.md + claude-mem. Commit frequently (taxicab main code, oxjobs main
+  #461 aggregate-only). Gates before push.
 <!-- HANDOFF_TOP_END -->
 
 # Taxicab next work for Codex and Claude
