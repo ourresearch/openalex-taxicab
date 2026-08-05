@@ -855,6 +855,14 @@ LANDING_PAGE_REWRITE_HOSTS = [
     "karger.com",
     "rupress.org",
     "mdpi.com",
+    # Added 2026-08-05: direct body fetches to these return Zyte 520 ban responses
+    # on every strategy (default / Accept: application/pdf / Google referer), while
+    # the landing-page session route returns real PDF bytes. Measured on OA articles:
+    # Wiley 5/5, OUP 2/2 (incl. the watermark*.silverchair.com token redirect, which
+    # only resolves inside the issuing session), T&F 2/2.
+    "onlinelibrary.wiley.com",
+    "academic.oup.com",
+    "tandfonline.com",
 ]
 
 _CITATION_PDF_RE = re.compile(
@@ -1096,6 +1104,11 @@ def _fetch_via_landing_page(direct_pdf_url, doi):
     html = step1.get("browserHtml", "")
     landing_url = step1.get("url", doi_url)
     citation_url = _extract_citation_pdf_url(html) or direct_pdf_url
+    # Wiley advertises citation_pdf_url=/doi/pdf/<doi>, which yields HTML; only
+    # /doi/pdfdirect/<doi> returns bytes. Keep the caller's URL when it is already
+    # the pdfdirect form so the meta tag cannot downgrade it.
+    if "/doi/pdfdirect/" in direct_pdf_url and "/doi/pdf/" in citation_url:
+        citation_url = direct_pdf_url
     logger.info(f"Landing-page rewrite: landing={landing_url} citation_pdf_url={citation_url}")
 
     # Step 2: plain-HTTP fetch the PDF URL with the same session
