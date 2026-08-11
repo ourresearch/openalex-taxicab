@@ -870,6 +870,14 @@ LANDING_PAGE_REWRITE_HOSTS = [
     "neurology.org",
 ]
 
+# Hosts whose landing pages advertise citation_pdf_url=/doi/pdf/<doi>, which serves
+# an HTML reader shell rather than PDF bytes. Only /doi/pdfdirect/<doi> returns the
+# file, so the meta tag has to be upgraded rather than trusted. Verified live on
+# 10.1212/wnl.0000000000201015: /doi/pdf/ -> html.gz, /doi/pdfdirect/ -> pdf.
+PDFDIRECT_UPGRADE_HOSTS = [
+    "neurology.org",
+]
+
 _CITATION_PDF_RE = re.compile(
     r'<meta\s+[^>]*name=["\']citation_pdf_url["\'][^>]*content=["\']([^"\']+)["\']',
     re.IGNORECASE,
@@ -1052,11 +1060,14 @@ def _sciencedirect_am_pii(url):
     return match.group(1) if match else None
 
 
+def _host_matches(url, hosts):
+    return any(re.search(f"(^|[./])({re.escape(host)})(/|$)", url) for host in hosts)
+
+
 def _should_use_landing_page_rewrite(url):
     if not _looks_like_direct_pdf_url(url):
         return False
-    return any(re.search(f"(^|[./])({re.escape(host)})(/|$)", url)
-               for host in LANDING_PAGE_REWRITE_HOSTS)
+    return _host_matches(url, LANDING_PAGE_REWRITE_HOSTS)
 
 
 def _extract_citation_pdf_url(html):
@@ -1114,6 +1125,10 @@ def _fetch_via_landing_page(direct_pdf_url, doi):
     # the pdfdirect form so the meta tag cannot downgrade it.
     if "/doi/pdfdirect/" in direct_pdf_url and "/doi/pdf/" in citation_url:
         citation_url = direct_pdf_url
+    elif "/doi/pdf/" in citation_url and _host_matches(citation_url, PDFDIRECT_UPGRADE_HOSTS):
+        # The caller's URL is not already pdfdirect (e.g. n.neurology.org/content/*.full.pdf),
+        # so the downgrade guard above cannot fire; rewrite the advertised URL instead.
+        citation_url = citation_url.replace("/doi/pdf/", "/doi/pdfdirect/", 1)
     logger.info(f"Landing-page rewrite: landing={landing_url} citation_pdf_url={citation_url}")
 
     # Step 2: plain-HTTP fetch the PDF URL with the same session

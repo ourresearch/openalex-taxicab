@@ -1347,6 +1347,39 @@ class NeurologyLandingPageRouteTests(unittest.TestCase):
             )
         )
 
+    def test_citation_pdf_url_upgraded_to_pdfdirect(self):
+        # n.neurology.org/content/*.full.pdf -> landing page advertises /doi/pdf/,
+        # which serves HTML; the session fetch must ask for /doi/pdfdirect/ instead.
+        caller_url = "https://n.neurology.org/content/neurology/99/12/531.full.pdf"
+        doi = "10.1212/wnl.0000000000201015"
+        meta = f'<meta name="citation_pdf_url" content="https://www.neurology.org/doi/pdf/{doi}">'
+        requested = []
+
+        class FakeResponse:
+            def __init__(self, payload):
+                self._payload = payload
+
+            def json(self):
+                return self._payload
+
+        def fake_post(*args, **kwargs):
+            body = kwargs["json"]
+            requested.append(body["url"])
+            if body.get("browserHtml"):
+                return FakeResponse({"url": caller_url, "browserHtml": meta})
+            return FakeResponse({
+                "url": body["url"],
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+            })
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(caller_url, doi=doi)
+
+        self.assertEqual(requested[0], f"https://doi.org/{doi}")
+        self.assertEqual(requested[1], f"https://www.neurology.org/doi/pdfdirect/{doi}")
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
     def test_unlisted_host_pdf_url_does_not_route(self):
         self.assertFalse(
             _should_use_landing_page_rewrite(
