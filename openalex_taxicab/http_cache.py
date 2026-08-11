@@ -863,6 +863,11 @@ LANDING_PAGE_REWRITE_HOSTS = [
     "onlinelibrary.wiley.com",
     "academic.oup.com",
     "tandfonline.com",
+    # Added 2026-08-10: AAN/Wolters Kluwer titles on Atypon, same failure shape.
+    # Direct /doi/pdf/ and /doi/pdfdirect/ fetches return Zyte 520 on every
+    # strategy; the session route returns real PDF bytes 6/6 on OA articles.
+    # Bare host so the sibling journals (n., cp., ng., nn.) are covered too.
+    "neurology.org",
 ]
 
 _CITATION_PDF_RE = re.compile(

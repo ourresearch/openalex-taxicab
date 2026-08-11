@@ -8,6 +8,7 @@ sys.modules.setdefault("unidecode", types.SimpleNamespace(unidecode=lambda value
 sys.modules.setdefault("magic", types.SimpleNamespace(Magic=lambda mime=True: types.SimpleNamespace(from_buffer=lambda content: "text/html")))
 
 from openalex_taxicab.http_cache import (
+    _should_use_landing_page_rewrite,
     _is_sciencedirect_pdf_url,
     _sciencedirect_am_pii,
     _ssrn_abstract_id,
@@ -1327,6 +1328,31 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertEqual(response.url, pdf_url)
         self.assertEqual(response.headers["Content-Type"], "application/pdf")
         self.assertTrue(response.content.startswith(b"%PDF-"))
+
+
+class NeurologyLandingPageRouteTests(unittest.TestCase):
+    def test_neurology_pdf_urls_route_through_landing_page(self):
+        for url in (
+            "https://www.neurology.org/doi/pdfdirect/10.1212/WN9.0000000000000152",
+            "https://www.neurology.org/doi/pdf/10.1212/WN9.0000000000000152",
+            "https://n.neurology.org/content/94/15/e1620.full.pdf",
+        ):
+            with self.subTest(url=url):
+                self.assertTrue(_should_use_landing_page_rewrite(url))
+
+    def test_neurology_landing_pages_do_not_route(self):
+        self.assertFalse(
+            _should_use_landing_page_rewrite(
+                "https://www.neurology.org/doi/10.1212/WN9.0000000000000152"
+            )
+        )
+
+    def test_unlisted_host_pdf_url_does_not_route(self):
+        self.assertFalse(
+            _should_use_landing_page_rewrite(
+                "https://www.frontiersin.org/articles/10.3389/fviro.2022.994843/pdf"
+            )
+        )
 
 
 if __name__ == "__main__":
