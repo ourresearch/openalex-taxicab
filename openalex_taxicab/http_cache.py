@@ -3,7 +3,7 @@ import os
 import re
 import uuid
 from dataclasses import dataclass
-from time import time
+from time import sleep, time
 from typing import Optional
 import json
 from urllib.parse import parse_qs, urlsplit
@@ -493,6 +493,12 @@ def http_get(url,
 
     try:
         logger.info(f"LIVE GET on {url}")
+
+        # Wiley: the in-page browser exfil beats both the shared-session rewrite
+        # and the plain body strategies on the same DOIs (12/13 vs 5/13), so it
+        # leads; the old strategies stay on as a fallback.
+        if not attempt_n and _looks_like_direct_pdf_url(url) and _is_wiley_browser_pdf_url(url):
+            return _fetch_wiley_pdf(url)
 
         # For hosts that gate direct PDF URLs with Cloudflare-style fingerprint
         # checks, fetch via the DOI landing page within a shared Zyte session.
@@ -1662,6 +1668,209 @@ def _fetch_wiley_pdfdirect(url):
             return current
 
     return last_response
+
+
+# Any Wiley Online Library journal subdomain (alz-journals, wires, nph, agupubs,
+# ...). The DOI route redirects to the owning journal's subdomain, so a route
+# keyed on the two bare hosts in WILEY_PDFDIRECT_HOSTS misses most of the corpus.
+_WILEY_OLIBRARY_HOST_RE = re.compile(r'(^|\.)onlinelibrary\.wiley\.com$', re.IGNORECASE)
+
+# /doi/pdfdirect/<doi>, /doi/pdf/<doi>, /doi/epdf/<doi>, /doi/<doi>, ...
+_WILEY_DOI_PATH_RE = re.compile(
+    r'^/doi/(?:pdfdirect/|pdfx/|pdf/|epdf/|full/|abs/)?(10\.\d{4,9}/\S+)$',
+    re.IGNORECASE,
+)
+
+# Runs inside the rendered article page, which has already cleared the bot check.
+# The PDF URL is passed RELATIVE so it resolves against the journal subdomain the
+# DOI redirected to; an absolute onlinelibrary.wiley.com URL is cross-origin from
+# (e.g.) nph.onlinelibrary.wiley.com and dies as "TypeError: Failed to fetch".
+# Bail before reading the body unless the response is really a PDF, so a 2MB
+# challenge page is never base64'd back to us.
+_WILEY_EXFIL_JS = """(async () => {
+  var d = document.createElement('div'); d.id = '__pdfout';
+  (document.body || document.documentElement).appendChild(d);
+  try {
+    var r = await fetch(%s, {credentials: 'include'});
+    d.setAttribute('data-status', r.status);
+    var ct = r.headers.get('content-type') || '';
+    d.setAttribute('data-ct', ct);
+    if (!r.ok || ct.indexOf('pdf') === -1) return;
+    var b = await r.arrayBuffer();
+    var u = new Uint8Array(b), s = '', CH = 8192;
+    for (var i = 0; i < u.length; i += CH) s += String.fromCharCode.apply(null, u.subarray(i, i + CH));
+    d.textContent = btoa(s);
+  } catch (e) { d.setAttribute('data-err', String(e)); }
+})()"""
+
+_WILEY_EXFIL_DIV_RE = re.compile(r'<div id="__pdfout"([^>]*)>([A-Za-z0-9+/=]*)</div>')
+
+# The stored-bytes probe (evidence report461-wiley-publictrue-corrupt-probe5)
+# found 4/4 sampled Wiley payloads that carried %PDF- and %%EOF yet failed xref
+# parsing, plus a 174-byte viewer shell that passes any status/non-empty check.
+# Require header AND trailer AND a floor that no real article PDF falls under.
+_WILEY_MIN_PDF_BYTES = 20_000
+
+# Statuses that mean "no PDF at this DOI" rather than "try again". 403 is
+# deliberately absent -- see the retry note in _fetch_wiley_browser_pdf.
+_WILEY_TERMINAL_STATUSES = {404, 410}
+
+
+def _is_complete_pdf(content):
+    """Header AND trailer AND a floor no real article PDF falls under."""
+    return (
+        isinstance(content, bytes)
+        and content[:5] == b"%PDF-"
+        and len(content) >= _WILEY_MIN_PDF_BYTES
+        and b"%%EOF" in content[-2048:]
+    )
+
+
+def _wiley_backoff(attempt, attempts):
+    """Wiley rate-limits per egress IP; give the window time to roll over."""
+    if attempt < attempts:
+        sleep(2 ** attempt)
+
+
+def _wiley_doi_from_url(url):
+    """Return (article_url, relative_pdf_path) for a Wiley URL, or (None, None)."""
+    try:
+        split_url = urlsplit(url)
+    except ValueError:
+        return None, None
+    if not _WILEY_OLIBRARY_HOST_RE.search(split_url.netloc or ''):
+        return None, None
+    match = _WILEY_DOI_PATH_RE.match(split_url.path or '')
+    if not match:
+        return None, None
+    doi = match.group(1)
+    scheme = split_url.scheme or 'https'
+    return f"{scheme}://{split_url.netloc}/doi/{doi}", f"/doi/pdfdirect/{doi}"
+
+
+def _is_wiley_browser_pdf_url(url):
+    return _wiley_doi_from_url(url)[0] is not None
+
+
+def _fetch_wiley_browser_pdf(url, attempts=3, timeout=180):
+    """Fetch a Wiley PDF as bytes by exfiltrating it from the rendered article page.
+
+    Wiley's bot protection binds the PDF to the browser session that loaded the
+    article: every out-of-band fetch of /doi/pdfdirect/<doi> -- plain body, custom
+    Accept, Google referer, even a shared-Zyte-session replay -- gets a 403 shell
+    or Zyte 520. The pattern that works (advised by Zyte on ticket 4267740) keeps
+    the request inside the page: browser-render the article, then `fetch()` the
+    PDF from that document with `credentials: 'include'` and hand the bytes back
+    through the DOM as base64.
+
+    Failure contract, matching the other provider routes:
+      - real PDF                -> ResponseObject(<%PDF- bytes>, status 200)
+      - no PDF at this DOI (404/410) -> ResponseObject(b"", that status), no retry
+      - everything else (403 rate limit, Zyte 5xx, render failure, incomplete
+        payload) -> retried up to `attempts`, then ResponseObject(b"", last
+        status seen) so the caller retries rather than storing junk.
+    """
+    article_url, pdf_path = _wiley_doi_from_url(url)
+    if not article_url:
+        return ResponseObject(content=b"", headers=[], status_code=520, url=url)
+
+    zyte_api_url = "https://api.zyte.com/v1/extract"
+    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    payload = {
+        "url": article_url,
+        "browserHtml": True,
+        "actions": [{
+            "action": "evaluate",
+            "onError": "continue",
+            "source": _WILEY_EXFIL_JS % json.dumps(pdf_path),
+        }],
+    }
+
+    last_status = 520
+    for attempt in range(1, attempts + 1):
+        logger.info(f"Wiley browser-exfil fetch attempt {attempt}/{attempts}: {article_url}")
+        try:
+            response = requests.post(
+                zyte_api_url, auth=(zyte_api_key, ''), json=payload,
+                verify=False, timeout=timeout,
+            )
+        except requests.exceptions.RequestException as exc:
+            logger.warning(f"Wiley browser-exfil request failed for {article_url}: {exc}")
+            _wiley_backoff(attempt, attempts)
+            continue
+
+        if response.status_code != 200:
+            logger.warning(f"Wiley browser-exfil got Zyte {response.status_code} for {article_url}")
+            _wiley_backoff(attempt, attempts)
+            continue
+
+        match = _WILEY_EXFIL_DIV_RE.search(response.json().get("browserHtml", "") or "")
+        if not match:
+            logger.warning(f"Wiley browser-exfil div missing (render failed): {article_url}")
+            _wiley_backoff(attempt, attempts)
+            continue
+
+        attrs, encoded = match.group(1), match.group(2)
+        if not encoded:
+            # The JS ran but got no PDF. Only "this DOI has no PDF here" is
+            # terminal. In particular 403 is NOT an entitlement signal on Wiley:
+            # it is per-IP rate limiting, and the same DOIs that 403 under
+            # concurrency return full PDFs on a retry -- so it must be retried,
+            # or open articles get recorded as paywalled.
+            status_match = re.search(r'data-status="(\d+)"', attrs)
+            status_code = int(status_match.group(1)) if status_match else 0
+            if status_code in _WILEY_TERMINAL_STATUSES:
+                logger.info(f"Wiley browser-exfil no PDF ({attrs.strip()}): {article_url}")
+                return ResponseObject(content=b"", headers=[],
+                                      status_code=status_code, url=url)
+            last_status = status_code or last_status
+            logger.warning(f"Wiley browser-exfil no PDF, retrying ({attrs.strip()}): {article_url}")
+            _wiley_backoff(attempt, attempts)
+            continue
+
+        content = b64decode(encoded)
+        if not _is_complete_pdf(content):
+            logger.warning(
+                f"Wiley browser-exfil payload is not a complete PDF "
+                f"({len(content)} bytes): {article_url}"
+            )
+            _wiley_backoff(attempt, attempts)
+            continue
+
+        logger.info(f"Wiley browser-exfil recovered {len(content)} PDF bytes: {article_url}")
+        return ResponseObject(content=content, headers=[], status_code=200, url=url)
+
+    return ResponseObject(content=b"", headers=[], status_code=last_status, url=url)
+
+
+def _fetch_wiley_pdf(url):
+    """Wiley PDF route: in-page browser exfil, falling back to body strategies.
+
+    The exfil is the strong path (see _fetch_wiley_browser_pdf). The older
+    httpResponseBody strategies stay behind it so any row they were already
+    recovering keeps working; a terminal status (no PDF at this DOI) skips the
+    fallback, since there is nothing there for it to find either.
+    """
+    response = _fetch_wiley_browser_pdf(url)
+    if isinstance(response.content, bytes) and response.content[:5] == b"%PDF-":
+        return response
+    if response.status_code in _WILEY_TERMINAL_STATUSES:
+        return response
+
+    logger.info(f"Wiley browser-exfil yielded no PDF; trying body strategies: {url}")
+    fallback = _fetch_wiley_pdfdirect(_wiley_pdfdirect_url(url))
+    if _is_complete_pdf(fallback.content):
+        return fallback
+    return response
+
+
+def _wiley_pdfdirect_url(url):
+    """Normalise any Wiley article/PDF URL to its /doi/pdfdirect/ form."""
+    article_url, pdf_path = _wiley_doi_from_url(url)
+    if not article_url:
+        return url
+    split_url = urlsplit(article_url)
+    return f"{split_url.scheme}://{split_url.netloc}{pdf_path}"
 
 
 def _fetch_iop_article_pdf(url, connect_timeout=5, read_timeout=60):

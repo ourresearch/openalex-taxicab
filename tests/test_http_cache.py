@@ -19,19 +19,31 @@ from openalex_taxicab.http_cache import (
 )
 
 
+_EXFIL_BLOCKED_HTML = (
+    '<html><body><div id="__pdfout" data-status="403" '
+    'data-ct="text/html;charset=UTF-8"></div></body></html>'
+)
+
+
 class ScienceDirectUrlTests(unittest.TestCase):
-    def test_http_get_uses_pdf_body_strategy_for_wiley_pdfdirect(self):
+    PDF_BYTES = b"%PDF-1.7\n" + b"x" * 30_000 + b"\n%%EOF"
+
+    @staticmethod
+    def _exfil_html(b64="", attrs=""):
+        return f'<html><body><div id="__pdfout"{attrs}>{b64}</div></body></html>'
+
+    def test_http_get_uses_browser_exfil_for_wiley_pdf(self):
+        """Wiley PDF URLs go through the in-page browser exfil, not a body fetch."""
         pdf_url = "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1111/ijsw.12017"
         captured = []
+        encoded = base64.b64encode(self.PDF_BYTES).decode()
 
         class FakeResponse:
+            status_code = 200
+
             def json(self):
-                return {
-                    "statusCode": 200,
-                    "url": pdf_url,
-                    "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
-                    "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
-                }
+                return {"browserHtml": ScienceDirectUrlTests._exfil_html(
+                    encoded, ' data-status="200" data-ct="application/pdf"')}
 
         def fake_post(*args, **kwargs):
             captured.append(kwargs["json"])
@@ -41,16 +53,22 @@ class ScienceDirectUrlTests(unittest.TestCase):
             response = http_get(pdf_url, doi="10.1111/ijsw.12017")
 
         self.assertEqual(len(captured), 1)
-        self.assertTrue(captured[0]["httpResponseBody"])
-        self.assertTrue(captured[0]["httpResponseHeaders"])
-        self.assertNotIn("browserHtml", captured[0])
-        self.assertEqual(response.url, pdf_url)
-        self.assertTrue(response.content.startswith(b"%PDF-"))
+        self.assertTrue(captured[0]["browserHtml"])
+        self.assertNotIn("httpResponseBody", captured[0])
+        # the article page is rendered, and the PDF is fetched RELATIVE to it so
+        # the request stays same-origin on the journal subdomain
+        self.assertEqual(captured[0]["url"],
+                         "https://onlinelibrary.wiley.com/doi/10.1111/ijsw.12017")
+        self.assertIn('"/doi/pdfdirect/10.1111/ijsw.12017"',
+                      captured[0]["actions"][0]["source"])
+        self.assertEqual(response.content, self.PDF_BYTES)
 
-    def test_http_get_falls_back_for_wiley_pdfdirect_strategies(self):
+    def test_wiley_browser_exfil_retries_403_then_falls_back_to_body_strategies(self):
+        """403 is Wiley rate limiting, not entitlement: retry, then try body fetches."""
         pdf_url = "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1111/jols.12117"
         captured = []
-        responses = [
+        blocked = {"browserHtml": _EXFIL_BLOCKED_HTML}
+        body_responses = [
             {"status": 520, "detail": "ban-free response unavailable"},
             {
                 "statusCode": 200,
@@ -62,11 +80,13 @@ class ScienceDirectUrlTests(unittest.TestCase):
                 "statusCode": 200,
                 "url": pdf_url,
                 "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
-                "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+                "httpResponseBody": base64.b64encode(self.PDF_BYTES).decode(),
             },
         ]
 
         class FakeResponse:
+            status_code = 200
+
             def __init__(self, data):
                 self._data = data
 
@@ -75,25 +95,77 @@ class ScienceDirectUrlTests(unittest.TestCase):
 
         def fake_post(*args, **kwargs):
             captured.append(kwargs["json"])
-            return FakeResponse(responses[len(captured) - 1])
+            # first three calls are browser-exfil attempts, then the body strategies
+            if len(captured) <= 3:
+                return FakeResponse(blocked)
+            return FakeResponse(body_responses[len(captured) - 4])
 
-        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post), \
+                patch("openalex_taxicab.http_cache.sleep"):
             response = http_get(pdf_url, doi="10.1111/jols.12117")
 
-        self.assertEqual(len(captured), 3)
-        self.assertNotIn("customHttpRequestHeaders", captured[0])
+        self.assertEqual(len(captured), 6)
+        # 403 was retried rather than reported as a paywall
+        for payload in captured[:3]:
+            self.assertTrue(payload["browserHtml"])
+        # then the three body strategies, in order
+        self.assertNotIn("customHttpRequestHeaders", captured[3])
         self.assertEqual(
-            captured[1]["customHttpRequestHeaders"],
+            captured[4]["customHttpRequestHeaders"],
             [{"name": "Accept", "value": "application/pdf,*/*"}],
         )
         self.assertEqual(
-            captured[2]["customHttpRequestHeaders"],
+            captured[5]["customHttpRequestHeaders"],
             [
                 {"name": "Accept", "value": "application/pdf,*/*"},
                 {"name": "Referer", "value": "https://www.google.com/"},
             ],
         )
         self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_wiley_browser_exfil_404_is_terminal(self):
+        """A 404 means no PDF at this DOI: one attempt, and no body-strategy fallback."""
+        pdf_url = "https://nph.onlinelibrary.wiley.com/doi/pdfdirect/10.1111/nph.99999"
+        captured = []
+
+        class FakeResponse:
+            status_code = 200
+
+            def json(self):
+                return {"browserHtml": ScienceDirectUrlTests._exfil_html(
+                    "", ' data-status="404" data-ct="text/html"')}
+
+        def fake_post(*args, **kwargs):
+            captured.append(kwargs["json"])
+            return FakeResponse()
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post), \
+                patch("openalex_taxicab.http_cache.sleep"):
+            response = http_get(pdf_url, doi="10.1111/nph.99999")
+
+        self.assertEqual(len(captured), 1)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.content, b"")
+
+    def test_wiley_browser_exfil_rejects_truncated_pdf(self):
+        """PDF-looking but incomplete bytes must never be stored as a PDF."""
+        pdf_url = "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1111/ijsw.12018"
+        # header present, no %%EOF, far under the size floor: the 174-byte
+        # viewer shell / corrupt-xref shape from the Wiley public-TRUE probe
+        encoded = base64.b64encode(b"%PDF-1.7\nviewer shell").decode()
+
+        class FakeResponse:
+            status_code = 200
+
+            def json(self):
+                return {"browserHtml": ScienceDirectUrlTests._exfil_html(
+                    encoded, ' data-status="200" data-ct="application/pdf"')}
+
+        with patch("openalex_taxicab.http_cache.requests.post", return_value=FakeResponse()), \
+                patch("openalex_taxicab.http_cache.sleep"):
+            response = http_get(pdf_url, doi="10.1111/ijsw.12018")
+
+        self.assertFalse(response.content.startswith(b"%PDF-"))
 
     def test_is_sciencedirect_pdf_url_matching(self):
         self.assertTrue(_is_sciencedirect_pdf_url(
