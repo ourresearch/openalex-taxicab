@@ -491,6 +491,11 @@ def http_get(url,
         logger.info(f"Using redirected URL: {redirected_url}")
         url = redirected_url
 
+    upgraded_url = upgrade_cairn_legacy_pdf_url(url)
+    if upgraded_url != url:
+        logger.info(f"Upgrading legacy Cairn PDF URL {url} -> {upgraded_url}")
+        url = upgraded_url
+
     try:
         logger.info(f"LIVE GET on {url}")
 
@@ -883,6 +888,23 @@ LANDING_PAGE_REWRITE_HOSTS = [
 PDFDIRECT_UPGRADE_HOSTS = [
     "neurology.org",
 ]
+
+# Cairn moved from www.cairn.info to shs.cairn.info in early 2026. The legacy PDF
+# URL form that our landing-page parses stored (load_pdf.php?ID_ARTICLE=<ID>)
+# now gets a Zyte 520 on every attempt, while the live form the new landing page
+# advertises as citation_pdf_url returns PDF bytes through the plain body fetch
+# (verified 2026-09-15 on CEP_043_0069 / ENTIN_035_0051). Rewrite before routing.
+_CAIRN_LEGACY_PDF_RE = re.compile(
+    r"^https?://(?:www\.)?cairn\.info/load_pdf\.php\?(?:[^#]*&)?ID_ARTICLE=([A-Za-z0-9_]+)",
+    re.IGNORECASE,
+)
+
+
+def upgrade_cairn_legacy_pdf_url(url):
+    m = _CAIRN_LEGACY_PDF_RE.match(url or "")
+    if not m:
+        return url
+    return f"https://shs.cairn.info/article/{m.group(1)}/pdf?lang=fr"
 
 _CITATION_PDF_RE = re.compile(
     r'<meta\s+[^>]*name=["\']citation_pdf_url["\'][^>]*content=["\']([^"\']+)["\']',

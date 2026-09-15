@@ -15,6 +15,7 @@ from openalex_taxicab.http_cache import (
     elsevier_journal_fulltext_url_from_pdf_viewer,
     http_get,
     jbc_fulltext_url_from_url,
+    upgrade_cairn_legacy_pdf_url,
     sciencedirect_article_url_from_pdf_asset,
 )
 
@@ -1462,3 +1463,59 @@ class NeurologyLandingPageRouteTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CairnLegacyPdfUrlTests(unittest.TestCase):
+    def test_legacy_load_pdf_urls_upgrade_to_shs_route(self):
+        cases = {
+            "https://www.cairn.info/load_pdf.php?ID_ARTICLE=CEP_043_0069&download=1":
+                "https://shs.cairn.info/article/CEP_043_0069/pdf?lang=fr",
+            "http://www.cairn.info/load_pdf.php?ID_ARTICLE=ENTIN_035_0051":
+                "https://shs.cairn.info/article/ENTIN_035_0051/pdf?lang=fr",
+            "https://cairn.info/load_pdf.php?download=1&ID_ARTICLE=E_A999_TI_43804210_c910":
+                "https://shs.cairn.info/article/E_A999_TI_43804210_c910/pdf?lang=fr",
+        }
+        for legacy, expected in cases.items():
+            with self.subTest(url=legacy):
+                self.assertEqual(upgrade_cairn_legacy_pdf_url(legacy), expected)
+
+    def test_other_cairn_urls_untouched(self):
+        for url in (
+            "https://shs.cairn.info/article/CEP_043_0069/pdf?lang=fr",
+            "https://shs.cairn.info/revue-cahiers-d-economie-politique-1-2002-2-page-69?lang=fr",
+            "https://www.cairn.info/article.php?ID_ARTICLE=CEP_043_0069",
+            "https://doi.org/10.3917/cep.043.0069",
+            "",
+            None,
+        ):
+            with self.subTest(url=url):
+                self.assertEqual(upgrade_cairn_legacy_pdf_url(url), url)
+
+    def test_http_get_fetches_upgraded_url(self):
+        legacy = "https://www.cairn.info/load_pdf.php?ID_ARTICLE=CEP_043_0069&download=1"
+        expected = "https://shs.cairn.info/article/CEP_043_0069/pdf?lang=fr"
+        requested = []
+
+        class FakeResponse:
+            def __init__(self, payload):
+                self._payload = payload
+
+            def json(self):
+                return self._payload
+
+        def fake_post(*args, **kwargs):
+            body = kwargs["json"]
+            requested.append(body["url"])
+            return FakeResponse({
+                "url": body["url"],
+                "statusCode": 200,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "application/pdf"}],
+                "httpResponseBody": base64.b64encode(b"%PDF-1.7\nbody\n%%EOF").decode(),
+            })
+
+        with patch("openalex_taxicab.http_cache.requests.post", side_effect=fake_post):
+            response = http_get(legacy, doi="10.3917/cep.043.0069")
+
+        self.assertEqual(requested, [expected])
+        self.assertEqual(response.url, expected)
+        self.assertTrue(response.content.startswith(b"%PDF-"))
