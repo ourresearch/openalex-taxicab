@@ -91,6 +91,9 @@ class Harvester:
             '/cookieAbsent',
             'Project MUSE -- Verification required!',
             '<div class="frc-captcha"',
+            # Anubis proof-of-work challenge (HAL since spring 2026; oxjob #1402)
+            'id="anubis_challenge"',
+            'Making sure you&#39;re not a bot!',
         ]
 
         content_str = content.decode('utf-8', errors='ignore') if isinstance(content, bytes) else str(content)
