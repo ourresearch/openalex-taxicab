@@ -94,6 +94,12 @@ class Harvester:
             # Anubis proof-of-work challenge (HAL since spring 2026; oxjob #1402)
             'id="anubis_challenge"',
             'Making sure you&#39;re not a bot!',
+            # PMC bot checks, both HTTP 200: Google reCAPTCHA challenge page (served in place of
+            # ~319K PMC landing pages Apr-Aug 2026) and PMC's "Preparing to download" PDF
+            # proof-of-work page
+            'RecaptchaChallengePageUi',
+            '<title>Checking your browser - reCAPTCHA</title>',
+            'cloudpmc-viewer-pow',
         ]
 
         content_str = content.decode('utf-8', errors='ignore') if isinstance(content, bytes) else str(content)
