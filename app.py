@@ -3,6 +3,21 @@ import os
 
 from flask import Flask, request, jsonify, Response
 import boto3
+import sentry_sdk
+from sentry_sdk.integrations.logging import LoggingIntegration
+
+# Sentry error reporting (oxjob #1685); a missing SENTRY_DSN makes this a no-op. Errors only:
+# unhandled exceptions (500s), gunicorn worker timeouts, and the storage errors below. The
+# logger.error lines about remote sites that fail to fetch (routine at harvest volume) stay
+# breadcrumbs, not events.
+if os.environ.get("SENTRY_DSN"):
+    sentry_sdk.init(
+        dsn=os.environ["SENTRY_DSN"],
+        environment=os.environ.get("SENTRY_ENVIRONMENT", "production"),
+        send_default_pii=False,
+        traces_sample_rate=0,
+        integrations=[LoggingIntegration(event_level=None)],
+    )
 
 from openalex_taxicab.harvest import Harvester
 from openalex_taxicab.http_cache import http_get
@@ -136,6 +151,7 @@ def fetch_harvested_content(harvest_id):
         except s3_client.exceptions.NoSuchKey:
             pass  # continue to check for PDF
         except Exception as e:
+            sentry_sdk.capture_exception(e)
             return jsonify({"error": f"Error fetching HTML: {str(e)}"}), 500
 
         try:
@@ -152,6 +168,7 @@ def fetch_harvested_content(harvest_id):
         except s3_client.exceptions.NoSuchKey:
             pass  # if PDF is not found, try the next bucket
         except Exception as e:
+            sentry_sdk.capture_exception(e)
             return jsonify({"error": f"Error fetching PDF: {str(e)}"}), 500
 
         try:
@@ -168,6 +185,7 @@ def fetch_harvested_content(harvest_id):
         except s3_client.exceptions.NoSuchKey:
             pass  # if XML is not found, try the next bucket
         except Exception as e:
+            sentry_sdk.capture_exception(e)
             return jsonify({"error": f"Error fetching XML: {str(e)}"}), 500
 
     # If not found in R2, check legacy S3 bucket for HTML files
@@ -184,6 +202,7 @@ def fetch_harvested_content(harvest_id):
     except aws_s3_client.exceptions.NoSuchKey:
         pass  # file not in legacy bucket either
     except Exception as e:
+        sentry_sdk.capture_exception(e)
         return jsonify({"error": f"Error fetching HTML from legacy S3: {str(e)}"}), 500
 
     return jsonify({"error": "File not found"}), 404
