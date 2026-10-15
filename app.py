@@ -19,6 +19,7 @@ if os.environ.get("SENTRY_DSN"):
         integrations=[LoggingIntegration(event_level=None)],
     )
 
+from openalex_taxicab import deadline
 from openalex_taxicab.harvest import Harvester
 from openalex_taxicab.http_cache import http_get
 from openalex_taxicab.util import guess_mime_type
@@ -80,12 +81,14 @@ def harvest_content():
             'error': f'Missing required fields in request body: {", ".join(missing_fields)}'
         }), 400
 
-    # fetch content
+    # fetch content; the time budget runs from when the load balancer received the request,
+    # so time spent queued for a worker thread counts too (oxjob #1712)
     try:
         result = harvester.harvest(
             url=data['url'],
             native_id=data['native_id'],
-            native_id_namespace=data['native_id_namespace']
+            native_id_namespace=data['native_id_namespace'],
+            started_at=deadline.alb_received_at(request.headers.get('X-Amzn-Trace-Id')),
         )
     except ValueError as e:
         return jsonify({

@@ -11,10 +11,11 @@ from urllib.parse import parse_qs, urlsplit
 import requests
 import tenacity
 
-from tenacity import retry, stop_after_attempt, wait_exponential, \
+from tenacity import retry, stop_after_attempt, stop_any, wait_exponential, \
     retry_if_result
 import requests.exceptions
 
+from openalex_taxicab.deadline import ZYTE_TIMEOUT, bounded_timeout, time_left
 from openalex_taxicab.log import _make_logger
 from .util import elapsed
 
@@ -224,7 +225,7 @@ def resolve_doi_redirects(doi_url, max_redirects=10):
         response = session.head(
             doi_url,
             allow_redirects=True,
-            timeout=15,
+            timeout=bounded_timeout(15),
             headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
         )
 
@@ -313,7 +314,7 @@ def _fetch_dspace7_metadata(resolved_url):
             f"{base_url}/server/api/discover/search/objects",
             params={"query": f"handle:{handle}"},
             headers={"Accept": "application/json"},
-            timeout=15,
+            timeout=bounded_timeout(15),
         )
         if search_resp.status_code != 200:
             logger.warning(f"DSpace 7 discover API returned {search_resp.status_code} for {resolved_url}")
@@ -400,7 +401,7 @@ def _fetch_dspace7_metadata(resolved_url):
             bundles_resp = requests.get(
                 bundles_url,
                 headers={"Accept": "application/json"},
-                timeout=10,
+                timeout=bounded_timeout(10),
             )
             if bundles_resp.status_code == 200:
                 bundles = bundles_resp.json().get("_embedded", {}).get("bundles", [])
@@ -411,7 +412,7 @@ def _fetch_dspace7_metadata(resolved_url):
                             bs_resp = requests.get(
                                 bitstreams_url,
                                 headers={"Accept": "application/json"},
-                                timeout=10,
+                                timeout=bounded_timeout(10),
                             )
                             if bs_resp.status_code == 200:
                                 for bs in bs_resp.json().get("_embedded", {}).get("bitstreams", []):
@@ -462,7 +463,13 @@ def is_retry_status(response):
     return response.status_code in {429, 500, 502, 503}
 
 
-@retry(stop=stop_after_attempt(2),
+def too_little_time_to_retry(retry_state):
+    """The retry waits 4-10 s and then needs time for a fetch; skip it when the budget can't cover that."""
+    left = time_left()
+    return left is not None and left < 15
+
+
+@retry(stop=stop_any(stop_after_attempt(2), too_little_time_to_retry),
        wait=wait_exponential(multiplier=1, min=4, max=10),
        retry=retry_if_result(is_retry_status),
        before_sleep=before_retry)
@@ -581,7 +588,7 @@ def http_get(url,
                 direct_resp = requests.get(
                     url,
                     headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
-                    timeout=(connect_timeout, read_timeout),
+                    timeout=bounded_timeout((connect_timeout, read_timeout)),
                     verify=verify,
                 )
                 r = ResponseObject(
@@ -616,7 +623,7 @@ def http_get(url,
                             pdf_resp = requests.get(
                                 api_url,
                                 headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
-                                timeout=(connect_timeout, read_timeout),
+                                timeout=bounded_timeout((connect_timeout, read_timeout)),
                                 verify=verify,
                             )
                             if pdf_resp.status_code == 200 and pdf_resp.content[:5] == b'%PDF-':
@@ -1112,6 +1119,7 @@ def _fetch_via_landing_page(direct_pdf_url, doi):
             "session": {"id": session_id},
         },
         verify=False,
+        timeout=bounded_timeout(ZYTE_TIMEOUT),
     )
     step1 = step1_resp.json()
     if step1.get("status"):
@@ -1147,6 +1155,7 @@ def _fetch_via_landing_page(direct_pdf_url, doi):
             "session": {"id": session_id},
         },
         verify=False,
+        timeout=bounded_timeout(ZYTE_TIMEOUT),
     )
     step2 = step2_resp.json()
     if step2.get("status"):
@@ -1236,7 +1245,7 @@ def _fetch_sciencedirect_pdf(url, connect_timeout=10, read_timeout=60):
         try:
             step1_resp = requests.post(
                 zyte_api_url, auth=(zyte_api_key, ''), json=step1_params,
-                verify=False, timeout=(connect_timeout, read_timeout),
+                verify=False, timeout=bounded_timeout((connect_timeout, read_timeout)),
             )
         except requests.exceptions.RequestException as exc:
             logger.warning(f"ScienceDirect PDF step1 failed: {exc}")
@@ -1280,7 +1289,7 @@ def _fetch_sciencedirect_pdf(url, connect_timeout=10, read_timeout=60):
         try:
             step2_resp = requests.post(
                 zyte_api_url, auth=(zyte_api_key, ''), json=step2_params,
-                verify=False, timeout=(connect_timeout, read_timeout),
+                verify=False, timeout=bounded_timeout((connect_timeout, read_timeout)),
             )
         except requests.exceptions.RequestException as exc:
             logger.warning(f"ScienceDirect PDF step2 failed: {exc}")
@@ -1360,7 +1369,7 @@ def _fetch_sciencedirect_am_pdf(pii, connect_timeout=10, read_timeout=60):
         try:
             step1_resp = requests.post(
                 zyte_api_url, auth=(zyte_api_key, ''), json=step1_params,
-                verify=False, timeout=(connect_timeout, read_timeout),
+                verify=False, timeout=bounded_timeout((connect_timeout, read_timeout)),
             )
         except requests.exceptions.RequestException as exc:
             logger.warning(f"ScienceDirect AM step1 failed: {exc}")
@@ -1400,7 +1409,7 @@ def _fetch_sciencedirect_am_pdf(pii, connect_timeout=10, read_timeout=60):
         try:
             step2_resp = requests.post(
                 zyte_api_url, auth=(zyte_api_key, ''), json=step2_params,
-                verify=False, timeout=(connect_timeout, read_timeout),
+                verify=False, timeout=bounded_timeout((connect_timeout, read_timeout)),
             )
         except requests.exceptions.RequestException as exc:
             logger.warning(f"ScienceDirect AM step2 failed: {exc}")
@@ -1434,7 +1443,7 @@ def _fetch_sciencedirect_am_pdf(pii, connect_timeout=10, read_timeout=60):
         try:
             step3_resp = requests.post(
                 zyte_api_url, auth=(zyte_api_key, ''), json=step3_params,
-                verify=False, timeout=(connect_timeout, read_timeout),
+                verify=False, timeout=bounded_timeout((connect_timeout, read_timeout)),
             )
         except requests.exceptions.RequestException as exc:
             logger.warning(f"ScienceDirect AM step3 failed: {exc}")
@@ -1544,7 +1553,7 @@ def _fetch_ssrn_pdf(abstract_id, connect_timeout=10, read_timeout=60):
         try:
             step1_resp = requests.post(
                 zyte_api_url, auth=(zyte_api_key, ''), json=step1_params,
-                verify=False, timeout=(connect_timeout, read_timeout),
+                verify=False, timeout=bounded_timeout((connect_timeout, read_timeout)),
             )
         except requests.exceptions.RequestException as exc:
             logger.warning(f"SSRN PDF step1 failed: {exc}")
@@ -1590,7 +1599,7 @@ def _fetch_ssrn_pdf(abstract_id, connect_timeout=10, read_timeout=60):
             try:
                 step2_resp = requests.post(
                     zyte_api_url, auth=(zyte_api_key, ''), json=step2_params,
-                    verify=False, timeout=(connect_timeout, read_timeout),
+                    verify=False, timeout=bounded_timeout((connect_timeout, read_timeout)),
                 )
             except requests.exceptions.RequestException as exc:
                 logger.warning(f"SSRN PDF step2 failed: {exc}")
@@ -1660,7 +1669,7 @@ def _fetch_wiley_pdfdirect(url):
 
     for strategy_name, params in _wiley_pdfdirect_strategy_params(url):
         logger.info(f"Wiley PDF-direct fetch using {strategy_name}: {url}")
-        response = requests.post(zyte_api_url, auth=(zyte_api_key, ''), json=params, verify=False)
+        response = requests.post(zyte_api_url, auth=(zyte_api_key, ''), json=params, verify=False, timeout=bounded_timeout(ZYTE_TIMEOUT))
         data = response.json()
         current = _response_from_zyte_body(data, url)
         last_response = current
@@ -1792,7 +1801,7 @@ def _fetch_wiley_browser_pdf(url, attempts=3, timeout=180):
         try:
             response = requests.post(
                 zyte_api_url, auth=(zyte_api_key, ''), json=payload,
-                verify=False, timeout=timeout,
+                verify=False, timeout=bounded_timeout(timeout),
             )
         except requests.exceptions.RequestException as exc:
             logger.warning(f"Wiley browser-exfil request failed for {article_url}: {exc}")
@@ -1887,7 +1896,7 @@ def _fetch_iop_article_pdf(url, connect_timeout=5, read_timeout=60):
                 auth=(zyte_api_key, ''),
                 json=params,
                 verify=False,
-                timeout=(connect_timeout, read_timeout),
+                timeout=bounded_timeout((connect_timeout, read_timeout)),
             )
         except requests.exceptions.RequestException as exc:
             logger.warning(f"IOP article-PDF fetch failed using {strategy_name}: {exc}")
@@ -1915,7 +1924,7 @@ def _fetch_acm_pdf(url, connect_timeout=5, read_timeout=60):
                 auth=(zyte_api_key, ''),
                 json=params,
                 verify=False,
-                timeout=(connect_timeout, read_timeout),
+                timeout=bounded_timeout((connect_timeout, read_timeout)),
             )
         except requests.exceptions.RequestException as exc:
             logger.warning(f"ACM PDF fetch failed using {strategy_name}: {exc}")
@@ -1943,7 +1952,7 @@ def _fetch_acs_pdf(url, connect_timeout=5, read_timeout=60):
                 auth=(zyte_api_key, ''),
                 json=params,
                 verify=False,
-                timeout=(connect_timeout, read_timeout),
+                timeout=bounded_timeout((connect_timeout, read_timeout)),
             )
         except requests.exceptions.RequestException as exc:
             logger.warning(f"ACS PDF fetch failed using {strategy_name}: {exc}")
@@ -1971,7 +1980,7 @@ def _fetch_scholarhub_pdf(url, connect_timeout=5, read_timeout=60):
                 auth=(zyte_api_key, ''),
                 json=params,
                 verify=False,
-                timeout=(connect_timeout, read_timeout),
+                timeout=bounded_timeout((connect_timeout, read_timeout)),
             )
         except requests.exceptions.RequestException as exc:
             logger.warning(f"Scholarhub PDF fetch failed using {strategy_name}: {exc}")
@@ -1999,7 +2008,7 @@ def _fetch_peerj_pdf(url, connect_timeout=5, read_timeout=60):
                 auth=(zyte_api_key, ''),
                 json=params,
                 verify=False,
-                timeout=(connect_timeout, read_timeout),
+                timeout=bounded_timeout((connect_timeout, read_timeout)),
             )
         except requests.exceptions.RequestException as exc:
             logger.warning(f"PeerJ PDF fetch failed using {strategy_name}: {exc}")
@@ -2024,7 +2033,7 @@ def _fetch_erudit_pdf(url, connect_timeout=5, read_timeout=60, verify=False):
         response = requests.get(
             url,
             headers={"Accept": "application/pdf,*/*"},
-            timeout=(connect_timeout, read_timeout),
+            timeout=bounded_timeout((connect_timeout, read_timeout)),
             verify=verify,
         )
     except requests.exceptions.RequestException as exc:
@@ -2050,7 +2059,7 @@ def _fetch_sba_ojs_pdf(url, connect_timeout=5, read_timeout=60, verify=False):
         response = requests.get(
             url,
             headers={"Accept": "application/pdf,*/*"},
-            timeout=(connect_timeout, read_timeout),
+            timeout=bounded_timeout((connect_timeout, read_timeout)),
             verify=verify,
         )
     except requests.exceptions.RequestException as exc:
@@ -2086,7 +2095,7 @@ def _fetch_with_cookies(url, zyte_api_url, zyte_api_key, fallback_params):
                                          "experimental": {
                                              "responseCookies": True
                                          }
-                                     }, verify=False)
+                                     }, verify=False, timeout=bounded_timeout(ZYTE_TIMEOUT))
     browser_data = json.loads(browser_response.text)
     browser_html = browser_data.get("browserHtml", "")
     cookies = browser_data.get("experimental", {}).get("responseCookies", {})
@@ -2118,11 +2127,12 @@ def _fetch_with_cookies(url, zyte_api_url, zyte_api_key, fallback_params):
                                  "experimental": {
                                      "requestCookies": cookies
                                  }
-                             }, verify=False)
+                             }, verify=False, timeout=bounded_timeout(ZYTE_TIMEOUT))
     else:
         logger.info(f"No cookies returned for {url}, using standard request")
         return requests.post(zyte_api_url, auth=(zyte_api_key, ''),
-                             json=fallback_params, verify=False)
+                             json=fallback_params, verify=False,
+                             timeout=bounded_timeout(ZYTE_TIMEOUT))
 
 
 def call_with_zyte_api(url, params=None):
@@ -2146,7 +2156,8 @@ def call_with_zyte_api(url, params=None):
         response = _fetch_with_cookies(url, zyte_api_url, zyte_api_key, params)
     else:
         response = requests.post(zyte_api_url, auth=(zyte_api_key, ''),
-                                 json=params, verify=False)
+                                 json=params, verify=False,
+                                 timeout=bounded_timeout(ZYTE_TIMEOUT))
     return response.json()
 
 
@@ -2160,7 +2171,7 @@ def get_cookies_with_zyte_api(url):
                                          "experimental": {
                                              "responseCookies": True
                                          }
-                                     })
+                                     }, timeout=bounded_timeout(ZYTE_TIMEOUT))
     cookies_response = json.loads(cookies_response.text)
     cookies = cookies_response.get("experimental", {}).get("responseCookies",
                                                            {})

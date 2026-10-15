@@ -9,10 +9,15 @@ from urllib.parse import quote
 
 import boto3
 from boto3.dynamodb.conditions import Key
+import requests.exceptions
 import tenacity
 
+from . import deadline
 from .http_cache import http_get
+from .log import _make_logger
 from .util import guess_mime_type, has_pdf_magic
+
+logger = _make_logger()
 
 
 class Harvester:
@@ -345,9 +350,14 @@ class Harvester:
             self,
             url: str,
             native_id: str,
-            native_id_namespace: str
+            native_id_namespace: str,
+            started_at: Optional[float] = None,
     ) -> dict:
-        """Harvest content from URL and store in appropriate location"""
+        """Harvest content from URL and store in appropriate location.
+
+        started_at: when the load balancer received the request; the fetch must finish within
+        deadline.REQUEST_BUDGET_SECONDS of it (oxjob #1712).
+        """
         if not url:
             raise ValueError('url must be specified')
 
@@ -355,16 +365,12 @@ class Harvester:
 
         doi = native_id if native_id_namespace == 'doi' else None
 
-        try:
-            response = http_get(url, ask_slowly=True, doi=doi)
-        except tenacity.RetryError as e:
-            # get status code from the last failed attempt
-            last_attempt = e.last_attempt.result()
+        def nothing_stored(status_code, resolved_url):
             return OrderedDict([
                 ("id", None),
                 ("url", url),
-                ("status_code", last_attempt.status_code),
-                ("resolved_url", last_attempt.url),
+                ("status_code", status_code),
+                ("resolved_url", resolved_url),
                 ("native_id", native_id),
                 ("native_id_namespace", native_id_namespace),
                 ("s3_path", None),
@@ -372,6 +378,21 @@ class Harvester:
                 ("is_soft_block", False),
                 ("created_date", None),
             ])
+
+        deadline.start(started_at)
+        try:
+            response = http_get(url, ask_slowly=True, doi=doi)
+        except tenacity.RetryError as e:
+            # get status code from the last failed attempt
+            last_attempt = e.last_attempt.result()
+            return nothing_stored(last_attempt.status_code, last_attempt.url)
+        except (deadline.DeadlineExceeded, requests.exceptions.Timeout) as e:
+            # Out of time: answer now, before the load balancer gives up, so the caller records
+            # a timeout (504) instead of re-asking while this thread is still busy.
+            logger.info(f"Gave up on {url} at the request budget: {e}")
+            return nothing_stored(504, url)
+        finally:
+            deadline.clear()
 
         content = response.content
         status_code = response.status_code
