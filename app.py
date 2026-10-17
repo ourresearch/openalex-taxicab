@@ -89,6 +89,9 @@ def harvest_content():
             native_id=data['native_id'],
             native_id_namespace=data['native_id_namespace'],
             started_at=deadline.alb_received_at(request.headers.get('X-Amzn-Trace-Id')),
+            # "direct": fetch the site ourselves instead of through Zyte; the caller sends it
+            # when retrying a page Zyte was banned from (oxjob #1712)
+            fetch_mode=data.get('fetch_mode'),
         )
     except ValueError as e:
         return jsonify({

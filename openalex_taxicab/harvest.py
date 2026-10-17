@@ -352,11 +352,13 @@ class Harvester:
             native_id: str,
             native_id_namespace: str,
             started_at: Optional[float] = None,
+            fetch_mode: Optional[str] = None,
     ) -> dict:
         """Harvest content from URL and store in appropriate location.
 
         started_at: when the load balancer received the request; the fetch must finish within
         deadline.REQUEST_BUDGET_SECONDS of it (oxjob #1712).
+        fetch_mode: "direct" fetches the site without Zyte (used to retry Zyte bans, oxjob #1712).
         """
         if not url:
             raise ValueError('url must be specified')
@@ -381,7 +383,7 @@ class Harvester:
 
         deadline.start(started_at)
         try:
-            response = http_get(url, ask_slowly=True, doi=doi)
+            response = http_get(url, ask_slowly=True, doi=doi, force_direct=(fetch_mode == 'direct'))
         except tenacity.RetryError as e:
             # get status code from the last failed attempt
             last_attempt = e.last_attempt.result()

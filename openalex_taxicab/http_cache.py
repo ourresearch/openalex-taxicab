@@ -485,9 +485,13 @@ def http_get(url,
              cookies=None,
              redirected_url=None,
              attempt_n=0,
-             doi=None):
+             doi=None,
+             force_direct=False):
     """
     Unified function that handles both DOI resolution and Zyte API calls.
+
+    force_direct: fetch the site ourselves, skipping the Zyte publisher recipes. The caller asks for
+    this when retrying a page Zyte was banned from (oxjob #1712: 36% of those load directly).
     """
     headers = headers or {}
     start_time = time()
@@ -498,53 +502,56 @@ def http_get(url,
         logger.info(f"Using redirected URL: {redirected_url}")
         url = redirected_url
 
+    # Publisher-specific Zyte recipes run on the first attempt only, and never on a direct retry.
+    use_recipes = not attempt_n and not force_direct
+
     try:
         logger.info(f"LIVE GET on {url}")
 
         # Wiley: the in-page browser exfil beats both the shared-session rewrite
         # and the plain body strategies on the same DOIs (12/13 vs 5/13), so it
         # leads; the old strategies stay on as a fallback.
-        if not attempt_n and _looks_like_direct_pdf_url(url) and _is_wiley_browser_pdf_url(url):
+        if use_recipes and _looks_like_direct_pdf_url(url) and _is_wiley_browser_pdf_url(url):
             return _fetch_wiley_pdf(url)
 
         # For hosts that gate direct PDF URLs with Cloudflare-style fingerprint
         # checks, fetch via the DOI landing page within a shared Zyte session.
         # See _fetch_via_landing_page and LANDING_PAGE_REWRITE_HOSTS.
-        if doi and not attempt_n and _should_use_landing_page_rewrite(url):
+        if doi and use_recipes and _should_use_landing_page_rewrite(url):
             return _fetch_via_landing_page(url, doi)
 
-        if not attempt_n and _is_wiley_pdfdirect_url(url):
+        if use_recipes and _is_wiley_pdfdirect_url(url):
             return _fetch_wiley_pdfdirect(url)
 
-        if not attempt_n and _is_iop_article_pdf_url(url):
+        if use_recipes and _is_iop_article_pdf_url(url):
             return _fetch_iop_article_pdf(url, connect_timeout, read_timeout)
 
-        if not attempt_n and _is_acm_pdf_url(url):
+        if use_recipes and _is_acm_pdf_url(url):
             return _fetch_acm_pdf(url, connect_timeout, read_timeout)
 
-        if not attempt_n and _is_acs_pdf_url(url):
+        if use_recipes and _is_acs_pdf_url(url):
             return _fetch_acs_pdf(url, connect_timeout, read_timeout)
 
-        if not attempt_n and _is_scholarhub_pdf_url(url):
+        if use_recipes and _is_scholarhub_pdf_url(url):
             return _fetch_scholarhub_pdf(url, connect_timeout, read_timeout)
 
-        if not attempt_n and _is_erudit_pdf_url(url):
+        if use_recipes and _is_erudit_pdf_url(url):
             return _fetch_erudit_pdf(url, connect_timeout, read_timeout, verify)
 
-        if not attempt_n and _is_peerj_pdf_url(url):
+        if use_recipes and _is_peerj_pdf_url(url):
             return _fetch_peerj_pdf(url, connect_timeout, read_timeout)
 
-        if not attempt_n and _is_sba_ojs_pdf_url(url):
+        if use_recipes and _is_sba_ojs_pdf_url(url):
             return _fetch_sba_ojs_pdf(url, connect_timeout, read_timeout, verify)
 
-        _sd_am_pii = _sciencedirect_am_pii(url) if not attempt_n else None
+        _sd_am_pii = _sciencedirect_am_pii(url) if use_recipes else None
         if _sd_am_pii:
             return _fetch_sciencedirect_am_pdf(_sd_am_pii, connect_timeout, read_timeout)
 
-        if not attempt_n and _is_sciencedirect_pdf_url(url):
+        if use_recipes and _is_sciencedirect_pdf_url(url):
             return _fetch_sciencedirect_pdf(url, connect_timeout, read_timeout)
 
-        _ssrn_id = _ssrn_abstract_id(url, doi) if not attempt_n else None
+        _ssrn_id = _ssrn_abstract_id(url, doi) if use_recipes else None
         if _ssrn_id:
             return _fetch_ssrn_pdf(_ssrn_id, connect_timeout, read_timeout)
 
@@ -581,9 +588,9 @@ def http_get(url,
             logger.info(f"Rewriting JBC PDF/LinkingHub URL to article landing page: {jbc_fulltext_url}")
             url = jbc_fulltext_url
 
-        # Direct fetch for open-access sites that don't need Zyte
-        if is_direct_fetch_url(url):
-            logger.info(f"Direct fetch (bypassing Zyte) for {url}")
+        # Direct fetch for open-access sites that don't need Zyte, and for direct retries
+        if force_direct or is_direct_fetch_url(url):
+            logger.info(f"Direct fetch (bypassing Zyte{', direct retry' if force_direct else ''}) for {url}")
             try:
                 direct_resp = requests.get(
                     url,
