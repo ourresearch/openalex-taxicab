@@ -15,7 +15,9 @@ from tenacity import retry, stop_after_attempt, stop_any, wait_exponential, \
     retry_if_result
 import requests.exceptions
 
-from openalex_taxicab.deadline import ZYTE_TIMEOUT, bounded_timeout, time_left
+import threading
+
+from openalex_taxicab.deadline import MIN_CALL_SECONDS, ZYTE_TIMEOUT, DeadlineExceeded, bounded_timeout, time_left
 from openalex_taxicab.log import _make_logger
 from .util import elapsed
 
@@ -102,6 +104,46 @@ class ResponseObject:
         if self.status_code >= 400:
             raise requests.HTTPError(
                 f'Bad status code for URL {self.url}: {self.status_code}')
+
+
+def get_within_budget(url, headers=None, connect_timeout=60, read_timeout=60, verify=False):
+    """Direct GET that returns within the request budget: (response, body bytes).
+
+    A requests timeout bounds the connect and each read, not the whole call: with both set to the
+    time left, connect plus first byte could take twice the budget, and a big PDF downloads for as
+    long as bytes keep coming (direct retries ran to 135 s on 17 Oct, oxjob #1712). So connect and
+    first byte share the time left, and the body streams under a timer that closes the connection
+    when the budget runs out; that raises DeadlineExceeded (the harvest answers 504).
+    """
+    left = time_left()
+    if left is None:
+        resp = requests.get(url, headers=headers, timeout=(connect_timeout, read_timeout), verify=verify)
+        return resp, resp.content
+    if left < MIN_CALL_SECONDS:
+        raise DeadlineExceeded(f"request budget spent ({left:.1f} s left)")
+    connect = min(connect_timeout, 10.0, left / 4)
+    first_byte = max(min(read_timeout, left - connect), 0.5)
+    resp = requests.get(url, headers=headers, timeout=(connect, first_byte), verify=verify, stream=True)
+
+    out_of_time = threading.Event()
+
+    def stop_download():
+        out_of_time.set()
+        resp.close()
+
+    timer = threading.Timer(max((time_left() or 0) - 0.5, 0.1), stop_download)
+    timer.start()
+    try:
+        body = b"".join(resp.iter_content(64 * 1024))
+    except Exception as e:
+        if out_of_time.is_set():
+            raise DeadlineExceeded(f"direct download of {url} ran out of time") from e
+        raise
+    finally:
+        timer.cancel()
+    if out_of_time.is_set():
+        raise DeadlineExceeded(f"direct download of {url} ran out of time")
+    return resp, body
 
 
 def is_direct_fetch_url(url):
@@ -592,14 +634,15 @@ def http_get(url,
         if force_direct or is_direct_fetch_url(url):
             logger.info(f"Direct fetch (bypassing Zyte{', direct retry' if force_direct else ''}) for {url}")
             try:
-                direct_resp = requests.get(
+                direct_resp, direct_body = get_within_budget(
                     url,
                     headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
-                    timeout=bounded_timeout((connect_timeout, read_timeout)),
+                    connect_timeout=connect_timeout,
+                    read_timeout=read_timeout,
                     verify=verify,
                 )
                 r = ResponseObject(
-                    content=direct_resp.content,
+                    content=direct_body,
                     headers=[{"name": k, "value": v} for k, v in direct_resp.headers.items()],
                     status_code=direct_resp.status_code,
                     url=direct_resp.url,
@@ -627,14 +670,15 @@ def http_get(url,
                         api_url = f"{bitstream_match.group(1)}/server/api/core/bitstreams/{bitstream_match.group(2)}/content"
                         logger.info(f"DSpace 7 SPA detected on bitstream URL {r.url}, fetching PDF from REST API: {api_url}")
                         try:
-                            pdf_resp = requests.get(
+                            pdf_resp, pdf_body = get_within_budget(
                                 api_url,
                                 headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
-                                timeout=bounded_timeout((connect_timeout, read_timeout)),
+                                connect_timeout=connect_timeout,
+                                read_timeout=read_timeout,
                                 verify=verify,
                             )
-                            if pdf_resp.status_code == 200 and pdf_resp.content[:5] == b'%PDF-':
-                                r.content = pdf_resp.content
+                            if pdf_resp.status_code == 200 and pdf_body[:5] == b'%PDF-':
+                                r.content = pdf_body
                                 r.url = api_url
                                 return r
                         except requests.exceptions.RequestException as e:

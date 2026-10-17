@@ -105,3 +105,66 @@ class AppFetchModeTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FakeStream:
+    """A response whose body arrives one chunk per `delay` seconds; close() ends the stream with an error."""
+
+    def __init__(self, chunks, delay):
+        self.chunks, self.delay, self.closed = chunks, delay, False
+        self.status_code, self.url, self.headers = 200, "https://slow.example.edu/big.pdf", {}
+
+    def iter_content(self, size):
+        import time as _t
+        for c in self.chunks:
+            if self.closed:
+                raise ConnectionError("connection closed")
+            _t.sleep(self.delay)
+            yield c
+
+    def close(self):
+        self.closed = True
+
+
+class GetWithinBudgetTests(unittest.TestCase):
+    def tearDown(self):
+        deadline.clear()
+
+    def test_slow_download_stops_at_the_budget(self):
+        from time import time as now
+        from openalex_taxicab.http_cache import get_within_budget
+        deadline.start(budget=3)
+        slow = FakeStream([b"x" * 1000] * 50, delay=0.2)  # 10 s of body
+        t0 = now()
+        with patch("openalex_taxicab.http_cache.requests.get", return_value=slow):
+            with self.assertRaises(deadline.DeadlineExceeded):
+                get_within_budget("https://slow.example.edu/big.pdf")
+        self.assertLess(now() - t0, 3.5)
+        self.assertTrue(slow.closed)
+
+    def test_fast_download_returns_the_whole_body(self):
+        from openalex_taxicab.http_cache import get_within_budget
+        deadline.start(budget=10)
+        fast = FakeStream([b"%PDF-", b"y" * 100], delay=0)
+        with patch("openalex_taxicab.http_cache.requests.get", return_value=fast) as get:
+            resp, body = get_within_budget("https://fast.example.edu/a.pdf", connect_timeout=60, read_timeout=60)
+        self.assertEqual(body, b"%PDF-" + b"y" * 100)
+        connect, first_byte = get.call_args.kwargs["timeout"]
+        self.assertLessEqual(connect + first_byte, 10.01)
+        self.assertLessEqual(connect, 2.51)
+        self.assertTrue(get.call_args.kwargs["stream"])
+
+    def test_force_direct_harvest_answers_504_when_download_runs_out(self):
+        from time import time as now
+        slow = FakeStream([b"<html>" + b"x" * 1000] * 50, delay=0.2)
+        harvester = Harvester(s3=object())
+        with patch("openalex_taxicab.http_cache.requests.get", return_value=slow), \
+                patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=zyte_must_not_be_called), \
+                patch.object(deadline, "REQUEST_BUDGET_SECONDS", 3):
+            deadline_start = deadline.start
+            with patch("openalex_taxicab.harvest.deadline.start", side_effect=lambda started_at=None: deadline_start(started_at, budget=3)):
+                t0 = now()
+                result = harvester.harvest("https://slow.example.edu/item/1", "oai:x", "pmh", fetch_mode="direct")
+        self.assertEqual(result["status_code"], 504)
+        self.assertIsNone(result["id"])
+        self.assertLess(now() - t0, 3.5)
