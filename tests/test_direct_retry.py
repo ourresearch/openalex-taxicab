@@ -168,3 +168,67 @@ class GetWithinBudgetTests(unittest.TestCase):
         self.assertEqual(result["status_code"], 504)
         self.assertIsNone(result["id"])
         self.assertLess(now() - t0, 3.5)
+
+
+class StalledServer:
+    """A local HTTP server that sends a few body bytes every 0.5 s for `trickle` seconds, then goes
+    quiet for `stall` seconds (a download that stops arriving after the budget timer has started)."""
+
+    def __init__(self, trickle=3.0, stall=30, protocol="HTTP/1.0"):
+        import http.server
+        import threading as _th
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            protocol_version = protocol
+
+            def do_GET(self):
+                import time as _t
+                self.send_response(200)
+                self.send_header("Content-Type", "application/pdf")
+                self.send_header("Content-Length", "100000")
+                self.end_headers()
+                t_end = _t.time() + trickle
+                while _t.time() < t_end:
+                    self.wfile.write(b"%PDF-1.4\n")
+                    self.wfile.flush()
+                    _t.sleep(0.5)
+                _t.sleep(stall)
+
+            def log_message(self, *args):
+                pass
+
+        self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        self.server.daemon_threads = True
+        self.url = f"http://127.0.0.1:{self.server.server_address[1]}/stalled.pdf"
+        _th.Thread(target=self.server.serve_forever, daemon=True).start()
+
+    def stop(self):
+        self.server.shutdown()
+        self.server.server_close()
+
+
+class BlockedReadTests(unittest.TestCase):
+    """18 Oct (oxjob #1712): direct downloads ran to 93 s because closing the response from the timer
+    thread did not wake a read already blocked on the socket; it waited out its own read timeout."""
+
+    def tearDown(self):
+        deadline.clear()
+
+    def test_stalled_download_stops_at_the_budget(self):
+        self._stops_at_the_budget("HTTP/1.0")  # the response owns the socket
+
+    def test_stalled_keep_alive_download_stops_at_the_budget(self):
+        self._stops_at_the_budget("HTTP/1.1")  # the pooled connection owns the socket
+
+    def _stops_at_the_budget(self, protocol):
+        from time import time as now
+        from openalex_taxicab.http_cache import get_within_budget
+        server = StalledServer(trickle=3.6, stall=30, protocol=protocol)
+        try:
+            deadline.start(budget=4)
+            t0 = now()
+            with self.assertRaises(deadline.DeadlineExceeded):
+                get_within_budget(server.url, connect_timeout=60, read_timeout=60)
+            self.assertLess(now() - t0, 4.5)
+        finally:
+            server.stop()

@@ -1,6 +1,7 @@
 from base64 import b64decode
 import os
 import re
+import socket
 import uuid
 from dataclasses import dataclass
 from time import sleep, time
@@ -106,6 +107,26 @@ class ResponseObject:
                 f'Bad status code for URL {self.url}: {self.status_code}')
 
 
+def _wake_blocked_read(resp):
+    """Shut down the response's socket so a thread blocked reading it returns at once. close() from
+    another thread does not wake that read: it waits out its own read timeout, up to ~40 s past the
+    budget (direct downloads ran to 93 s on 18 Oct, oxjob #1712)."""
+    raw = getattr(resp, "raw", None)
+    conn = getattr(raw, "connection", None) or getattr(raw, "_connection", None)
+    sock = getattr(conn, "sock", None)
+    if sock is None:
+        # The connection hands its socket to the response when it won't be reused (HTTP/1.0,
+        # Connection: close): http.client response -> buffered reader -> SocketIO -> socket.
+        fp = getattr(getattr(raw, "_fp", None), "fp", None)
+        sock = getattr(getattr(fp, "raw", None), "_sock", None)
+    if sock is None:
+        return
+    try:
+        sock.shutdown(socket.SHUT_RDWR)
+    except OSError:
+        pass  # already closed
+
+
 def get_within_budget(url, headers=None, connect_timeout=60, read_timeout=60, verify=False):
     """Direct GET that returns within the request budget: (response, body bytes).
 
@@ -129,6 +150,7 @@ def get_within_budget(url, headers=None, connect_timeout=60, read_timeout=60, ve
 
     def stop_download():
         out_of_time.set()
+        _wake_blocked_read(resp)
         resp.close()
 
     timer = threading.Timer(max((time_left() or 0) - 0.5, 0.1), stop_download)
