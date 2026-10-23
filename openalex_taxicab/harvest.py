@@ -12,7 +12,7 @@ from boto3.dynamodb.conditions import Key
 import requests.exceptions
 import tenacity
 
-from . import deadline, zyte_key
+from . import deadline, page_class, zyte_key
 from .http_cache import http_get
 from .log import _make_logger
 from .util import guess_mime_type, has_pdf_magic
@@ -83,32 +83,10 @@ class Harvester:
         )
 
     def _check_soft_block(self, content: bytes) -> bool:
-        """Check if the content indicates a soft block"""
+        """Check if the content is a bot wall (markers: page_class.BOT_WALL_MARKERS)"""
         if not content:
             return False
-
-        patterns = [
-            'ShieldSquare Captcha',
-            '429 - Too many requests',
-            'We apologize for the inconvenience',
-            '<title>APA PsycNet</title>',
-            'Your request cannot be processed at this time',
-            '/cookieAbsent',
-            'Project MUSE -- Verification required!',
-            '<div class="frc-captcha"',
-            # Anubis proof-of-work challenge (HAL since spring 2026; oxjob #1402)
-            'id="anubis_challenge"',
-            'Making sure you&#39;re not a bot!',
-            # PMC bot checks, both HTTP 200: Google reCAPTCHA challenge page (served in place of
-            # ~319K PMC landing pages Apr-Aug 2026) and PMC's "Preparing to download" PDF
-            # proof-of-work page
-            'RecaptchaChallengePageUi',
-            '<title>Checking your browser - reCAPTCHA</title>',
-            'cloudpmc-viewer-pow',
-        ]
-
-        content_str = content.decode('utf-8', errors='ignore') if isinstance(content, bytes) else str(content)
-        return any(pattern in content_str for pattern in patterns)
+        return page_class.is_bot_wall(content)
 
     def _normalize_doi(self, native_id) -> Optional[str]:
         native_id = native_id.strip().lower()
@@ -382,6 +360,7 @@ class Harvester:
                 ("content_type", None),
                 ("is_soft_block", False),
                 ("created_date", None),
+                ("page_class", "error"),
             ])
 
         zyte_key.use(zyte_key_name)
@@ -406,9 +385,9 @@ class Harvester:
         resolved_url = response.url
         created_date = datetime.now().isoformat()
         content_type = guess_mime_type(content) if content else None
-        is_soft_block = self._check_soft_block(content) if content_type != 'pdf' else False
-        if not is_soft_block and resolved_url and 'muse.jhu.edu/verify' in resolved_url:
-            is_soft_block = True
+        # bot walls, login pages and empty app shells are reported as soft blocks and not stored (oxjob #1790)
+        kind = page_class.classify(content, content_type, status_code, resolved_url)
+        is_soft_block = kind in page_class.NOT_STORED
 
         # Skip invalid PDFs
         if content_type == 'pdf' and not self._is_valid_pdf(content):
@@ -442,4 +421,5 @@ class Harvester:
             ("is_soft_block", is_soft_block),
             ("content_type", content_type),
             ("created_date", created_date),
+            ("page_class", kind),
         ])

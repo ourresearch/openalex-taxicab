@@ -1,0 +1,96 @@
+"""What a fetched page is (oxjob #1790, landing-pages charter).
+
+Taxicab used to store any HTTP 200 as a success, so bot walls, login pages and empty app shells were stored,
+sent to Parseland and never fetched again. `classify` names the page; walls, logins and shells are not stored
+(the harvester reports them with is_soft_block, as it always has for bot walls).
+
+Classes: pdf, html (anything that may be an article or abstract page), bot_wall, login, shell, error (not a 200).
+Markers are body substrings seen on real stored pages (#1790 EXPLORE § 3a) or vendor block pages, chosen to
+appear only on the block page itself, never on the normal pages those vendors protect.
+"""
+import re
+
+BOT_WALL_MARKERS = [
+    'ShieldSquare Captcha',
+    '429 - Too many requests',
+    'We apologize for the inconvenience',
+    '<title>APA PsycNet</title>',
+    'Your request cannot be processed at this time',
+    '/cookieAbsent',
+    'Project MUSE -- Verification required!',
+    '<div class="frc-captcha"',
+    # Anubis proof-of-work challenge (HAL since spring 2026; oxjob #1402)
+    'id="anubis_challenge"',
+    'Making sure you&#39;re not a bot!',
+    # PMC bot checks, both HTTP 200: Google reCAPTCHA challenge page (served in place of ~319K PMC landing
+    # pages Apr-Aug 2026) and PMC's "Preparing to download" PDF proof-of-work page
+    'RecaptchaChallengePageUi',
+    '<title>Checking your browser - reCAPTCHA</title>',
+    'cloudpmc-viewer-pow',
+    # oxjob #1790:
+    # Akamai Bot Manager: meta refresh to ?bm-verify=... (MDPI, 48% of its stored HTML in Oct 2026)
+    'bm-verify=',
+    # Cloudflare managed challenge
+    'window._cf_chl_opt',
+    '<title>Just a moment...</title>',
+    # DataDome block page (its normal-page tag is js.datadome.co, not this host)
+    'captcha-delivery.com',
+    # PerimeterX / HUMAN block page
+    'id="px-captcha"',
+    # Imperva / Distil
+    '<title>Pardon Our Interruption</title>',
+    # ucc.edu.co and others: "Bot Detection" challenge
+    'Please prove that you are Human before accessing this website',
+]
+
+# Pages whose title starts with a login phrase followed by the end of the title or a separator.
+# ("Login-free authentication: ..." is an article; "Login | Journal" and "Connectez-vous ou créez un
+# compte. | Cairn.info" are not.)
+_LOGIN_TITLE = re.compile(
+    r'<title[^>]*>\s*(?:log ?in|sign ?in|se connecter|connectez-vous[^<]*|iniciar sesi[oó]n|anmelden)'
+    r'(?:\s*</title>|\s+[|\-–:]\s|\s*\|)',
+    re.IGNORECASE,
+)
+# An empty custom element used as an app root: <ds-app></ds-app>, <app-root></app-root>, <nde-app-root>, <app-wos>
+_EMPTY_APP_ROOT = re.compile(r'<([a-z][a-z0-9]*(?:-[a-z0-9]+)+)\b[^>]*>\s*</\1>', re.IGNORECASE)
+_CITATION_META = re.compile(r'name=["\']?(?:citation_title|dc\.title|eprints\.title|dcterms\.title)["\']?', re.IGNORECASE)
+_NON_TEXT = re.compile(r'<(script|style|noscript)\b[^>]*>.*?</\1>|<[^>]+>', re.IGNORECASE | re.DOTALL)
+SHELL_MAX_TEXT = 200
+
+NOT_STORED = {'bot_wall', 'login', 'shell'}
+
+
+def _text(content):
+    return content.decode('utf-8', errors='ignore') if isinstance(content, bytes) else str(content or '')
+
+
+def is_bot_wall(content):
+    text = _text(content)
+    return any(marker in text for marker in BOT_WALL_MARKERS)
+
+
+def is_shell(text):
+    """A client-rendered app with nothing in it yet: an empty app root, no citation meta, almost no text."""
+    if not _EMPTY_APP_ROOT.search(text) or _CITATION_META.search(text):
+        return False
+    return len(' '.join(_NON_TEXT.sub(' ', text).split())) < SHELL_MAX_TEXT
+
+
+def classify(content, content_type, status_code, resolved_url=None):
+    if content_type == 'pdf':
+        return 'pdf'
+    if resolved_url and ('muse.jhu.edu/verify' in resolved_url or 'fbi.gov' in resolved_url):
+        return 'bot_wall'
+    text = _text(content)
+    # markers count on any status, as they always have (a 403 carrying a captcha is a bot wall)
+    if any(marker in text for marker in BOT_WALL_MARKERS):
+        return 'bot_wall'
+    if status_code == 202:   # Akamai's challenge answer (IEEE): never a page
+        return 'bot_wall'
+    if status_code != 200:
+        return 'error'
+    if _LOGIN_TITLE.search(text[:20000]):
+        return 'login'
+    if is_shell(text):
+        return 'shell'
+    return 'html'

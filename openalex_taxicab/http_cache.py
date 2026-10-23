@@ -351,6 +351,16 @@ def chooser_redirect(r):
     return None
 
 
+def _is_empty_dspace7_shell(content):
+    """DSpace 7 without server-side rendering returns a bare Angular SPA shell (`<ds-app></ds-app>`) with no
+    metadata. Some DSpace 7 instances use Angular Universal (SSR) and include full content; only the empty
+    shell counts."""
+    return (isinstance(content, str)
+            and '<ds-app>' in content
+            and '</ds-app>' in content
+            and len(content.split('<ds-app>')[1].split('</ds-app>')[0].strip()) == 0)
+
+
 def _fetch_dspace7_metadata(resolved_url):
     """Fetch metadata from the DSpace 7 REST API and synthesize an HTML page
     with standard citation_* meta tags.
@@ -674,14 +684,7 @@ def http_get(url,
                         r.content = r.content.decode('utf-8', 'ignore') if isinstance(r.content, bytes) else r.content
                     except (UnicodeDecodeError, AttributeError):
                         pass
-                # DSpace 7 without server-side rendering returns a bare Angular
-                # SPA shell (`<ds-app></ds-app>`) with no metadata.  Some
-                # DSpace 7 instances use Angular Universal (SSR) and include
-                # full content — we only intercept the empty shell case.
-                if (isinstance(r.content, str)
-                        and '<ds-app>' in r.content
-                        and '</ds-app>' in r.content
-                        and len(r.content.split('<ds-app>')[1].split('</ds-app>')[0].strip()) == 0):
+                if _is_empty_dspace7_shell(r.content):
                     # DSpace 7 bitstream/download URLs: rewrite to REST API
                     # content endpoint to get the actual PDF
                     bitstream_match = re.search(
@@ -847,6 +850,15 @@ def http_get(url,
                     cookies=cookies,
                     attempt_n=attempt_n
                 )
+
+            # oxjob #1790: DSpace 7 shells fetched through Zyte (digital.library.adelaide.edu.au, lenus.ie: ~77K
+            # stored empty in 14 days of Oct 2026) get the same REST API metadata as the direct path above
+            if _is_empty_dspace7_shell(r.content):
+                synthesized = _fetch_dspace7_metadata(r.url)
+                if synthesized:
+                    logger.info(f"DSpace 7 SPA detected at {r.url} via Zyte, synthesized HTML from REST API")
+                    r.content = synthesized
+                return r
 
             fulltext_url = elsevier_journal_fulltext_url_from_pdf_viewer(r.url)
             if fulltext_url and _looks_like_browser_pdf_viewer_shell(r.content):
