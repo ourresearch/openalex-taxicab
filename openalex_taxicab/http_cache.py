@@ -19,6 +19,7 @@ import requests.exceptions
 import threading
 
 from openalex_taxicab.deadline import MIN_CALL_SECONDS, ZYTE_TIMEOUT, DeadlineExceeded, bounded_timeout, time_left
+from openalex_taxicab import zyte_key
 from openalex_taxicab.log import _make_logger
 from .util import elapsed
 
@@ -66,7 +67,6 @@ CRAWLERA_KEY = os.environ.get("CRAWLERA_KEY")
 HTTP_PROXY = os.environ.get("HTTP_PROXY", "")
 HTTPS_PROXY = os.environ.get("HTTPS_PROXY", "")
 STATIC_IP_PROXY = os.environ.get("STATIC_IP_PROXY")
-ZYTE_API_KEY = os.environ.get("ZYTE_API_KEY")
 
 
 MAX_PAYLOAD_SIZE_BYTES = 1000 * 1000 * 10  # 10mb
@@ -1176,7 +1176,7 @@ def _fetch_via_landing_page(direct_pdf_url, doi):
     decides what to do with each case.
     """
     zyte_api_url = "https://api.zyte.com/v1/extract"
-    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    zyte_api_key = zyte_key.current()
     session_id = str(uuid.uuid4())
     doi_url = f"https://doi.org/{doi}"
 
@@ -1290,7 +1290,7 @@ def _fetch_sciencedirect_pdf(url, connect_timeout=10, read_timeout=60):
         re-enter http_get with attempt_n set and fall through to the stub path.
     """
     zyte_api_url = "https://api.zyte.com/v1/extract"
-    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    zyte_api_key = zyte_key.current()
     last_status = 520
 
     for attempt in range(3):
@@ -1416,7 +1416,7 @@ def _fetch_sciencedirect_am_pdf(pii, connect_timeout=10, read_timeout=60):
         tenacity retry does not re-enter and fall through to the stub path.
     """
     zyte_api_url = "https://api.zyte.com/v1/extract"
-    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    zyte_api_key = zyte_key.current()
     landing_url = f"https://www.sciencedirect.com/science/article/abs/pii/{pii}"
     am_url = f"https://www.sciencedirect.com/science/article/am/pii/{pii}"
     last_status = 520
@@ -1598,7 +1598,7 @@ def _fetch_ssrn_pdf(abstract_id, connect_timeout=10, read_timeout=60):
     retry cannot re-enter and store the challenge HTML).
     """
     zyte_api_url = "https://api.zyte.com/v1/extract"
-    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    zyte_api_key = zyte_key.current()
     abstract_url = f"https://papers.ssrn.com/sol3/papers.cfm?abstract_id={abstract_id}"
     last_status = 520
 
@@ -1737,7 +1737,7 @@ def _fetch_wiley_pdfdirect(url):
     which must not be treated as a PDF response.
     """
     zyte_api_url = "https://api.zyte.com/v1/extract"
-    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    zyte_api_key = zyte_key.current()
     last_response = ResponseObject(content=b"", headers=[], status_code=520, url=url)
 
     for strategy_name, params in _wiley_pdfdirect_strategy_params(url):
@@ -1857,7 +1857,7 @@ def _fetch_wiley_browser_pdf(url, attempts=3, timeout=180):
         return ResponseObject(content=b"", headers=[], status_code=520, url=url)
 
     zyte_api_url = "https://api.zyte.com/v1/extract"
-    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    zyte_api_key = zyte_key.current()
     payload = {
         "url": article_url,
         "browserHtml": True,
@@ -1958,7 +1958,7 @@ def _wiley_pdfdirect_url(url):
 def _fetch_iop_article_pdf(url, connect_timeout=5, read_timeout=60):
     """Fetch IOP article PDF URLs as PDF bytes with narrow fallback headers."""
     zyte_api_url = "https://api.zyte.com/v1/extract"
-    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    zyte_api_key = zyte_key.current()
     last_response = ResponseObject(content=b"", headers=[], status_code=520, url=url)
 
     for strategy_name, params in _wiley_pdfdirect_strategy_params(url):
@@ -1986,7 +1986,7 @@ def _fetch_iop_article_pdf(url, connect_timeout=5, read_timeout=60):
 def _fetch_acm_pdf(url, connect_timeout=5, read_timeout=60):
     """Fetch ACM /doi/pdf/ URLs as PDF bytes with narrow fallback headers."""
     zyte_api_url = "https://api.zyte.com/v1/extract"
-    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    zyte_api_key = zyte_key.current()
     last_response = ResponseObject(content=b"", headers=[], status_code=520, url=url)
 
     for strategy_name, params in _wiley_pdfdirect_strategy_params(url):
@@ -2014,7 +2014,7 @@ def _fetch_acm_pdf(url, connect_timeout=5, read_timeout=60):
 def _fetch_acs_pdf(url, connect_timeout=5, read_timeout=60):
     """Fetch ACS /doi/pdf/ URLs as PDF bytes with narrow fallback headers."""
     zyte_api_url = "https://api.zyte.com/v1/extract"
-    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    zyte_api_key = zyte_key.current()
     last_response = ResponseObject(content=b"", headers=[], status_code=520, url=url)
 
     for strategy_name, params in _wiley_pdfdirect_strategy_params(url):
@@ -2042,7 +2042,7 @@ def _fetch_acs_pdf(url, connect_timeout=5, read_timeout=60):
 def _fetch_scholarhub_pdf(url, connect_timeout=5, read_timeout=60):
     """Fetch Scholarhub viewcontent URLs as PDF bytes with narrow fallback headers."""
     zyte_api_url = "https://api.zyte.com/v1/extract"
-    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    zyte_api_key = zyte_key.current()
     last_response = ResponseObject(content=b"", headers=[], status_code=520, url=url)
 
     for strategy_name, params in _wiley_pdfdirect_strategy_params(url):
@@ -2070,7 +2070,7 @@ def _fetch_scholarhub_pdf(url, connect_timeout=5, read_timeout=60):
 def _fetch_peerj_pdf(url, connect_timeout=5, read_timeout=60):
     """Fetch PeerJ /articles/*.pdf URLs as PDF bytes with narrow fallback headers."""
     zyte_api_url = "https://api.zyte.com/v1/extract"
-    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    zyte_api_key = zyte_key.current()
     last_response = ResponseObject(content=b"", headers=[], status_code=520, url=url)
 
     for strategy_name, params in _wiley_pdfdirect_strategy_params(url):
@@ -2210,7 +2210,7 @@ def _fetch_with_cookies(url, zyte_api_url, zyte_api_key, fallback_params):
 
 def call_with_zyte_api(url, params=None):
     zyte_api_url = "https://api.zyte.com/v1/extract"
-    zyte_api_key = os.getenv("ZYTE_API_KEY")
+    zyte_api_key = zyte_key.current()
     default_params = {
         "url": url,
         "httpResponseHeaders": True,
@@ -2236,7 +2236,7 @@ def call_with_zyte_api(url, params=None):
 
 def get_cookies_with_zyte_api(url):
     zyte_api_url = "https://api.zyte.com/v1/extract"
-    cookies_response = requests.post(zyte_api_url, auth=(ZYTE_API_KEY, ''),
+    cookies_response = requests.post(zyte_api_url, auth=(zyte_key.current(), ''),
                                      json={
                                          "url": url,
                                          "browserHtml": True,

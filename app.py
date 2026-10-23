@@ -92,6 +92,9 @@ def harvest_content():
             # "direct": fetch the site ourselves instead of through Zyte; the caller sends it
             # when retrying a page Zyte was banned from (oxjob #1712)
             fetch_mode=data.get('fetch_mode'),
+            # a campaign's own Zyte API key, by name (oxjob #1790); an unknown name is refused
+            # with a 400 below (UnknownZyteKey is a ValueError), never billed to the main key
+            zyte_key_name=data.get('zyte_key'),
         )
     except ValueError as e:
         return jsonify({

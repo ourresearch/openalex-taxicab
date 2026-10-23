@@ -12,7 +12,7 @@ from boto3.dynamodb.conditions import Key
 import requests.exceptions
 import tenacity
 
-from . import deadline
+from . import deadline, zyte_key
 from .http_cache import http_get
 from .log import _make_logger
 from .util import guess_mime_type, has_pdf_magic
@@ -353,12 +353,15 @@ class Harvester:
             native_id_namespace: str,
             started_at: Optional[float] = None,
             fetch_mode: Optional[str] = None,
+            zyte_key_name: Optional[str] = None,
     ) -> dict:
         """Harvest content from URL and store in appropriate location.
 
         started_at: when the load balancer received the request; the fetch must finish within
         deadline.REQUEST_BUDGET_SECONDS of it (oxjob #1712).
         fetch_mode: "direct" fetches the site without Zyte (used to retry Zyte bans, oxjob #1712).
+        zyte_key_name: bill Zyte calls to this campaign key from ZYTE_CAMPAIGN_KEYS (oxjob #1790);
+        an unknown name raises zyte_key.UnknownZyteKey before anything is fetched.
         """
         if not url:
             raise ValueError('url must be specified')
@@ -381,6 +384,7 @@ class Harvester:
                 ("created_date", None),
             ])
 
+        zyte_key.use(zyte_key_name)
         deadline.start(started_at)
         try:
             response = http_get(url, ask_slowly=True, doi=doi, force_direct=(fetch_mode == 'direct'))
@@ -395,6 +399,7 @@ class Harvester:
             return nothing_stored(504, url)
         finally:
             deadline.clear()
+            zyte_key.clear()
 
         content = response.content
         status_code = response.status_code
