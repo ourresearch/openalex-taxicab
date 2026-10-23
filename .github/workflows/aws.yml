@@ -14,7 +14,10 @@ env:
 jobs:
   deploy:
     name: Deploy
-    runs-on: ubuntu-latest
+    # Pinned (oxjob #1712, 23 Oct 2026): ubuntu-latest moved to ubuntu-26.04 on 19 Oct, whose Docker
+    # pushes a manifest list and HEADs it by digest; our ECR credentials get 403 on that, so every
+    # deploy failed at "Build and Push". ubuntu-24.04 is what deployed fine through 17 Oct.
+    runs-on: ubuntu-24.04
     environment: production
 
     steps:
