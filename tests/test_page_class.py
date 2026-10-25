@@ -25,12 +25,20 @@ BOT_WALLS = {
     "perimeterx": "<html><head><title>Access to this page has been denied</title></head><body><div id=\"px-captcha\"></div></body></html>",
     "imperva": "<html><head><title>Pardon Our Interruption</title></head><body>As you were browsing</body></html>",
     "bot detection (ucc.edu.co)": "<html><head><title>Bot Detection</title></head><body><h1>Please prove that you are Human before accessing this website</h1></body></html>",
+    "incapsula block (SPIE)": "<html style=\"height:100%\"><head><META NAME=\"ROBOTS\" CONTENT=\"NOINDEX, NOFOLLOW\"><script src=\"/_Incapsula_Resource?SWJIYLWA=719d\"></script></head><body><iframe id=\"main-iframe\" src=\"/_Incapsula_Resource?SWUDNSAI=31&incident_id=1980\"></iframe></body></html>",
+    "F5 TSPD challenge (ekb.eg)": "<!DOCTYPE html><html><head><script type=\"text/javascript\">(function(){ window[\"bobcmn\"] = \"1011111\"; })();</script></head><body></body></html>",
+    "silverchair leastFactor (OUP)": "<html><head><script type=\"text/javascript\"><!-- function leastFactor(n) { if (isNaN(n)) return NaN; } function go() { document.cookie='KEY=1'; } --></script></head><body onload=\"go()\">Loading...</body></html>",
+    "empty interstitial (redjournal.org)": "<!DOCTYPE html><html style=\"height:100%;width:100%\"><!-- the placeholder in the body style is for an optional background-color --><head></head><body style=\"height:100%\"> </body></html>",
 }
 
 LOGINS = {
     "OJS login": "<html><head><title>Login</title></head><body><form action=\"https://journal.example.ma/index.php/x/login/signIn\"><input type=\"password\" name=\"password\"></form></body></html>",
     "Cairn": "<html><head><title>Connectez-vous ou créez un compte. | Cairn.info</title></head><body>" + "x" * 3000 + "</body></html>",
     "sign in with separator": "<html><head><title>Sign in - Example Press</title></head><body>Sign in to continue</body></html>",
+    "J-STAGE": "<html><head><title>Sign in with subscription number</title></head><body><form>Subscription number</form></body></html>",
+    "Bloomsbury": ("<html><head><title>collections-62</title><meta property=\"og:title\" content=\"A monograph\"></head><body>"
+                   "<h1 aria-label=\"Log in to collections\" class=\"page-content-start\" id=\"pageStart\">Log in to Bloomsbury Collections</h1>"
+                   + "<p>menu</p>" * 50 + "</body></html>"),
 }
 
 SHELLS = {

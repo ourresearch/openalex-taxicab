@@ -43,6 +43,20 @@ BOT_WALL_MARKERS = [
     'Please prove that you are Human before accessing this website',
     # F5 BIG-IP access gateway's session-ended page (Leiden's repository, 19.6K stored 22-23 Oct 2026)
     '<title>BIG-IP logout page</title>',
+    # Imperva / Incapsula block page: an iframe to the incident resource (spiedigitallibrary.org, 16 of 100
+    # stored pages 24-25 Oct 2026); normal Imperva pages load /_Incapsula_Resource?SWJIYLWA= scripts, not this
+    '_Incapsula_Resource?SWUDNSAI=',
+    # F5 Advanced WAF ("TSPD") JavaScript challenge (ekb.eg, every stored page 24-25 Oct 2026)
+    'window["bobcmn"]',
+    # Silverchair JS challenge ("Loading...", ~1.5 KB): stored on ~11% of older OUP article pages (#1809)
+    'function leastFactor(n)',
+    # empty interstitial served for Elsevier partner journals (redjournal.org, thegreenjournal.com: 1 in 100), 271 bytes
+    '<!-- the placeholder in the body style is for an optional background-color -->',
+]
+# Login pages whose title the login-title rule can't safely catch
+LOGIN_MARKERS = [
+    '<title>Sign in with subscription number</title>',   # J-STAGE
+    'Log in to Bloomsbury Collections</h1>',              # bloomsburycollections.com (title "collections-NN")
 ]
 # Redirect targets that are never the page we asked for
 WALL_REDIRECTS = ('muse.jhu.edu/verify', 'fbi.gov', '/vdesk/hangup.php3')
@@ -103,7 +117,7 @@ def classify(content, content_type, status_code, resolved_url=None):
         return 'bot_wall'
     if status_code != 200:
         return 'error'
-    if _LOGIN_TITLE.search(text[:20000]):
+    if _LOGIN_TITLE.search(text[:20000]) or any(marker in text for marker in LOGIN_MARKERS):
         return 'login'
     if is_shell(text):
         return 'shell'
