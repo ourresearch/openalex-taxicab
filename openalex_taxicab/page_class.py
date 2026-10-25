@@ -4,7 +4,8 @@ Taxicab used to store any HTTP 200 as a success, so bot walls, login pages and e
 sent to Parseland and never fetched again. `classify` names the page; walls, logins and shells are not stored
 (the harvester reports them with is_soft_block, as it always has for bot walls).
 
-Classes: pdf, html (anything that may be an article or abstract page), bot_wall, login, shell, error (not a 200).
+Classes: pdf, html (anything that may be an article or abstract page), pdf_viewer (a browser's PDF-viewer wrapper:
+the URL served a PDF; stored), bot_wall, login, shell, error (not a 200).
 Markers are body substrings seen on real stored pages (#1790 EXPLORE § 3a) or vendor block pages, chosen to
 appear only on the block page itself, never on the normal pages those vendors protect.
 """
@@ -50,9 +51,11 @@ BOT_WALL_MARKERS = [
     'window["bobcmn"]',
     # Silverchair JS challenge ("Loading...", ~1.5 KB): stored on ~11% of older OUP article pages (#1809)
     'function leastFactor(n)',
-    # empty interstitial served for Elsevier partner journals (redjournal.org, thegreenjournal.com: 1 in 100), 271 bytes
-    '<!-- the placeholder in the body style is for an optional background-color -->',
 ]
+# Chrome's PDF-viewer wrapper (271 bytes, no text): what a browser render returns when the URL serves a PDF
+# (Elsevier society journals' /article/<PII>/pdf). It is evidence that a PDF was served (#1290 scores it so), so
+# it is stored like any page. 125e840 classed it as a wall by mistake (25 Oct 2026, #1790 EXPLORE § 6).
+PDF_VIEWER_MARKER = '<!-- the placeholder in the body style is for an optional background-color -->'
 # Login pages whose title the login-title rule can't safely catch
 LOGIN_MARKERS = [
     '<title>Sign in with subscription number</title>',   # J-STAGE
@@ -117,6 +120,8 @@ def classify(content, content_type, status_code, resolved_url=None):
         return 'bot_wall'
     if status_code != 200:
         return 'error'
+    if PDF_VIEWER_MARKER in text[:2000]:
+        return 'pdf_viewer'
     if _LOGIN_TITLE.search(text[:20000]) or any(marker in text for marker in LOGIN_MARKERS):
         return 'login'
     if is_shell(text):

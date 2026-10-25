@@ -28,8 +28,13 @@ BOT_WALLS = {
     "incapsula block (SPIE)": "<html style=\"height:100%\"><head><META NAME=\"ROBOTS\" CONTENT=\"NOINDEX, NOFOLLOW\"><script src=\"/_Incapsula_Resource?SWJIYLWA=719d\"></script></head><body><iframe id=\"main-iframe\" src=\"/_Incapsula_Resource?SWUDNSAI=31&incident_id=1980\"></iframe></body></html>",
     "F5 TSPD challenge (ekb.eg)": "<!DOCTYPE html><html><head><script type=\"text/javascript\">(function(){ window[\"bobcmn\"] = \"1011111\"; })();</script></head><body></body></html>",
     "silverchair leastFactor (OUP)": "<html><head><script type=\"text/javascript\"><!-- function leastFactor(n) { if (isNaN(n)) return NaN; } function go() { document.cookie='KEY=1'; } --></script></head><body onload=\"go()\">Loading...</body></html>",
-    "empty interstitial (redjournal.org)": "<!DOCTYPE html><html style=\"height:100%;width:100%\"><!-- the placeholder in the body style is for an optional background-color --><head></head><body style=\"height:100%\"> </body></html>",
 }
+
+# Chrome's PDF-viewer wrapper, byte for byte as stored (taxicab_id 06c7b772-59af-4ef2-8135-8ec37a6214e6, 271 bytes,
+# cysticfibrosisjournal.com/article/<PII>/pdf): the URL served a PDF. Not a wall (125e840 got this wrong).
+PDF_VIEWER = ("<!DOCTYPE html><html style=\"height:100%;width:100%\"><!-- the placeholder in the body style is for an "
+              "optional background-color --><head></head><body style=\"height:100%;width:100%;overflow:hidden;margin:0;"
+              "padding:0;background-color:rgb(40,40,40);\">\n    \n  \n\n</body></html>")
 
 LOGINS = {
     "OJS login": "<html><head><title>Login</title></head><body><form action=\"https://journal.example.ma/index.php/x/login/signIn\"><input type=\"password\" name=\"password\"></form></body></html>",
@@ -61,6 +66,12 @@ class ClassifyTests(unittest.TestCase):
             with self.subTest(name):
                 self.assertEqual(page_class.classify(body, "html", 200), "bot_wall")
                 self.assertTrue(page_class.is_bot_wall(body.encode()))
+
+    def test_chrome_pdf_viewer_is_a_served_pdf_not_a_wall(self):
+        self.assertEqual(len(PDF_VIEWER.encode()), 271)
+        self.assertEqual(page_class.classify(PDF_VIEWER, "html", 200), "pdf_viewer")
+        self.assertFalse(page_class.is_bot_wall(PDF_VIEWER))
+        self.assertNotIn("pdf_viewer", page_class.NOT_STORED)
 
     def test_wall_marker_counts_on_any_status_as_before(self):
         self.assertEqual(page_class.classify(BOT_WALLS["cloudflare"], "html", 403), "bot_wall")
@@ -166,6 +177,11 @@ class HarvestTests(unittest.TestCase):
     def test_article_is_stored(self):
         r = self.harvest(ARTICLE)
         self.assertEqual((r["page_class"], r["is_soft_block"]), ("html", False))
+        self.h._store_content.assert_called_once()
+
+    def test_chrome_pdf_viewer_is_stored(self):
+        r = self.harvest(PDF_VIEWER, url="https://www.cysticfibrosisjournal.com/article/S1569-1993(24)00001-0/pdf")
+        self.assertEqual((r["page_class"], r["is_soft_block"]), ("pdf_viewer", False))
         self.h._store_content.assert_called_once()
 
     def test_akamai_202_is_a_soft_block(self):
