@@ -61,6 +61,14 @@ class ClassifyTests(unittest.TestCase):
         self.assertEqual(page_class.classify("<html></html>", "html", 202), "bot_wall")
         self.assertEqual(page_class.classify(ARTICLE, "html", 200, "https://www.fbi.gov/investigate"), "bot_wall")
         self.assertEqual(page_class.classify(ARTICLE, "html", 200, "https://muse.jhu.edu/verify?url=x"), "bot_wall")
+        hangup = "https://scholarlypublications.universiteitleiden.nl/vdesk/hangup.php3"
+        self.assertEqual(page_class.classify(ARTICLE, "html", 200, hangup), "bot_wall")
+
+    def test_f5_big_ip_logout_page_is_a_wall(self):
+        body = ("<html><head><meta name=\"robots\" content=\"noindex,nofollow\"><title>BIG-IP logout page</title>"
+                "<link rel=\"stylesheet\" href=\"/public/include/css/apm.css\"></head><body>Your session could not "
+                "be established.</body></html>")
+        self.assertEqual(page_class.classify(body, "html", 200), "bot_wall")
 
     def test_other_statuses_are_errors(self):
         for status in (404, 410, 500, 503):

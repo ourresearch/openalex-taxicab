@@ -41,7 +41,11 @@ BOT_WALL_MARKERS = [
     '<title>Pardon Our Interruption</title>',
     # ucc.edu.co and others: "Bot Detection" challenge
     'Please prove that you are Human before accessing this website',
+    # F5 BIG-IP access gateway's session-ended page (Leiden's repository, 19.6K stored 22-23 Oct 2026)
+    '<title>BIG-IP logout page</title>',
 ]
+# Redirect targets that are never the page we asked for
+WALL_REDIRECTS = ('muse.jhu.edu/verify', 'fbi.gov', '/vdesk/hangup.php3')
 
 # Pages whose title starts with a login phrase followed by the end of the title or a separator.
 # ("Login-free authentication: ..." is an article; "Login | Journal" and "Connectez-vous ou créez un
@@ -89,7 +93,7 @@ def is_shell(text):
 def classify(content, content_type, status_code, resolved_url=None):
     if content_type == 'pdf':
         return 'pdf'
-    if resolved_url and ('muse.jhu.edu/verify' in resolved_url or 'fbi.gov' in resolved_url):
+    if resolved_url and any(target in resolved_url for target in WALL_REDIRECTS):
         return 'bot_wall'
     text = _text(content)
     # markers count on any status, as they always have (a 403 carrying a captcha is a bot wall)
