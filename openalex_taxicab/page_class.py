@@ -51,9 +51,16 @@ _LOGIN_TITLE = re.compile(
     r'(?:\s*</title>|\s+[|\-–:]\s|\s*\|)',
     re.IGNORECASE,
 )
-# An empty custom element used as an app root: <ds-app></ds-app>, <app-root></app-root>, <nde-app-root>, <app-wos>
-_EMPTY_APP_ROOT = re.compile(r'<([a-z][a-z0-9]*(?:-[a-z0-9]+)+)\b[^>]*>\s*</\1>', re.IGNORECASE)
+# An empty custom element used as an app root: <ds-app></ds-app>, <app-root></app-root>, <nde-app-root>, <app-wos>.
+# Angular's <router-outlet> is always empty, even on a fully rendered page (its content renders after it), so it
+# never counts (taylorfrancis.com chapter pages, 25 Oct 2026).
+_EMPTY_APP_ROOT = re.compile(r'<(?!router-outlet\b)([a-z][a-z0-9]*(?:-[a-z0-9]+)+)\b[^>]*>\s*</\1>', re.IGNORECASE)
 _CITATION_META = re.compile(r'name=["\']?(?:citation_title|dc\.title|eprints\.title|dcterms\.title)["\']?', re.IGNORECASE)
+# Pages that name their item in Open Graph or JSON-LD carry metadata Parseland can read, so they are never
+# shells (T&F keeps title, authors and abstract there; the Primo shell's JSON-LD block is empty).
+_OG_TITLE = re.compile(r'property=["\']?og:title["\']?', re.IGNORECASE)
+_JSON_LD = re.compile(r'<script[^>]*application/ld\+json[^>]*>(.*?)</script>', re.IGNORECASE | re.DOTALL)
+JSON_LD_MIN = 100
 _NON_TEXT = re.compile(r'<(script|style|noscript)\b[^>]*>.*?</\1>|<[^>]+>', re.IGNORECASE | re.DOTALL)
 SHELL_MAX_TEXT = 200
 
@@ -70,8 +77,11 @@ def is_bot_wall(content):
 
 
 def is_shell(text):
-    """A client-rendered app with nothing in it yet: an empty app root, no citation meta, almost no text."""
-    if not _EMPTY_APP_ROOT.search(text) or _CITATION_META.search(text):
+    """A client-rendered app with nothing in it yet: an empty app root, no citation, Open Graph or JSON-LD
+    metadata, almost no text."""
+    if not _EMPTY_APP_ROOT.search(text) or _CITATION_META.search(text) or _OG_TITLE.search(text):
+        return False
+    if any(len(block.strip()) >= JSON_LD_MIN for block in _JSON_LD.findall(text)):
         return False
     return len(' '.join(_NON_TEXT.sub(' ', text).split())) < SHELL_MAX_TEXT
 

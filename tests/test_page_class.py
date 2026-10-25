@@ -92,6 +92,29 @@ class ClassifyTests(unittest.TestCase):
         body = ARTICLE.replace("<body>", "<body><app-root></app-root>")
         self.assertEqual(page_class.classify(body, "html", 200), "html")
 
+    def test_angular_page_with_metadata_in_og_and_json_ld_is_html(self):
+        # taylorfrancis.com chapter page (25 Oct 2026): ~90 characters of visible text, an empty <router-outlet>,
+        # no citation meta; title, authors and abstract sit in Open Graph, JSON-LD and the page-state JSON
+        ld = ('{"@context":"https://schema.org","@type":"Chapter","name":"Getting to Know You",'
+              '"author":[{"@type":"Person","name":"Nicki Newton"}],"description":"' + "Coaching math. " * 10 + '"}')
+        og = '<meta property="og:title" content="Getting to Know You">'
+        body = ("<html><head><title>Getting to Know You | 2 | Coaching Math Workshop | Nicki Newton | Taylor</title>"
+                + og + "</head><body><a href=\"#main\">Skip to main content</a>"
+                "<router-outlet _ngcontent-sc164=\"\"></router-outlet>"
+                "<script type=\"application/ld+json\" id=\"jsonld\">" + ld + "</script>"
+                "<script id=\"product-detail-page-state\" type=\"application/json\">{\"x\":1}</script></body></html>")
+        self.assertEqual(page_class.classify(body, "html", 200), "html")
+        # each signal is enough on its own, even next to a real app root
+        with_root = body.replace("<router-outlet", "<app-root></app-root><router-outlet")
+        self.assertEqual(page_class.classify(with_root.replace(og, ""), "html", 200), "html")       # JSON-LD
+        self.assertEqual(page_class.classify(with_root.replace(ld, " "), "html", 200), "html")      # og:title
+        self.assertEqual(page_class.classify(with_root.replace(og, "").replace(ld, " "), "html", 200), "shell")
+
+    def test_router_outlet_alone_is_not_an_app_root(self):
+        body = ("<html><head><title>Chapter</title></head><body><router-outlet></router-outlet>"
+                "<script>window.state={}</script></body></html>")
+        self.assertEqual(page_class.classify(body, "html", 200), "html")
+
     def test_empty_custom_element_inside_a_full_page_is_html(self):
         body = ("<html><head><title>A paper</title></head><body><mjx-assistive-mml></mjx-assistive-mml>"
                 + "<p>Results and discussion of the experiment.</p>" * 20 + "</body></html>")
