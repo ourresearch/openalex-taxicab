@@ -1,7 +1,7 @@
 beautifulsoup4~=4.12.3
 boto3~=1.34.162
 botocore~=1.34.162
-certifi~=2024.8.30
+certifi>=2026.10.19  # oxjob #1782: drops the emSign roots (GHSA-6q48-6c7w-9gw2)
 flask==3.1.0
 gunicorn==23.0.0
 mypy-boto3-s3~=1.35.32
