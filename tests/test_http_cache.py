@@ -8,6 +8,7 @@ sys.modules.setdefault("unidecode", types.SimpleNamespace(unidecode=lambda value
 sys.modules.setdefault("magic", types.SimpleNamespace(Magic=lambda mime=True: types.SimpleNamespace(from_buffer=lambda content: "text/html")))
 
 from openalex_taxicab.http_cache import (
+    ResponseObject,
     _should_use_landing_page_rewrite,
     _is_sciencedirect_pdf_url,
     _sciencedirect_am_pii,
@@ -15,6 +16,7 @@ from openalex_taxicab.http_cache import (
     elsevier_journal_fulltext_url_from_pdf_viewer,
     http_get,
     jbc_fulltext_url_from_url,
+    linkinghub_redirect,
     sciencedirect_article_url_from_pdf_asset,
 )
 
@@ -1458,6 +1460,55 @@ class NeurologyLandingPageRouteTests(unittest.TestCase):
                 "https://www.frontiersin.org/articles/10.3389/fviro.2022.994843/pdf"
             )
         )
+
+
+# Elsevier linkinghub's "Redirecting" stub as stored (taxicab_id 3a22c679-f8f3-4f13-8569-390abe45ff86), trimmed
+_LINKINGHUB_STUB = (
+    '<html><head><meta charset="utf-8"><meta HTTP-EQUIV="REFRESH" content="2; url=\'/retrieve/articleSelectPrefsTemp?'
+    'Redirect=https%3A%2F%2Fredjournal.org%2Fretrieve%2Fpii%2FS0360301626016445&amp;key=f309\'"/><title>Redirecting</title>'
+    '</head><body onload="autoRedirectToURL();"><tr style="display:none;"><td colspan="2"><input type="hidden" '
+    'name="redirectURL" value="https%3A%2F%2Fredjournal.org%2Fretrieve%2Fpii%2FS0360301626016445" id="redirectURL"/>'
+    '</td></tr><input type="hidden" name="key" value="f309" id="key"/></body></html>'
+)
+_LINKINGHUB_URL = "https://linkinghub.elsevier.com/retrieve/pii/S0360301626016445"
+
+
+class LinkinghubStubTests(unittest.TestCase):
+    """oxjob #1790: the stub is followed to its target instead of stored as the article page."""
+
+    def test_stub_target_is_returned(self):
+        r = ResponseObject(content=_LINKINGHUB_STUB, headers=[], status_code=200, url=_LINKINGHUB_URL)
+        self.assertEqual(linkinghub_redirect(r), "https://redjournal.org/retrieve/pii/S0360301626016445")
+
+    def test_sciencedirect_target(self):
+        stub = _LINKINGHUB_STUB.replace(
+            "https%3A%2F%2Fredjournal.org%2Fretrieve%2Fpii%2FS0360301626016445",
+            "https%3A%2F%2Fwww.sciencedirect.com%2Fscience%2Farticle%2Fpii%2FS0016236126029170%3Fvia%253Dihub")
+        r = ResponseObject(content=stub.encode(), headers=[], status_code=200, url=_LINKINGHUB_URL)
+        self.assertEqual(linkinghub_redirect(r),
+                         "https://www.sciencedirect.com/science/article/pii/S0016236126029170?via%3Dihub")
+
+    def test_only_on_linkinghub_and_never_back_to_it(self):
+        elsewhere = ResponseObject(content=_LINKINGHUB_STUB, headers=[], status_code=200, url="https://example.org/a")
+        self.assertIsNone(linkinghub_redirect(elsewhere))
+        loop = _LINKINGHUB_STUB.replace("https%3A%2F%2Fredjournal.org", "https%3A%2F%2Flinkinghub.elsevier.com")
+        self.assertIsNone(linkinghub_redirect(ResponseObject(content=loop, headers=[], status_code=200, url=_LINKINGHUB_URL)))
+        article = ResponseObject(content="<html><title>An article</title></html>", headers=[], status_code=200,
+                                 url=_LINKINGHUB_URL)
+        self.assertIsNone(linkinghub_redirect(article))
+
+    def test_http_get_follows_the_stub(self):
+        def zyte(url, params):
+            body = _LINKINGHUB_STUB if "linkinghub" in url else "<html><title>The article</title></html>"
+            final = _LINKINGHUB_URL if "linkinghub" in url else "https://redjournal.org/article/S0360301626016445/fulltext"
+            return {"statusCode": 200, "url": final, "httpResponseHeaders": [],
+                    "httpResponseBody": base64.b64encode(body.encode()).decode()}
+
+        with patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=zyte) as calls:
+            r = http_get(_LINKINGHUB_URL)
+        self.assertEqual(calls.call_count, 2)
+        self.assertEqual(calls.call_args_list[1].args[0], "https://redjournal.org/retrieve/pii/S0360301626016445")
+        self.assertIn("The article", r.content)
 
 
 if __name__ == "__main__":

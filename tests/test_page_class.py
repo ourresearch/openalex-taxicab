@@ -28,6 +28,7 @@ BOT_WALLS = {
     "incapsula block (SPIE)": "<html style=\"height:100%\"><head><META NAME=\"ROBOTS\" CONTENT=\"NOINDEX, NOFOLLOW\"><script src=\"/_Incapsula_Resource?SWJIYLWA=719d\"></script></head><body><iframe id=\"main-iframe\" src=\"/_Incapsula_Resource?SWUDNSAI=31&incident_id=1980\"></iframe></body></html>",
     "F5 TSPD challenge (ekb.eg)": "<!DOCTYPE html><html><head><script type=\"text/javascript\">(function(){ window[\"bobcmn\"] = \"1011111\"; })();</script></head><body></body></html>",
     "silverchair leastFactor (OUP)": "<html><head><script type=\"text/javascript\"><!-- function leastFactor(n) { if (isNaN(n)) return NaN; } function go() { document.cookie='KEY=1'; } --></script></head><body onload=\"go()\">Loading...</body></html>",
+    "silverchair Validate User (ASH)": "<!DOCTYPE html><html lang=\"en\"><head><meta name=\"robots\" content=\"noindex, follow\" /><title>Validate User</title><link rel=\"icon\" href=\"//ash.silverchair-cdn.com/favicon.ico\"></head><body><div class=\"container\"><div id=\"captcha\"></div></div></body></html>",
 }
 
 # Chrome's PDF-viewer wrapper, byte for byte as stored (taxicab_id 06c7b772-59af-4ef2-8135-8ec37a6214e6, 271 bytes,
@@ -44,6 +45,13 @@ LOGINS = {
     "Bloomsbury": ("<html><head><title>collections-62</title><meta property=\"og:title\" content=\"A monograph\"></head><body>"
                    "<h1 aria-label=\"Log in to collections\" class=\"page-content-start\" id=\"pageStart\">Log in to Bloomsbury Collections</h1>"
                    + "<p>menu</p>" * 50 + "</body></html>"),
+    # RSC's auto-posting OIDC sign-in form, as stored (994 bytes; state values shortened)
+    "RSC OIDC login_required": ("<html><head><meta http-equiv='X-UA-Compatible' content='IE=edge' /><base target='_self'/></head>"
+                                "<body><form method='post' action='https://pubs.rsc.org/ExternalAuthentication/OIDCLogin'>"
+                                "<input type='hidden' name='error' value='login_required' /> <input type='hidden' name='state' "
+                                "value='OpenIdConnect.AuthenticationProperties=6v_UJ' /><noscript><button>Click to continue"
+                                "</button></noscript></form><script>window.addEventListener('load', function(){document.forms[0]"
+                                ".submit();});</script></body></html>"),
 }
 
 SHELLS = {

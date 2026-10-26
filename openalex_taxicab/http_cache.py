@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from time import sleep, time
 from typing import Optional
 import json
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 
 import requests
 import tenacity
@@ -349,6 +349,27 @@ def chooser_redirect(r):
         logger.error(f"Error in chooser_redirect: {str(e)}")
 
     return None
+
+
+_LINKINGHUB_TARGET = re.compile(r'name="redirectURL"\s+value="(https?%3A%2F%2F[^"]+)"', re.IGNORECASE)
+
+
+def linkinghub_redirect(r):
+    """Elsevier's linkinghub sometimes answers with a "Redirecting" stub (title "Redirecting", meta refresh after
+    2 s, target in a hidden redirectURL input) instead of redirecting, and Taxicab stored the stub: ~500-1,000 a
+    day since 17 Oct 2026, 4-7% of stored ScienceDirect-attributed pages (oxjob #1790 EXPLORE § 9). Returns the
+    target (a ScienceDirect article or a society journal's /retrieve/pii/ page), never another linkinghub URL."""
+    if 'linkinghub.elsevier.com' not in (r.url or ''):
+        return None
+    content = r.content.decode('utf-8', 'ignore') if isinstance(r.content, bytes) else (r.content or '')
+    match = _LINKINGHUB_TARGET.search(content[:20000])
+    if not match:
+        return None
+    target = unquote(match.group(1))
+    if 'linkinghub.elsevier.com' in target:
+        return None
+    logger.info(f'Found linkinghub redirect stub at {r.url}: {target}')
+    return target
 
 
 def _is_empty_dspace7_shell(content):
@@ -831,10 +852,10 @@ def http_get(url,
                     # Keep as binary if decoding fails
                     pass
 
-            # Check for doi.org chooser redirects
-            redirect_url = chooser_redirect(r)
+            # Pages that only point elsewhere: doi.org's Crossref chooser, Elsevier linkinghub's "Redirecting" stub
+            redirect_url = chooser_redirect(r) or linkinghub_redirect(r)
             if redirect_url:
-                logger.info(f"Following chooser redirect to {redirect_url}")
+                logger.info(f"Following redirect page to {redirect_url}")
 
                 # Recursively follow the redirect
                 return http_get(

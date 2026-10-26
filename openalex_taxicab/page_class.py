@@ -51,6 +51,8 @@ BOT_WALL_MARKERS = [
     'window["bobcmn"]',
     # Silverchair JS challenge ("Loading...", ~1.5 KB): stored on ~11% of older OUP article pages (#1809)
     'function leastFactor(n)',
+    # Silverchair captcha page (ashpublications.org, 1 of 100 stored pages 25-26 Oct 2026)
+    '<title>Validate User</title>',
 ]
 # Chrome's PDF-viewer wrapper (271 bytes, no text): what a browser render returns when the URL serves a PDF
 # (Elsevier society journals' /article/<PII>/pdf). It is evidence that a PDF was served (#1290 scores it so), so
@@ -60,6 +62,7 @@ PDF_VIEWER_MARKER = '<!-- the placeholder in the body style is for an optional b
 LOGIN_MARKERS = [
     '<title>Sign in with subscription number</title>',   # J-STAGE
     'Log in to Bloomsbury Collections</h1>',              # bloomsburycollections.com (title "collections-NN")
+    "value='login_required'",                             # RSC's auto-posting OIDC sign-in form (994 bytes)
 ]
 # Redirect targets that are never the page we asked for
 WALL_REDIRECTS = ('muse.jhu.edu/verify', 'fbi.gov', '/vdesk/hangup.php3')
