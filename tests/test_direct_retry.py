@@ -1,4 +1,5 @@
 """fetch_mode=direct: the caller retries a page Zyte was banned from by fetching it ourselves (oxjob #1712)."""
+import base64
 import importlib
 import os
 import sys
@@ -65,6 +66,32 @@ class ForceDirectHttpGetTests(unittest.TestCase):
                 patch("openalex_taxicab.http_cache.requests.get", side_effect=AssertionError("went direct")):
             http_get(url)
         self.assertEqual(zyte.call_count, 1)
+
+    def test_force_direct_follows_linkinghub_stub_once(self):
+        """oxjob #1790: the stub is never returned as the page; its target is fetched the normal way."""
+        stub_url = "https://linkinghub.elsevier.com/retrieve/pii/S1053077025007591"
+        target = "https://jcardioanesthesia.com/retrieve/pii/S1053077025007591"
+        stub = (b'<html><head><title>Redirecting</title></head><body><input type="hidden" name="redirectURL" '
+                b'value="https%3A%2F%2Fjcardioanesthesia.com%2Fretrieve%2Fpii%2FS1053077025007591" id="redirectURL"/>'
+                b'</body></html>')
+        article = "<html><head><meta name='citation_title' content='The article'></head></html>"
+        zyte_answer = {"statusCode": 200, "url": target, "httpResponseHeaders": [],
+                       "httpResponseBody": base64.b64encode(article.encode()).decode()}
+        with patch("openalex_taxicab.http_cache.requests.get",
+                   return_value=fake_direct_response(stub_url, content=stub)) as get, \
+                patch("openalex_taxicab.http_cache.call_with_zyte_api", return_value=zyte_answer) as zyte:
+            r = http_get(stub_url, force_direct=True)
+        self.assertEqual(get.call_count, 1)
+        self.assertEqual(zyte.call_count, 1)
+        self.assertEqual(zyte.call_args.args[0], target)
+        self.assertIn("The article", r.content)
+
+    def test_force_direct_keeps_an_ordinary_linkinghub_page(self):
+        url = "https://linkinghub.elsevier.com/retrieve/pii/S0000000000000000"
+        with patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=zyte_must_not_be_called), \
+                patch("openalex_taxicab.http_cache.requests.get", return_value=fake_direct_response(url)):
+            r = http_get(url, force_direct=True)
+        self.assertIn("A paper", r.content)
 
 
 class HarvestFetchModeTests(unittest.TestCase):

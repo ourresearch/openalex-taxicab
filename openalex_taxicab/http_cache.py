@@ -586,7 +586,9 @@ def http_get(url,
     Unified function that handles both DOI resolution and Zyte API calls.
 
     force_direct: fetch the site ourselves, skipping the Zyte publisher recipes. The caller asks for
-    this when retrying a page Zyte was banned from (oxjob #1712: 36% of those load directly).
+    this when retrying a page Zyte was banned from (oxjob #1712: 36% of those load directly). One
+    exception: a direct fetch that lands on Elsevier linkinghub's "Redirecting" stub follows its
+    target the normal way, which may use Zyte (oxjob #1790).
     """
     headers = headers or {}
     start_time = time()
@@ -705,6 +707,26 @@ def http_get(url,
                         r.content = r.content.decode('utf-8', 'ignore') if isinstance(r.content, bytes) else r.content
                     except (UnicodeDecodeError, AttributeError):
                         pass
+                # oxjob #1790: #1712's direct retries of Elsevier DOIs get linkinghub's "Redirecting" stub (~180 a day
+                # in Oct 2026; nearly all stubs stored since 17 Oct came this way). Follow it the normal way, as the
+                # Zyte path below does: ScienceDirect and the society journal hosts answer direct fetches with a
+                # Cloudflare 403, so this one follow may use Zyte even on a direct retry.
+                stub_target = linkinghub_redirect(r)
+                if stub_target:
+                    logger.info(f"Following linkinghub stub from a direct fetch to {stub_target}")
+                    return http_get(
+                        url=stub_target,
+                        headers=headers,
+                        read_timeout=read_timeout,
+                        connect_timeout=connect_timeout,
+                        stream=stream,
+                        publisher=publisher,
+                        session_id=session_id,
+                        ask_slowly=ask_slowly,
+                        verify=verify,
+                        cookies=cookies,
+                        attempt_n=attempt_n
+                    )
                 if _is_empty_dspace7_shell(r.content):
                     # DSpace 7 bitstream/download URLs: rewrite to REST API
                     # content endpoint to get the actual PDF
