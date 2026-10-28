@@ -22,6 +22,8 @@ from urllib.parse import quote, urlparse, urlsplit, urlunsplit
 
 import requests
 
+from origin_key import OriginKeySession
+
 from openalex_taxicab.pdf_eval_harness import has_pdf_magic
 
 
@@ -154,7 +156,7 @@ def parse_parseland_payload(body: bytes) -> dict[str, Any]:
 
 
 def check_one(row: dict[str, str], *, taxicab_url: str, parseland_url: str, timeout: float, reharvest: bool) -> dict[str, Any]:
-    session = requests.Session()
+    session = OriginKeySession()  # the key goes to our load balancers only (oxjob #1831)
     doi = (row.get("DOI") or "").strip()
     pdf_gold_url = (row.get("pdf_gold_url") or "").strip()
     public_choice = (row.get("pdf_gold_include_in_public_denominator") or "").strip().upper()

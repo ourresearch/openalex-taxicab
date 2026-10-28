@@ -1511,6 +1511,8 @@ Latest Taxicab code/eval commit before this handoff-doc update is `bdcc38a`.
   `git add`, `git commit`, `git pull --rebase`, `git push`.
 
 ## Taxicab V1 Eval Commands
+> **Since 2026-10-28 the live load balancers (harvester, parseland, grobid) answer 403 without the origin key** (oxjob #1782/#1831). The scripts in `scripts/` add it through `scripts/origin_key.py` (env `OPENALEX_ORIGIN_KEY`, else `databricks secrets get-secret openalex-harvest origin-key`); it is sent only to those three hosts.
+
 
 ```bash
 python3 -m unittest discover -s tests

@@ -22,6 +22,8 @@ from urllib.parse import quote
 
 import requests
 
+from origin_key import OriginKeySession
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
@@ -86,7 +88,7 @@ class TaxicabClient:
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.retries = max(0, retries)
-        self.session = requests.Session()
+        self.session = OriginKeySession()  # live load balancers need the origin key (oxjob #1831)
 
     def _request(self, method: str, url: str, **kwargs: Any) -> HttpResult:
         last_error = ""

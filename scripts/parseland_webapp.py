@@ -20,6 +20,8 @@ import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, urlparse, urlsplit, urlunsplit
 
+from origin_key import headers_for
+
 TAXICAB = "http://harvester-load-balancer-366186003.us-east-1.elb.amazonaws.com"
 PARSELAND = "http://parseland-load-balancer-667160048.us-east-1.elb.amazonaws.com"
 PDF_RE = re.compile(r"pdf|pdfft|download", re.IGNORECASE)
@@ -62,7 +64,7 @@ def extract_pdf_candidates(parseland: dict) -> list[str]:
 
 def http_get(url: str, timeout: float) -> tuple[int | None, bytes, str]:
     try:
-        with urllib.request.urlopen(url, timeout=timeout) as resp:
+        with urllib.request.urlopen(urllib.request.Request(url, headers=headers_for(url)), timeout=timeout) as resp:
             return resp.status, resp.read(), ""
     except urllib.error.HTTPError as e:
         return e.code, e.read() if hasattr(e, "read") else b"", ""
@@ -72,7 +74,7 @@ def http_get(url: str, timeout: float) -> tuple[int | None, bytes, str]:
 
 def http_post_json(url: str, payload: dict, timeout: float) -> tuple[int | None, str]:
     data = json.dumps(payload).encode()
-    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"}, method="POST")
+    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json", **headers_for(url)}, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             return resp.status, ""

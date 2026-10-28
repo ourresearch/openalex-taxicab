@@ -1543,6 +1543,8 @@ The broad scan above intentionally finds variable names in docs and code.
 Inspect matches and reject raw values, tokens, cookies, or signed provider URLs.
 
 For live read-only smoke:
+> **Since 2026-10-28 the live load balancers (harvester, parseland, grobid) answer 403 without the origin key** (oxjob #1782/#1831). The scripts in `scripts/` add it through `scripts/origin_key.py` (env `OPENALEX_ORIGIN_KEY`, else `databricks secrets get-secret openalex-harvest origin-key`); it is sent only to those three hosts.
+
 
 ```bash
 python3 scripts/taxicab_eval.py \
