@@ -218,6 +218,53 @@ class HarvestTests(unittest.TestCase):
         self.assertEqual((r["page_class"], r["is_soft_block"]), ("bot_wall", True))
         self.h._store_content.assert_not_called()
 
+    NATURE = "https://www.nature.com/articles/s44172-026-00794-2"
+
+    def harvest_zyte_then_direct(self, direct, fetch_mode=None):
+        """Zyte answers Fastly's challenge; a direct fetch answers `direct` (a body, or an exception to raise)."""
+        calls = []
+
+        def _get(u, **kwargs):
+            calls.append(kwargs.get("force_direct"))
+            body = FASTLY_CHALLENGE if not kwargs.get("force_direct") else direct
+            if isinstance(body, Exception):
+                raise body
+            return ResponseObject(content=body.decode() if isinstance(body, bytes) else body,
+                                  headers=[{"name": "Content-Type", "value": "text/html"}], status_code=200, url=u)
+        with patch("openalex_taxicab.harvest.http_get", side_effect=_get):
+            return self.h.harvest(self.NATURE, "10.1038/s44172-026-00794-2", "doi", fetch_mode=fetch_mode), calls
+
+    def test_fastly_challenge_on_zyte_is_fetched_directly(self):
+        r, calls = self.harvest_zyte_then_direct(ARTICLE)
+        self.assertEqual(calls, [False, True])
+        self.assertEqual((r["page_class"], r["is_soft_block"]), ("html", False))
+        self.h._store_content.assert_called_once()
+
+    def test_fastly_challenge_on_both_paths_is_a_soft_block(self):
+        r, calls = self.harvest_zyte_then_direct(FASTLY_CHALLENGE)
+        self.assertEqual(calls, [False, True])
+        self.assertEqual((r["page_class"], r["is_soft_block"]), ("bot_wall", True))
+        self.h._store_content.assert_not_called()
+
+    def test_failed_direct_fetch_keeps_the_soft_block(self):
+        r, calls = self.harvest_zyte_then_direct(RuntimeError("connection reset"))
+        self.assertEqual((r["page_class"], r["is_soft_block"]), ("bot_wall", True))
+        self.h._store_content.assert_not_called()
+
+    def test_direct_retry_is_not_fetched_twice(self):
+        r, calls = self.harvest_zyte_then_direct(ARTICLE, fetch_mode="direct")
+        self.assertEqual(calls, [True])
+
+    def test_other_walls_are_not_fetched_directly(self):
+        calls = []
+
+        def _get(u, **kwargs):
+            calls.append(kwargs.get("force_direct"))
+            return ResponseObject(content=BOT_WALLS["cloudflare"], headers=[], status_code=200, url=u)
+        with patch("openalex_taxicab.harvest.http_get", side_effect=_get):
+            r = self.h.harvest(self.NATURE, "10.1038/x", "doi")
+        self.assertEqual((calls, r["page_class"]), ([False], "bot_wall"))
+
     def test_akamai_202_is_a_soft_block(self):
         r = self.harvest("<html></html>", status=202)
         self.assertEqual((r["page_class"], r["is_soft_block"], r["status_code"]), ("bot_wall", True, 202))

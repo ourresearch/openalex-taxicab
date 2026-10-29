@@ -324,6 +324,21 @@ class Harvester:
             'created_date': created_date,
         })
 
+    @staticmethod
+    def _direct_past_fastly(url, doi, walled):
+        """Zyte got Fastly's "Client Challenge": fetch the site ourselves once and keep that answer if it is a page
+        and not a wall. Springer Nature walls Zyte but lets a direct GET through (nature.com, link.springer.com,
+        springermedizin.de: 8 of 8 on 29 Oct 2026; eLife PDFs too); JSTOR, PyPI and Scribd wall both (oxjob #1790)."""
+        try:
+            direct = http_get(url, ask_slowly=True, doi=doi, force_direct=True)
+        except Exception as e:
+            logger.info(f"Direct fetch past Fastly's challenge failed for {url}: {e}")
+            return walled
+        if direct.status_code == 200 and direct.content and not page_class.is_bot_wall(direct.content):
+            logger.info(f"Fastly challenged Zyte on {url}; the direct fetch got the page")
+            return direct
+        return walled
+
     def harvest(
             self,
             url: str,
@@ -367,6 +382,8 @@ class Harvester:
         deadline.start(started_at)
         try:
             response = http_get(url, ask_slowly=True, doi=doi, force_direct=(fetch_mode == 'direct'))
+            if fetch_mode != 'direct' and page_class.is_fastly_challenge(response.content):
+                response = self._direct_past_fastly(url, doi, response)
         except tenacity.RetryError as e:
             # get status code from the last failed attempt
             last_attempt = e.last_attempt.result()
