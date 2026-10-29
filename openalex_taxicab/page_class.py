@@ -54,6 +54,13 @@ BOT_WALL_MARKERS = [
     # Silverchair captcha page (ashpublications.org, 1 of 100 stored pages 25-26 Oct 2026)
     '<title>Validate User</title>',
 ]
+# Walls that need every string of a group, for vendors whose single strings could appear on a normal page.
+BOT_WALL_MARKER_GROUPS = [
+    # Fastly bot-management "Client Challenge" (3,038 bytes, assets under /_fs-ch-<token>/): Springer Nature
+    # (nature.com, link.springer.com PDF links, springermedizin.de), JSTOR, eLife, PyPI, Scribd; ~19.8K stored
+    # as articles Mar-Oct 2026, nature.com almost every fetch from 28 Oct (#1789's alarm, #1790 EXPLORE § 14)
+    ('<title>Client Challenge</title>', '/_fs-ch-'),
+]
 # Chrome's PDF-viewer wrapper (271 bytes, no text): what a browser render returns when the URL serves a PDF
 # (Elsevier society journals' /article/<PII>/pdf). It is evidence that a PDF was served (#1290 scores it so), so
 # it is stored like any page. 125e840 classed it as a wall by mistake (25 Oct 2026, #1790 EXPLORE § 6).
@@ -97,7 +104,8 @@ def _text(content):
 
 def is_bot_wall(content):
     text = _text(content)
-    return any(marker in text for marker in BOT_WALL_MARKERS)
+    return (any(marker in text for marker in BOT_WALL_MARKERS)
+            or any(all(marker in text for marker in group) for group in BOT_WALL_MARKER_GROUPS))
 
 
 def is_shell(text):
@@ -117,7 +125,7 @@ def classify(content, content_type, status_code, resolved_url=None):
         return 'bot_wall'
     text = _text(content)
     # markers count on any status, as they always have (a 403 carrying a captcha is a bot wall)
-    if any(marker in text for marker in BOT_WALL_MARKERS):
+    if is_bot_wall(text):
         return 'bot_wall'
     if status_code == 202:   # Akamai's challenge answer (IEEE): never a page
         return 'bot_wall'

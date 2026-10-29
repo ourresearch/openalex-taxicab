@@ -5,6 +5,7 @@ import base64
 import sys
 import types
 import unittest
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 sys.modules.setdefault("unidecode", types.SimpleNamespace(unidecode=lambda value: value))
@@ -33,6 +34,14 @@ BOT_WALLS = {
 
 # Chrome's PDF-viewer wrapper, byte for byte as stored (taxicab_id 06c7b772-59af-4ef2-8135-8ec37a6214e6, 271 bytes,
 # cysticfibrosisjournal.com/article/<PII>/pdf): the URL served a PDF. Not a wall (125e840 got this wrong).
+# Fastly's "Client Challenge", byte for byte as stored (taxicab_id 852b9cbe-6f03-42ac-a4fb-954efa9766ef,
+# nature.com/articles/s44172-026-00794-2, 28 Oct 2026); the same 3,038 bytes on JSTOR, Springer, eLife, PyPI.
+FASTLY_CHALLENGE = (Path(__file__).parent / "fixtures" / "soft_block" / "fastly_client_challenge.html").read_bytes()
+# A normal page on a Fastly site loads /_fs-ch-<token>/ scripts too (every consultant360.com page, Oct 2026)
+FASTLY_NORMAL_PAGE = ("<html><head><title>Acute Aortic Dissection | Consultant360</title>"
+                      "<script src=\"/_fs-ch-1T1wmsGaOgGaSxcX/errors.js\"></script></head><body>"
+                      + "<p>Case report text.</p>" * 40 + "</body></html>")
+
 PDF_VIEWER = ("<!DOCTYPE html><html style=\"height:100%;width:100%\"><!-- the placeholder in the body style is for an "
               "optional background-color --><head></head><body style=\"height:100%;width:100%;overflow:hidden;margin:0;"
               "padding:0;background-color:rgb(40,40,40);\">\n    \n  \n\n</body></html>")
@@ -80,6 +89,18 @@ class ClassifyTests(unittest.TestCase):
         self.assertEqual(page_class.classify(PDF_VIEWER, "html", 200), "pdf_viewer")
         self.assertFalse(page_class.is_bot_wall(PDF_VIEWER))
         self.assertNotIn("pdf_viewer", page_class.NOT_STORED)
+
+    def test_fastly_client_challenge_is_a_wall(self):
+        self.assertEqual(len(FASTLY_CHALLENGE), 3038)
+        self.assertEqual(page_class.classify(FASTLY_CHALLENGE, "html", 200), "bot_wall")
+        self.assertTrue(page_class.is_bot_wall(FASTLY_CHALLENGE.decode("utf-8")))
+        self.assertTrue(Harvester.__new__(Harvester)._check_soft_block(FASTLY_CHALLENGE))
+
+    def test_fastly_strings_alone_are_not_walls(self):
+        self.assertEqual(page_class.classify(FASTLY_NORMAL_PAGE, "html", 200), "html")
+        titled = ARTICLE.replace("<title>Soil carbon in boreal forests | Journal of Soils</title>",
+                                 "<title>Client Challenge</title>")
+        self.assertEqual(page_class.classify(titled, "html", 200), "html")
 
     def test_wall_marker_counts_on_any_status_as_before(self):
         self.assertEqual(page_class.classify(BOT_WALLS["cloudflare"], "html", 403), "bot_wall")
@@ -191,6 +212,11 @@ class HarvestTests(unittest.TestCase):
         r = self.harvest(PDF_VIEWER, url="https://www.cysticfibrosisjournal.com/article/S1569-1993(24)00001-0/pdf")
         self.assertEqual((r["page_class"], r["is_soft_block"]), ("pdf_viewer", False))
         self.h._store_content.assert_called_once()
+
+    def test_fastly_client_challenge_is_reported_and_not_stored(self):
+        r = self.harvest(FASTLY_CHALLENGE, url="https://www.nature.com/articles/s44172-026-00794-2")
+        self.assertEqual((r["page_class"], r["is_soft_block"]), ("bot_wall", True))
+        self.h._store_content.assert_not_called()
 
     def test_akamai_202_is_a_soft_block(self):
         r = self.harvest("<html></html>", status=202)
