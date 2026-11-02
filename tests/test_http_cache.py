@@ -1038,12 +1038,23 @@ class ScienceDirectUrlTests(unittest.TestCase):
             "https://www.gastrojournal.org/article/0016-5085(95)22767-9/fulltext",
         )
 
-    def test_ignores_non_elsevier_journal_pdf_viewer_url(self):
-        self.assertIsNone(
+    def test_rewrites_cell_press_pdf_viewer_to_fulltext(self):
+        # oxjob #1790: 34.7K cell.com DOIs stored the viewer instead of the article (Nov 2026)
+        self.assertEqual(
             elsevier_journal_fulltext_url_from_pdf_viewer(
                 "https://www.cell.com/cell-reports/pdf/S2211-1247(18)31646-2.pdf"
-            )
+            ),
+            "https://www.cell.com/cell-reports/fulltext/S2211-1247(18)31646-2",
         )
+
+    def test_ignores_non_elsevier_journal_pdf_viewer_url(self):
+        for url in (
+            "https://example.org/journal/pdf/S2211-1247(18)31646-2.pdf",   # same shape, not cell.com
+            "https://www.cell.com/cell-reports/issue/S2211-1247(18)31646-2.pdf",
+            "https://www.cell.com/action/showPdf?pii=S2211-1247(18)31646-2",
+        ):
+            with self.subTest(url):
+                self.assertIsNone(elsevier_journal_fulltext_url_from_pdf_viewer(url))
 
     def test_extracts_sciencedirect_article_url_from_query_pii(self):
         url = (
@@ -1254,6 +1265,56 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertEqual(response.url, fulltext_url)
         self.assertIn("Gastroenterology article", str(response.content))
 
+
+    def _assert_viewer_swapped_for_fulltext(self, pdf_url, fulltext_url, viewer_html, doi):
+        captured = []
+        responses = [
+            {
+                "statusCode": 200,
+                "url": pdf_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "browserHtml": viewer_html,
+            },
+            {
+                "statusCode": 200,
+                "url": fulltext_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "httpResponseBody": base64.b64encode(
+                    b"<html><head><title>The article</title></head><body><article>Full text.</article></body></html>"
+                ).decode(),
+            },
+        ]
+
+        def fake_call_with_zyte_api(url, params=None):
+            captured.append((url, params))
+            return responses[len(captured) - 1]
+
+        with patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=fake_call_with_zyte_api):
+            response = http_get(pdf_url, doi=doi)
+
+        self.assertEqual([c[0] for c in captured], [pdf_url, fulltext_url])
+        self.assertEqual(response.url, fulltext_url)
+        self.assertIn("The article", str(response.content))
+
+    def test_http_get_swaps_271_byte_pdf_viewer_for_fulltext(self):
+        # oxjob #1790: the empty 271-byte viewer society journals return since ~Oct 2026 (117K DOIs stored it in Oct)
+        self._assert_viewer_swapped_for_fulltext(
+            "https://www.cysticfibrosisjournal.com/article/S1569-1993(24)00001-0/pdf",
+            "https://www.cysticfibrosisjournal.com/article/S1569-1993(24)00001-0/fulltext",
+            '<!DOCTYPE html><html style="height:100%;width:100%"><!-- the placeholder in the body style is for an '
+            'optional background-color --><head></head><body style="height:100%;width:100%;overflow:hidden;margin:0;'
+            'padding:0;background-color:rgb(40,40,40);"> </body></html>',
+            "10.1016/s1569-1993(24)00001-0",
+        )
+
+    def test_http_get_swaps_cell_press_pdf_viewer_for_fulltext(self):
+        self._assert_viewer_swapped_for_fulltext(
+            "https://www.cell.com/current-biology/pdf/S0960-9822(95)00080-7.pdf",
+            "https://www.cell.com/current-biology/fulltext/S0960-9822(95)00080-7",
+            '<!doctype html> <html> <head> <link rel="stylesheet" '
+            'href="chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/pdf_embedder.css"> </head> <body></body></html>',
+            "10.1016/s0960-9822(95)00080-7",
+        )
     def test_http_get_uses_browser_html_after_preprints_doi_redirect_even_when_head_403(self):
         doi_url = "https://doi.org/10.20944/preprints202005.0515.v1"
         article_url = "https://www.preprints.org/manuscript/202005.0515/v1"

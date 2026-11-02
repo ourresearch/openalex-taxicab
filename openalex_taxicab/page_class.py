@@ -61,10 +61,13 @@ BOT_WALL_MARKERS = [
 FASTLY_CHALLENGE = ('<title>Client Challenge</title>', '/_fs-ch-')
 # Walls that need every string of a group, for vendors whose single strings could appear on a normal page.
 BOT_WALL_MARKER_GROUPS = [FASTLY_CHALLENGE]
-# Chrome's PDF-viewer wrapper (271 bytes, no text): what a browser render returns when the URL serves a PDF
-# (Elsevier society journals' /article/<PII>/pdf). It is evidence that a PDF was served (#1290 scores it so), so
-# it is stored like any page. 125e840 classed it as a wall by mistake (25 Oct 2026, #1790 EXPLORE § 6).
+# Chrome's PDF-viewer wrapper: what a browser render returns when the URL serves a PDF (Elsevier society journals'
+# /article/<PII>/pdf, cell.com's /<journal>/pdf/<PII>.pdf). It is evidence that a PDF was served (#1290 scores it so), so
+# it is stored like any page. 125e840 classed it as a wall by mistake (25 Oct 2026, #1790 EXPLORE § 6). Two variants:
+# the 271-byte empty page (society journals since ~Oct 2026) and the 536-byte pdf_embedder page. http_get swaps either
+# for the article's /fulltext page where it knows the URL shape (oxjob #1790, 2 Nov 2026).
 PDF_VIEWER_MARKER = '<!-- the placeholder in the body style is for an optional background-color -->'
+PDF_VIEWER_MARKERS = (PDF_VIEWER_MARKER, 'pdf_embedder.css', 'chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai')
 # Login pages whose title the login-title rule can't safely catch
 LOGIN_MARKERS = [
     '<title>Sign in with subscription number</title>',   # J-STAGE
@@ -102,6 +105,13 @@ def _text(content):
     return content.decode('utf-8', errors='ignore') if isinstance(content, bytes) else str(content or '')
 
 
+def is_pdf_viewer(content):
+    if isinstance(content, (bytes, str)):
+        content = content[:4096]
+    head = _text(content).lower()
+    return any(marker in head for marker in PDF_VIEWER_MARKERS)
+
+
 def is_bot_wall(content):
     text = _text(content)
     return (any(marker in text for marker in BOT_WALL_MARKERS)
@@ -136,7 +146,7 @@ def classify(content, content_type, status_code, resolved_url=None):
         return 'bot_wall'
     if status_code != 200:
         return 'error'
-    if PDF_VIEWER_MARKER in text[:2000]:
+    if is_pdf_viewer(text):
         return 'pdf_viewer'
     if _LOGIN_TITLE.search(text[:20000]) or any(marker in text for marker in LOGIN_MARKERS):
         return 'login'

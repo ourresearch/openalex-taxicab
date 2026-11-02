@@ -45,6 +45,12 @@ FASTLY_NORMAL_PAGE = ("<html><head><title>Acute Aortic Dissection | Consultant36
 PDF_VIEWER = ("<!DOCTYPE html><html style=\"height:100%;width:100%\"><!-- the placeholder in the body style is for an "
               "optional background-color --><head></head><body style=\"height:100%;width:100%;overflow:hidden;margin:0;"
               "padding:0;background-color:rgb(40,40,40);\">\n    \n  \n\n</body></html>")
+# The 536-byte variant, as stored for 10.1016/j.annonc.2024.08.113 (annalsofoncology.org/article/.../pdf, Feb 2026)
+PDF_EMBEDDER_VIEWER = ('<!doctype html> <html> <head> <link rel="stylesheet" '
+                       'href="chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/pdf_embedder.css"> </head> <body> '
+                       '<template shadowrootmode="closed"> <link rel="stylesheet" '
+                       'href="chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/pdf_embedder.css"> '
+                       '<iframe type="application/pdf" src="about:blank"></iframe> </template> </body> </html>')
 
 LOGINS = {
     "OJS login": "<html><head><title>Login</title></head><body><form action=\"https://journal.example.ma/index.php/x/login/signIn\"><input type=\"password\" name=\"password\"></form></body></html>",
@@ -89,6 +95,13 @@ class ClassifyTests(unittest.TestCase):
         self.assertEqual(page_class.classify(PDF_VIEWER, "html", 200), "pdf_viewer")
         self.assertFalse(page_class.is_bot_wall(PDF_VIEWER))
         self.assertNotIn("pdf_viewer", page_class.NOT_STORED)
+
+    def test_pdf_embedder_viewer_is_a_pdf_viewer_too(self):
+        # oxjob #1790: the 536-byte variant (cell.com, older society fetches) is the same page, so one definition
+        # serves page_class and http_get's /fulltext swap
+        self.assertEqual(page_class.classify(PDF_EMBEDDER_VIEWER, "html", 200), "pdf_viewer")
+        self.assertTrue(page_class.is_pdf_viewer(PDF_EMBEDDER_VIEWER.encode()))
+        self.assertFalse(page_class.is_pdf_viewer(ARTICLE))
 
     def test_fastly_client_challenge_is_a_wall(self):
         self.assertEqual(len(FASTLY_CHALLENGE), 3038)

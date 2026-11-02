@@ -19,7 +19,7 @@ import requests.exceptions
 import threading
 
 from openalex_taxicab.deadline import MIN_CALL_SECONDS, ZYTE_TIMEOUT, DeadlineExceeded, bounded_timeout, time_left
-from openalex_taxicab import zyte_key
+from openalex_taxicab import page_class, zyte_key
 from openalex_taxicab.log import _make_logger
 from .util import elapsed
 
@@ -240,30 +240,29 @@ def jbc_fulltext_url_from_url(url):
     return f"https://www.jbc.org/article/{formatted_pii}/fulltext"
 
 
+# Cell Press PDFs: www.cell.com/<journal>/pdf/<PII>.pdf; the article page is www.cell.com/<journal>/fulltext/<PII>
+_CELL_PDF_PATH = re.compile(r"^/([^/]+)/pdf/([^/?#]+?)\.pdf$", re.IGNORECASE)
+
+
 def elsevier_journal_fulltext_url_from_pdf_viewer(url):
-    """Map Elsevier-family journal PDF viewer URLs to article fulltext pages."""
+    """Map Elsevier-family journal PDF viewer URLs to article fulltext pages: society journals'
+    /article/<PII>/pdf, and Cell Press's /<journal>/pdf/<PII>.pdf on cell.com (oxjob #1790: 34.7K cell.com DOIs
+    stored the viewer instead of the article by Nov 2026, because only the first shape was known)."""
     if not url:
         return None
 
     parsed = urlsplit(url)
     path = parsed.path
+    scheme = parsed.scheme or 'https'
     match = re.match(r"^(/article/[^?#]+?)/pdf/?$", path, re.IGNORECASE)
-    if not match:
-        return None
+    if match:
+        return f"{scheme}://{parsed.netloc}{match.group(1)}/fulltext"
 
-    return f"{parsed.scheme or 'https'}://{parsed.netloc}{match.group(1)}/fulltext"
-
-
-def _looks_like_browser_pdf_viewer_shell(content):
-    if isinstance(content, bytes):
-        text = content[:4096].decode("utf-8", errors="ignore")
-    else:
-        text = str(content or "")[:4096]
-    lower = text.lower()
-    return (
-        "pdf_embedder.css" in lower
-        or "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai" in lower
-    )
+    match = _CELL_PDF_PATH.match(path)
+    host = parsed.netloc.lower()
+    if match and (host == 'cell.com' or host.endswith('.cell.com')):
+        return f"{scheme}://{parsed.netloc}/{match.group(1)}/fulltext/{match.group(2)}"
+    return None
 
 
 BOT_PROTECTION_DOMAINS = [
@@ -904,7 +903,9 @@ def http_get(url,
                 return r
 
             fulltext_url = elsevier_journal_fulltext_url_from_pdf_viewer(r.url)
-            if fulltext_url and _looks_like_browser_pdf_viewer_shell(r.content):
+            # oxjob #1790: page_class's definition, so the 271-byte viewer (society journals since ~Oct 2026: 117K DOIs
+            # stored it in Oct alone) is swapped like the 536-byte one
+            if fulltext_url and page_class.is_pdf_viewer(r.content):
                 logger.info(f"PDF viewer shell detected at {r.url}, fetching fulltext page: {fulltext_url}")
                 return http_get(
                     url=fulltext_url,
