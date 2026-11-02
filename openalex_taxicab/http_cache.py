@@ -907,7 +907,7 @@ def http_get(url,
             # stored it in Oct alone) is swapped like the 536-byte one
             if fulltext_url and page_class.is_pdf_viewer(r.content):
                 logger.info(f"PDF viewer shell detected at {r.url}, fetching fulltext page: {fulltext_url}")
-                return http_get(
+                fulltext = http_get(
                     url=fulltext_url,
                     headers=headers,
                     read_timeout=read_timeout,
@@ -921,6 +921,13 @@ def http_get(url,
                     attempt_n=attempt_n,
                     doi=doi,
                 )
+                # oxjob #1790: a society site sometimes sends /fulltext to the journal's home page (gastrojournal.org,
+                # 47 of 86 in the 2 Nov pilot; the same URLs gave the article minutes later). A home page is never the
+                # article, so keep the viewer (evidence a PDF was served) rather than store it.
+                if urlsplit(getattr(fulltext, 'url', None) or fulltext_url).path in ('', '/'):
+                    logger.info(f"Fulltext page {fulltext_url} landed on the site root; keeping the PDF viewer page")
+                    return r
+                return fulltext
 
             return r
         else:

@@ -7,6 +7,7 @@ from unittest.mock import patch
 sys.modules.setdefault("unidecode", types.SimpleNamespace(unidecode=lambda value: value))
 sys.modules.setdefault("magic", types.SimpleNamespace(Magic=lambda mime=True: types.SimpleNamespace(from_buffer=lambda content: "text/html")))
 
+from openalex_taxicab import page_class
 from openalex_taxicab.http_cache import (
     ResponseObject,
     _should_use_landing_page_rewrite,
@@ -1266,7 +1267,7 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertIn("Gastroenterology article", str(response.content))
 
 
-    def _assert_viewer_swapped_for_fulltext(self, pdf_url, fulltext_url, viewer_html, doi):
+    def _fetch_viewer_then_fulltext(self, pdf_url, fulltext_url, viewer_html, doi, landed_url=None):
         captured = []
         responses = [
             {
@@ -1277,7 +1278,7 @@ class ScienceDirectUrlTests(unittest.TestCase):
             },
             {
                 "statusCode": 200,
-                "url": fulltext_url,
+                "url": landed_url or fulltext_url,
                 "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
                 "httpResponseBody": base64.b64encode(
                     b"<html><head><title>The article</title></head><body><article>Full text.</article></body></html>"
@@ -1293,12 +1294,23 @@ class ScienceDirectUrlTests(unittest.TestCase):
             response = http_get(pdf_url, doi=doi)
 
         self.assertEqual([c[0] for c in captured], [pdf_url, fulltext_url])
-        self.assertEqual(response.url, fulltext_url)
-        self.assertIn("The article", str(response.content))
+        return response
+
+    def test_http_get_keeps_pdf_viewer_when_fulltext_lands_on_home_page(self):
+        response = self._fetch_viewer_then_fulltext(
+            "https://www.gastrojournal.org/article/S0016-5085(17)32098-X/pdf",
+            "https://www.gastrojournal.org/article/S0016-5085(17)32098-X/fulltext",
+            '<!DOCTYPE html><html><!-- the placeholder in the body style is for an optional background-color -->'
+            '<head></head><body> </body></html>',
+            "10.1016/s0016-5085(17)32098-x",
+            landed_url="https://www.gastrojournal.org/",
+        )
+        self.assertEqual(response.url, "https://www.gastrojournal.org/article/S0016-5085(17)32098-X/pdf")
+        self.assertTrue(page_class.is_pdf_viewer(response.content))
 
     def test_http_get_swaps_271_byte_pdf_viewer_for_fulltext(self):
         # oxjob #1790: the empty 271-byte viewer society journals return since ~Oct 2026 (117K DOIs stored it in Oct)
-        self._assert_viewer_swapped_for_fulltext(
+        response = self._fetch_viewer_then_fulltext(
             "https://www.cysticfibrosisjournal.com/article/S1569-1993(24)00001-0/pdf",
             "https://www.cysticfibrosisjournal.com/article/S1569-1993(24)00001-0/fulltext",
             '<!DOCTYPE html><html style="height:100%;width:100%"><!-- the placeholder in the body style is for an '
@@ -1306,15 +1318,19 @@ class ScienceDirectUrlTests(unittest.TestCase):
             'padding:0;background-color:rgb(40,40,40);"> </body></html>',
             "10.1016/s1569-1993(24)00001-0",
         )
+        self.assertEqual(response.url, "https://www.cysticfibrosisjournal.com/article/S1569-1993(24)00001-0/fulltext")
+        self.assertIn("The article", str(response.content))
 
     def test_http_get_swaps_cell_press_pdf_viewer_for_fulltext(self):
-        self._assert_viewer_swapped_for_fulltext(
+        response = self._fetch_viewer_then_fulltext(
             "https://www.cell.com/current-biology/pdf/S0960-9822(95)00080-7.pdf",
             "https://www.cell.com/current-biology/fulltext/S0960-9822(95)00080-7",
             '<!doctype html> <html> <head> <link rel="stylesheet" '
             'href="chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/pdf_embedder.css"> </head> <body></body></html>',
             "10.1016/s0960-9822(95)00080-7",
         )
+        self.assertEqual(response.url, "https://www.cell.com/current-biology/fulltext/S0960-9822(95)00080-7")
+        self.assertIn("The article", str(response.content))
     def test_http_get_uses_browser_html_after_preprints_doi_redirect_even_when_head_403(self):
         doi_url = "https://doi.org/10.20944/preprints202005.0515.v1"
         article_url = "https://www.preprints.org/manuscript/202005.0515/v1"
