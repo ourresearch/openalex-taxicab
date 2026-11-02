@@ -48,9 +48,13 @@ BROWSER_HTML_URLS = [
     "cghjournal.org",
     "doi.org/10.1016",
     "doi.org/10.1037",
+    # IEEE Xplore: since mid-June 2026 Akamai answers plain fetches (direct and Zyte httpResponseBody) with 202;
+    # a browser render gets the page (31/33 on 2 Nov 2026). oxjob #1790 EXPLORE § 23.
+    "doi.org/10.1109",
     "dsp.tecnalia.com",
     "elsevier.com",
     "espace.library.uq.edu.au",
+    "ieeexplore.ieee.org",
     "iop.org",
     "mdpi.com",
     "psycnet.apa.org",

@@ -49,6 +49,10 @@ BOT_WALL_MARKERS = [
     '_Incapsula_Resource?SWUDNSAI=',
     # F5 Advanced WAF ("TSPD") JavaScript challenge (ekb.eg, every stored page 24-25 Oct 2026)
     'window["bobcmn"]',
+    # F5 TSPD interstitial as a browser render returns it (HTTP 200, ~4 KB): an empty head, then the challenge
+    # script inside <apm_do_not_touch>. ~1 in 15 IEEE Xplore browser renders, 2 Nov 2026 (#1790 EXPLORE § 23).
+    # Real IEEE pages carry <apm_do_not_touch> too, but deep in a full page, never right after an empty head.
+    '<head></head><body><apm_do_not_touch>',
     # Silverchair JS challenge ("Loading...", ~1.5 KB): stored on ~11% of older OUP article pages (#1809)
     'function leastFactor(n)',
     # Silverchair captcha page (ashpublications.org, 1 of 100 stored pages 25-26 Oct 2026)

@@ -1405,6 +1405,45 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertEqual(response.url, article_url)
         self.assertIn("MDPI article", response.content)
 
+    def test_http_get_uses_browser_html_for_ieee_doi_even_when_head_lands_on_202(self):
+        # oxjob #1790: Akamai answers plain IEEE Xplore fetches with 202 since mid-June 2026; a browser render passes
+        doi_url = "https://doi.org/10.1109/incect72370.2026.11742697"
+        article_url = "https://ieeexplore.ieee.org/document/11742697/"
+        captured = {}
+
+        def fake_call_with_zyte_api(url, params=None):
+            captured["url"] = url
+            captured["params"] = params
+            return {
+                "statusCode": 200,
+                "url": article_url,
+                "httpResponseHeaders": [{"name": "Content-Type", "value": "text/html"}],
+                "browserHtml": (
+                    "<html><head><title>Deepfake Detection | IEEE Xplore</title></head>"
+                    "<body><script>xplGlobal.document.metadata={\"abstract\":\"With the widespread\"};</script>"
+                    "</body></html>"
+                ),
+            }
+
+        with patch(
+            "openalex_taxicab.http_cache.resolve_doi_redirects",
+            return_value={"final_url": article_url, "redirect_chain": [doi_url, article_url], "status_code": 202},
+        ), patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=fake_call_with_zyte_api):
+            response = http_get(doi_url)
+
+        self.assertEqual(captured["url"], article_url)
+        self.assertTrue(captured["params"]["browserHtml"])
+        self.assertTrue(captured["params"]["javascript"])
+        self.assertFalse(captured["params"]["httpResponseBody"])
+        self.assertIn("Deepfake Detection", response.content)
+
+    def test_ieee_doi_urls_render_in_a_browser_before_resolution(self):
+        from openalex_taxicab.http_cache import is_browser_html_url
+        self.assertTrue(is_browser_html_url("https://doi.org/10.1109/tac.2021.3105318"))
+        self.assertTrue(is_browser_html_url("https://ieeexplore.ieee.org/document/9516913/"))
+        self.assertFalse(is_browser_html_url("https://doi.org/10.11091/x"))
+        self.assertFalse(is_browser_html_url("https://standards.ieee.org/ieee/802.11/7028/"))
+
     def test_http_get_uses_landing_page_session_for_journalajess_pdf_download(self):
         pdf_url = "https://journalajess.com/index.php/AJESS/article/download/1023/1998/1621"
         citation_pdf_url = "https://journalajess.com/index.php/AJESS/article/download/1023/1998"

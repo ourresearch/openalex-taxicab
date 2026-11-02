@@ -28,6 +28,7 @@ BOT_WALLS = {
     "bot detection (ucc.edu.co)": "<html><head><title>Bot Detection</title></head><body><h1>Please prove that you are Human before accessing this website</h1></body></html>",
     "incapsula block (SPIE)": "<html style=\"height:100%\"><head><META NAME=\"ROBOTS\" CONTENT=\"NOINDEX, NOFOLLOW\"><script src=\"/_Incapsula_Resource?SWJIYLWA=719d\"></script></head><body><iframe id=\"main-iframe\" src=\"/_Incapsula_Resource?SWUDNSAI=31&incident_id=1980\"></iframe></body></html>",
     "F5 TSPD challenge (ekb.eg)": "<!DOCTYPE html><html><head><script type=\"text/javascript\">(function(){ window[\"bobcmn\"] = \"1011111\"; })();</script></head><body></body></html>",
+    "F5 TSPD interstitial (IEEE Xplore browser render)": "<!DOCTYPE html><html><head></head><body><apm_do_not_touch>\n\n<script type=\"text/javascript\">(function(){ window.byS=!!window.byS; })();</script>\n</apm_do_not_touch>\n\n<script type=\"text/javascript\" src=\"/TSPD/0807dc117eab2000963eb?type=9\"></script></body></html>",
     "silverchair leastFactor (OUP)": "<html><head><script type=\"text/javascript\"><!-- function leastFactor(n) { if (isNaN(n)) return NaN; } function go() { document.cookie='KEY=1'; } --></script></head><body onload=\"go()\">Loading...</body></html>",
     "silverchair Validate User (ASH)": "<!DOCTYPE html><html lang=\"en\"><head><meta name=\"robots\" content=\"noindex, follow\" /><title>Validate User</title><link rel=\"icon\" href=\"//ash.silverchair-cdn.com/favicon.ico\"></head><body><div class=\"container\"><div id=\"captcha\"></div></div></body></html>",
 }
@@ -124,6 +125,15 @@ class ClassifyTests(unittest.TestCase):
         self.assertEqual(page_class.classify(ARTICLE, "html", 200, "https://muse.jhu.edu/verify?url=x"), "bot_wall")
         hangup = "https://scholarlypublications.universiteitleiden.nl/vdesk/hangup.php3"
         self.assertEqual(page_class.classify(ARTICLE, "html", 200, hangup), "bot_wall")
+
+    def test_rendered_ieee_page_with_f5_tag_is_html(self):
+        # Every real IEEE Xplore page rendered by a browser carries F5's <apm_do_not_touch> after its content
+        body = ("<!DOCTYPE html><html lang=\"en-US\"><head><title>A Modified Xception Network | IEEE Conference "
+                "Publication | IEEE Xplore</title><meta property=\"og:title\" content=\"A Modified Xception Network\">"
+                "</head><body><script>xplGlobal.document.metadata={\"abstract\":\"With the widespread availability\"};"
+                "</script>" + "<p>Abstract text.</p>" * 40 + "<div></div><apm_do_not_touch>\n\n<script>(function(){})();"
+                "</script>\n</apm_do_not_touch><script src=\"/TSPD/0807dc?type=9\"></script></body></html>")
+        self.assertEqual(page_class.classify(body, "html", 200), "html")
 
     def test_f5_big_ip_logout_page_is_a_wall(self):
         body = ("<html><head><meta name=\"robots\" content=\"noindex,nofollow\"><title>BIG-IP logout page</title>"
