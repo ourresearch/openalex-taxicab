@@ -1,13 +1,15 @@
 import uuid
 from collections import OrderedDict
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import gzip
+import hashlib
 import os
 import re
 from typing import Optional
 from urllib.parse import quote
 
 import boto3
+import botocore.exceptions
 from boto3.dynamodb.conditions import Key
 import requests.exceptions
 import tenacity
@@ -24,6 +26,9 @@ class Harvester:
     HTML_BUCKET = 'openalex-html'
     PDF_BUCKET = 'openalex-pdfs'
     XML_BUCKET = 'openalex-grobid-xml'
+    PDF_MD5_TABLE = 'pdf-md5'
+    # a pdf-md5 claim this recent whose file is not in the bucket yet is another upload in flight, not a lost file
+    MD5_IN_FLIGHT = timedelta(minutes=10)
 
     def __init__(self, s3=None):
         if s3 is None:
@@ -49,6 +54,7 @@ class Harvester:
         self._html_table = None
         self._pdf_table = None
         self._grobid_table = None
+        self._md5_table = None
 
     @property
     def dynamodb(self):
@@ -74,6 +80,12 @@ class Harvester:
             self._grobid_table = self.dynamodb.Table('grobid-xml')
         return self._grobid_table
 
+    @property
+    def md5_table(self):
+        if self._md5_table is None:
+            self._md5_table = self.dynamodb.Table(self.PDF_MD5_TABLE)
+        return self._md5_table
+
     def _is_valid_pdf(self, content: bytes) -> bool:
         """Validate that the content is a PDF"""
         return (
@@ -81,6 +93,48 @@ class Harvester:
             and has_pdf_magic(content)
             and len(content) >= 100
         )
+
+    def _held_pdf(self, content: bytes, harvest_id: str) -> Optional[str]:
+        """The id of the PDF we already hold with these bytes, or None: store this fetch as harvest_id.
+
+        One stored PDF per distinct bytes (oxjob #2023; same rule as walden utils/pdf_store.py, which the arXiv and
+        PMC sweeps use): claim the MD5 in DynamoDB pdf-md5; when another file holds it and is still in the bucket,
+        reuse that file. A held file that left the bucket is replaced. Any error: store as before.
+        """
+        now = datetime.now(timezone.utc)
+        item = {'md5': hashlib.md5(content).hexdigest(), 'id': harvest_id, 'created_date': now.isoformat()}
+        conflict = self.md5_table.meta.client.exceptions.ConditionalCheckFailedException
+        try:
+            try:
+                self.md5_table.put_item(Item=item, ConditionExpression='attribute_not_exists(md5)',
+                                        ReturnValuesOnConditionCheckFailure='ALL_OLD')
+                return None
+            except conflict as e:
+                held = e.response.get('Item', {})
+            held_id = held.get('id', {}).get('S')
+            if held_id and self._pdf_exists(held_id):
+                return held_id
+            held_at = held.get('created_date', {}).get('S')
+            if held_at and now - datetime.fromisoformat(held_at) < self.MD5_IN_FLIGHT:
+                return None  # another writer is uploading these bytes right now: keep its claim, store our own copy
+            try:
+                self.md5_table.put_item(Item=item, ConditionExpression='id = :held',
+                                        ExpressionAttributeValues={':held': held_id})
+            except conflict:
+                pass  # another writer took it over first
+            return None
+        except Exception as e:
+            logger.warning(f"pdf-md5 lookup failed, storing {harvest_id} as before: {e}")
+            return None
+
+    def _pdf_exists(self, pdf_id: str) -> bool:
+        try:
+            self._s3.head_object(Bucket=self.PDF_BUCKET, Key=f"{pdf_id}.pdf")
+            return True
+        except botocore.exceptions.ClientError as e:
+            if e.response.get('Error', {}).get('Code') in ('404', 'NoSuchKey', 'NotFound'):
+                return False
+            raise
 
     def _check_soft_block(self, content: bytes) -> bool:
         """Check if the content is a bot wall (markers: page_class.BOT_WALL_MARKERS)"""
@@ -414,18 +468,23 @@ class Harvester:
         if not content_type or ('html' not in content_type and 'pdf' not in content_type):
             raise ValueError(f"Invalid content type from {url}, got {content_type}")
 
-        # Only store successful responses with valid content
+        # Only store successful responses with valid content; a PDF we already hold is not stored again (oxjob #2023)
+        reused = False
         if status_code == 200 and content and not is_soft_block:
-            self._store_content(
-                harvest_id,
-                url,
-                resolved_url,
-                content,
-                content_type,
-                created_date,
-                native_id,
-                native_id_namespace
-            )
+            held = self._held_pdf(content, harvest_id) if content_type == 'pdf' else None
+            if held:
+                harvest_id, reused = held, True
+            else:
+                self._store_content(
+                    harvest_id,
+                    url,
+                    resolved_url,
+                    content,
+                    content_type,
+                    created_date,
+                    native_id,
+                    native_id_namespace
+                )
 
         return OrderedDict([
             ("id", harvest_id),
@@ -439,4 +498,5 @@ class Harvester:
             ("content_type", content_type),
             ("created_date", created_date),
             ("page_class", kind),
+            ("reused", reused),
         ])
