@@ -19,9 +19,9 @@ import requests.exceptions
 import threading
 
 from openalex_taxicab.deadline import MIN_CALL_SECONDS, ZYTE_TIMEOUT, DeadlineExceeded, bounded_timeout, time_left
-from openalex_taxicab import page_class, zyte_key
+from openalex_taxicab import fixed_address, page_class, zyte_key
 from openalex_taxicab.log import _make_logger
-from .util import elapsed
+from .util import elapsed, has_pdf_magic
 
 logger = _make_logger()
 
@@ -70,7 +70,6 @@ BROWSER_HTML_URLS = [
 CRAWLERA_KEY = os.environ.get("CRAWLERA_KEY")
 HTTP_PROXY = os.environ.get("HTTP_PROXY", "")
 HTTPS_PROXY = os.environ.get("HTTPS_PROXY", "")
-STATIC_IP_PROXY = os.environ.get("STATIC_IP_PROXY")
 
 
 MAX_PAYLOAD_SIZE_BYTES = 1000 * 1000 * 10  # 10mb
@@ -131,7 +130,7 @@ def _wake_blocked_read(resp):
         pass  # already closed
 
 
-def get_within_budget(url, headers=None, connect_timeout=60, read_timeout=60, verify=False):
+def get_within_budget(url, headers=None, connect_timeout=60, read_timeout=60, verify=False, session=None, proxies=None):
     """Direct GET that returns within the request budget: (response, body bytes).
 
     A requests timeout bounds the connect and each read, not the whole call: with both set to the
@@ -140,15 +139,16 @@ def get_within_budget(url, headers=None, connect_timeout=60, read_timeout=60, ve
     first byte share the time left, and the body streams under a timer that closes the connection
     when the budget runs out; that raises DeadlineExceeded (the harvest answers 504).
     """
+    get = (session or requests).get
     left = time_left()
     if left is None:
-        resp = requests.get(url, headers=headers, timeout=(connect_timeout, read_timeout), verify=verify)
+        resp = get(url, headers=headers, timeout=(connect_timeout, read_timeout), verify=verify, proxies=proxies)
         return resp, resp.content
     if left < MIN_CALL_SECONDS:
         raise DeadlineExceeded(f"request budget spent ({left:.1f} s left)")
     connect = min(connect_timeout, 10.0, left / 4)
     first_byte = max(min(read_timeout, left - connect), 0.5)
-    resp = requests.get(url, headers=headers, timeout=(connect, first_byte), verify=verify, stream=True)
+    resp = get(url, headers=headers, timeout=(connect, first_byte), verify=verify, stream=True, proxies=proxies)
 
     out_of_time = threading.Event()
 
@@ -567,6 +567,41 @@ def too_little_time_to_retry(retry_state):
     return left is not None and left < 15
 
 
+def _fetch_from_fixed_address(url, verify):
+    """oxjob #2381: fetch a listed repository's page from the harvester's fixed address with the harvester's
+    User-Agent. Returns the response when the site let us through, or None to use the usual route (the URL isn't
+    listed, the site hasn't allowlisted us yet, our proxy is down, or the fetch failed)."""
+    if not fixed_address.usable(url):
+        return None
+    try:
+        resp, body = get_within_budget(
+            url,
+            headers={"User-Agent": fixed_address.USER_AGENT},
+            connect_timeout=fixed_address.CONNECT_SECONDS,
+            read_timeout=fixed_address.FIRST_BYTE_SECONDS,
+            verify=verify,
+            session=fixed_address.session(),
+            proxies=fixed_address.proxies(),
+        )
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"Fixed-address fetch failed for {url}: {e}; using the usual route")
+        fixed_address.mark_refused(url)
+        return None
+    is_pdf = has_pdf_magic(body)
+    kind = page_class.classify(body, 'pdf' if is_pdf else 'html', resp.status_code, resp.url)
+    if not fixed_address.let_through(resp.status_code, kind):
+        logger.info(f"Fixed-address fetch of {url} not let through ({resp.status_code}, {kind}); using the usual route")
+        fixed_address.mark_refused(url)
+        return None
+    logger.info(f"Fixed-address fetch of {url}: {resp.status_code}, {kind}")
+    return ResponseObject(
+        content=body if is_pdf else body.decode('utf-8', 'ignore'),
+        headers=[{"name": k, "value": v} for k, v in resp.headers.items()],
+        status_code=resp.status_code,
+        url=resp.url,
+    )
+
+
 @retry(stop=stop_any(stop_after_attempt(2), too_little_time_to_retry),
        wait=wait_exponential(multiplier=1, min=4, max=10),
        retry=retry_if_result(is_retry_status),
@@ -672,6 +707,7 @@ def http_get(url,
                         or is_browser_html_url(final_url)
                         or is_direct_fetch_url(final_url)
                         or sciencedirect_article_url_from_pdf_asset(final_url)
+                        or fixed_address.usable(final_url)
                     )
                 )
                 if should_use_resolved_url:
@@ -687,6 +723,12 @@ def http_get(url,
         if jbc_fulltext_url:
             logger.info(f"Rewriting JBC PDF/LinkingHub URL to article landing page: {jbc_fulltext_url}")
             url = jbc_fulltext_url
+
+        # oxjob #2381: a listed repository's pages come from our fixed address first (after DOI and handle
+        # resolution, so a handle that lands on a listed repository counts too).
+        r = _fetch_from_fixed_address(url, verify)
+        if r is not None:
+            return r
 
         # Direct fetch for open-access sites that don't need Zyte, and for direct retries
         if force_direct or is_direct_fetch_url(url):
