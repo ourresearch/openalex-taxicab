@@ -172,3 +172,8 @@ www.edoweb-rlp.de
 www.helmholtz-berlin.de
 www.ssoar.info
 zaloamati.azc.uam.mx
+
+# Let our address through after we asked (one rule for the whole library): Bielefeld University Library, 18 Nov 2026
+# (ZD 27785). pub.uni-bielefeld.de is listed above; these are its other platforms (digital collections, journals).
+ub.uni-bielefeld.de
+biejournals.de
