@@ -643,6 +643,11 @@ def http_get(url,
     try:
         logger.info(f"LIVE GET on {url}")
 
+        # NVA's file link never answers the file itself, so this runs on every attempt: a plain GET would store its
+        # JSON as the result, and the URL is never fetched again.
+        if _is_nva_file_url(url):
+            return _fetch_nva_file(url, connect_timeout, read_timeout)
+
         # Wiley: the in-page browser exfil beats both the shared-session rewrite
         # and the plain body strategies on the same DOIs (12/13 vs 5/13), so it
         # leads; the old strategies stay on as a fallback.
@@ -1146,6 +1151,55 @@ def _is_acs_pdf_url(url):
         return False
     return any(host == acs_host or host.endswith(f".{acs_host}")
                for acs_host in ACS_PDF_HOSTS)
+
+
+NVA_FILE_LINK = re.compile(r"^/publication/[^/]+/filelink/[^/]+/?$")
+
+
+def _is_nva_file_url(url):
+    try:
+        split_url = urlsplit(url)
+    except ValueError:
+        return False
+    return split_url.netloc.lower() == "api.nva.unit.no" and bool(NVA_FILE_LINK.match(split_url.path))
+
+
+def _fetch_nva_file(url, connect_timeout=5, read_timeout=60):
+    """Fetch a file from NVA, Norway's national research archive, by its file link (oxjob #2380).
+
+    NVA serves files only through presigned S3 URLs: GET /publication/<id>/filelink/<file> answers JSON whose `id`
+    is one, valid for minutes. So ask for it and fetch it at once. The response keeps the file link as its URL,
+    because the presigned one expires and carries a session token.
+    """
+    failed = ResponseObject(content=b"", headers=[], status_code=520, url=url)
+    try:
+        link = requests.get(url, headers={"Accept": "application/json"},
+                            timeout=bounded_timeout((connect_timeout, read_timeout)))
+    except requests.exceptions.RequestException as exc:
+        logger.warning(f"NVA file link request failed for {url}: {exc}")
+        return failed
+    if link.status_code != 200:
+        # a removed or hidden file answers 4xx here; pass it on so the harvester records it as such
+        return ResponseObject(content=link.content, headers=[{"name": k, "value": v} for k, v in link.headers.items()],
+                              status_code=link.status_code, url=url)
+    try:
+        signed = link.json().get("id")
+    except ValueError:
+        signed = None
+    if not (isinstance(signed, str) and signed.startswith("https://")):
+        logger.warning(f"NVA file link for {url} answered no presigned URL")
+        return failed
+    try:
+        response = requests.get(signed, timeout=bounded_timeout((connect_timeout, read_timeout)))
+    except requests.exceptions.RequestException as exc:
+        logger.warning(f"NVA presigned file fetch failed for {url}: {exc}")
+        return failed
+    return ResponseObject(
+        content=response.content,
+        headers=[{"name": k, "value": v} for k, v in response.headers.items()],
+        status_code=response.status_code,
+        url=url,
+    )
 
 
 def _is_peerj_pdf_url(url):

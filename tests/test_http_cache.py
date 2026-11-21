@@ -10,6 +10,7 @@ sys.modules.setdefault("magic", types.SimpleNamespace(Magic=lambda mime=True: ty
 from openalex_taxicab import page_class
 from openalex_taxicab.http_cache import (
     ResponseObject,
+    _is_nva_file_url,
     _should_use_landing_page_rewrite,
     _is_sciencedirect_pdf_url,
     _sciencedirect_am_pii,
@@ -1518,6 +1519,82 @@ class ScienceDirectUrlTests(unittest.TestCase):
         self.assertEqual(response.url, pdf_url)
         self.assertEqual(response.headers["Content-Type"], "application/pdf")
         self.assertTrue(response.content.startswith(b"%PDF-"))
+
+
+class NvaFileLinkTests(unittest.TestCase):
+    """NVA (Norway's national research archive) answers a file link with JSON naming a short-lived presigned S3 URL
+    (oxjob #2380)."""
+
+    FILE_LINK = "https://api.nva.unit.no/publication/017c310cab3a-5f71edea/filelink/a42a1026-60e5"
+    SIGNED = "https://nva-resource-storage.s3.eu-west-1.amazonaws.com/a42a1026-60e5?presigned=1"
+
+    def _fake_get(self, calls, link_status=200, link_json=None):
+        signed = self.SIGNED
+
+        class LinkResponse:
+            status_code = link_status
+            content = b'{"type":"PresignedUriResponse"}'
+            headers = {"Content-Type": "application/json"}
+
+            def json(self):
+                return {"type": "PresignedUriResponse", "id": signed} if link_json is None else link_json
+
+        class FileResponse:
+            status_code = 200
+            url = signed
+            content = b"%PDF-1.7\nbody\n%%EOF"
+            headers = {"Content-Type": "application/pdf"}
+
+        def fake_get(*args, **kwargs):
+            calls.append((args[0], kwargs.get("headers")))
+            return LinkResponse() if "/filelink/" in args[0] else FileResponse()
+
+        return fake_get
+
+    def test_url_match(self):
+        self.assertTrue(_is_nva_file_url(self.FILE_LINK))
+        self.assertFalse(_is_nva_file_url("https://api.nva.unit.no/publication/017c310cab3a-5f71edea"))
+        self.assertFalse(_is_nva_file_url("https://nva.sikt.no/registration/017c310cab3a-5f71edea"))
+        self.assertFalse(_is_nva_file_url("https://example.org/publication/x/filelink/y"))
+
+    def test_follows_presigned_url_and_keeps_file_link(self):
+        calls = []
+        with patch("openalex_taxicab.http_cache.requests.get", side_effect=self._fake_get(calls)), patch(
+            "openalex_taxicab.http_cache.requests.post",
+            side_effect=AssertionError("NVA file route should not call Zyte"),
+        ):
+            response = http_get(self.FILE_LINK)
+
+        self.assertEqual([c[0] for c in calls], [self.FILE_LINK, self.SIGNED])
+        self.assertEqual(calls[0][1], {"Accept": "application/json"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.url, self.FILE_LINK)
+        self.assertEqual(response.headers["Content-Type"], "application/pdf")
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_runs_on_retry_attempts_too(self):
+        calls = []
+        with patch("openalex_taxicab.http_cache.requests.get", side_effect=self._fake_get(calls)):
+            response = http_get(self.FILE_LINK, attempt_n=1, force_direct=True)
+        self.assertEqual(len(calls), 2)
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_removed_file_passes_status_on(self):
+        calls = []
+        with patch("openalex_taxicab.http_cache.requests.get", side_effect=self._fake_get(calls, link_status=404)):
+            response = http_get(self.FILE_LINK)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.url, self.FILE_LINK)
+
+    def test_no_presigned_url_is_a_failure(self):
+        calls = []
+        with patch("openalex_taxicab.http_cache.requests.get",
+                   side_effect=self._fake_get(calls, link_json={"type": "Problem"})):
+            response = http_get(self.FILE_LINK)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(response.status_code, 520)
+        self.assertEqual(response.content, b"")
 
 
 class NeurologyLandingPageRouteTests(unittest.TestCase):
