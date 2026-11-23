@@ -288,3 +288,7 @@ wider.unu.edu
 arca.gimm.pt
 comum.rcaap.pt
 repositorio.umaia.pt
+
+# digital.slub-dresden.de record links redirect here; it shows Anubis to browser User-Agents (Zyte) and answers our
+# harvester User-Agent from 44.208.99.237 (3 of 3 record pages, 23 Nov 2026; #1646 found it, #2381 listed it).
+sachsen.digital
