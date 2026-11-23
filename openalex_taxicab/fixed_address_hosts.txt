@@ -292,3 +292,8 @@ repositorio.umaia.pt
 # digital.slub-dresden.de record links redirect here; it shows Anubis to browser User-Agents (Zyte) and answers our
 # harvester User-Agent from 44.208.99.237 (3 of 3 record pages, 23 Nov 2026; #1646 found it, #2381 listed it).
 sachsen.digital
+
+# Asked on 19 Nov 2026 in its own support ticket (ZD 8770, oxjob #883): Universidad del Rosario let 44.208.99.237 through
+# for OAI-PMH on 18 Nov and is changing its Anubis rule for record pages and files; listed so they come through the day
+# it does. From elsewhere today its record pages answer a browser User-Agent with Anubis and hang for our harvester's.
+repository.urosario.edu.co
