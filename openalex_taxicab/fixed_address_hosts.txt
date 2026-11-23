@@ -276,3 +276,8 @@ swsc-journal.org
 ubibliorum.ubi.pt
 vetres.org
 zora.uzh.ch
+
+# Asked us on 28 Mar 2025 to fetch its site and offered to allow our crawler (oxjob #2276, ZD 4289): its firewall refuses
+# non-browser clients today (403 to any non-browser User-Agent, 23 Nov 2026); listed so its PDFs come through the day it
+# allows this address and User-Agent.
+wider.unu.edu
