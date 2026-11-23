@@ -281,3 +281,10 @@ zora.uzh.ch
 # non-browser clients today (403 to any non-browser User-Agent, 23 Nov 2026); listed so its PDFs come through the day it
 # allows this address and User-Agent.
 wider.unu.edu
+
+# Hosted by FCCN, Portugal's research network, like the RCAAP repositories asked above: FCCN let 44.208.99.237 through for
+# the repositories it hosts on 23 Nov 2026 (oxjob #2381). These three weren't asked; their record pages and files answer
+# that address now (checked 23 Nov) and still show Zyte and other addresses an Anubis challenge.
+arca.gimm.pt
+comum.rcaap.pt
+repositorio.umaia.pt
