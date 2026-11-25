@@ -27,8 +27,10 @@ LIST_FILE = Path(__file__).with_name('fixed_address_hosts.txt')
 # Answers that mean "not let through": the site hasn't allowlisted us (or our proxy refused); try the usual route.
 REFUSED = {202, 401, 403, 407, 429}
 REFUSED_FOR_SECONDS = 3600
-# The attempt's share of the request budget, so the usual route still has time when the site walls us.
-CONNECT_SECONDS, FIRST_BYTE_SECONDS = 5, 15
+# The attempt's share of the 55 s request budget. Walls answer fast, so the first byte gets 30 s: some repository
+# servers take 10-20 s to start a record page or file, and the usual route behind a listed site is usually walled,
+# so a timeout there loses the page (oxjob #2381).
+CONNECT_SECONDS, FIRST_BYTE_SECONDS = 5, 30
 
 
 def _strip_www(host):
