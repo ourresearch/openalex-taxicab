@@ -297,3 +297,11 @@ sachsen.digital
 # for OAI-PMH on 18 Nov and is changing its Anubis rule for record pages and files; listed so they come through the day
 # it does. From elsewhere today its record pages answer a browser User-Agent with Anubis and hang for our harvester's.
 repository.urosario.edu.co
+
+# OJS journal hosts that show Zyte an Anubis challenge on every article page, so we store a stub with no PDF link or
+# references (oxjob #2355): journal.fi 2,683 of 2,685 fetches soft-blocked in the 30 days to 17 Nov, revistas.uam.es 483
+# of 483, retosturisticos.umcc.cu 126 of 166. All three answer our harvester User-Agent with the real article page (from
+# 44.208.99.237 on 17 Nov, #2381's check; again from elsewhere on 25 Nov, 2 of 2 pages each, PDF link on the page).
+journal.fi
+retosturisticos.umcc.cu
+revistas.uam.es
