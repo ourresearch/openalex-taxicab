@@ -7,10 +7,11 @@ from dataclasses import dataclass
 from time import sleep, time
 from typing import Optional
 import json
-from urllib.parse import parse_qs, unquote, urlsplit
+from urllib.parse import parse_qs, unquote, urljoin, urlsplit
 
 import requests
 import tenacity
+from requests.utils import requote_uri
 
 from tenacity import retry, stop_after_attempt, stop_any, wait_exponential, \
     retry_if_result
@@ -278,23 +279,61 @@ BOT_PROTECTION_DOMAINS = [
 ]
 
 
+class _ListedHop(Exception):
+    """The redirect chain reached a repository listed for our fixed address (raised from a response hook)."""
+
+    def __init__(self, url, status_code):
+        super().__init__(url)
+        self.url = url
+        self.status_code = status_code
+
+
+def _listed_redirect_target(session, r):
+    """The hop's redirect target, as requests would build it, when it is an http(s) URL on a listed repository."""
+    target = session.get_redirect_target(r)
+    if not target:
+        return None
+    try:
+        next_url = urljoin(r.url, requote_uri(target))
+        if urlsplit(next_url).scheme in ('http', 'https') and fixed_address.usable(next_url):
+            return next_url
+    except ValueError:  # a malformed Location: left to requests, as before
+        pass
+    return None
+
+
 def resolve_doi_redirects(doi_url, max_redirects=10):
     """
     Follow all redirects for a DOI URL using regular requests
     and return the final destination URL. If the final URL lands on a
     known bot protection domain, walk back to the last real publisher URL.
-    """
-    try:
-        # Create a session to handle cookies and redirects
-        session = requests.Session()
 
-        # Use a HEAD request first to efficiently follow redirects
-        response = session.head(
-            doi_url,
-            allow_redirects=True,
-            timeout=bounded_timeout(15),
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-        )
+    oxjob #2381: the chain stops, unrequested, at the first hop on a repository listed for our fixed address. Those
+    repositories let through our fixed address, not the address this lookup runs from: some refuse it (handle
+    lookups into FCCN-hosted repositories got "connection refused" 10-24% of the time on 26-27 Nov, which sent those
+    pages to the walled usual route), and each lookup counts against their per-address rate limits. The
+    fixed-address fetch follows the rest of the chain itself.
+    """
+    hops = []
+
+    def stop_at_listed_hop(r, *args, **kwargs):
+        hops.append(r.url)
+        next_url = _listed_redirect_target(session, r)
+        if next_url:
+            r.close()
+            raise _ListedHop(next_url, r.status_code)
+        return r
+
+    try:
+        with requests.Session() as session:
+            # Use a HEAD request first to efficiently follow redirects; the hook runs on every hop's response
+            response = session.head(
+                doi_url,
+                allow_redirects=True,
+                timeout=bounded_timeout(15),
+                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
+                hooks={"response": stop_at_listed_hop},
+            )
 
         redirect_chain = [r.url for r in response.history] + [response.url]
         logger.info(f"DOI redirect chain: {' -> '.join(redirect_chain)}")
@@ -314,6 +353,10 @@ def resolve_doi_redirects(doi_url, max_redirects=10):
             "redirect_chain": redirect_chain,
             "status_code": response.status_code
         }
+    except _ListedHop as stop:
+        redirect_chain = hops + [stop.url]
+        logger.info(f"DOI redirect chain (stopped at a listed repository): {' -> '.join(redirect_chain)}")
+        return {"final_url": stop.url, "redirect_chain": redirect_chain, "status_code": stop.status_code}
     except requests.exceptions.RequestException as e:
         logger.error(f"Error resolving DOI redirects: {e}")
         return None
@@ -591,7 +634,9 @@ def _fetch_from_fixed_address(url, verify):
     kind = page_class.classify(body, 'pdf' if is_pdf else 'html', resp.status_code, resp.url)
     if not fixed_address.let_through(resp.status_code, kind):
         logger.info(f"Fixed-address fetch of {url} not let through ({resp.status_code}, {kind}); using the usual route")
-        fixed_address.mark_refused(url)
+        # A listed page that redirected off-site and was refused there says nothing about the listed repository.
+        if fixed_address.is_listed(resp.url or url):
+            fixed_address.mark_refused(url)
         return None
     logger.info(f"Fixed-address fetch of {url}: {resp.status_code}, {kind}")
     return ResponseObject(

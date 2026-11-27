@@ -1,5 +1,6 @@
 """Repositories that allowlist our fixed address get their pages fetched from it first (oxjob #2381)."""
 import base64
+import io
 import os
 import sys
 import types
@@ -9,8 +10,10 @@ from unittest.mock import MagicMock, patch
 sys.modules.setdefault("unidecode", types.SimpleNamespace(unidecode=lambda value: value))
 sys.modules.setdefault("magic", types.SimpleNamespace(Magic=lambda mime=True: types.SimpleNamespace(from_buffer=lambda content: "text/html")))
 
+import requests
+
 from openalex_taxicab import deadline, fixed_address
-from openalex_taxicab.http_cache import http_get
+from openalex_taxicab.http_cache import _listed_redirect_target, http_get, resolve_doi_redirects
 
 PAGE = b"<html><head><meta name='citation_title' content='A thesis'></head><body>" + b"x" * 5000 + b"</body></html>"
 WALL = b"<html><head><title>Just a moment...</title></head><body><script>window._cf_chl_opt={}</script></body></html>"
@@ -107,6 +110,15 @@ class HttpGetRouteTests(unittest.TestCase):
         self.assertEqual(zyte.call_count, 2)
         self.assertTrue(fixed_address.usable("https://other-repo.example.edu/x"))
 
+    def test_a_wall_off_site_after_a_listed_redirect_does_not_mark_the_repository(self):
+        url, off_site = "https://repositorio.example.pt/handle/1/9", "https://publisher.example.org/article/9"
+        s = fake_session(answer(off_site, status=403, content=WALL))
+        with patch.object(fixed_address, "session", return_value=s), \
+                patch("openalex_taxicab.http_cache.call_with_zyte_api", return_value=zyte_page(url)) as zyte:
+            http_get(url)
+        self.assertEqual(zyte.call_count, 1)
+        self.assertTrue(fixed_address.usable(url))
+
     def test_a_200_wall_falls_through_too(self):
         url = "https://repositorio.example.pt/handle/1/4"
         s = fake_session(answer(url, status=200, content=WALL))
@@ -186,6 +198,117 @@ class HttpGetRouteTests(unittest.TestCase):
                 patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=AssertionError("zyte called")):
             r = http_get(url)
         self.assertEqual(s.get.call_args.args[0], final)
+        self.assertIn("A thesis", r.content)
+
+
+def hop(url, status, location=None):
+    r = requests.models.Response()
+    r.status_code = status
+    r.url = url
+    r.reason = "x"
+    r.headers = requests.structures.CaseInsensitiveDict({"Location": location} if location else {})
+    r.raw = io.BytesIO(b"")
+    return r
+
+
+class RedirectLookupTests(unittest.TestCase):
+    """A DOI or handle lookup stops before a listed repository; the fixed-address fetch follows the rest."""
+
+    def setUp(self):
+        self.env = patch.dict(os.environ, {"STATIC_IP_PROXY": PROXY})
+        self.env.start()
+        self.entries = patch.object(fixed_address, "HOSTS", frozenset(ENTRIES))
+        self.entries.start()
+        fixed_address._refused_until.clear()
+        self.requested = []
+
+    def tearDown(self):
+        self.entries.stop()
+        self.env.stop()
+        fixed_address._refused_until.clear()
+        deadline.clear()
+
+    def lookup(self, url, answers):
+        def send(adapter, request, **kwargs):
+            self.requested.append(request.url)
+            r = answers[request.url]
+            r.request = request
+            return r
+        with patch.object(requests.adapters.HTTPAdapter, "send", send):
+            return resolve_doi_redirects(url)
+
+    def test_handle_onto_a_listed_repository_stops_before_requesting_it(self):
+        url, listed = "http://hdl.handle.net/10451/999", "https://repositorio.example.pt/handle/10451/999"
+        info = self.lookup(url, {url: hop(url, 302, listed)})
+        self.assertEqual(self.requested, [url])
+        self.assertEqual(info, {"final_url": listed, "redirect_chain": [url, listed], "status_code": 302})
+
+    def test_stops_at_the_first_listed_hop_after_unlisted_ones(self):
+        doi, mid = "https://doi.org/10.1/x", "http://id.publisher.example.org/x"
+        listed = "https://files.other-repo.example.edu/x.pdf"
+        info = self.lookup(doi, {doi: hop(doi, 302, mid), mid: hop(mid, 301, listed)})
+        self.assertEqual(self.requested, [doi, mid])
+        self.assertEqual(info["final_url"], listed)
+        self.assertEqual(info["redirect_chain"], [doi, mid, listed])
+
+    def test_relative_location_on_a_listed_host_still_stops(self):
+        url = "http://hdl.handle.net/10451/7"
+        info = self.lookup(url, {url: hop(url, 302, "//repositorio.example.pt/handle/10451/7")})
+        self.assertEqual(self.requested, [url])
+        self.assertEqual(info["final_url"], "http://repositorio.example.pt/handle/10451/7")
+
+    def test_unlisted_chain_is_followed_to_the_end_as_before(self):
+        url, mid, end = "https://doi.org/10.2/y", "https://publisher.example.org/y", "https://publisher.example.org/article/y"
+        info = self.lookup(url, {url: hop(url, 302, mid), mid: hop(mid, 301, end), end: hop(end, 200)})
+        self.assertEqual(self.requested, [url, mid, end])
+        self.assertEqual(info, {"final_url": end, "redirect_chain": [url, mid, end], "status_code": 200})
+
+    def test_without_the_proxy_a_listed_repository_is_requested_as_before(self):
+        url, listed = "http://hdl.handle.net/10451/8", "https://repositorio.example.pt/handle/10451/8"
+        with patch.dict(os.environ, {"STATIC_IP_PROXY": ""}):
+            info = self.lookup(url, {url: hop(url, 302, listed), listed: hop(listed, 200)})
+        self.assertEqual(self.requested, [url, listed])
+        self.assertEqual(info["final_url"], listed)
+
+    def test_a_repository_refusing_the_fixed_address_is_requested_as_before(self):
+        url, listed = "http://hdl.handle.net/10451/9", "https://repositorio.example.pt/handle/10451/9"
+        fixed_address.mark_refused(listed)
+        info = self.lookup(url, {url: hop(url, 302, listed), listed: hop(listed, 403)})
+        self.assertEqual(self.requested, [url, listed])
+        self.assertEqual(info["status_code"], 403)
+
+    def test_the_stopped_hop_is_closed(self):
+        url, listed = "http://hdl.handle.net/10451/12", "https://repositorio.example.pt/handle/10451/12"
+        first = hop(url, 302, listed)
+        self.lookup(url, {url: first})
+        self.assertTrue(first.raw.closed)
+
+    def test_malformed_or_non_web_locations_are_left_to_requests(self):
+        s = requests.Session()
+        for location in ("http://bad[repositorio.example.pt/x", "ftp://repositorio.example.pt/x", "mailto:a@repositorio.example.pt"):
+            self.assertIsNone(_listed_redirect_target(s, hop("http://hdl.handle.net/1/2", 302, location)), location)
+        self.assertIsNone(_listed_redirect_target(s, hop("http://hdl.handle.net/1/2", 200)))
+
+    def test_connection_error_still_returns_none(self):
+        def send(adapter, request, **kwargs):
+            raise requests.exceptions.ConnectionError("refused")
+        with patch.object(requests.adapters.HTTPAdapter, "send", send):
+            self.assertIsNone(resolve_doi_redirects("http://hdl.handle.net/10451/10"))
+
+    def test_http_get_fetches_the_listed_hop_from_the_fixed_address(self):
+        url, listed = "http://hdl.handle.net/10451/11", "https://repositorio.example.pt/handle/10451/11"
+        s = fake_session(answer(listed))
+        with patch.object(fixed_address, "session", return_value=s), \
+                patch("openalex_taxicab.http_cache.call_with_zyte_api", side_effect=AssertionError("zyte called")):
+            def send(adapter, request, **kwargs):
+                self.requested.append(request.url)
+                r = hop(url, 302, listed)
+                r.request = request
+                return r
+            with patch.object(requests.adapters.HTTPAdapter, "send", send):
+                r = http_get(url)
+        self.assertEqual(self.requested, [url])
+        self.assertEqual(s.get.call_args.args[0], listed)
         self.assertIn("A thesis", r.content)
 
 
