@@ -305,3 +305,25 @@ repository.urosario.edu.co
 journal.fi
 retosturisticos.umcc.cu
 revistas.uam.es
+
+# More journal hosts whose article pages come back walled through the usual route (Cloudflare, Anubis or a "verify you
+# are human" page; 66-100% of their TaxiCab fetches soft-blocked in the 30 days to 28 Nov) but answer our harvester
+# User-Agent from 44.208.99.237 with the real article page, PDF link on it (oxjob #2355, 28 Nov 2026: 2-3 sample pages
+# each, through the harvester proxy). Found by counting OJS works whose latest DOI fetch is soft-blocked, by host.
+biuz.de
+cmhnaaa.org.pe
+journal.upao.edu.pe
+journals.library.columbia.edu
+journals.openedition.org
+journals.wlb-stuttgart.de
+mulpress.mcmaster.ca
+oajournals.fupress.net
+ojs.aaai.org
+ojs.upf.br
+pernerscontacts.upce.cz
+publicera.kb.se
+revistas.pucp.edu.pe
+revistas.ucv.edu.pe
+revistas.uncp.edu.pe
+revistas.uss.edu.pe
+revistes.eapc.gencat.cat
